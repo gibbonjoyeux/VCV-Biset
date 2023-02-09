@@ -1,7 +1,22 @@
 
 #include "plugin.hpp"
 
-struct Composer : Module {
+
+struct TrackerNote {
+	u8	pitch;
+	float	beat;
+	float	length;
+	float	velocity;
+	float	chance;
+};
+
+struct TrackerNotePlay {
+	float	frequency;
+	float	remaining;
+	float	velocity;
+};
+
+struct Tracker : Module {
 	enum	ParamIds {
 		PARAM_BPM,
 		PARAM_COUNT
@@ -31,7 +46,7 @@ struct Composer : Module {
 	//int	track_i_step =		0;
 	//bool	track_clock = false;
 
-	Composer() {
+	Tracker() {
 		int	i;
 
 		config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
@@ -73,11 +88,11 @@ struct Composer : Module {
 	}
 };
 
-struct ComposerDisplay : LedDisplay {
-	Composer*		module;
+struct TrackerDisplay : LedDisplay {
+	Tracker*		module;
 	ModuleWidget*		moduleWidget;
 
-	ComposerDisplay() {
+	TrackerDisplay() {
 	}
 
 	void drawLayer(const DrawArgs& args, int layer) override {
@@ -127,13 +142,13 @@ struct ComposerDisplay : LedDisplay {
 	//}
 };
 
-struct ComposerBPMDisplay : LedDisplay {
-	Composer*		module;
+struct TrackerBPMDisplay : LedDisplay {
+	Tracker*		module;
 	ModuleWidget*		moduleWidget;
 	std::string		font_path;
 	char			str_bpm[4];
 
-	ComposerBPMDisplay() {
+	TrackerBPMDisplay() {
 		//font_path = asset::system("res/FT88-Regular.ttf");
 		font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
 	}
@@ -151,7 +166,7 @@ struct ComposerBPMDisplay : LedDisplay {
 			p = rect.getTopLeft();
 
 			if (font) { 
-				bpm = module->params[Composer::PARAM_BPM].getValue();
+				bpm = module->params[Tracker::PARAM_BPM].getValue();
 				if (bpm < 100) {
 					itoa(bpm, str_bpm + 1, 10);
 					str_bpm[0] = ' ';
@@ -180,12 +195,12 @@ struct ComposerBPMDisplay : LedDisplay {
 	}
 };
 
-struct ComposerWidget : ModuleWidget {
-	Composer*	module;
+struct TrackerWidget : ModuleWidget {
+	Tracker*	module;
 
-	ComposerWidget(Composer* _module) {
-		ComposerDisplay*		display;
-		ComposerBPMDisplay*	display_bpm;
+	TrackerWidget(Tracker* _module) {
+		TrackerDisplay*		display;
+		TrackerBPMDisplay*	display_bpm;
 		int			i;
 
 		//
@@ -210,42 +225,42 @@ struct ComposerWidget : ModuleWidget {
 
 		module = _module;
 		setModule(module);
-		setPanel(createPanel(asset::plugin(pluginInstance, "res/Composer.svg")));
+		setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker.svg")));
 
 		addParam(
 		/**/ createParamCentered<Rogan2PSWhite>(mm2px(Vec(10.125, 14.0)),
 		/**/ module,
-		/**/ Composer::PARAM_BPM));
+		/**/ Tracker::PARAM_BPM));
 
 		addOutput(
 		/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(9.1, 119.35)), //135.05
 		/**/ module,
-		/**/ Composer::OUTPUT_CLOCK));
+		/**/ Tracker::OUTPUT_CLOCK));
 
 		for (i = 0; i < 8; ++i) {
 			addOutput(
 			/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(213.25, 9.45 + 15.7 * i)),
 			/**/ module,
-			/**/ Composer::OUTPUT_CV + i));
+			/**/ Tracker::OUTPUT_CV + i));
 			addOutput(
 			/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(213.25 + 10.7, 9.45 + 15.7 * i)),
 			/**/ module,
-			/**/ Composer::OUTPUT_GATE + i));
+			/**/ Tracker::OUTPUT_GATE + i));
 			addOutput(
 			/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(213.25 + 10.7 * 2.0, 9.45 + 15.7 * i)),
 			/**/ module,
-			/**/ Composer::OUTPUT_VELO + i));
+			/**/ Tracker::OUTPUT_VELO + i));
 		}
 
 		/// MAIN LED DISPLAY
-		display = createWidget<ComposerDisplay>(mm2px(Vec(20.25, 7.15)));
+		display = createWidget<TrackerDisplay>(mm2px(Vec(20.25, 7.15)));
 		display->box.size = mm2px(Vec(181.65, 85.75));
 		display->module = module;
 		display->moduleWidget = this;
 		addChild(display);
 
 		/// BPM LED DISPLAY
-		display_bpm = createWidget<ComposerBPMDisplay>(mm2px(Vec(2.0, 23.0)));
+		display_bpm = createWidget<TrackerBPMDisplay>(mm2px(Vec(2.0, 23.0)));
 		display_bpm->box.size = mm2px(Vec(16.5, 10.0));
 		display_bpm->module = module;
 		display_bpm->moduleWidget = this;
@@ -264,4 +279,4 @@ struct ComposerWidget : ModuleWidget {
 	//}
 };
 
-Model* modelComposer = createModel<Composer, ComposerWidget>("Composer");
+Model* modelTracker = createModel<Tracker, TrackerWidget>("Tracker");
