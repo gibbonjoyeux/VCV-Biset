@@ -1,0 +1,23 @@
+{
+  "slug": "Biset",
+  "name": "Biset",
+  "version": "0.0.1",
+  "license": "MIT",
+  "brand": "Biset",
+  "author": "Biset",
+  "authorEmail": "",
+  "authorUrl": "",
+  "pluginUrl": "",
+  "manualUrl": "",
+  "sourceUrl": "",
+  "donateUrl": "",
+  "changelogUrl": "",
+  "modules": [
+	{
+		"slug": "Composer",
+		"name": "Composer",
+		"description": "Advanced pattern based DAW like sequencer",
+		"tags": ["Digital", "Sequencer"]
+	}
+  ]
+}
