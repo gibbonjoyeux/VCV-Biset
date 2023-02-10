@@ -1,21 +1,6 @@
 
 #include "plugin.hpp"
 
-
-struct TrackerNote {
-	u8	pitch;
-	float	beat;
-	float	length;
-	float	velocity;
-	float	chance;
-};
-
-struct TrackerNotePlay {
-	float	frequency;
-	float	remaining;
-	float	velocity;
-};
-
 struct Tracker : Module {
 	enum	ParamIds {
 		PARAM_BPM,
@@ -34,6 +19,10 @@ struct Tracker : Module {
 	enum	LightIds {
 		LIGHT_COUNT
 	};
+
+	PatternSource		p_src;
+	PatternInstance		p_ins;
+
 	//dsp::SchmittTrigger	clock_trig;
 	//dsp::PulseGenerator	pulse_gen;
 	dsp::TTimer<float>	clock_timer;
