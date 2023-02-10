@@ -9,14 +9,22 @@
 //////////////////////////////////////////////////
 
 struct PatternEffect {
-	u8				type;
+	enum {
+		NONE,
+		VIBRATO_AMP,
+		VIBRATO_FREQ,
+		TREMOLO_AMP,
+		TREMOLO_FREQ,
+		FADE_IN,
+		FADE_OUT
+	}				type;
 	u8				value;
 };
 
 struct PatternLine {
 	u8				synth;
-	u8				pitch;
-	u8				octave;
+	i8				pitch;
+	//u8				octave;
 	u8				velocity;
 	u8				delay;
 	u8				chance;
@@ -28,23 +36,6 @@ struct PatternSource {
 	u8				track_count;
 	Array2D<PatternLine>		lines;
 	u8				lpb;		// Lines per beat
-	
-	//PatternSource() {
-	//	line_count = 0;
-	//	track_count = 0;
-	//	lines = NULL;
-	//}
-
-	//~PatternSource() {
-	//	if (lines != NULL)
-	//		free(lines);
-	//}
-
-	//bool allocate(int line_count, track_count) {
-	//	PatternLine**	lines;
-
-
-	//}
 };
 
 //////////////////////////////////////////////////
@@ -82,6 +73,7 @@ struct PatternInstance {
 	PatternVoice			lines[64];
 	int				line;		// Timeline line
 	int				beat;		// Timeline beat
+	int				length;
 };
 
 #endif

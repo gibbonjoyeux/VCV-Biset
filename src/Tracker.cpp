@@ -20,6 +20,7 @@ struct Tracker : Module {
 		LIGHT_COUNT
 	};
 
+	NVGcolor		colors[16];
 	PatternSource		p_src;
 	PatternInstance		p_ins;
 
@@ -48,7 +49,71 @@ struct Tracker : Module {
 			configOutput(OUTPUT_VELO + i, string::f("VELOCITY %d", i + 1));
 		}
 
+		colors[0] = nvgRGBA(0x1A, 0x1C, 0x2C, 0xFF);
+		colors[1] = nvgRGBA(0x5D, 0x27, 0x5D, 0xFF);
+		colors[2] = nvgRGBA(0xB1, 0x3E, 0x53, 0xFF);
+		colors[3] = nvgRGBA(0xEF, 0x7D, 0x57, 0xFF);
+		colors[4] = nvgRGBA(0xFF, 0xCD, 0x75, 0xFF);
+		colors[5] = nvgRGBA(0xAF, 0xF0, 0x70, 0xFF);
+		colors[6] = nvgRGBA(0x38, 0xB7, 0x64, 0xFF);
+		colors[7] = nvgRGBA(0x25, 0x71, 0x79, 0xFF);
+		colors[8] = nvgRGBA(0x29, 0x36, 0x6F, 0xFF);
+		colors[9] = nvgRGBA(0x3B, 0x5D, 0xC9, 0xFF);
+		colors[10] = nvgRGBA(0x41, 0xA6, 0xF6, 0xFF);
+		colors[11] = nvgRGBA(0x73, 0xEF, 0xF7, 0xFF);
+		colors[12] = nvgRGBA(0xF4, 0xF4, 0xF4, 0xFF);
+		colors[13] = nvgRGBA(0x94, 0xB0, 0xC2, 0xFF);
+		colors[14] = nvgRGBA(0x56, 0x6C, 0x86, 0xFF);
+		colors[15] = nvgRGBA(0x33, 0x3C, 0x57, 0xFF);
+
 		clock_timer.reset();
+
+		/// INIT PATTERN SOURCE
+		p_src.line_count = 4;
+		p_src.track_count = 1;
+		p_src.lpb = 4;
+		p_src.lines.allocate(p_src.track_count, p_src.line_count);
+
+		/// FILL PATTERN SOURCE
+		p_src.lines.ptr[0][0].synth = 0;
+		p_src.lines.ptr[0][0].pitch = 64;
+		p_src.lines.ptr[0][0].velocity = 255;
+		p_src.lines.ptr[0][0].delay = 0;
+		for (i = 0; i < 8; ++i)
+			p_src.lines.ptr[0][0].effects[i].type = PatternEffect::NONE;
+
+		p_src.lines.ptr[0][1].synth = 0;
+		p_src.lines.ptr[0][1].pitch = 66;
+		p_src.lines.ptr[0][1].velocity = 255;
+		p_src.lines.ptr[0][1].delay = 0;
+		for (i = 0; i < 8; ++i)
+			p_src.lines.ptr[0][1].effects[i].type = PatternEffect::NONE;
+
+		p_src.lines.ptr[0][2].synth = 0;
+		p_src.lines.ptr[0][2].pitch = 68;
+		p_src.lines.ptr[0][2].velocity = 255;
+		p_src.lines.ptr[0][2].delay = 0;
+		for (i = 0; i < 8; ++i)
+			p_src.lines.ptr[0][2].effects[i].type = PatternEffect::NONE;
+
+		p_src.lines.ptr[0][3].synth = 0;
+		p_src.lines.ptr[0][3].pitch = 71;
+		p_src.lines.ptr[0][3].velocity = 255;
+		p_src.lines.ptr[0][3].delay = 0;
+		for (i = 0; i < 8; ++i)
+			p_src.lines.ptr[0][3].effects[i].type = PatternEffect::NONE;
+
+		//p_src.lines.ptr[0][4].synth = 0;
+		//p_src.lines.ptr[0][4].pitch = 73;
+		//p_src.lines.ptr[0][4].velocity = 255;
+		//p_src.lines.ptr[0][4].delay = 0;
+		//for (i = 0; i < 8; ++i)
+		//	p_src.lines.ptr[0][4].effects[i].type = PatternEffect::NONE;
+
+		p_ins.source = &p_src;
+		p_ins.line = 0;
+		p_ins.beat = 0;
+		p_ins.length = 16;
 	}
 
 	void	process(const ProcessArgs& args) override {
@@ -80,45 +145,94 @@ struct Tracker : Module {
 struct TrackerDisplay : LedDisplay {
 	Tracker*		module;
 	ModuleWidget*		moduleWidget;
+	std::string		font_path;
 
 	TrackerDisplay() {
+		font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
 	}
 
 	void drawLayer(const DrawArgs& args, int layer) override {
-		Rect	rect;
-		Vec	corner_bl, corner_tl;
-		Vec	corner_br, corner_tr;
+		std::shared_ptr<Font>	font;
+		Rect			rect;
+		Vec			p;
+		Vec			corner_bl, corner_tl;
+		Vec			corner_br, corner_tr;
+		float			char_width;
+		int			i;
 
 		if (layer == 1 && module) {
+			font = APP->window->loadFont(font_path);
+
 			/// GET CANVAS FORMAT
 			rect = box.zeroPos();
+			p = rect.getTopLeft();
 			corner_bl = rect.getBottomLeft();
 			corner_tl = rect.getTopLeft();
 			corner_br = rect.getBottomRight();
 			corner_tr = rect.getTopRight();
 
-			nvgScissor(args.vg, RECT_ARGS(args.clipBox));
-			//nvgSave(args.vg);
+			nvgBeginPath(args.vg);
+			nvgFillColor(args.vg, module->colors[15]);
+			nvgRect(args.vg, RECT_ARGS(rect));
+			nvgFill(args.vg);
 
-			/// FILL CANVAS
-			//nvgFillColor(args.vg, nvgRGBA(0xff, 0x00, 0x00, 0x60));
-			//nvgFill(args.vg);
+			if (font) { 
+				nvgFontSize(args.vg, 9);
+				nvgFontFaceId(args.vg, font->handle);
 
-			/// DRAW ON CANVAS
-			nvgStrokeColor(args.vg, nvgRGBA(0xff, 0x8C, 0x00, 0xff));
-			nvgStrokeWidth(args.vg, 1.5f);
-			{
-				nvgLineCap(args.vg, NVG_ROUND);
-				nvgBeginPath(args.vg);
-				nvgMoveTo(args.vg, corner_tl.x, corner_tl.y);
-				nvgLineTo(args.vg, corner_br.x, corner_br.y);
-				nvgStroke(args.vg);
-				nvgClosePath(args.vg);
-				nvgStroke(args.vg);
+				char_width = nvgTextBounds(args.vg, 0, 0, "X", NULL, NULL);
+
+				/// PITCH
+				nvgFillColor(args.vg, module->colors[3]);
+				for (i = 0; i < 32; ++i)
+					nvgText(args.vg, p.x + 2, p.y + 11.0 + 8.5 * i, "C#", NULL);
+				/// OCTAVE
+				nvgFillColor(args.vg, module->colors[2]);
+				for (i = 0; i < 32; ++i)
+					nvgText(args.vg, p.x + 2.0 + char_width * 2.0, p.y + 11.0 + 8.5 * i, "4", NULL);
+				/// VELOCITY
+				nvgFillColor(args.vg, module->colors[5]);
+				for (i = 0; i < 32; ++i)
+					nvgText(args.vg, p.x + 2.0 + char_width * 3.0, p.y + 11.0 + 8.5 * i, "FF", NULL);
+				/// SYNTH
+				nvgFillColor(args.vg, module->colors[4]);
+				for (i = 0; i < 32; ++i)
+					nvgText(args.vg, p.x + 2.0 + char_width * 5.0, p.y + 11.0 + 8.5 * i, "00", NULL);
+				/// DELAY
+				nvgFillColor(args.vg, module->colors[9]);
+				for (i = 0; i < 32; ++i)
+					nvgText(args.vg, p.x + 2.0 + char_width * 7.0, p.y + 11.0 + 8.5 * i, "00", NULL);
+				/// EFFECTS
+				nvgFillColor(args.vg, module->colors[12]);
+				for (i = 0; i < 32; ++i)
+					nvgText(args.vg, p.x + 2.0 + char_width * 9.0, p.y + 11.0 + 8.5 * i, "V08", NULL);
+				nvgFillColor(args.vg, module->colors[13]);
+				for (i = 0; i < 32; ++i)
+					nvgText(args.vg, p.x + 2.0 + char_width * 12.0, p.y + 11.0 + 8.5 * i, "v44", NULL);
+			} else {
+				nvgScissor(args.vg, RECT_ARGS(args.clipBox));
+				//nvgSave(args.vg);
+
+				/// FILL CANVAS
+				//nvgFillColor(args.vg, nvgRGBA(0xff, 0x00, 0x00, 0x60));
+				//nvgFill(args.vg);
+
+				/// DRAW ON CANVAS
+				nvgStrokeColor(args.vg, nvgRGBA(0xff, 0x8C, 0x00, 0xff));
+				nvgStrokeWidth(args.vg, 1.5f);
+				{
+					nvgLineCap(args.vg, NVG_ROUND);
+					nvgBeginPath(args.vg);
+					nvgMoveTo(args.vg, corner_tl.x, corner_tl.y);
+					nvgLineTo(args.vg, corner_br.x, corner_br.y);
+					nvgStroke(args.vg);
+					nvgClosePath(args.vg);
+					nvgStroke(args.vg);
+				}
+
+				//nvgRestore(args.vg);
+				nvgResetScissor(args.vg);
 			}
-
-			//nvgRestore(args.vg);
-			nvgResetScissor(args.vg);
 		}
 		LedDisplay::drawLayer(args, layer);
 	}
@@ -138,7 +252,6 @@ struct TrackerBPMDisplay : LedDisplay {
 	char			str_bpm[4];
 
 	TrackerBPMDisplay() {
-		//font_path = asset::system("res/FT88-Regular.ttf");
 		font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
 	}
 
@@ -154,6 +267,11 @@ struct TrackerBPMDisplay : LedDisplay {
 			rect = box.zeroPos();
 			p = rect.getTopLeft();
 
+			nvgBeginPath(args.vg);
+			nvgFillColor(args.vg, module->colors[15]);
+			nvgRect(args.vg, RECT_ARGS(rect));
+			nvgFill(args.vg);
+
 			if (font) { 
 				bpm = module->params[Tracker::PARAM_BPM].getValue();
 				if (bpm < 100) {
@@ -164,7 +282,7 @@ struct TrackerBPMDisplay : LedDisplay {
 				}
 				nvgFontSize(args.vg, 22);
 				nvgFontFaceId(args.vg, font->handle);
-				nvgFillColor(args.vg, nvgRGBA(0xff, 0xff, 0xff, 0xff));
+				nvgFillColor(args.vg, module->colors[12]);
 				nvgText(args.vg, p.x + 1.25, p.y + 22.5, str_bpm, NULL);
 			} else {
 				nvgStrokeColor(args.vg, nvgRGBA(0xff, 0xff, 0x00, 0xff));
@@ -243,7 +361,8 @@ struct TrackerWidget : ModuleWidget {
 
 		/// MAIN LED DISPLAY
 		display = createWidget<TrackerDisplay>(mm2px(Vec(20.25, 7.15)));
-		display->box.size = mm2px(Vec(181.65, 85.75));
+		//display->box.size = mm2px(Vec(181.65, 85.75));
+		display->box.size = mm2px(Vec(181.65, 94.5));
 		display->module = module;
 		display->moduleWidget = this;
 		addChild(display);
