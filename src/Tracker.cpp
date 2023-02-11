@@ -21,8 +21,8 @@ struct Tracker : Module {
 	};
 
 	NVGcolor		colors[16];
-	PatternSource		p_src;
-	PatternInstance		p_ins;
+	PatternSource		pattern;
+	Timeline		timeline;
 
 	//dsp::SchmittTrigger	clock_trig;
 	//dsp::PulseGenerator	pulse_gen;
@@ -69,51 +69,55 @@ struct Tracker : Module {
 		clock_timer.reset();
 
 		/// INIT PATTERN SOURCE
-		p_src.line_count = 4;
-		p_src.track_count = 1;
-		p_src.lpb = 4;
-		p_src.lines.allocate(p_src.track_count, p_src.line_count);
+		pattern.line_count = 4;
+		pattern.track_count = 1;
+		pattern.lpb = 4;
+		pattern.lines.allocate(pattern.track_count, pattern.line_count);
 
 		/// FILL PATTERN SOURCE
-		p_src.lines.ptr[0][0].synth = 0;
-		p_src.lines.ptr[0][0].pitch = 64;
-		p_src.lines.ptr[0][0].velocity = 255;
-		p_src.lines.ptr[0][0].delay = 0;
+		pattern.lines.ptr[0][0].synth = 0;
+		pattern.lines.ptr[0][0].pitch = 64;
+		pattern.lines.ptr[0][0].velocity = 255;
+		pattern.lines.ptr[0][0].delay = 0;
 		for (i = 0; i < 8; ++i)
-			p_src.lines.ptr[0][0].effects[i].type = PatternEffect::NONE;
+			pattern.lines.ptr[0][0].effects[i].type = PatternEffect::NONE;
 
-		p_src.lines.ptr[0][1].synth = 0;
-		p_src.lines.ptr[0][1].pitch = 66;
-		p_src.lines.ptr[0][1].velocity = 255;
-		p_src.lines.ptr[0][1].delay = 0;
+		pattern.lines.ptr[0][1].synth = 0;
+		pattern.lines.ptr[0][1].pitch = 66;
+		pattern.lines.ptr[0][1].velocity = 255;
+		pattern.lines.ptr[0][1].delay = 0;
 		for (i = 0; i < 8; ++i)
-			p_src.lines.ptr[0][1].effects[i].type = PatternEffect::NONE;
+			pattern.lines.ptr[0][1].effects[i].type = PatternEffect::NONE;
 
-		p_src.lines.ptr[0][2].synth = 0;
-		p_src.lines.ptr[0][2].pitch = 68;
-		p_src.lines.ptr[0][2].velocity = 255;
-		p_src.lines.ptr[0][2].delay = 0;
+		pattern.lines.ptr[0][2].synth = 0;
+		pattern.lines.ptr[0][2].pitch = 68;
+		pattern.lines.ptr[0][2].velocity = 255;
+		pattern.lines.ptr[0][2].delay = 0;
 		for (i = 0; i < 8; ++i)
-			p_src.lines.ptr[0][2].effects[i].type = PatternEffect::NONE;
+			pattern.lines.ptr[0][2].effects[i].type = PatternEffect::NONE;
 
-		p_src.lines.ptr[0][3].synth = 0;
-		p_src.lines.ptr[0][3].pitch = 71;
-		p_src.lines.ptr[0][3].velocity = 255;
-		p_src.lines.ptr[0][3].delay = 0;
+		pattern.lines.ptr[0][3].synth = 0;
+		pattern.lines.ptr[0][3].pitch = 71;
+		pattern.lines.ptr[0][3].velocity = 255;
+		pattern.lines.ptr[0][3].delay = 0;
 		for (i = 0; i < 8; ++i)
-			p_src.lines.ptr[0][3].effects[i].type = PatternEffect::NONE;
+			pattern.lines.ptr[0][3].effects[i].type = PatternEffect::NONE;
 
-		//p_src.lines.ptr[0][4].synth = 0;
-		//p_src.lines.ptr[0][4].pitch = 73;
-		//p_src.lines.ptr[0][4].velocity = 255;
-		//p_src.lines.ptr[0][4].delay = 0;
+		//pattern.lines.ptr[0][4].synth = 0;
+		//pattern.lines.ptr[0][4].pitch = 73;
+		//pattern.lines.ptr[0][4].velocity = 255;
+		//pattern.lines.ptr[0][4].delay = 0;
 		//for (i = 0; i < 8; ++i)
-		//	p_src.lines.ptr[0][4].effects[i].type = PatternEffect::NONE;
+		//	pattern.lines.ptr[0][4].effects[i].type = PatternEffect::NONE;
 
-		p_ins.source = &p_src;
-		p_ins.line = 0;
-		p_ins.beat = 0;
-		p_ins.length = 16;
+		timeline.line_count = 4;
+		for (i = 0; i < 32; ++i)
+			timeline.rows[i].row = i;
+		timeline.timeline.allocate(32, timeline.line_count);
+		//p_ins.source = &pattern;
+		//p_ins.line = 0;
+		//p_ins.beat = 0;
+		//p_ins.length = 16;
 	}
 
 	void	process(const ProcessArgs& args) override {
@@ -181,6 +185,9 @@ struct TrackerDisplay : LedDisplay {
 				nvgFontFaceId(args.vg, font->handle);
 
 				char_width = nvgTextBounds(args.vg, 0, 0, "X", NULL, NULL);
+
+				nvgFillColor(args.vg, module->colors[0]);
+				nvgText(args.vg, p.x + 2, p.y + 11.0, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", NULL);
 
 				/// PITCH
 				nvgFillColor(args.vg, module->colors[3]);

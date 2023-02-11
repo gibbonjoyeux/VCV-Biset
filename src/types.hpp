@@ -53,7 +53,8 @@ template<typename T> struct Array2D {
 			/// COPY
 			for (i = 0; i < height && i < this->height; ++i)
 				for (j = 0; j < width && j < this->width; ++j)
-					new_ptr[i][j] = this->ptr[i][j];
+					memcpy(&(new_ptr[i][j]), &(this->ptr[i][j]), sizeof(T));
+					//new_ptr[i][j] = this->ptr[i][j];
 			/// FREE PREVIOUS
 			free(this->ptr);
 		}
