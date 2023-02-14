@@ -7,7 +7,7 @@ typedef uint32_t	u32;
 typedef int32_t		i32;
 
 template<typename T> struct Array2D {
-	T**		ptr;
+	T**			ptr;
 	size_t		width;
 	size_t		height;
 
@@ -63,5 +63,9 @@ template<typename T> struct Array2D {
 		this->width = width;
 		this->height = height;
 		return true;
+	}
+
+	T* operator[](int i) {
+		return this->ptr[i];
 	}
 };
