@@ -10,7 +10,6 @@ typedef struct Synth			Synth;
 typedef struct PatternEffect	PatternEffect;
 typedef struct PatternCell		PatternCell;
 typedef struct PatternSource	PatternSource;
-typedef struct TimelineRow		TimelineRow;
 typedef struct Timeline			Timeline;
 
 struct Clock {
@@ -69,7 +68,14 @@ struct SynthVoice {
 		this->reset();
 	}
 
-	void process() {
+	void process(Module *module) {
+		float					voltage;
+
+		if (this->active) {
+			voltage = (float)(this->pitch - 69) / 12.0f;
+			module->outputs[1 + this->synth].setVoltage(voltage);
+			module->outputs[1 + 8 + this->synth].setVoltage(1.0f);
+		}
 	}
 
 	void start(int pitch) {
@@ -105,7 +111,12 @@ struct SynthVoice {
 		this->tremolo_phase = 0.0;
 	}
 
-	void close() {
+	void close(Module *module) {
+		if (this->active) {
+			this->active = false;
+			module->outputs[1 + this->synth].setVoltage(0);
+			module->outputs[1 + 8 + this->synth].setVoltage(0);
+		}
 	}
 };
 
@@ -129,11 +140,11 @@ struct Synth {
 			this->voices[i].init(synth_index, i);
 	}
 
-	void process() {
+	void process(Module *module) {
 		int			i;
 
 		for (i = 0; i < 16; ++i)
-			this->voices[i].process();
+			this->voices[i].process(module);
 	}
 
 	SynthVoice* add(int pitch) {
@@ -205,10 +216,10 @@ struct PatternSource {
 		this->color = 0;
 	}
 
-	bool resize(int line_count, int track_count) {
-		// ...
-		return true;
-	}
+	//bool resize(int line_count, int track_count) {
+	//	// ...
+	//	return true;
+	//}
 };
 
 struct PatternInstance {
@@ -216,6 +227,10 @@ struct PatternInstance {
 	PatternCell*				cells[32];
 
 	PatternInstance() {
+		this->reset();
+	}
+
+	void reset() {
 		int						i;
 
 		for (i = 0; i < 32; ++i) {
@@ -224,44 +239,51 @@ struct PatternInstance {
 		}
 	}
 
-	void process(Timeline* timeline, PatternSource* pattern, Clock clock) {
+	void process(Module *module, vector<Synth>* synths, PatternSource* pattern,
+	Clock clock, int *debug, int *debug_2, char *debug_str) {
 		int						line, row;
 		PatternCell*			cell;
 		SynthVoice*				voice;
 
 		line = clock.beat * pattern->lpb + clock.phase * pattern->lpb;
-		for (row = 0; row < 32; ++row) {
+		*debug = line;
+		*debug_2 = 0;
+		// ! ! ! 32 should be maximum and not default
+		//for (row = 0; row < 32; ++row) {
+		for (row = 0; row < 1; ++row) {
 			cell = &(pattern->cells[row][line]);
 			voice = this->voices[row];
 			/// CELL CHANGE
 			if (cell != this->cells[row]) {
+				sprintf(debug_str, "%d x %d (%d)", clock.beat, line, cell->mode);
 				/// NOTE CHANGE
 				if (cell->mode == 1) {
-					/// CLOSE NOTE
+					/// CLOSE ACTIVE NOTE
 					if (this->cells[row]) {
 						if (voice) {
-							voice->close();
-							voice = NULL;
-							this->voices[row] = NULL;
+							//voice->close(module);
+							//voice = NULL;
+							//this->voices[row] = NULL;
 						}
 					}
-					/// LOAD NEW NOTE
 
-					// ! ! ! ! 
-					if (cell->synth < timeline->synths.size()) {
-						voice = timeline->synths[cell->synth].add(cell->pitch);
-					}
-					// ! ! ! !
+					/// LOAD NEW NOTE
+					//// ! ! ! ! 
+					//if (cell->synth < synths->size()) {
+					//	voice = synths->at(cell->synth).add(cell->pitch);
+					//	this->voices[row] = voice;
+					//}
+					//// ! ! ! !
 
 				/// NOTE KEEP
 				} else if (cell->mode == 0) {
 				/// NOTE STOP
 				} else {
-					/// CLOSE NOTE
+					/// CLOSE ACTIVE NOTE
 					if (voice) {
-						voice->close();
-						voice = NULL;
-						this->voices[row] = NULL;
+						//voice->close(module);
+						//voice = NULL;
+						//this->voices[row] = NULL;
 					}
 				}
 				this->cells[row] = cell;
@@ -269,12 +291,12 @@ struct PatternInstance {
 		}
 	}
 
-	void close() {
+	void close(Module *module) {
 		int						row;
 
 		for (row = 0; row < 32; ++row) {
 			if (this->voices[row])
-				this->voices[row]->close();
+				this->voices[row]->close(module);
 			this->voices[row] = NULL;
 			this->cells[row] = NULL;
 		}
@@ -285,66 +307,18 @@ struct PatternInstance {
 /// TIMELINE
 //////////////////////////////////////////////////
 
-struct TimelineRow {
-	PatternSource*				pattern;
-	u32							pattern_beat;
-	u32							pattern_start;
-	PatternInstance				pattern_instance;
-	int							row;
-
-	TimelineRow() {
-		this->pattern = NULL;
-		this->pattern_beat = 0;
-		this->row = 0;
-	}
-
-	void init(int row) {
-		this->row = row;
-	}
-
-	void process(Timeline* timeline, Clock clock) {
-		Clock					clock_relative;
-		int						pattern_index;
-		PatternSource*			pattern_new;
-
-		pattern_index = timeline->timeline[this->row][clock.beat];
-		/// PATTERN ON
-		if (pattern_index >= 0
-		&& pattern_index < timeline->patterns.size()) {
-			/// [1] COMPUTE PATTERN CHANGE / TIMING
-			pattern_new = &(timeline->patterns[pattern_index]);
-			/// PATTERN KEEP
-			if (pattern_new == pattern) {
-				clock_relative.beat = (clock.beat - pattern_start)
-				/**/ % pattern_new->beat_count;
-				clock_relative.phase = clock.phase;
-			/// PATTERN CHANGE
-			} else {
-				this->pattern_instance.close();
-				this->pattern_beat = 0;
-				this->pattern_start = clock.beat;
-				this->pattern = pattern_new;
-				clock_relative.beat = 0;
-				clock_relative.phase = clock.phase;
-			}
-			/// [2] COMPUTE PATTERN PROCESS
-			this->pattern_instance.process(timeline, this->pattern,
-			/**/ clock_relative);
-		/// PATTERN OFF
-		} else {
-			/// PATTERN SWITCH OFF
-			if (this->pattern != NULL)
-				this->pattern_instance.close();
-			this->pattern_beat = 0;
-		}
-	}
-};
-
 struct Timeline {
+	char						debug_str[1024];
+	int							debug;
+	int							debug_2;
+
 	Clock						clock;
 	u16							line_count;
 	Array2D<i16>				timeline;
-	TimelineRow					rows[32];
+	PatternSource*				pattern[32];
+	u32							pattern_beat[32];
+	u32							pattern_start[32];
+	PatternInstance				pattern_instance[32];
 
 	vector<PatternSource>		patterns;
 	vector<Synth>				synths;
@@ -352,27 +326,82 @@ struct Timeline {
 	Timeline() {
 		int						i;
 
-		/// INIT ROWS
-		for (i = 0; i < 32; ++i)
-			rows[i].init(i);
-		/// INIT CLOCK
+		/// [1] INIT ROWS
+		for (i = 0; i < 32; ++i) {
+			this->pattern[i] = NULL;
+			this->pattern_beat[i] = 0;
+			this->pattern_start[i] = 0;
+			this->pattern_instance[i].reset();
+		}
+		/// [2] INIT CLOCK
 		clock.reset();
+
+		debug = 0;
+		debug_2 = 0;
+		debug_str[0] = 0;
 	}
 
-	void process(float dt) {
-		int						len;
-		int						i;
+	void process(Module* module, float dt) {
+		Clock					clock_relative;
+		//PatternSource*			pattern_row;
+		//int						pattern_index;
+		//int						len;
+		//int						i;
 
 		/// UPDATE CLOCK
-		clock.process(dt);
-		/// UPDATE TRACK
-		for (i = 0; i < 32; ++i) {
-			this->rows[i].process(this, clock);
-		}
-		/// UPDATE SYNTHS
-		len = synths.size();
-		for (i = i; i < len; ++i)
-			synths[i].process();
+		this->clock.process(dt);
+		if (this->clock.beat >= this->line_count)
+			this->clock.beat = 0;
+
+		/// ! ! ! DEBUG PLAY PATTERN 0
+		PatternSource	*pattern = &(this->patterns[0]);
+		clock_relative.beat = (this->clock.beat - this->pattern_start[0])
+		/**/ % pattern->beat_count;
+		clock_relative.phase = this->clock.phase;
+		/// COMPUTE PATTERN PROCESS
+		this->pattern_instance[0].process(module, &this->synths,
+		/**/ pattern, clock_relative,
+		/**/ &debug, &debug_2, debug_str);
+
+
+
+		/// UPDATE TIMELINE ROWS
+		//for (i = 0; i < 32; ++i) {
+		//	pattern_index = this->timeline[i][clock.beat];
+		//	/// PATTERN ON
+		//	if (pattern_index >= 0
+		//	&& pattern_index < (int)this->patterns.size()) {
+		//		/// COMPUTE PATTERN CHANGE / TIMING
+		//		//pattern_row = &(this->patterns[pattern_index]);
+		//		//// PATTERN KEEP
+		//		//if (pattern_row == this->pattern[i]) {
+		//		//	clock_relative.beat = (clock.beat - this->pattern_start[i])
+		//		//	/**/ % pattern_row->beat_count;
+		//		//	clock_relative.phase = clock.phase;
+		//		////// PATTERN CHANGE
+		//		//} else {
+		//		//	this->pattern_instance[i].close(module);
+		//		//	this->pattern_beat[i] = 0;
+		//		//	this->pattern_start[i] = clock.beat;
+		//		//	this->pattern[i] = pattern_row;
+		//		//	clock_relative.beat = 0;
+		//		//	clock_relative.phase = clock.phase;
+		//		//}
+		//		///// COMPUTE PATTERN PROCESS
+		//		//this->pattern_instance[i].process(module, &this->synths,
+		//		///**/ this->pattern[i], clock_relative);
+		//	/// PATTERN OFF
+		//	} else {
+		//		///// PATTERN SWITCH OFF
+		//		//if (this->pattern[i] != NULL)
+		//		//	this->pattern_instance[i].close(module);
+		//		//this->pattern_beat[i] = 0;
+		//	}
+		//}
+		///// UPDATE SYNTHS
+		//len = synths.size();
+		//for (i = i; i < len; ++i)
+		//	synths[i].process(module);
 	}
 };
 

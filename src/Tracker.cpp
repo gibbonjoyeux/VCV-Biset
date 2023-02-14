@@ -21,7 +21,6 @@ struct Tracker : Module {
 	};
 
 	NVGcolor		colors[16];
-	PatternSource		pattern;
 	Timeline		timeline;
 
 	//dsp::SchmittTrigger	clock_trig;
@@ -69,55 +68,57 @@ struct Tracker : Module {
 		clock_timer.reset();
 
 		/// INIT PATTERN SOURCE
-		pattern.line_count = 4;
-		pattern.track_count = 1;
-		pattern.lpb = 4;
-		pattern.lines.allocate(pattern.track_count, pattern.line_count);
+		PatternSource	*pattern;
+
+		timeline.debug = 0;
+		timeline.line_count = 4;
+		timeline.patterns.resize(1);
+		pattern = &(timeline.patterns[0]);
+
+		pattern->line_count = 4;
+		pattern->row_count = 1;
+		pattern->lpb = 4;
+		//pattern.lines.allocate(pattern.track_count, pattern.line_count);
 
 		/// FILL PATTERN SOURCE
-		pattern.lines.ptr[0][0].synth = 0;
-		pattern.lines.ptr[0][0].pitch = 64;
-		pattern.lines.ptr[0][0].velocity = 255;
-		pattern.lines.ptr[0][0].delay = 0;
+		pattern->cells[0][0].mode = 1;
+		pattern->cells[0][0].synth = 0;
+		pattern->cells[0][0].pitch = 64;
+		pattern->cells[0][0].velocity = 255;
+		pattern->cells[0][0].delay = 0;
 		for (i = 0; i < 8; ++i)
-			pattern.lines.ptr[0][0].effects[i].type = PatternEffect::NONE;
+			pattern->cells[0][0].effects[i].type = PatternEffect::NONE;
 
-		pattern.lines.ptr[0][1].synth = 0;
-		pattern.lines.ptr[0][1].pitch = 66;
-		pattern.lines.ptr[0][1].velocity = 255;
-		pattern.lines.ptr[0][1].delay = 0;
+		pattern->cells[0][4].mode = 1;
+		pattern->cells[0][4].synth = 0;
+		pattern->cells[0][4].pitch = 66;
+		pattern->cells[0][4].velocity = 255;
+		pattern->cells[0][4].delay = 0;
 		for (i = 0; i < 8; ++i)
-			pattern.lines.ptr[0][1].effects[i].type = PatternEffect::NONE;
+			pattern->cells[0][1].effects[i].type = PatternEffect::NONE;
 
-		pattern.lines.ptr[0][2].synth = 0;
-		pattern.lines.ptr[0][2].pitch = 68;
-		pattern.lines.ptr[0][2].velocity = 255;
-		pattern.lines.ptr[0][2].delay = 0;
+		pattern->cells[0][8].mode = 1;
+		pattern->cells[0][8].synth = 0;
+		pattern->cells[0][8].pitch = 68;
+		pattern->cells[0][8].velocity = 255;
+		pattern->cells[0][8].delay = 0;
 		for (i = 0; i < 8; ++i)
-			pattern.lines.ptr[0][2].effects[i].type = PatternEffect::NONE;
+			pattern->cells[0][2].effects[i].type = PatternEffect::NONE;
 
-		pattern.lines.ptr[0][3].synth = 0;
-		pattern.lines.ptr[0][3].pitch = 71;
-		pattern.lines.ptr[0][3].velocity = 255;
-		pattern.lines.ptr[0][3].delay = 0;
+		pattern->cells[0][12].mode = 1;
+		pattern->cells[0][12].synth = 0;
+		pattern->cells[0][12].pitch = 71;
+		pattern->cells[0][12].velocity = 255;
+		pattern->cells[0][12].delay = 0;
 		for (i = 0; i < 8; ++i)
-			pattern.lines.ptr[0][3].effects[i].type = PatternEffect::NONE;
+			pattern->cells[0][3].effects[i].type = PatternEffect::NONE;
 
-		//pattern.lines.ptr[0][4].synth = 0;
-		//pattern.lines.ptr[0][4].pitch = 73;
-		//pattern.lines.ptr[0][4].velocity = 255;
-		//pattern.lines.ptr[0][4].delay = 0;
-		//for (i = 0; i < 8; ++i)
-		//	pattern.lines.ptr[0][4].effects[i].type = PatternEffect::NONE;
-
-		timeline.line_count = 4;
-		for (i = 0; i < 32; ++i)
-			timeline.rows[i].row = i;
-		timeline.timeline.allocate(32, timeline.line_count);
-		//p_ins.source = &pattern;
-		//p_ins.line = 0;
-		//p_ins.beat = 0;
-		//p_ins.length = 16;
+		//timeline.line_count = 4;
+		//timeline.timeline.allocate(32, timeline.line_count);
+		//timeline.timeline[0][0] = 0;
+		//timeline.timeline[0][1] = 0;
+		//timeline.timeline[0][2] = 0;
+		//timeline.timeline[0][3] = 0;
 	}
 
 	void	process(const ProcessArgs& args) override {
@@ -137,6 +138,8 @@ struct Tracker : Module {
 		} else {
 			outputs[OUTPUT_CLOCK].setVoltage(0.0f);
 		}
+
+		timeline.process(this, bpm_rate);
 
 
 		/// USE / MODIFY EXPANDERS
@@ -180,14 +183,27 @@ struct TrackerDisplay : LedDisplay {
 			nvgRect(args.vg, RECT_ARGS(rect));
 			nvgFill(args.vg);
 
+			// TMP TIME BEAT MARKER
+			nvgBeginPath(args.vg);
+			nvgFillColor(args.vg, module->colors[4]);
+			//nvgRect(args.vg,
+			///**/ p.x + 1.0, p.y + 3.5 + 8.5 * module->timeline.clock.beat, 20, 8.5);
+			nvgRect(args.vg,
+			/**/ p.x + 1.0, p.y + 3.5 + 8.5 * module->timeline.debug, 20, 8.5);
+			nvgFill(args.vg);
+			// TMP DEBUG ! ! !
+			nvgFillColor(args.vg, module->colors[3]);
+			nvgText(args.vg, p.x + 100, p.y + 11.0, module->timeline.debug_str, NULL);
+
+
 			if (font) { 
 				nvgFontSize(args.vg, 9);
 				nvgFontFaceId(args.vg, font->handle);
 
 				char_width = nvgTextBounds(args.vg, 0, 0, "X", NULL, NULL);
 
-				nvgFillColor(args.vg, module->colors[0]);
-				nvgText(args.vg, p.x + 2, p.y + 11.0, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", NULL);
+				//nvgFillColor(args.vg, module->colors[0]);
+				//nvgText(args.vg, p.x + 2, p.y + 11.0, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", NULL);
 
 				/// PITCH
 				nvgFillColor(args.vg, module->colors[3]);
