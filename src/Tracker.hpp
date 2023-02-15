@@ -43,7 +43,7 @@ struct SynthVoice {
 	bool						active;
 
 	u8							synth;
-	u8							synth_channel;
+	u8							channel;
 	u8							pitch;
 	u8							velocity;
 
@@ -73,26 +73,33 @@ struct SynthVoice {
 
 		if (this->active) {
 			voltage = (float)(this->pitch - 69) / 12.0f;
-			module->outputs[1 + this->synth].setVoltage(voltage);
-			module->outputs[1 + 8 + this->synth].setVoltage(1.0f);
+			module->outputs[1 + this->synth].setVoltage(voltage, this->channel);
+			module->outputs[1 + 8 + this->synth].setVoltage(10.0f, this->channel);
+		} else {
+			module->outputs[1 + this->synth].setVoltage(0, this->channel);
+			module->outputs[1 + 8 + this->synth].setVoltage(0.0f, this->channel);
 		}
 	}
 
 	void start(int pitch) {
-		this->pitch = pitch;
 		this->active = true;
+		this->pitch = pitch;
+	}
+
+	void stop(Module *module) {
+		this->active = false;
+		//module->outputs[1 + this->synth].setVoltage(0);
+		//module->outputs[1 + 8 + this->synth].setVoltage(0.0f);
 	}
 
 	void init(int synth, int channel) {
 		this->reset();
 		this->synth = synth;
-		this->synth_channel = channel;
+		this->channel = channel;
 	}
 
 	void reset() {
 		this->active = false;
-		this->synth = 0;
-		this->synth_channel = 0;
 		this->pitch = 0;
 		this->velocity = 255;
 		this->glide = 0;
@@ -110,14 +117,6 @@ struct SynthVoice {
 		this->tremolo_freq = 0;
 		this->tremolo_phase = 0.0;
 	}
-
-	void close(Module *module) {
-		if (this->active) {
-			this->active = false;
-			module->outputs[1 + this->synth].setVoltage(0);
-			module->outputs[1 + 8 + this->synth].setVoltage(0);
-		}
-	}
 };
 
 struct Synth {
@@ -128,21 +127,32 @@ struct Synth {
 
 	Synth() {
 		this->index = 0;
-		this->channel_count = 6;
 		this->channel_cur = 0;
+		this->channel_count = 6;
 	}
 
-	void init(int synth_index) {
+	void init(Module *module, int synth_index, int channel_count) {
 		int			i;
 
+		/// INIT VOICES
 		this->index = synth_index;
 		for (i = 0; i < 16; ++i)
-			this->voices[i].init(synth_index, i);
+			this->voices[i].init(this->index, i);
+		/// SET CHANNEL COUNT
+		this->channel_count = channel_count;
+		module->outputs[1 + this->index].setChannels(this->channel_count);
+		module->outputs[1 + 8 + this->index].setChannels(this->channel_count);
+		module->outputs[1 + 16 + this->index].setChannels(this->channel_count);
 	}
 
 	void process(Module *module) {
 		int			i;
 
+		/// SET OUTPUT CHANNELS
+		module->outputs[1 + this->index].setChannels(this->channel_count);
+		module->outputs[1 + 8 + this->index].setChannels(this->channel_count);
+		module->outputs[1 + 16 + this->index].setChannels(this->channel_count);
+		/// COMPUTE VOICES
 		for (i = 0; i < 16; ++i)
 			this->voices[i].process(module);
 	}
@@ -253,26 +263,31 @@ struct PatternInstance {
 		for (row = 0; row < 1; ++row) {
 			cell = &(pattern->cells[row][line]);
 			voice = this->voices[row];
+
+
 			/// CELL CHANGE
 			if (cell != this->cells[row]) {
-				sprintf(debug_str, "%d x %d (%d)", clock.beat, line, cell->mode);
 				/// NOTE CHANGE
 				if (cell->mode == 1) {
 					/// CLOSE ACTIVE NOTE
-					if (this->cells[row]) {
+					//if (this->cells[row]) {
 						if (voice) {
-							//voice->close(module);
-							//voice = NULL;
-							//this->voices[row] = NULL;
+							voice->stop(module);
+							this->voices[row] = NULL;
 						}
-					}
+					//}
 
 					/// LOAD NEW NOTE
 					//// ! ! ! ! 
-					//if (cell->synth < synths->size()) {
-					//	voice = synths->at(cell->synth).add(cell->pitch);
-					//	this->voices[row] = voice;
-					//}
+					if (cell->synth < synths->size()) {
+						voice = synths->at(cell->synth).add(cell->pitch);
+						this->voices[row] = voice;
+
+						sprintf(debug_str, "%d x %d (%d:%d) %d/%d", clock.beat, line,
+						/**/ cell->mode, cell->synth,
+						/**/ voice->channel, module->outputs[1].getChannels());
+
+					}
 					//// ! ! ! !
 
 				/// NOTE KEEP
@@ -281,22 +296,22 @@ struct PatternInstance {
 				} else {
 					/// CLOSE ACTIVE NOTE
 					if (voice) {
-						//voice->close(module);
-						//voice = NULL;
-						//this->voices[row] = NULL;
+						voice->stop(module);
+						this->voices[row] = NULL;
 					}
 				}
 				this->cells[row] = cell;
+			} else {
 			}
 		}
 	}
 
-	void close(Module *module) {
+	void stop(Module *module) {
 		int						row;
 
 		for (row = 0; row < 32; ++row) {
 			if (this->voices[row])
-				this->voices[row]->close(module);
+				this->voices[row]->stop(module);
 			this->voices[row] = NULL;
 			this->cells[row] = NULL;
 		}
@@ -345,8 +360,8 @@ struct Timeline {
 		Clock					clock_relative;
 		//PatternSource*			pattern_row;
 		//int						pattern_index;
-		//int						len;
-		//int						i;
+		int						len;
+		int						i;
 
 		/// UPDATE CLOCK
 		this->clock.process(dt);
@@ -363,6 +378,10 @@ struct Timeline {
 		/**/ pattern, clock_relative,
 		/**/ &debug, &debug_2, debug_str);
 
+		/// UPDATE SYNTHS
+		len = synths.size();
+		for (i = 0; i < len; ++i)
+			synths[i].process(module);
 
 
 		/// UPDATE TIMELINE ROWS
@@ -400,7 +419,7 @@ struct Timeline {
 		//}
 		///// UPDATE SYNTHS
 		//len = synths.size();
-		//for (i = i; i < len; ++i)
+		//for (i = 0; i < len; ++i)
 		//	synths[i].process(module);
 	}
 };
