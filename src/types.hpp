@@ -22,7 +22,7 @@ template<typename T> struct Array2D {
 			free(this->ptr);
 	}
 
-	bool allocate(size_t width, size_t height) {
+	bool allocate(size_t height, size_t width) {
 		T**	new_ptr;
 		void	**array_ptr;
 		int8_t	*array_byte;
@@ -54,7 +54,6 @@ template<typename T> struct Array2D {
 			for (i = 0; i < height && i < this->height; ++i)
 				for (j = 0; j < width && j < this->width; ++j)
 					memcpy(&(new_ptr[i][j]), &(this->ptr[i][j]), sizeof(T));
-					//new_ptr[i][j] = this->ptr[i][j];
 			/// FREE PREVIOUS
 			free(this->ptr);
 		}

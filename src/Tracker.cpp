@@ -79,9 +79,10 @@ struct Tracker : Module {
 		timeline.patterns.resize(1);
 		pattern = &(timeline.patterns[0]);
 
-		pattern->line_count = 4;
-		pattern->row_count = 1;
-		pattern->lpb = 4;
+		pattern->init(2, 4, 4);
+		//pattern->line_count = 4;
+		//pattern->row_count = 1;
+		//pattern->lpb = 4;
 		//pattern.lines.allocate(pattern.track_count, pattern.line_count);
 
 		/// FILL PATTERN SOURCE
@@ -109,10 +110,10 @@ struct Tracker : Module {
 		for (i = 0; i < 8; ++i)
 			pattern->cells[0][8].effects[i].type = PatternEffect::NONE;
 
-		pattern->cells[0][10].mode = -1;
-		pattern->cells[0][10].delay = 0;
-		for (i = 0; i < 8; ++i)
-			pattern->cells[0][10].effects[i].type = PatternEffect::NONE;
+		//pattern->cells[0][10].mode = -1;
+		//pattern->cells[0][10].delay = 0;
+		//for (i = 0; i < 8; ++i)
+		//	pattern->cells[0][10].effects[i].type = PatternEffect::NONE;
 
 		pattern->cells[0][12].mode = 1;
 		pattern->cells[0][12].synth = 0;
@@ -121,6 +122,28 @@ struct Tracker : Module {
 		pattern->cells[0][12].delay = 0;
 		for (i = 0; i < 8; ++i)
 			pattern->cells[0][12].effects[i].type = PatternEffect::NONE;
+
+
+		pattern->cells[1][0].mode = 1;
+		pattern->cells[1][0].synth = 0;
+		pattern->cells[1][0].pitch = 66 + 24;
+		pattern->cells[1][0].velocity = 255;
+		pattern->cells[1][0].delay = 0;
+		for (i = 0; i < 8; ++i)
+			pattern->cells[1][0].effects[i].type = PatternEffect::NONE;
+
+		pattern->cells[1][2].mode = 1;
+		pattern->cells[1][2].synth = 0;
+		pattern->cells[1][2].pitch = 64 + 24;
+		pattern->cells[1][2].velocity = 255;
+		pattern->cells[1][2].delay = 0;
+		for (i = 0; i < 8; ++i)
+			pattern->cells[1][2].effects[i].type = PatternEffect::NONE;
+
+		pattern->cells[1][6].mode = -1;
+		pattern->cells[1][6].delay = 0;
+		for (i = 0; i < 8; ++i)
+			pattern->cells[1][6].effects[i].type = PatternEffect::NONE;
 
 		//timeline.line_count = 4;
 		//timeline.timeline.allocate(32, timeline.line_count);

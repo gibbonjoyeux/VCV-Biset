@@ -226,10 +226,13 @@ struct PatternSource {
 		this->color = 0;
 	}
 
-	//bool resize(int line_count, int track_count) {
-	//	// ...
-	//	return true;
-	//}
+	void init(int row_count, int beat_count, int lpb) {
+		this->beat_count = beat_count;
+		this->line_count = this->beat_count * lpb;
+		this->row_count = row_count;
+		this->lpb = 4;
+		this->cells.allocate(this->row_count, this->line_count);
+	}
 };
 
 struct PatternInstance {
@@ -258,27 +261,19 @@ struct PatternInstance {
 		line = clock.beat * pattern->lpb + clock.phase * pattern->lpb;
 		*debug = line;
 		*debug_2 = 0;
-		// ! ! ! 32 should be maximum and not default
-		//for (row = 0; row < 32; ++row) {
-		for (row = 0; row < 1; ++row) {
+		for (row = 0; row < pattern->row_count; ++row) {
 			cell = &(pattern->cells[row][line]);
 			voice = this->voices[row];
-
-
 			/// CELL CHANGE
 			if (cell != this->cells[row]) {
 				/// NOTE CHANGE
 				if (cell->mode == 1) {
 					/// CLOSE ACTIVE NOTE
-					//if (this->cells[row]) {
-						if (voice) {
-							voice->stop(module);
-							this->voices[row] = NULL;
-						}
-					//}
-
+					if (voice) {
+						voice->stop(module);
+						this->voices[row] = NULL;
+					}
 					/// LOAD NEW NOTE
-					//// ! ! ! ! 
 					if (cell->synth < synths->size()) {
 						voice = synths->at(cell->synth).add(cell->pitch);
 						this->voices[row] = voice;
@@ -288,8 +283,6 @@ struct PatternInstance {
 						/**/ voice->channel, module->outputs[1].getChannels());
 
 					}
-					//// ! ! ! !
-
 				/// NOTE KEEP
 				} else if (cell->mode == 0) {
 				/// NOTE STOP
@@ -301,7 +294,6 @@ struct PatternInstance {
 					}
 				}
 				this->cells[row] = cell;
-			} else {
 			}
 		}
 	}
