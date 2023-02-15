@@ -71,10 +71,22 @@ struct Tracker : Module {
 		PatternSource	*pattern;
 
 		timeline.debug = 0;
-		timeline.line_count = 4;
+		timeline.beat_count = 4;
+		timeline.timeline.allocate(32, timeline.beat_count);
+		for (i = 0; i < 32; ++i) {
+			timeline.timeline[i][0] = -1;
+			timeline.timeline[i][1] = -1;
+			timeline.timeline[i][2] = -1;
+			timeline.timeline[i][3] = -1;
+		}
+		timeline.timeline[0][0] = 0;
+		timeline.timeline[0][1] = 0;
+		timeline.timeline[0][2] = 0;
+		timeline.timeline[0][3] = 0;
 
-		timeline.synths.resize(1);
-		timeline.synths[0].init(this, 0, 6);
+		timeline.synths.resize(2);
+		timeline.synths[0].init(0, 6);
+		timeline.synths[1].init(1, 6);
 
 		timeline.patterns.resize(1);
 		pattern = &(timeline.patterns[0]);
@@ -125,7 +137,7 @@ struct Tracker : Module {
 
 
 		pattern->cells[1][0].mode = 1;
-		pattern->cells[1][0].synth = 0;
+		pattern->cells[1][0].synth = 1;
 		pattern->cells[1][0].pitch = 66 + 24;
 		pattern->cells[1][0].velocity = 255;
 		pattern->cells[1][0].delay = 0;
@@ -133,7 +145,7 @@ struct Tracker : Module {
 			pattern->cells[1][0].effects[i].type = PatternEffect::NONE;
 
 		pattern->cells[1][2].mode = 1;
-		pattern->cells[1][2].synth = 0;
+		pattern->cells[1][2].synth = 1;
 		pattern->cells[1][2].pitch = 64 + 24;
 		pattern->cells[1][2].velocity = 255;
 		pattern->cells[1][2].delay = 0;

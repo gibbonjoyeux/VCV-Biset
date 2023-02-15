@@ -86,10 +86,8 @@ struct SynthVoice {
 		this->pitch = pitch;
 	}
 
-	void stop(Module *module) {
+	void stop() {
 		this->active = false;
-		//module->outputs[1 + this->synth].setVoltage(0);
-		//module->outputs[1 + 8 + this->synth].setVoltage(0.0f);
 	}
 
 	void init(int synth, int channel) {
@@ -131,7 +129,7 @@ struct Synth {
 		this->channel_count = 6;
 	}
 
-	void init(Module *module, int synth_index, int channel_count) {
+	void init(int synth_index, int channel_count) {
 		int			i;
 
 		/// INIT VOICES
@@ -140,9 +138,6 @@ struct Synth {
 			this->voices[i].init(this->index, i);
 		/// SET CHANNEL COUNT
 		this->channel_count = channel_count;
-		module->outputs[1 + this->index].setChannels(this->channel_count);
-		module->outputs[1 + 8 + this->index].setChannels(this->channel_count);
-		module->outputs[1 + 16 + this->index].setChannels(this->channel_count);
 	}
 
 	void process(Module *module) {
@@ -270,7 +265,7 @@ struct PatternInstance {
 				if (cell->mode == 1) {
 					/// CLOSE ACTIVE NOTE
 					if (voice) {
-						voice->stop(module);
+						voice->stop();
 						this->voices[row] = NULL;
 					}
 					/// LOAD NEW NOTE
@@ -289,7 +284,7 @@ struct PatternInstance {
 				} else {
 					/// CLOSE ACTIVE NOTE
 					if (voice) {
-						voice->stop(module);
+						voice->stop();
 						this->voices[row] = NULL;
 					}
 				}
@@ -298,12 +293,12 @@ struct PatternInstance {
 		}
 	}
 
-	void stop(Module *module) {
+	void stop() {
 		int						row;
 
 		for (row = 0; row < 32; ++row) {
 			if (this->voices[row])
-				this->voices[row]->stop(module);
+				this->voices[row]->stop();
 			this->voices[row] = NULL;
 			this->cells[row] = NULL;
 		}
@@ -320,10 +315,9 @@ struct Timeline {
 	int							debug_2;
 
 	Clock						clock;
-	u16							line_count;
+	u16							beat_count;
 	Array2D<i16>				timeline;
 	PatternSource*				pattern[32];
-	u32							pattern_beat[32];
 	u32							pattern_start[32];
 	PatternInstance				pattern_instance[32];
 
@@ -336,7 +330,6 @@ struct Timeline {
 		/// [1] INIT ROWS
 		for (i = 0; i < 32; ++i) {
 			this->pattern[i] = NULL;
-			this->pattern_beat[i] = 0;
 			this->pattern_start[i] = 0;
 			this->pattern_instance[i].reset();
 		}
@@ -350,69 +343,72 @@ struct Timeline {
 
 	void process(Module* module, float dt) {
 		Clock					clock_relative;
-		//PatternSource*			pattern_row;
-		//int						pattern_index;
+		PatternSource*			pattern_row;
+		int						pattern_index;
 		int						len;
 		int						i;
 
 		/// UPDATE CLOCK
 		this->clock.process(dt);
-		if (this->clock.beat >= this->line_count)
+		if (this->clock.beat >= this->beat_count)
 			this->clock.beat = 0;
 
-		/// ! ! ! DEBUG PLAY PATTERN 0
-		PatternSource	*pattern = &(this->patterns[0]);
-		clock_relative.beat = (this->clock.beat - this->pattern_start[0])
-		/**/ % pattern->beat_count;
-		clock_relative.phase = this->clock.phase;
-		/// COMPUTE PATTERN PROCESS
-		this->pattern_instance[0].process(module, &this->synths,
-		/**/ pattern, clock_relative,
-		/**/ &debug, &debug_2, debug_str);
-
-		/// UPDATE SYNTHS
-		len = synths.size();
-		for (i = 0; i < len; ++i)
-			synths[i].process(module);
-
-
-		/// UPDATE TIMELINE ROWS
-		//for (i = 0; i < 32; ++i) {
-		//	pattern_index = this->timeline[i][clock.beat];
-		//	/// PATTERN ON
-		//	if (pattern_index >= 0
-		//	&& pattern_index < (int)this->patterns.size()) {
-		//		/// COMPUTE PATTERN CHANGE / TIMING
-		//		//pattern_row = &(this->patterns[pattern_index]);
-		//		//// PATTERN KEEP
-		//		//if (pattern_row == this->pattern[i]) {
-		//		//	clock_relative.beat = (clock.beat - this->pattern_start[i])
-		//		//	/**/ % pattern_row->beat_count;
-		//		//	clock_relative.phase = clock.phase;
-		//		////// PATTERN CHANGE
-		//		//} else {
-		//		//	this->pattern_instance[i].close(module);
-		//		//	this->pattern_beat[i] = 0;
-		//		//	this->pattern_start[i] = clock.beat;
-		//		//	this->pattern[i] = pattern_row;
-		//		//	clock_relative.beat = 0;
-		//		//	clock_relative.phase = clock.phase;
-		//		//}
-		//		///// COMPUTE PATTERN PROCESS
-		//		//this->pattern_instance[i].process(module, &this->synths,
-		//		///**/ this->pattern[i], clock_relative);
-		//	/// PATTERN OFF
-		//	} else {
-		//		///// PATTERN SWITCH OFF
-		//		//if (this->pattern[i] != NULL)
-		//		//	this->pattern_instance[i].close(module);
-		//		//this->pattern_beat[i] = 0;
-		//	}
-		//}
+		///// ! ! ! DEBUG PLAY PATTERN 0
+		//PatternSource	*pattern = &(this->patterns[0]);
+		///// COMPUTE PATTERN CLOCK
+		//clock_relative.beat = (this->clock.beat - this->pattern_start[0])
+		///**/ % pattern->beat_count;
+		//clock_relative.phase = this->clock.phase;
+		///// COMPUTE PATTERN PROCESS
+		//this->pattern_instance[0].process(module, &this->synths,
+		///**/ pattern, clock_relative,
+		///**/ &debug, &debug_2, debug_str);
 		///// UPDATE SYNTHS
 		//len = synths.size();
 		//for (i = 0; i < len; ++i)
 		//	synths[i].process(module);
+
+
+		/// UPDATE TIMELINE ROWS
+		for (i = 0; i < 32; ++i) {
+			pattern_index = this->timeline[i][clock.beat];
+			/// PATTERN ON
+			if (pattern_index >= 0
+			&& pattern_index < (int)this->patterns.size()) {
+				/// COMPUTE PATTERN CHANGE / TIMING
+				pattern_row = &(this->patterns[pattern_index]);
+				/// PATTERN KEEP
+				if (pattern_row == this->pattern[i]) {
+					/// COMPUTE RELATIVE CLOCK
+					clock_relative.beat =
+					/**/ (this->clock.beat - this->pattern_start[i])
+					/**/ % pattern_row->beat_count;
+					clock_relative.phase = this->clock.phase;
+				/// PATTERN CHANGE
+				} else {
+					/// RESET RELATIVE CLOCK
+					clock_relative.beat = 0;
+					clock_relative.phase = clock.phase;
+					/// RESET PATTERN
+					this->pattern_instance[i].stop();
+					this->pattern_start[i] = clock.beat;
+					this->pattern[i] = pattern_row;
+				}
+				/// COMPUTE PATTERN PROCESS
+				this->pattern_instance[i].process(module, &this->synths,
+				/**/ this->pattern[i], clock_relative,
+				/**/ &debug, &debug_2, debug_str);
+			/// PATTERN OFF
+			} else {
+				/// PATTERN SWITCH OFF
+				if (this->pattern[i] != NULL)
+					this->pattern_instance[i].stop();
+			}
+		}
+		/// UPDATE SYNTHS
+		len = synths.size();
+		for (i = 0; i < len; ++i)
+			synths[i].process(module);
 	}
 };
 
