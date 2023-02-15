@@ -82,9 +82,15 @@ struct SynthVoice {
 		}
 	}
 
-	void start(int pitch) {
-		this->active = true;
-		this->pitch = pitch;
+	bool start(int pitch, int velocity, int delay, int chance) {
+		if (chance == 255 || random::uniform() * 255.0 < chance) {
+			this->active = true;
+			this->pitch = pitch;
+			this->velocity = velocity;
+			this->delay = delay;
+			return true;
+		}
+		return false;
 	}
 
 	void stop() {
@@ -153,13 +159,15 @@ struct Synth {
 			this->voices[i].process(module);
 	}
 
-	SynthVoice* add(int pitch) {
+	SynthVoice* add(int pitch, int velocity, int delay, int chance) {
 		SynthVoice*				voice;
 
 		voice = &(this->voices[this->channel_cur]);
-		voice->start(pitch);
-		this->channel_cur = (this->channel_cur + 1) % channel_count;
-		return voice;
+		if (voice->start(pitch, velocity, delay, chance) == true) {
+			this->channel_cur = (this->channel_cur + 1) % channel_count;
+			return voice;
+		}
+		return NULL;
 	}
 };
 
@@ -257,6 +265,9 @@ struct PatternInstance {
 		line = clock.beat * pattern->lpb + clock.phase * pattern->lpb;
 		*debug = line;
 		*debug_2 = 0;
+		//sprintf(debug_str, "%d x %d (%d:%d) %d/%d", clock.beat, line,
+		///**/ cell->mode, cell->synth,
+		///**/ voice->channel, module->outputs[1].getChannels());
 		for (row = 0; row < pattern->row_count; ++row) {
 			cell = &(pattern->cells[row][line]);
 			voice = this->voices[row];
@@ -271,13 +282,9 @@ struct PatternInstance {
 					}
 					/// LOAD NEW NOTE
 					if (cell->synth < synths->size()) {
-						voice = synths->at(cell->synth).add(cell->pitch);
+						voice = synths->at(cell->synth).add(cell->pitch,
+						/**/ cell->velocity, cell->delay, cell->chance);
 						this->voices[row] = voice;
-
-						sprintf(debug_str, "%d x %d (%d:%d) %d/%d", clock.beat, line,
-						/**/ cell->mode, cell->synth,
-						/**/ voice->channel, module->outputs[1].getChannels());
-
 					}
 				/// NOTE KEEP
 				} else if (cell->mode == 0) {
