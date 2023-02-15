@@ -74,15 +74,11 @@ struct Tracker : Module {
 		timeline.beat_count = 4;
 		timeline.timeline.allocate(32, timeline.beat_count);
 		for (i = 0; i < 32; ++i) {
-			timeline.timeline[i][0] = -1;
-			timeline.timeline[i][1] = -1;
-			timeline.timeline[i][2] = -1;
-			timeline.timeline[i][3] = -1;
+			timeline.timeline[i][0].mode = 0;
 		}
-		timeline.timeline[0][0] = 0;
-		timeline.timeline[0][1] = 0;
-		timeline.timeline[0][2] = 0;
-		timeline.timeline[0][3] = 0;
+		timeline.timeline[0][0].mode = 1;
+		timeline.timeline[0][0].pattern = 0;
+		timeline.timeline[0][0].beat = 0;
 
 		timeline.synths.resize(2);
 		timeline.synths[0].init(0, 6);

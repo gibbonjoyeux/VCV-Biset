@@ -10,6 +10,7 @@ typedef struct Synth			Synth;
 typedef struct PatternEffect	PatternEffect;
 typedef struct PatternCell		PatternCell;
 typedef struct PatternSource	PatternSource;
+typedef struct TimelineCell		TimelineCell;
 typedef struct Timeline			Timeline;
 
 struct Clock {
@@ -309,6 +310,18 @@ struct PatternInstance {
 /// TIMELINE
 //////////////////////////////////////////////////
 
+struct TimelineCell {
+	i8							mode;		// 0: keep 1: note -1: stop
+	u16							pattern;	// Pattern index
+	u16							beat;		// Pattern starting beat
+
+	TimelineCell() {
+		this->mode = 0;
+		this->pattern = 0;
+		this->beat = 0;
+	}
+};
+
 struct Timeline {
 	char						debug_str[1024];
 	int							debug;
@@ -316,8 +329,9 @@ struct Timeline {
 
 	Clock						clock;
 	u16							beat_count;
-	Array2D<i16>				timeline;
+	Array2D<TimelineCell>		timeline;
 	PatternSource*				pattern[32];
+	TimelineCell*				pattern_cell[32];
 	u32							pattern_start[32];
 	PatternInstance				pattern_instance[32];
 
@@ -330,6 +344,7 @@ struct Timeline {
 		/// [1] INIT ROWS
 		for (i = 0; i < 32; ++i) {
 			this->pattern[i] = NULL;
+			this->pattern_cell[i] = NULL;
 			this->pattern_start[i] = 0;
 			this->pattern_instance[i].reset();
 		}
@@ -343,8 +358,8 @@ struct Timeline {
 
 	void process(Module* module, float dt) {
 		Clock					clock_relative;
-		PatternSource*			pattern_row;
-		int						pattern_index;
+		TimelineCell*			cell;
+		PatternSource*			pattern;
 		int						len;
 		int						i;
 
@@ -353,58 +368,86 @@ struct Timeline {
 		if (this->clock.beat >= this->beat_count)
 			this->clock.beat = 0;
 
-		///// ! ! ! DEBUG PLAY PATTERN 0
-		//PatternSource	*pattern = &(this->patterns[0]);
-		///// COMPUTE PATTERN CLOCK
-		//clock_relative.beat = (this->clock.beat - this->pattern_start[0])
-		///**/ % pattern->beat_count;
-		//clock_relative.phase = this->clock.phase;
-		///// COMPUTE PATTERN PROCESS
-		//this->pattern_instance[0].process(module, &this->synths,
-		///**/ pattern, clock_relative,
-		///**/ &debug, &debug_2, debug_str);
-		///// UPDATE SYNTHS
-		//len = synths.size();
-		//for (i = 0; i < len; ++i)
-		//	synths[i].process(module);
-
-
 		/// UPDATE TIMELINE ROWS
 		for (i = 0; i < 32; ++i) {
-			pattern_index = this->timeline[i][clock.beat];
-			/// PATTERN ON
-			if (pattern_index >= 0
-			&& pattern_index < (int)this->patterns.size()) {
-				/// COMPUTE PATTERN CHANGE / TIMING
-				pattern_row = &(this->patterns[pattern_index]);
-				/// PATTERN KEEP
-				if (pattern_row == this->pattern[i]) {
-					/// COMPUTE RELATIVE CLOCK
-					clock_relative.beat =
-					/**/ (this->clock.beat - this->pattern_start[i])
-					/**/ % pattern_row->beat_count;
-					clock_relative.phase = this->clock.phase;
-				/// PATTERN CHANGE
-				} else {
+			cell = &(this->timeline[i][clock.beat]);
+			/// PATTERN CHANGE
+			if (cell->mode == 1
+			&& this->pattern_cell[i] != cell) {
+				if (cell->pattern < (int)this->patterns.size()) {
+					/// COMPUTE PATTERN CHANGE / TIMING
+					pattern = &(this->patterns[cell->pattern]);
 					/// RESET RELATIVE CLOCK
-					clock_relative.beat = 0;
-					clock_relative.phase = clock.phase;
+					clock_relative.beat = cell->beat % pattern->beat_count;
+					clock_relative.phase = this->clock.phase;
 					/// RESET PATTERN
 					this->pattern_instance[i].stop();
 					this->pattern_start[i] = clock.beat;
-					this->pattern[i] = pattern_row;
+					this->pattern_cell[i] = cell;
+					this->pattern[i] = pattern;
+					/// COMPUTE PATTERN PROCESS
+					this->pattern_instance[i].process(module, &this->synths,
+					/**/ this->pattern[i], clock_relative,
+					/**/ &debug, &debug_2, debug_str);
 				}
-				/// COMPUTE PATTERN PROCESS
-				this->pattern_instance[i].process(module, &this->synths,
-				/**/ this->pattern[i], clock_relative,
-				/**/ &debug, &debug_2, debug_str);
-			/// PATTERN OFF
-			} else {
+			/// PATTERN STOP
+			} else if (cell->mode == -1) {
 				/// PATTERN SWITCH OFF
 				if (this->pattern[i] != NULL)
 					this->pattern_instance[i].stop();
+			/// PATTERN KEEP
+			} else {
+				if (this->pattern[i]) {
+					pattern = this->pattern[i];
+					/// COMPUTE RELATIVE CLOCK
+					clock_relative.beat =
+					/**/ (this->clock.beat - this->pattern_start[i]
+					/**/ + this->pattern_cell[i]->beat) % pattern->beat_count;
+					clock_relative.phase = this->clock.phase;
+					/// COMPUTE PATTERN PROCESS
+					this->pattern_instance[i].process(module, &this->synths,
+					/**/ this->pattern[i], clock_relative,
+					/**/ &debug, &debug_2, debug_str);
+				}
 			}
 		}
+
+		//for (i = 0; i < 32; ++i) {
+		//	pattern_index = this->timeline[i][clock.beat];
+		//	/// PATTERN ON
+		//	if (pattern_index >= 0
+		//	&& pattern_index < (int)this->patterns.size()) {
+		//		/// COMPUTE PATTERN CHANGE / TIMING
+		//		pattern_row = &(this->patterns[pattern_index]);
+		//		/// PATTERN KEEP
+		//		if (pattern_row == this->pattern[i]) {
+		//			/// COMPUTE RELATIVE CLOCK
+		//			clock_relative.beat =
+		//			/**/ (this->clock.beat - this->pattern_start[i])
+		//			/**/ % pattern_row->beat_count;
+		//			clock_relative.phase = this->clock.phase;
+		//		/// PATTERN CHANGE
+		//		} else {
+		//			/// RESET RELATIVE CLOCK
+		//			clock_relative.beat = 0;
+		//			clock_relative.phase = clock.phase;
+		//			/// RESET PATTERN
+		//			this->pattern_instance[i].stop();
+		//			this->pattern_start[i] = clock.beat;
+		//			this->pattern[i] = pattern_row;
+		//		}
+		//		/// COMPUTE PATTERN PROCESS
+		//		this->pattern_instance[i].process(module, &this->synths,
+		//		/**/ this->pattern[i], clock_relative,
+		//		/**/ &debug, &debug_2, debug_str);
+		//	/// PATTERN OFF
+		//	} else {
+		//		/// PATTERN SWITCH OFF
+		//		if (this->pattern[i] != NULL)
+		//			this->pattern_instance[i].stop();
+		//	}
+		//}
+
 		/// UPDATE SYNTHS
 		len = synths.size();
 		for (i = 0; i < len; ++i)
