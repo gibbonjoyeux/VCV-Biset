@@ -71,13 +71,15 @@ struct SynthVoice {
 
 	void process(Module *module) {
 		float					voltage;
+		float					velocity;
 
 		if (this->active) {
 			voltage = (float)(this->pitch - 69) / 12.0f;
+			velocity = (float)this->velocity / 25.5;
 			module->outputs[1 + this->synth].setVoltage(voltage, this->channel);
-			module->outputs[1 + 8 + this->synth].setVoltage(10.0f, this->channel);
+			module->outputs[9 + this->synth].setVoltage(10.0f, this->channel);
+			module->outputs[17 + this->synth].setVoltage(velocity, this->channel);
 		} else {
-			module->outputs[1 + this->synth].setVoltage(0, this->channel);
 			module->outputs[1 + 8 + this->synth].setVoltage(0.0f, this->channel);
 		}
 	}
