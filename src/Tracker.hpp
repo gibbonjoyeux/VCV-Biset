@@ -43,10 +43,8 @@ struct Clock {
 struct PatternEffect {
 	enum {
 								NONE,
-								VIBRATO_AMP,
-								VIBRATO_FREQ,
-								TREMOLO_AMP,
-								TREMOLO_FREQ,
+								VIBRATO,
+								TREMOLO,
 								FADE_IN,
 								FADE_OUT,
 								RACHET,
@@ -199,17 +197,15 @@ struct SynthVoice {
 				switch(effect->type) {
 					case PatternEffect::NONE:
 						break;
-					case PatternEffect::VIBRATO_AMP:
-						this->vibrato_amp = effect->value / 512.0f;
+					case PatternEffect::VIBRATO:
+						this->vibrato_freq =
+						/**/ (float)(effect->value / 16) * M_PI * 2.0f;
+						this->vibrato_amp = (float)(effect->value % 16) / 64.0;
 						break;
-					case PatternEffect::VIBRATO_FREQ:
-						this->vibrato_freq = effect->value * M_PI * 2.0f;
-						break;
-					case PatternEffect::TREMOLO_AMP:
-						this->tremolo_amp = effect->value / 255.0f;
-						break;
-					case PatternEffect::TREMOLO_FREQ:
-						this->tremolo_freq = effect->value * M_PI * 2.0f;
+					case PatternEffect::TREMOLO:
+						this->tremolo_freq =
+						/**/ (float)(effect->value / 16) * M_PI * 2.0f;
+						this->tremolo_amp = (float)(effect->value % 16) / 16.0;
 						break;
 					case PatternEffect::FADE_IN:
 						break;
