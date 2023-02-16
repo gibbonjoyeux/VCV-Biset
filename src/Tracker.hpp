@@ -58,7 +58,8 @@ struct PatternEffect {
 };
 
 struct PatternCell {
-	i8							mode;		// 0: keep 1: note -1: stop
+	i8							mode;		// 0: keep 1: note 2: glide -1: stop
+	u8							glide;
 	u8							synth;
 	u8							pitch;
 	u8							velocity;
@@ -68,6 +69,7 @@ struct PatternCell {
 
 	PatternCell() {
 		this->mode = 0;
+		this->glide = 0;
 		this->synth = 0;
 		this->pitch = 0;
 		this->velocity = 255;
@@ -115,12 +117,10 @@ struct SynthVoice {
 	u8							pitch;
 	u8							velocity;
 
-	u8							glide;
-	float						glide_cur;
-	float						glide_pitch_from;
-	float						glide_pitch_to;
-	float						glide_velo_from;
-	float						glide_velo_to;
+	float						pitch_glide_len;
+	float						pitch_glide_cur;
+	float						pitch_from;
+	float						pitch_to;
 
 	float						delay;
 	float						delay_gate;
@@ -137,15 +137,33 @@ struct SynthVoice {
 	}
 
 	void process(Module *module, float dt_sec, float dt_beat) {
-		float					pitch;
+		float					pitch, mix;
 		float					velocity;
 		float					vibrato, tremolo;
 
 		if (this->active && this->delay <= 0 && this->delay_gate <= 0) {
 			/// COMPUTE CV
-			pitch = (float)(this->pitch - 69) / 12.0f;
+			//pitch = (float)(this->pitch - 69) / 12.0f;
 			velocity = (float)this->velocity / 25.5;
 			/// COMPUTE EFFECTS
+			//// COMPUTE GLIDE
+			if (this->pitch_glide_len > 0) {
+				this->pitch_glide_cur += dt_beat;
+				/// GLIDE ENDED
+				if (this->pitch_glide_cur >= this->pitch_glide_len) {
+					this->pitch_glide_len = 0;
+					this->pitch_glide_cur = 0;
+					this->pitch_from = this->pitch_to;
+					pitch = (float)(this->pitch_from - 69.0) / 12.0f;
+				/// GLIDE RUNNING
+				} else {
+					mix = this->pitch_glide_cur / this->pitch_glide_len;
+					pitch = ((this->pitch_from * (1.0 - mix)
+					/**/ + this->pitch_to * mix) - 69.0) / 12.0f;
+				}
+			} else {
+				pitch = (float)(this->pitch_from - 69) / 12.0f;
+			}
 			//// COMPUTE VIBRATO
 			if (this->vibrato_amp > 0) {
 				this->vibrato_phase += this->vibrato_freq * dt_beat;
@@ -187,8 +205,12 @@ struct SynthVoice {
 			/// SET MAIN DELAY
 			this->delay = delay;
 			/// SET NOTE PROPS
-			this->pitch = cell->pitch;
 			this->velocity = cell->velocity;
+			this->pitch = cell->pitch;
+			this->pitch_from = cell->pitch;
+			this->pitch_to = cell->pitch;
+			this->pitch_glide_len = 0;
+			this->pitch_glide_cur = 0;
 			/// SET EFFECTS
 			this->vibrato_amp = 0;
 			this->tremolo_amp = 0;
@@ -222,6 +244,25 @@ struct SynthVoice {
 		return false;
 	}
 
+	void glide(PatternCell *cell) {
+		float						mix;
+
+		if (this->active) {
+			/// GLIDE ALREADY RUNNING
+			if (this->pitch_glide_len > 0) {
+				/// COMPUTE GLIDING PITCH
+				mix = this->pitch_glide_cur / this->pitch_glide_len;
+				this->pitch_from = this->pitch_from * (1.0 - mix)
+				/**/ + this->pitch_to * mix;
+			/// GLIDE OFF
+			} else {
+			}
+			this->pitch_to = cell->pitch;
+			this->pitch_glide_len = (1.0 - ((float)cell->glide / 256.0));
+			this->pitch_glide_cur = 0;
+		}
+	}
+
 	void stop() {
 		this->active = false;
 	}
@@ -236,12 +277,10 @@ struct SynthVoice {
 		this->active = false;
 		this->pitch = 0;
 		this->velocity = 255;
-		this->glide = 0;
-		this->glide_cur = 0.0;
-		this->glide_pitch_from = 0.0;
-		this->glide_pitch_to = 0.0;
-		this->glide_velo_from = 0.0;
-		this->glide_velo_to = 0.0;
+		this->pitch_glide_len = 0;
+		this->pitch_glide_cur = 0.0;
+		this->pitch_from = 0.0;
+		this->pitch_to = 0.0;
 		this->delay = 0;
 		this->vibrato_amp = 0;
 		this->vibrato_freq = 0;
@@ -348,6 +387,11 @@ struct PatternInstance {
 					if (cell->synth < synths->size()) {
 						voice = synths->at(cell->synth).add(cell, pattern->lpb);
 						this->voices[row] = voice;
+					}
+				/// NOTE GLIDE
+				} else if (cell->mode == 2) {
+					if (voice) {
+						voice->glide(cell);
 					}
 				/// NOTE KEEP
 				} else if (cell->mode == 0) {
