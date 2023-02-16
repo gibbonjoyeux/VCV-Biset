@@ -56,6 +56,7 @@ struct SynthVoice {
 	float						glide_velo_to;
 
 	float						delay;
+	float						delay_gate;
 
 	u8							vibrato_amp;
 	u8							vibrato_freq;
@@ -68,29 +69,37 @@ struct SynthVoice {
 		this->reset();
 	}
 
-	void process(Module *module, float dt) {
+	void process(Module *module, float dt_sec, float dt_beat) {
 		float					voltage;
 		float					velocity;
 
-		if (this->active && this->delay <= 0) {
+		if (this->active && this->delay <= 0 && this->delay_gate <= 0) {
+			/// COMPUTE CV
 			voltage = (float)(this->pitch - 69) / 12.0f;
 			velocity = (float)this->velocity / 25.5;
+			/// SET OUTPUT
 			module->outputs[1 + this->synth].setVoltage(voltage, this->channel);
 			module->outputs[9 + this->synth].setVoltage(10.0f, this->channel);
 			module->outputs[17 + this->synth].setVoltage(velocity, this->channel);
 		} else {
+			/// HANDLE NOTE DELAY
 			if (this->delay > 0)
-				this->delay -= dt;
+				this->delay -= dt_beat;
+			/// HANDLE INTER NOTES GATE DELAY
+			if (this->delay_gate > 0)
+				this->delay_gate -= dt_sec;
+			/// SET OUTPUT
 			module->outputs[9 + this->synth].setVoltage(0.0f, this->channel);
 		}
 	}
 
 	bool start(int pitch, int velocity, int chance, float delay) {
 		if (chance == 255 || random::uniform() * 255.0 < chance) {
-			this->active = true;
+			this->delay_gate = (this->active) ? 0.001f : 0.0f;
+			this->delay = delay;
 			this->pitch = pitch;
 			this->velocity = velocity;
-			this->delay = delay;
+			this->active = true;
 			return true;
 		}
 		return false;
@@ -149,7 +158,7 @@ struct Synth {
 		this->channel_count = channel_count;
 	}
 
-	void process(Module *module, float dt) {
+	void process(Module *module, float dt_sec, float dt_beat) {
 		int			i;
 
 		/// SET OUTPUT CHANNELS
@@ -158,7 +167,7 @@ struct Synth {
 		module->outputs[1 + 16 + this->index].setChannels(this->channel_count);
 		/// COMPUTE VOICES
 		for (i = 0; i < 16; ++i)
-			this->voices[i].process(module, dt);
+			this->voices[i].process(module, dt_sec, dt_beat);
 	}
 
 	SynthVoice* add(int pitch, int velocity, int chance, float delay) {
@@ -368,7 +377,7 @@ struct Timeline {
 		debug_str[0] = 0;
 	}
 
-	void process(Module* module, float dt) {
+	void process(Module* module, float dt_sec, float dt_beat) {
 		Clock					clock_relative;
 		TimelineCell*			cell;
 		PatternSource*			pattern;
@@ -376,7 +385,7 @@ struct Timeline {
 		int						i;
 
 		/// UPDATE CLOCK
-		this->clock.process(dt);
+		this->clock.process(dt_beat);
 		if (this->clock.beat >= this->beat_count)
 			this->clock.beat = 0;
 
@@ -463,7 +472,7 @@ struct Timeline {
 		/// UPDATE SYNTHS
 		len = synths.size();
 		for (i = 0; i < len; ++i)
-			synths[i].process(module, dt);
+			synths[i].process(module, dt_sec, dt_beat);
 	}
 };
 
