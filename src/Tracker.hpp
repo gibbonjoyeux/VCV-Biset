@@ -55,8 +55,7 @@ struct SynthVoice {
 	float						glide_velo_from;
 	float						glide_velo_to;
 
-	u8							delay;
-	float						delay_cur;
+	float						delay;
 
 	u8							vibrato_amp;
 	u8							vibrato_freq;
@@ -69,22 +68,24 @@ struct SynthVoice {
 		this->reset();
 	}
 
-	void process(Module *module) {
+	void process(Module *module, float dt) {
 		float					voltage;
 		float					velocity;
 
-		if (this->active) {
+		if (this->active && this->delay <= 0) {
 			voltage = (float)(this->pitch - 69) / 12.0f;
 			velocity = (float)this->velocity / 25.5;
 			module->outputs[1 + this->synth].setVoltage(voltage, this->channel);
 			module->outputs[9 + this->synth].setVoltage(10.0f, this->channel);
 			module->outputs[17 + this->synth].setVoltage(velocity, this->channel);
 		} else {
-			module->outputs[1 + 8 + this->synth].setVoltage(0.0f, this->channel);
+			if (this->delay > 0)
+				this->delay -= dt;
+			module->outputs[9 + this->synth].setVoltage(0.0f, this->channel);
 		}
 	}
 
-	bool start(int pitch, int velocity, int delay, int chance) {
+	bool start(int pitch, int velocity, int chance, float delay) {
 		if (chance == 255 || random::uniform() * 255.0 < chance) {
 			this->active = true;
 			this->pitch = pitch;
@@ -116,7 +117,6 @@ struct SynthVoice {
 		this->glide_velo_from = 0.0;
 		this->glide_velo_to = 0.0;
 		this->delay = 0;
-		this->delay_cur = 0.0;
 		this->vibrato_amp = 0;
 		this->vibrato_freq = 0;
 		this->vibrato_phase = 0.0;
@@ -149,7 +149,7 @@ struct Synth {
 		this->channel_count = channel_count;
 	}
 
-	void process(Module *module) {
+	void process(Module *module, float dt) {
 		int			i;
 
 		/// SET OUTPUT CHANNELS
@@ -158,14 +158,14 @@ struct Synth {
 		module->outputs[1 + 16 + this->index].setChannels(this->channel_count);
 		/// COMPUTE VOICES
 		for (i = 0; i < 16; ++i)
-			this->voices[i].process(module);
+			this->voices[i].process(module, dt);
 	}
 
-	SynthVoice* add(int pitch, int velocity, int delay, int chance) {
+	SynthVoice* add(int pitch, int velocity, int chance, float delay) {
 		SynthVoice*				voice;
 
 		voice = &(this->voices[this->channel_cur]);
-		if (voice->start(pitch, velocity, delay, chance) == true) {
+		if (voice->start(pitch, velocity, chance, delay) == true) {
 			this->channel_cur = (this->channel_cur + 1) % channel_count;
 			return voice;
 		}
@@ -236,7 +236,7 @@ struct PatternSource {
 		this->beat_count = beat_count;
 		this->line_count = this->beat_count * lpb;
 		this->row_count = row_count;
-		this->lpb = 4;
+		this->lpb = lpb;
 		this->cells.allocate(this->row_count, this->line_count);
 	}
 };
@@ -263,6 +263,7 @@ struct PatternInstance {
 		int						line, row;
 		PatternCell*			cell;
 		SynthVoice*				voice;
+		float					delay;
 
 		line = clock.beat * pattern->lpb + clock.phase * pattern->lpb;
 		*debug = line;
@@ -284,8 +285,10 @@ struct PatternInstance {
 					}
 					/// LOAD NEW NOTE
 					if (cell->synth < synths->size()) {
+						delay = (1.0f / (float)pattern->lpb)
+						/**/ * ((float)cell->delay / 256.0f);
 						voice = synths->at(cell->synth).add(cell->pitch,
-						/**/ cell->velocity, cell->delay, cell->chance);
+						/**/ cell->velocity, cell->chance, delay);
 						this->voices[row] = voice;
 					}
 				/// NOTE KEEP
@@ -460,7 +463,7 @@ struct Timeline {
 		/// UPDATE SYNTHS
 		len = synths.size();
 		for (i = 0; i < len; ++i)
-			synths[i].process(module);
+			synths[i].process(module, dt);
 	}
 };
 
