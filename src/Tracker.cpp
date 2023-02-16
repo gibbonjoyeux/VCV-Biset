@@ -20,20 +20,12 @@ struct Tracker : Module {
 		LIGHT_COUNT
 	};
 
-	NVGcolor		colors[16];
-	Timeline		timeline;
+	NVGcolor			colors[16];
+	Timeline			timeline;
 
-	//dsp::SchmittTrigger	clock_trig;
-	//dsp::PulseGenerator	pulse_gen;
 	dsp::TTimer<float>	clock_timer;
-	float			clock_time;
-	float			clock_time_p;
-	//u8	track_gate[16] = 	{1,  0,  1,  1,  0,  1,  0,  0,  1,  1,  1,  0,  1,  1,  0,  0};
-	//u8	track_pitch[16] =	{69, 69, 71, 73, 73, 76, 76, 76, 73, 71, 80, 80, 80, 73, 73, 73};
-	//int	track_step =		4;
-	//int	track_i =		0;
-	//int	track_i_step =		0;
-	//bool	track_clock = false;
+	float				clock_time;
+	float				clock_time_p;
 
 	Tracker() {
 		int	i;
@@ -99,22 +91,33 @@ struct Tracker : Module {
 		pattern->cells[0][0].pitch = 64;
 		pattern->cells[0][0].velocity = 255;
 		pattern->cells[0][0].delay = 0;
+		pattern->cells[0][0].chance = 255;
 		for (i = 0; i < 8; ++i)
 			pattern->cells[0][0].effects[i].type = PatternEffect::NONE;
+		pattern->cells[0][0].effects[0].type = PatternEffect::TREMOLO_FREQ;
+		pattern->cells[0][0].effects[0].value = 4;
+		pattern->cells[0][0].effects[1].type = PatternEffect::TREMOLO_AMP;
+		pattern->cells[0][0].effects[1].value = 128;
+		pattern->cells[0][0].effects[2].type = PatternEffect::VIBRATO_FREQ;
+		pattern->cells[0][0].effects[2].value = 4;
+		pattern->cells[0][0].effects[3].type = PatternEffect::VIBRATO_AMP;
+		pattern->cells[0][0].effects[3].value = 32;
 
 		pattern->cells[0][4].mode = 1;
 		pattern->cells[0][4].synth = 0;
 		pattern->cells[0][4].pitch = 66;
-		pattern->cells[0][4].velocity = 255;
+		pattern->cells[0][4].velocity = 200;
 		pattern->cells[0][4].delay = 0;
+		pattern->cells[0][4].chance = 255;
 		for (i = 0; i < 8; ++i)
 			pattern->cells[0][4].effects[i].type = PatternEffect::NONE;
 
 		pattern->cells[0][8].mode = 1;
 		pattern->cells[0][8].synth = 0;
 		pattern->cells[0][8].pitch = 68;
-		pattern->cells[0][8].velocity = 255;
+		pattern->cells[0][8].velocity = 128;
 		pattern->cells[0][8].delay = 0;
+		pattern->cells[0][8].chance = 255;
 		for (i = 0; i < 8; ++i)
 			pattern->cells[0][8].effects[i].type = PatternEffect::NONE;
 
@@ -126,60 +129,57 @@ struct Tracker : Module {
 		pattern->cells[0][12].mode = 1;
 		pattern->cells[0][12].synth = 0;
 		pattern->cells[0][12].pitch = 71;
-		pattern->cells[0][12].velocity = 255;
+		pattern->cells[0][12].velocity = 80;
 		pattern->cells[0][12].delay = 0;
+		pattern->cells[0][12].chance = 255;
 		for (i = 0; i < 8; ++i)
 			pattern->cells[0][12].effects[i].type = PatternEffect::NONE;
 
 
-		pattern->cells[1][0].mode = 1;
-		pattern->cells[1][0].synth = 1;
-		pattern->cells[1][0].pitch = 66 + 24;
-		pattern->cells[1][0].velocity = 255;
-		pattern->cells[1][0].delay = 0;
-		for (i = 0; i < 8; ++i)
-			pattern->cells[1][0].effects[i].type = PatternEffect::NONE;
+		//pattern->cells[1][0].mode = 1;
+		//pattern->cells[1][0].synth = 1;
+		//pattern->cells[1][0].pitch = 66 + 24;
+		//pattern->cells[1][0].velocity = 10;
+		//pattern->cells[1][0].delay = 0;
+		//pattern->cells[1][0].chance = 255;
+		//for (i = 0; i < 8; ++i)
+		//	pattern->cells[1][0].effects[i].type = PatternEffect::NONE;
 
-		pattern->cells[1][2].mode = 1;
-		pattern->cells[1][2].synth = 1;
-		pattern->cells[1][2].pitch = 64 + 24;
-		pattern->cells[1][2].velocity = 255;
-		pattern->cells[1][2].delay = 0;
-		for (i = 0; i < 8; ++i)
-			pattern->cells[1][2].effects[i].type = PatternEffect::NONE;
+		//pattern->cells[1][2].mode = 1;
+		//pattern->cells[1][2].synth = 1;
+		//pattern->cells[1][2].pitch = 64 + 24;
+		//pattern->cells[1][2].velocity = 10;
+		//pattern->cells[1][2].delay = 0;
+		//pattern->cells[1][2].chance = 255;
+		//for (i = 0; i < 8; ++i)
+		//	pattern->cells[1][2].effects[i].type = PatternEffect::NONE;
 
-		pattern->cells[1][6].mode = -1;
-		pattern->cells[1][6].delay = 0;
-		for (i = 0; i < 8; ++i)
-			pattern->cells[1][6].effects[i].type = PatternEffect::NONE;
-
-		//timeline.line_count = 4;
-		//timeline.timeline.allocate(32, timeline.line_count);
-		//timeline.timeline[0][0] = 0;
-		//timeline.timeline[0][1] = 0;
-		//timeline.timeline[0][2] = 0;
-		//timeline.timeline[0][3] = 0;
+		//pattern->cells[1][6].mode = -1;
+		//pattern->cells[1][6].delay = 0;
+		//for (i = 0; i < 8; ++i)
+		//	pattern->cells[1][6].effects[i].type = PatternEffect::NONE;
 	}
 
 	void	process(const ProcessArgs& args) override {
-		float	bpm, bpm_rate;
+		float	dt_sec, dt_beat;
+		float	bpm;
 
 		/// COMPUTE CLOCK
 		bpm = params[PARAM_BPM].getValue();
-		bpm_rate = (bpm * args.sampleTime) / 60.0f;
+		dt_sec = args.sampleTime;
+		dt_beat = (bpm * dt_sec) / 60.0f;
 		clock_time_p = clock_timer.time;
-		clock_timer.process(bpm_rate);
+		clock_timer.process(dt_beat);
 		if (clock_timer.time >= 64.0f)
 			clock_timer.time -= 64.0f;
 		clock_time = clock_timer.time;
 
-		if (clock_time_p - (int)clock_time_p > clock_time - (int)clock_time) {
+		if (clock_time_p - (int)clock_time_p > clock_time - (int)clock_time)
 			outputs[OUTPUT_CLOCK].setVoltage(10.0f);
-		} else {
+		else
 			outputs[OUTPUT_CLOCK].setVoltage(0.0f);
-		}
 
-		timeline.process(this, bpm_rate);
+		timeline.process(this, dt_sec, dt_beat);
 
 
 		/// USE / MODIFY EXPANDERS
