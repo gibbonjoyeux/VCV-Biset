@@ -10,6 +10,6 @@
 	- [ ] Effect rachet			Rxx (x: count)
 	- [ ] Effect octave offset	Oxy (x: range y: chance)
 - [x] Pattern play notes glide
-- [ ] Pattern play CV curves
-- [ ] Pattern play CV curves with delay
-- [ ] Pattern play CV curves with curves
+- [x] Pattern play CV interpolation
+- [x] Pattern play CV interpolation with delay
+- [ ] Pattern play CV interpolation with curves
