@@ -4,11 +4,29 @@
 
 #include "plugin.hpp"
 
+#define PATTERN_EFFECT_NONE		0
+#define PATTERN_EFFECT_VIBRATO	1
+#define PATTERN_EFFECT_TREMOLO	2
+#define PATTERN_EFFECT_FADE_IN	3
+#define PATTERN_EFFECT_FADE_OUT	4
+#define PATTERN_EFFECT_RACHET	5
+
+#define PATTERN_NOTE_KEEP		0
+#define PATTERN_NOTE_NEW		1
+#define PATTERN_NOTE_STOP		-1
+#define PATTERN_NOTE_GLIDE		2
+#define PATTERN_CV_KEEP			0
+#define PATTERN_CV_SET			1
+
+#define TIMELINE_CELL_KEEP		0
+#define TIMELINE_CELL_ADD		1
+#define TIMELINE_CELL_STOP		-1
+
 typedef struct Clock			Clock;
 typedef struct SynthVoice		SynthVoice;
 typedef struct Synth			Synth;
 typedef struct PatternEffect	PatternEffect;
-typedef struct PatternCell		PatternCell;
+typedef struct PatternNote		PatternNote;
 typedef struct PatternSource	PatternSource;
 typedef struct TimelineCell		TimelineCell;
 typedef struct Timeline			Timeline;
@@ -41,24 +59,33 @@ struct Clock {
 //////////////////////////////////////////////////
 
 struct PatternEffect {
-	enum {
-								NONE,
-								VIBRATO,
-								TREMOLO,
-								FADE_IN,
-								FADE_OUT,
-								RACHET,
-	}							type;
+	u8							type;
 	u8							value;
 
 	PatternEffect() {
-		this->type = NONE;
+		this->type = PATTERN_EFFECT_NONE;
 		this->value = 0;
 	}
 };
 
-struct PatternCell {
-	i8							mode;		// 0: keep 1: note 2: glide -1: stop
+struct PatternCV {
+	i8							mode;		// PATTERN_CV_xxx
+	u8							synth;
+	u8							channel;
+	u8							value;
+	u8							glide;
+
+	PatternCV() {
+		this->mode = PATTERN_CV_KEEP;
+		this->synth = 0;
+		this->channel = 0;
+		this->value = 0;
+		this->glide = 0;
+	}
+};
+
+struct PatternNote {
+	i8							mode;		// PATTERN_NOTE_xxx
 	u8							glide;
 	u8							synth;
 	u8							pitch;
@@ -67,8 +94,8 @@ struct PatternCell {
 	u8							chance;
 	PatternEffect				effects[8];
 
-	PatternCell() {
-		this->mode = 0;
+	PatternNote() {
+		this->mode = PATTERN_NOTE_KEEP;
 		this->glide = 0;
 		this->synth = 0;
 		this->pitch = 0;
@@ -78,11 +105,26 @@ struct PatternCell {
 	}
 };
 
+struct PatternCVRow {
+	u8							synth;		// CV synth output
+	u8							channel;	// CV synth channel output
+	PatternCV					cvs[0];		// CVs (memory as struct extension)
+};
+
+struct PatternNoteRow {
+	u8							effect_count;
+	PatternNote					notes[0];	// Notes (memory as struct extension)
+};
+
 struct PatternSource {
 	u16							beat_count;	// Beat per pattern
 	u16							line_count;	// Lines per row
-	u8							row_count;	// Row per pattern
-	Array2D<PatternCell>		cells;		// Row X Lines
+	u16							note_count;	// Note rows
+	u16							cv_count;	// CV rows
+	//u8							row_count;	// Row per pattern
+	Array2D<PatternNote>		notes;		// Row X note nines
+	Array2D<PatternCV>			cvs;		// Row X CV lines
+	ArrayExt<PatternNote>		test;
 	u8							lpb;		// Lines per beat
 	u8							color;
 	i16							index;
@@ -90,18 +132,40 @@ struct PatternSource {
 	PatternSource() {
 		this->beat_count = 4;
 		this->line_count = this->beat_count * 4;
-		this->row_count = 1;
+		this->note_count = 4;
+		this->cv_count = 0;
 		this->lpb = 4;
-		this->cells.allocate(this->row_count, this->line_count);
+		this->notes.allocate(this->note_count, this->line_count);
+		this->cvs.allocate(this->cv_count, this->line_count);
 		this->color = 0;
 	}
 
-	void init(int row_count, int beat_count, int lpb) {
-		this->beat_count = beat_count;
-		this->line_count = this->beat_count * lpb;
-		this->row_count = row_count;
+	void resize(int note_count, int cv_count, int beat_count, int lpb) {
+		bool					change_note, change_cv;
+
+		/// [1] CHECK CHANGES
+		change_note = false;
+		change_cv = false;
+		if (this->beat_count != beat_count
+		|| this->lpb != lpb) {
+			change_note = true;
+			change_cv = true;
+		}
+		if (this->note_count != note_count)
+			change_note = true;
+		if (this->cv_count != cv_count)
+			change_cv = true;
+		/// [2] SET VARIABLES
 		this->lpb = lpb;
-		this->cells.allocate(this->row_count, this->line_count);
+		this->beat_count = beat_count;
+		this->line_count = this->beat_count * this->lpb;
+		this->note_count = note_count;
+		this->cv_count = cv_count;
+		/// [3] ALLOCATE ARRAYS
+		if (change_note)
+			this->notes.allocate(this->note_count, this->line_count);
+		if (change_cv)
+			this->cvs.allocate(this->cv_count, this->line_count);
 	}
 };
 
@@ -193,47 +257,47 @@ struct SynthVoice {
 		}
 	}
 
-	bool start(PatternCell *cell, int lpb) {
+	bool start(PatternNote *note, int lpb) {
 		PatternEffect			*effect;
 		int						i;
 
-		delay = (1.0f / (float)lpb) * ((float)cell->delay / 256.0f);
+		delay = (1.0f / (float)lpb) * ((float)note->delay / 256.0f);
 		/// START NOTE ON CHANCE
-		if (cell->chance == 255 || random::uniform() * 255.0 < cell->chance) {
+		if (note->chance == 255 || random::uniform() * 255.0 < note->chance) {
 			/// SET INTER NOTE GATE DELAY
 			this->delay_gate = (this->active) ? 0.001f : 0.0f;
 			/// SET MAIN DELAY
 			this->delay = delay;
 			/// SET NOTE PROPS
-			this->velocity = cell->velocity;
-			this->pitch = cell->pitch;
-			this->pitch_from = cell->pitch;
-			this->pitch_to = cell->pitch;
+			this->velocity = note->velocity;
+			this->pitch = note->pitch;
+			this->pitch_from = note->pitch;
+			this->pitch_to = note->pitch;
 			this->pitch_glide_len = 0;
 			this->pitch_glide_cur = 0;
 			/// SET EFFECTS
 			this->vibrato_amp = 0;
 			this->tremolo_amp = 0;
 			for (i = 0; i < 8; ++i) {
-				effect = &(cell->effects[i]);
+				effect = &(note->effects[i]);
 				switch(effect->type) {
-					case PatternEffect::NONE:
+					case PATTERN_EFFECT_NONE:
 						break;
-					case PatternEffect::VIBRATO:
+					case PATTERN_EFFECT_VIBRATO:
 						this->vibrato_freq =
 						/**/ (float)(effect->value / 16) * M_PI * 2.0f;
 						this->vibrato_amp = (float)(effect->value % 16) / 64.0;
 						break;
-					case PatternEffect::TREMOLO:
+					case PATTERN_EFFECT_TREMOLO:
 						this->tremolo_freq =
 						/**/ (float)(effect->value / 16) * M_PI * 2.0f;
 						this->tremolo_amp = (float)(effect->value % 16) / 16.0;
 						break;
-					case PatternEffect::FADE_IN:
+					case PATTERN_EFFECT_FADE_IN:
 						break;
-					case PatternEffect::FADE_OUT:
+					case PATTERN_EFFECT_FADE_OUT:
 						break;
-					case PatternEffect::RACHET:
+					case PATTERN_EFFECT_RACHET:
 						break;
 				}
 			}
@@ -244,7 +308,7 @@ struct SynthVoice {
 		return false;
 	}
 
-	void glide(PatternCell *cell) {
+	void glide(PatternNote *note) {
 		float						mix;
 
 		if (this->active) {
@@ -257,8 +321,8 @@ struct SynthVoice {
 			/// GLIDE OFF
 			} else {
 			}
-			this->pitch_to = cell->pitch;
-			this->pitch_glide_len = (1.0 - ((float)cell->glide / 256.0));
+			this->pitch_to = note->pitch;
+			this->pitch_glide_len = (1.0 - ((float)note->glide / 256.0));
 			this->pitch_glide_cur = 0;
 		}
 	}
@@ -326,11 +390,11 @@ struct Synth {
 			this->voices[i].process(module, dt_sec, dt_beat);
 	}
 
-	SynthVoice* add(PatternCell *cell, int lpb) {
+	SynthVoice* add(PatternNote *note, int lpb) {
 		SynthVoice*				voice;
 
 		voice = &(this->voices[this->channel_cur]);
-		if (voice->start(cell, lpb) == true) {
+		if (voice->start(note, lpb) == true) {
 			this->channel_cur = (this->channel_cur + 1) % channel_count;
 			return voice;
 		}
@@ -344,7 +408,7 @@ struct Synth {
 
 struct PatternInstance {
 	SynthVoice*					voices[32];	// Synth voices (1 voice : 1 row)
-	PatternCell*				cells[32];
+	PatternNote*				notes[32];
 
 	PatternInstance() {
 		this->reset();
@@ -355,56 +419,106 @@ struct PatternInstance {
 
 		for (i = 0; i < 32; ++i) {
 			this->voices[i] = NULL;
-			this->cells[i] = NULL;
+			this->notes[i] = NULL;
 		}
 	}
 
 	void process(Module *module, vector<Synth>* synths, PatternSource* pattern,
 	Clock clock, int *debug, int *debug_2, char *debug_str) {
 		int						line, row;
-		PatternCell*			cell;
-		SynthVoice*				voice;
+		PatternCV				*cv_from, *cv_to;
+		PatternNote				*note;
+		SynthVoice				*voice;
+		int						line_from, line_to;
+		float					phase;
+		float					cv_phase;
+		float					cv_value;
 
 		line = clock.beat * pattern->lpb + clock.phase * pattern->lpb;
+		phase = clock.phase * pattern->lpb;
+		phase -= (int)phase;
+
 		*debug = line;
 		*debug_2 = 0;
 		//sprintf(debug_str, "%d x %d (%d:%d) %d/%d", clock.beat, line,
-		///**/ cell->mode, cell->synth,
+		///**/ note->mode, note->synth,
 		///**/ voice->channel, module->outputs[1].getChannels());
-		for (row = 0; row < pattern->row_count; ++row) {
-			cell = &(pattern->cells[row][line]);
+
+		/// [1] COMPUTE PATTERN NOTE ROWS
+		for (row = 0; row < pattern->note_count; ++row) {
+			note = &(pattern->notes[row][line]);
 			voice = this->voices[row];
 			/// CELL CHANGE
-			if (cell != this->cells[row]) {
+			// TODO: ! ! ! Dangerous comparision as the PatternSource arrays
+			// might be reallocated on resize ! ! !
+			if (note != this->notes[row]) {
 				/// NOTE CHANGE
-				if (cell->mode == 1) {
+				if (note->mode == PATTERN_NOTE_NEW) {
 					/// CLOSE ACTIVE NOTE
 					if (voice) {
 						voice->stop();
 						this->voices[row] = NULL;
 					}
 					/// ADD NEW NOTE
-					if (cell->synth < synths->size()) {
-						voice = synths->at(cell->synth).add(cell, pattern->lpb);
+					if (note->synth < synths->size()) {
+						voice = synths->at(note->synth).add(note, pattern->lpb);
 						this->voices[row] = voice;
 					}
 				/// NOTE GLIDE
-				} else if (cell->mode == 2) {
+				} else if (note->mode == PATTERN_NOTE_GLIDE) {
 					if (voice) {
-						voice->glide(cell);
+						voice->glide(note);
 					}
 				/// NOTE KEEP
-				} else if (cell->mode == 0) {
+				} else if (note->mode == PATTERN_NOTE_GLIDE) {
 				/// NOTE STOP
-				} else {
+				} else if (note->mode == PATTERN_NOTE_STOP) {
 					/// CLOSE ACTIVE NOTE
 					if (voice) {
 						voice->stop();
 						this->voices[row] = NULL;
 					}
 				}
-				this->cells[row] = cell;
+				this->notes[row] = note;
 			}
+		}
+		/// [2] COMPUTE PATTERN CV ROWS
+		for (row = 0; row < pattern->cv_count; ++row) {
+			//cv = &(pattern->cvs[row][line]);
+			/// FIND LINE FROM
+			line_from = line - 1;
+			while (line_from >= 0
+			&& pattern->cvs[row][line_from].mode != PATTERN_CV_SET)
+				line_from -= 1;
+			if (line_from < 0)
+				line_from = line;
+			cv_from = &(pattern->cvs[row][line_from]);
+			/// FIND LINE TO
+			line_to = line + 1;
+			while (line_to < pattern->line_count
+			&& pattern->cvs[row][line_to].mode != PATTERN_CV_SET)
+				line_to += 1;
+			if (line_to >= pattern->line_count)
+				line_to = line;
+			cv_to = &(pattern->cvs[row][line_to]);
+			/// COMPUTE CV PHASE
+			if (line_from == line_to) {
+				cv_phase = 0;
+			} else {
+				// TODO: add inter line phase
+				cv_phase = (((float)line + phase) - (float)line_from)
+				/**/ / (float)(line_to - line_from + 1);
+			}
+			/// COMPUTE CV VALUE
+			cv_value = (float)cv_from->value +
+			/**/ ((float)cv_to->value - (float)cv_from->value)
+			/**/ * cv_phase;
+			/// REMAP CV FROM [0:255] TO [0:10]
+			cv_value /= 25.5;
+			/// OUTPUT CV
+			// TODO: Use ArrayExt and get SYNTH & CHANNEL from row
+			module->outputs[1 + pattern->cvs[row][0].synth]
+			/**/ .setVoltage(cv_value);
 		}
 	}
 
@@ -415,13 +529,13 @@ struct PatternInstance {
 			if (this->voices[row])
 				this->voices[row]->stop();
 			this->voices[row] = NULL;
-			this->cells[row] = NULL;
+			this->notes[row] = NULL;
 		}
 	}
 };
 
 struct TimelineCell {
-	i8							mode;		// 0: keep 1: note -1: stop
+	i8							mode;		// TIMELINE_CELL_xxx
 	u16							pattern;	// Pattern index
 	u16							beat;		// Pattern starting beat
 
