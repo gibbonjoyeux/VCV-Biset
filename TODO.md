@@ -1,0 +1,15 @@
+
+- [x] Tracker play pattern
+- [x] Tracker play pattern (with specified starting beat)
+- [x] Pattern play notes
+- [x] Pattern play notes delay
+- [x] Pattern play velocity
+- [ ] Pattern play effects
+	- [x] Effect vibrato		Vxy (x: freq y: amp)
+	- [x] Effect tremolo		Txy (x: freq y: amp)
+	- [ ] Effect rachet			Rxx (x: count)
+	- [ ] Effect octave offset	Oxy (x: range y: chance)
+- [x] Pattern play notes glide
+- [ ] Pattern play CV curves
+- [ ] Pattern play CV curves with delay
+- [ ] Pattern play CV curves with curves

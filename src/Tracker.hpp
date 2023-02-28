@@ -121,10 +121,8 @@ struct PatternSource {
 	u16							line_count;	// Lines per row
 	u16							note_count;	// Note rows
 	u16							cv_count;	// CV rows
-	//u8							row_count;	// Row per pattern
-	Array2D<PatternNote>		notes;		// Row X note nines
-	Array2D<PatternCV>			cvs;		// Row X CV lines
-	ArrayExt<PatternNote>		test;
+	ArrayExt<PatternCVRow>		cvs;		// Row X CV lines
+	ArrayExt<PatternNoteRow>	notes;		// Row X Note lines
 	u8							lpb;		// Lines per beat
 	u8							color;
 	i16							index;
@@ -135,8 +133,10 @@ struct PatternSource {
 		this->note_count = 4;
 		this->cv_count = 0;
 		this->lpb = 4;
-		this->notes.allocate(this->note_count, this->line_count);
-		this->cvs.allocate(this->cv_count, this->line_count);
+		this->notes.allocate(this->note_count,
+		/**/ this->line_count * sizeof(PatternNote));
+		this->cvs.allocate(this->cv_count,
+		/**/ this->line_count * sizeof(PatternCV));
 		this->color = 0;
 	}
 
@@ -162,10 +162,14 @@ struct PatternSource {
 		this->note_count = note_count;
 		this->cv_count = cv_count;
 		/// [3] ALLOCATE ARRAYS
-		if (change_note)
-			this->notes.allocate(this->note_count, this->line_count);
-		if (change_cv)
-			this->cvs.allocate(this->cv_count, this->line_count);
+		if (change_note) {
+			this->notes.allocate(this->note_count,
+			/**/ this->line_count * sizeof(PatternNote));
+		}
+		if (change_cv) {
+			this->cvs.allocate(this->cv_count,
+			/**/ this->line_count * sizeof(PatternCV));
+		}
 	}
 };
 
@@ -446,7 +450,7 @@ struct PatternInstance {
 
 		/// [1] COMPUTE PATTERN NOTE ROWS
 		for (row = 0; row < pattern->note_count; ++row) {
-			note = &(pattern->notes[row][line]);
+			note = &(pattern->notes[row]->notes[line]);
 			voice = this->voices[row];
 			/// CELL CHANGE
 			// TODO: ! ! ! Dangerous comparision as the PatternSource arrays
@@ -488,24 +492,23 @@ struct PatternInstance {
 			/// FIND LINE FROM
 			line_from = line - 1;
 			while (line_from >= 0
-			&& pattern->cvs[row][line_from].mode != PATTERN_CV_SET)
+			&& pattern->cvs[row]->cvs[line_from].mode != PATTERN_CV_SET)
 				line_from -= 1;
 			if (line_from < 0)
 				line_from = line;
-			cv_from = &(pattern->cvs[row][line_from]);
+			cv_from = &(pattern->cvs[row]->cvs[line_from]);
 			/// FIND LINE TO
 			line_to = line + 1;
 			while (line_to < pattern->line_count
-			&& pattern->cvs[row][line_to].mode != PATTERN_CV_SET)
+			&& pattern->cvs[row]->cvs[line_to].mode != PATTERN_CV_SET)
 				line_to += 1;
 			if (line_to >= pattern->line_count)
 				line_to = line;
-			cv_to = &(pattern->cvs[row][line_to]);
+			cv_to = &(pattern->cvs[row]->cvs[line_to]);
 			/// COMPUTE CV PHASE
 			if (line_from == line_to) {
 				cv_phase = 0;
 			} else {
-				// TODO: add inter line phase
 				cv_phase = (((float)line + phase) - (float)line_from)
 				/**/ / (float)(line_to - line_from + 1);
 			}
@@ -516,9 +519,7 @@ struct PatternInstance {
 			/// REMAP CV FROM [0:255] TO [0:10]
 			cv_value /= 25.5;
 			/// OUTPUT CV
-			// TODO: Use ArrayExt and get SYNTH & CHANNEL from row
-			module->outputs[1 + pattern->cvs[row][0].synth]
-			/**/ .setVoltage(cv_value);
+			module->outputs[1 + pattern->cvs[row]->synth].setVoltage(cv_value);
 		}
 	}
 

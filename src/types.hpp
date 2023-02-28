@@ -1,4 +1,5 @@
 
+typedef uint8_t		byte;
 typedef uint8_t		u8;
 typedef int8_t		i8;
 typedef uint16_t	u16;
@@ -6,6 +7,7 @@ typedef int16_t		i16;
 typedef uint32_t	u32;
 typedef int32_t		i32;
 
+// Allocate 2D arrays with only one malloc
 template<typename T> struct Array2D {
 	T**			ptr;
 	size_t		width;
@@ -23,14 +25,20 @@ template<typename T> struct Array2D {
 	}
 
 	bool allocate(size_t height, size_t width) {
-		T**	new_ptr;
+		T**		new_ptr;
 		void	**array_ptr;
 		int8_t	*array_byte;
 		size_t	total_size;
 		size_t	i, j;
 
-		if (width == 0 || height == 0)
-			return false;
+		if (width == 0 || height == 0) {
+			if (this->ptr)
+				free(this->ptr);
+			this->ptr = NULL;
+			this->width = width;
+			this->height = height;
+			return true;
+		}
 		/// DEFINE ARRAY SIZE
 		total_size = (height * sizeof(void*)) + (width * height * sizeof(T));
 		if ((total_size - height * sizeof(void*)) != (width * height * sizeof(T)))
@@ -61,6 +69,66 @@ template<typename T> struct Array2D {
 		this->ptr = new_ptr;
 		this->width = width;
 		this->height = height;
+		return true;
+	}
+
+	T* operator[](int i) {
+		return this->ptr[i];
+	}
+};
+
+// Allocate 1D array of specific type (usually struct or class) and extend
+// each element with an additional memory slot.
+//  Can be used to extend struct with an array of size 0 placed at the end of
+// the struct.
+template<typename T> struct ArrayExt {
+	T**			ptr;
+	size_t		size;
+
+	ArrayExt() {
+		this->ptr = NULL;
+		this->size = 0;
+	}
+
+	~ArrayExt() {
+		if (this->ptr)
+			free(this->ptr);
+	}
+
+	bool allocate(size_t size, size_t extension_slot) {
+		T**		new_ptr;
+		void	**array_ptr;
+		int8_t	*array_byte;
+		size_t	total_size;
+		size_t	i;
+
+		/// DEFINE ARRAY SIZE
+		total_size = (size * sizeof(void*))
+		/**/ + ((sizeof(T) + extension_slot) * size);
+		/// ALLOC ARRAY
+		array_ptr = (void**)malloc(total_size);
+		if (array_ptr == NULL)
+			return false;
+		/// CLEAN ARRAY
+		for (i = 0; i < total_size; ++i)
+			((u8*)array_ptr)[i] = 0;
+		/// CREATE ARRAY
+		array_byte = (int8_t*)array_ptr + (size * sizeof(void*));
+		for (i = 0; i < size; ++i)
+			array_ptr[i] = array_byte + (i * (sizeof(T) + extension_slot));
+		new_ptr = (T**)array_ptr;
+
+		/// COPY PREVIOUS ARRAY
+		if (this->ptr) {
+			/// COPY
+			for (i = 0; i < size && i < this->size; ++i)
+				memcpy(new_ptr[i], this->ptr[i], sizeof(T) + extension_slot);
+			/// FREE PREVIOUS
+			free(this->ptr);
+		}
+		/// UPDATE ARRAY
+		this->ptr = new_ptr;
+		this->size = size;
 		return true;
 	}
 

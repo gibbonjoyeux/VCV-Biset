@@ -1,0 +1,4 @@
+build/
+dist/
+plugin.dll
+*.swp

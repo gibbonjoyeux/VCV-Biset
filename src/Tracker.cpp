@@ -79,85 +79,76 @@ struct Tracker : Module {
 		timeline.patterns.resize(1);
 		pattern = &(timeline.patterns[0]);
 
-		pattern->init(2, 4, 4);
+		pattern->resize(2, 1, 4, 4);
 		//pattern->line_count = 4;
 		//pattern->row_count = 1;
 		//pattern->lpb = 4;
 		//pattern.lines.allocate(pattern.track_count, pattern.line_count);
 
-		/// FILL PATTERN SOURCE
-		pattern->cells[0][0].mode = 1;
-		pattern->cells[0][0].synth = 0;
-		pattern->cells[0][0].pitch = 64;
-		pattern->cells[0][0].velocity = 255;
-		pattern->cells[0][0].delay = 0;
-		pattern->cells[0][0].chance = 255;
+		/// FILL PATTERN SOURCE NOTES
+		pattern->notes[0]->notes[0].mode = PATTERN_NOTE_NEW;
+		pattern->notes[0]->notes[0].synth = 0;
+		pattern->notes[0]->notes[0].pitch = 64;
+		pattern->notes[0]->notes[0].velocity = 255;
+		pattern->notes[0]->notes[0].delay = 0;
+		pattern->notes[0]->notes[0].chance = 255;
 		for (i = 0; i < 8; ++i)
-			pattern->cells[0][0].effects[i].type = PatternEffect::NONE;
-		pattern->cells[0][0].effects[0].type = PatternEffect::TREMOLO_FREQ;
-		pattern->cells[0][0].effects[0].value = 4;
-		pattern->cells[0][0].effects[1].type = PatternEffect::TREMOLO_AMP;
-		pattern->cells[0][0].effects[1].value = 128;
-		pattern->cells[0][0].effects[2].type = PatternEffect::VIBRATO_FREQ;
-		pattern->cells[0][0].effects[2].value = 4;
-		pattern->cells[0][0].effects[3].type = PatternEffect::VIBRATO_AMP;
-		pattern->cells[0][0].effects[3].value = 32;
+			pattern->notes[0]->notes[0].effects[i].type = PATTERN_EFFECT_NONE;
+		pattern->notes[0]->notes[0].effects[0].type = PATTERN_EFFECT_TREMOLO;
+		pattern->notes[0]->notes[0].effects[0].value = 0x49;
+		pattern->notes[0]->notes[0].effects[1].type = PATTERN_EFFECT_VIBRATO;
+		pattern->notes[0]->notes[0].effects[1].value = 0x42;
 
-		pattern->cells[0][4].mode = 1;
-		pattern->cells[0][4].synth = 0;
-		pattern->cells[0][4].pitch = 66;
-		pattern->cells[0][4].velocity = 200;
-		pattern->cells[0][4].delay = 0;
-		pattern->cells[0][4].chance = 255;
+		pattern->notes[0]->notes[4].mode = PATTERN_NOTE_NEW;
+		pattern->notes[0]->notes[4].glide = 100;
+		pattern->notes[0]->notes[4].synth = 0;
+		pattern->notes[0]->notes[4].pitch = 66;
+		pattern->notes[0]->notes[4].velocity = 200;
+		pattern->notes[0]->notes[4].delay = 0;
+		pattern->notes[0]->notes[4].chance = 255;
 		for (i = 0; i < 8; ++i)
-			pattern->cells[0][4].effects[i].type = PatternEffect::NONE;
+			pattern->notes[0]->notes[4].effects[i].type = PATTERN_EFFECT_NONE;
 
-		pattern->cells[0][8].mode = 1;
-		pattern->cells[0][8].synth = 0;
-		pattern->cells[0][8].pitch = 68;
-		pattern->cells[0][8].velocity = 128;
-		pattern->cells[0][8].delay = 0;
-		pattern->cells[0][8].chance = 255;
+		pattern->notes[0]->notes[8].mode = PATTERN_NOTE_NEW;
+		pattern->notes[0]->notes[8].glide = 100;
+		pattern->notes[0]->notes[8].synth = 0;
+		pattern->notes[0]->notes[8].pitch = 68;
+		pattern->notes[0]->notes[8].velocity = 128;
+		pattern->notes[0]->notes[8].delay = 0;
+		pattern->notes[0]->notes[8].chance = 255;
 		for (i = 0; i < 8; ++i)
-			pattern->cells[0][8].effects[i].type = PatternEffect::NONE;
+			pattern->notes[0]->notes[8].effects[i].type = PATTERN_EFFECT_NONE;
 
-		//pattern->cells[0][10].mode = -1;
-		//pattern->cells[0][10].delay = 0;
+		//pattern->notes[0][10].mode = -1;
+		//pattern->notes[0][10].delay = 0;
 		//for (i = 0; i < 8; ++i)
-		//	pattern->cells[0][10].effects[i].type = PatternEffect::NONE;
+		//	pattern->notes[0][10].effects[i].type = PATTERN_EFFECT_NONE;
 
-		pattern->cells[0][12].mode = 1;
-		pattern->cells[0][12].synth = 0;
-		pattern->cells[0][12].pitch = 71;
-		pattern->cells[0][12].velocity = 80;
-		pattern->cells[0][12].delay = 0;
-		pattern->cells[0][12].chance = 255;
+		pattern->notes[0]->notes[12].mode = PATTERN_NOTE_NEW;
+		pattern->notes[0]->notes[12].glide = 100;
+		pattern->notes[0]->notes[12].synth = 0;
+		pattern->notes[0]->notes[12].pitch = 71;
+		pattern->notes[0]->notes[12].velocity = 80;
+		pattern->notes[0]->notes[12].delay = 0;
+		pattern->notes[0]->notes[12].chance = 255;
 		for (i = 0; i < 8; ++i)
-			pattern->cells[0][12].effects[i].type = PatternEffect::NONE;
+			pattern->notes[0]->notes[12].effects[i].type = PATTERN_EFFECT_NONE;
 
+		/// FILL PATTERN SOURCE CVS
+		// TODO: use ArrayExt and set SYNTH & CHANNEL on row
+		pattern->cvs[0]->synth = 1;
+		pattern->cvs[0]->channel = 0;
+		pattern->cvs[0]->cvs[0].mode = PATTERN_CV_SET;
+		pattern->cvs[0]->cvs[0].value = 0;
+		pattern->cvs[0]->cvs[6].mode = PATTERN_CV_SET;
+		pattern->cvs[0]->cvs[6].value = 255;
+		pattern->cvs[0]->cvs[15].mode = PATTERN_CV_SET;
+		pattern->cvs[0]->cvs[15].value = 0;
 
-		//pattern->cells[1][0].mode = 1;
-		//pattern->cells[1][0].synth = 1;
-		//pattern->cells[1][0].pitch = 66 + 24;
-		//pattern->cells[1][0].velocity = 10;
-		//pattern->cells[1][0].delay = 0;
-		//pattern->cells[1][0].chance = 255;
+		//pattern->notes[1][6].mode = -1;
+		//pattern->notes[1][6].delay = 0;
 		//for (i = 0; i < 8; ++i)
-		//	pattern->cells[1][0].effects[i].type = PatternEffect::NONE;
-
-		//pattern->cells[1][2].mode = 1;
-		//pattern->cells[1][2].synth = 1;
-		//pattern->cells[1][2].pitch = 64 + 24;
-		//pattern->cells[1][2].velocity = 10;
-		//pattern->cells[1][2].delay = 0;
-		//pattern->cells[1][2].chance = 255;
-		//for (i = 0; i < 8; ++i)
-		//	pattern->cells[1][2].effects[i].type = PatternEffect::NONE;
-
-		//pattern->cells[1][6].mode = -1;
-		//pattern->cells[1][6].delay = 0;
-		//for (i = 0; i < 8; ++i)
-		//	pattern->cells[1][6].effects[i].type = PatternEffect::NONE;
+		//	pattern->notes[1][6].effects[i].type = PATTERN_EFFECT_NONE;
 	}
 
 	void	process(const ProcessArgs& args) override {
@@ -234,6 +225,15 @@ struct TrackerDisplay : LedDisplay {
 			// TMP DEBUG ! ! !
 			nvgFillColor(args.vg, module->colors[3]);
 			nvgText(args.vg, p.x + 100, p.y + 11.0, module->timeline.debug_str, NULL);
+
+
+			//char text[1024];
+			//int test = 0x49;
+			//itoa(sizeof(Test), text, 10);
+			////int a1 = (test << 4) >> 4;
+			////int a2 = (test >> 4);
+			//sprintf(text, "%d %d", test / 16, test % 16);
+			//nvgText(args.vg, p.x + 100, p.y + 11.0, text, NULL);
 
 
 			if (font) { 
