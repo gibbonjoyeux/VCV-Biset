@@ -245,18 +245,10 @@ struct TrackerDisplay : LedDisplay {
 			corner_tr = rect.getTopRight();
 
 			nvgBeginPath(args.vg);
-			nvgFillColor(args.vg, module->colors[15]);
+			nvgFillColor(args.vg, module->colors[0]);
 			nvgRect(args.vg, RECT_ARGS(rect));
 			nvgFill(args.vg);
 
-			// TMP TIME BEAT MARKER
-			nvgBeginPath(args.vg);
-			nvgFillColor(args.vg, module->colors[4]);
-			//nvgRect(args.vg,
-			///**/ p.x + 1.0, p.y + 3.5 + 8.5 * module->timeline.clock.beat, 20, 8.5);
-			nvgRect(args.vg,
-			/**/ p.x + 1.0, p.y + 3.5 + 8.5 * module->timeline.debug, 20, 8.5);
-			nvgFill(args.vg);
 			// TMP DEBUG ! ! !
 			nvgFillColor(args.vg, module->colors[3]);
 			nvgText(args.vg, p.x + 100, p.y + 11.0, module->timeline.debug_str, NULL);
@@ -277,22 +269,44 @@ struct TrackerDisplay : LedDisplay {
 
 				char_width = nvgTextBounds(args.vg, 0, 0, "X", NULL, NULL);
 
+				// TMP TIME BEAT MARKER
+				nvgBeginPath(args.vg);
+				nvgFillColor(args.vg, module->colors[15]);
+				nvgRect(args.vg,
+				/**/ p.x, p.y + 3.5 + 8.5 * module->timeline.debug,
+				/**/ rect.getWidth() + 0.5, 8.5);
+				nvgFill(args.vg);
+
 				if (module->timeline.patterns.size() > 0) {
 					PatternSource	*pattern = &(module->timeline.patterns[0]);
 					PatternNote		*note;
-					PatternNoteRow	*row;
+					PatternNoteRow	*note_row;
+					PatternCV		*cv;
+					PatternCVRow	*cv_row;
 					PatternEffect	*effect;
 					char			str[32];
 
 					/// FOR EACH NOTE ROW	
 					x_row = p.x + 2.0;
 					for (i = 0; i < pattern->note_count; ++i) {
-						row = pattern->notes[i];
-						/// FOR EACH ROW LINE
+						note_row = pattern->notes[i];
+						/// FOR EACH NOTE ROW LINE
 						for (j = 0; j < pattern->line_count; ++j) {
 							x = x_row;//p.x + 2.0;
 							y = p.y + 11.0 + 8.5 * j;
-							note = &(row->notes[j]);
+							note = &(note_row->notes[j]);
+							/// GLIDE
+							nvgFillColor(args.vg, module->colors[9]);
+							if (note->mode == PATTERN_NOTE_KEEP
+							|| note->mode == PATTERN_NOTE_NEW) {
+								str[0] = '.';
+								str[1] = '.';
+								str[2] = 0;
+							} else {
+								itoa(note->glide, str, 16);
+							}
+							nvgText(args.vg, x, y, str, NULL);
+							x += char_width * 2.0;
 							/// PITCH
 							nvgFillColor(args.vg, module->colors[3]);
 							if (note->mode == PATTERN_NOTE_KEEP) {
@@ -335,7 +349,7 @@ struct TrackerDisplay : LedDisplay {
 							nvgText(args.vg, x, y, str, NULL);
 							x += char_width * 2.0;
 							/// DELAY
-							nvgFillColor(args.vg, module->colors[9]);
+							nvgFillColor(args.vg, module->colors[10]);
 							if (note->mode == PATTERN_NOTE_KEEP) {
 								str[0] = '.';
 								str[1] = '.';
@@ -346,11 +360,11 @@ struct TrackerDisplay : LedDisplay {
 							nvgText(args.vg, x, y, str, NULL);
 							x += char_width * 2.0;
 							/// EFFECTS
-							for (k = 0; k < row->effect_count; ++k) {
+							for (k = 0; k < note_row->effect_count; ++k) {
 								if (k & 1)
-									nvgFillColor(args.vg, module->colors[13]);
+									nvgFillColor(args.vg, module->colors[14]);
 								else
-									nvgFillColor(args.vg, module->colors[12]);
+									nvgFillColor(args.vg, module->colors[13]);
 								effect = &(note->effects[k]);
 								if (note->mode == PATTERN_NOTE_KEEP
 								|| effect->type == PATTERN_EFFECT_NONE) {
@@ -359,15 +373,24 @@ struct TrackerDisplay : LedDisplay {
 									str[2] = '.';
 									str[3] = 0;
 								} else {
-									str[0] = table_effect[effect->type + 1];
+									str[0] = table_effect[effect->type - 1];
 									itoa(note->effects[k].value, str + 1, 16);
 								}
 								nvgText(args.vg, x, y, str, NULL);
 								x += char_width * 3.0;
 							}
 						}
-						x_row = x;
+						x_row = x + char_width;
 					}
+					/// FOR EACH CV ROW
+					//for (i = 0; i < pattern->cv_count; ++i) {
+					//	cv_row = pattern->cvs[i];
+					//	/// FOR EACH CV ROW LINE
+					//	for (j = 0; j < pattern->line_count; ++j) {
+					//		x = x_note_row;
+					//		y = p.y + 11.0 + 8.5 * j;
+					//		note = &(note_row->notes[j]);
+					//}
 				}
 			}
 		}
