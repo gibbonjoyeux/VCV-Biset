@@ -117,6 +117,12 @@ struct PatternNoteRow {
 	PatternNote					notes[0];	// Notes (memory as struct extension)
 };
 
+// PatternSource is the object that stores a pattern content (notes, cv...).
+//  It does not process anything, it only stores origin pattern data while
+//  PatternInstance does the process.
+// PatternSource stores its length (beat, line, note, cv).
+// PatternSource stores its notes and cvs as extended 1D arrays (an array being
+//  a row containing the cells).
 struct PatternSource {
 	u16							beat_count;	// Beat per pattern
 	u16							line_count;	// Lines per row
@@ -178,6 +184,10 @@ struct PatternSource {
 /// SYNTH
 //////////////////////////////////////////////////
 
+// SynthVoice is the object that compute the synth voice output.
+// SynthVoice store basic playing information (synth, channel, pitch...)
+// SynthVoice can be active (playing) or not.
+// SynthVoice computes the final pitch, gate and velocity.
 struct SynthVoice {
 	bool						active;
 
@@ -360,13 +370,19 @@ struct SynthVoice {
 	}
 };
 
+// Synth stores the basic synth output informations (index, channels)
+// Synth stores 
+// Synth stores 32 SynthVoice to process (play) a voice
+//  (added from PatternInstance).
 struct Synth {
+	bool						active;
 	u8							index;
 	u8							channel_cur;
 	u8							channel_count;
 	SynthVoice					voices[16];
 
 	Synth() {
+		this->active = false;
 		this->index = 0;
 		this->channel_cur = 0;
 		this->channel_count = 6;
@@ -375,6 +391,7 @@ struct Synth {
 	void init(int synth_index, int channel_count) {
 		int			i;
 
+		this->active = true;
 		/// INIT VOICES
 		this->index = synth_index;
 		for (i = 0; i < 16; ++i)
@@ -386,6 +403,8 @@ struct Synth {
 	void process(Module *module, float dt_sec, float dt_beat) {
 		int			i;
 
+		if (this->active == false)
+			return;
 		/// SET OUTPUT CHANNELS
 		module->outputs[1 + this->index].setChannels(this->channel_count);
 		module->outputs[1 + 8 + this->index].setChannels(this->channel_count);
@@ -411,6 +430,9 @@ struct Synth {
 /// TIMELINE
 //////////////////////////////////////////////////
 
+// PatternInstance represent the playing part of a PatternSource. It does not
+//  store the origin pattern data, it only process.
+// PatternInstance process (play) a given pattern from the timeline.
 struct PatternInstance {
 	SynthVoice*					voices[32];	// Synth voices (1 voice : 1 row)
 	PatternNote*				notes[32];
@@ -428,7 +450,7 @@ struct PatternInstance {
 		}
 	}
 
-	void process(Module *module, vector<Synth>* synths, PatternSource* pattern,
+	void process(Module *module, Synth *synths, PatternSource* pattern,
 	Clock clock, int *debug, int *debug_2, char *debug_str) {
 		int						line, row;
 		PatternCV				*cv_line, *cv_from, *cv_to;
@@ -465,8 +487,8 @@ struct PatternInstance {
 						this->voices[row] = NULL;
 					}
 					/// ADD NEW NOTE
-					if (note->synth < synths->size()) {
-						voice = synths->at(note->synth).add(note, pattern->lpb);
+					if (note->synth < 64) {
+						voice = synths[note->synth].add(note, pattern->lpb);
 						this->voices[row] = voice;
 					}
 				/// NOTE GLIDE
@@ -561,6 +583,8 @@ struct PatternInstance {
 	}
 };
 
+// TimelineCell stores its mode (if it is active or not), the desired pattern
+//  index and the desired starting beat.
 struct TimelineCell {
 	i8							mode;		// TIMELINE_CELL_xxx
 	u16							pattern;	// Pattern index
@@ -573,6 +597,14 @@ struct TimelineCell {
 	}
 };
 
+// Timeline stores every PatternSource & Synth.
+// Timeline stores the main clock;
+// Timeline stores a PatternInstance array (one per track / row)
+// Timeline stores the timeline cells array (2D).
+//  1D: Track / Row
+//  2D: Cell (TimelineCell)
+// There are 32 tracks / rows and their length is based on the beat count.
+// Each cell / line of the tracks represent one beat.
 struct Timeline {
 	char						debug_str[1024];
 	int							debug;
@@ -581,26 +613,28 @@ struct Timeline {
 	Clock						clock;
 	u16							beat_count;
 	Array2D<TimelineCell>		timeline;
-	PatternSource*				pattern[32];
+	PatternSource*				pattern_source[32];
 	TimelineCell*				pattern_cell[32];
 	u32							pattern_start[32];
 	PatternInstance				pattern_instance[32];
 
 	vector<PatternSource>		patterns;
-	vector<Synth>				synths;
+	Synth						synths[64];
 
 	Timeline() {
 		int						i;
 
 		/// [1] INIT ROWS
 		for (i = 0; i < 32; ++i) {
-			this->pattern[i] = NULL;
+			this->pattern_source[i] = NULL;
 			this->pattern_cell[i] = NULL;
 			this->pattern_start[i] = 0;
 			this->pattern_instance[i].reset();
 		}
 		/// [2] INIT CLOCK
 		clock.reset();
+		/// [3] INIT TIMELINE
+		this->resize(16);
 
 		debug = 0;
 		debug_2 = 0;
@@ -611,7 +645,6 @@ struct Timeline {
 		Clock					clock_relative;
 		PatternSource*			pattern;
 		TimelineCell*			cell;
-		int						len;
 		int						i;
 
 		/// [1] UPDATE CLOCK
@@ -635,38 +668,42 @@ struct Timeline {
 					this->pattern_instance[i].stop();
 					this->pattern_start[i] = clock.beat;
 					this->pattern_cell[i] = cell;
-					this->pattern[i] = pattern;
+					this->pattern_source[i] = pattern;
 					/// COMPUTE PATTERN PROCESS
-					this->pattern_instance[i].process(module, &this->synths,
-					/**/ this->pattern[i], clock_relative,
+					this->pattern_instance[i].process(module, this->synths,
+					/**/ this->pattern_source[i], clock_relative,
 					/**/ &debug, &debug_2, debug_str);
 				}
 			/// PATTERN STOP
 			} else if (cell->mode == -1) {
 				/// PATTERN SWITCH OFF
-				if (this->pattern[i] != NULL)
+				if (this->pattern_source[i] != NULL)
 					this->pattern_instance[i].stop();
 			/// PATTERN KEEP
 			} else {
-				if (this->pattern[i]) {
-					pattern = this->pattern[i];
+				if (this->pattern_source[i]) {
+					pattern = this->pattern_source[i];
 					/// COMPUTE RELATIVE CLOCK
 					clock_relative.beat =
 					/**/ (this->clock.beat - this->pattern_start[i]
 					/**/ + this->pattern_cell[i]->beat) % pattern->beat_count;
 					clock_relative.phase = this->clock.phase;
 					/// COMPUTE PATTERN PROCESS
-					this->pattern_instance[i].process(module, &this->synths,
-					/**/ this->pattern[i], clock_relative,
+					this->pattern_instance[i].process(module, this->synths,
+					/**/ this->pattern_source[i], clock_relative,
 					/**/ &debug, &debug_2, debug_str);
 				}
 			}
 		}
 
 		/// [3] UPDATE SYNTHS
-		len = synths.size();
-		for (i = 0; i < len; ++i)
+		for (i = 0; i < 64; ++i)
 			synths[i].process(module, dt_sec, dt_beat);
+	}
+
+	void resize(int beat_count) {
+		this->beat_count = beat_count;
+		this->timeline.allocate(32, this->beat_count);
 	}
 };
 

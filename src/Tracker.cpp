@@ -1,6 +1,12 @@
 
 #include "plugin.hpp"
 
+char	table_pitch[12][3] = {
+	"C.", "C#", "D.", "D#", "E.", "F.", "F#", "G.", "G#", "A.", "A#", "B."
+};
+char	table_effect[] = "VTFfR";
+char	table_hex[] = "0123456789ABCDEF";
+
 struct Tracker : Module {
 	enum	ParamIds {
 		PARAM_BPM,
@@ -63,23 +69,24 @@ struct Tracker : Module {
 		PatternSource	*pattern;
 
 		timeline.debug = 0;
-		timeline.beat_count = 4;
-		timeline.timeline.allocate(32, timeline.beat_count);
-		for (i = 0; i < 32; ++i) {
-			timeline.timeline[i][0].mode = 0;
-		}
+		//timeline.beat_count = 4;
+		//timeline.timeline.allocate(32, timeline.beat_count);
+		//for (i = 0; i < 32; ++i) {
+		//	timeline.timeline[i][0].mode = 0;
+		//}
+		timeline.resize(4);
 		timeline.timeline[0][0].mode = 1;
 		timeline.timeline[0][0].pattern = 0;
 		timeline.timeline[0][0].beat = 0;
 
-		timeline.synths.resize(2);
 		timeline.synths[0].init(0, 6);
 		timeline.synths[1].init(1, 6);
 
 		timeline.patterns.resize(1);
 		pattern = &(timeline.patterns[0]);
 
-		pattern->resize(2, 1, 4, 4);
+		pattern->resize(3, 1, 4, 4);
+		pattern->notes[0]->effect_count = 2;
 		//pattern->line_count = 4;
 		//pattern->row_count = 1;
 		//pattern->lpb = 4;
@@ -140,9 +147,10 @@ struct Tracker : Module {
 		pattern->cvs[0]->channel = 0;
 		pattern->cvs[0]->cvs[0].mode = PATTERN_CV_SET;
 		pattern->cvs[0]->cvs[0].value = 0;
-		pattern->cvs[0]->cvs[6].mode = PATTERN_CV_SET;
-		pattern->cvs[0]->cvs[6].value = 255;
+		pattern->cvs[0]->cvs[8].mode = PATTERN_CV_SET;
+		pattern->cvs[0]->cvs[8].value = 255;
 		pattern->cvs[0]->cvs[15].mode = PATTERN_CV_SET;
+		pattern->cvs[0]->cvs[15].delay = 255;
 		pattern->cvs[0]->cvs[15].value = 0;
 
 		//pattern->notes[1][6].mode = -1;
@@ -181,22 +189,49 @@ struct Tracker : Module {
 };
 
 struct TrackerDisplay : LedDisplay {
-	Tracker*		module;
-	ModuleWidget*		moduleWidget;
-	std::string		font_path;
+	Tracker*				module;
+	ModuleWidget*			moduleWidget;
+	std::string				font_path;
 
 	TrackerDisplay() {
 		font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
 	}
 
+	void itohex(char *string, int number, int width) {
+		int						length;
+		int						i;
+
+		if (number < 16)
+			length = 1;
+		else if (number < 256)
+			length = 2;
+		else
+			length = 3;
+		/// FILL NUMBER
+		i = 0;
+		while (number > 0) {
+			string[length - i - 1] = table_hex[number % 16];
+			number /= 16;
+			i += 1;
+		}
+		/// FILL WIDTH
+		while (i < width) {
+			string[i] = '0';
+			i += 1;
+		}
+		string[length] = 0;
+	}
+
 	void drawLayer(const DrawArgs& args, int layer) override {
 		std::shared_ptr<Font>	font;
-		Rect			rect;
-		Vec			p;
-		Vec			corner_bl, corner_tl;
-		Vec			corner_br, corner_tr;
-		float			char_width;
-		int			i;
+		Rect					rect;
+		Vec						p;
+		Vec						corner_bl, corner_tl;
+		Vec						corner_br, corner_tr;
+		float					char_width;
+		int						i, j, k;
+		float					x, y;
+		float					x_row;
 
 		if (layer == 1 && module) {
 			font = APP->window->loadFont(font_path);
@@ -242,59 +277,98 @@ struct TrackerDisplay : LedDisplay {
 
 				char_width = nvgTextBounds(args.vg, 0, 0, "X", NULL, NULL);
 
-				//nvgFillColor(args.vg, module->colors[0]);
-				//nvgText(args.vg, p.x + 2, p.y + 11.0, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", NULL);
+				if (module->timeline.patterns.size() > 0) {
+					PatternSource	*pattern = &(module->timeline.patterns[0]);
+					PatternNote		*note;
+					PatternNoteRow	*row;
+					PatternEffect	*effect;
+					char			str[32];
 
-				/// PITCH
-				nvgFillColor(args.vg, module->colors[3]);
-				for (i = 0; i < 32; ++i)
-					nvgText(args.vg, p.x + 2, p.y + 11.0 + 8.5 * i, "C#", NULL);
-				/// OCTAVE
-				nvgFillColor(args.vg, module->colors[2]);
-				for (i = 0; i < 32; ++i)
-					nvgText(args.vg, p.x + 2.0 + char_width * 2.0, p.y + 11.0 + 8.5 * i, "4", NULL);
-				/// VELOCITY
-				nvgFillColor(args.vg, module->colors[5]);
-				for (i = 0; i < 32; ++i)
-					nvgText(args.vg, p.x + 2.0 + char_width * 3.0, p.y + 11.0 + 8.5 * i, "FF", NULL);
-				/// SYNTH
-				nvgFillColor(args.vg, module->colors[4]);
-				for (i = 0; i < 32; ++i)
-					nvgText(args.vg, p.x + 2.0 + char_width * 5.0, p.y + 11.0 + 8.5 * i, "00", NULL);
-				/// DELAY
-				nvgFillColor(args.vg, module->colors[9]);
-				for (i = 0; i < 32; ++i)
-					nvgText(args.vg, p.x + 2.0 + char_width * 7.0, p.y + 11.0 + 8.5 * i, "00", NULL);
-				/// EFFECTS
-				nvgFillColor(args.vg, module->colors[12]);
-				for (i = 0; i < 32; ++i)
-					nvgText(args.vg, p.x + 2.0 + char_width * 9.0, p.y + 11.0 + 8.5 * i, "V08", NULL);
-				nvgFillColor(args.vg, module->colors[13]);
-				for (i = 0; i < 32; ++i)
-					nvgText(args.vg, p.x + 2.0 + char_width * 12.0, p.y + 11.0 + 8.5 * i, "v44", NULL);
-			} else {
-				nvgScissor(args.vg, RECT_ARGS(args.clipBox));
-				//nvgSave(args.vg);
-
-				/// FILL CANVAS
-				//nvgFillColor(args.vg, nvgRGBA(0xff, 0x00, 0x00, 0x60));
-				//nvgFill(args.vg);
-
-				/// DRAW ON CANVAS
-				nvgStrokeColor(args.vg, nvgRGBA(0xff, 0x8C, 0x00, 0xff));
-				nvgStrokeWidth(args.vg, 1.5f);
-				{
-					nvgLineCap(args.vg, NVG_ROUND);
-					nvgBeginPath(args.vg);
-					nvgMoveTo(args.vg, corner_tl.x, corner_tl.y);
-					nvgLineTo(args.vg, corner_br.x, corner_br.y);
-					nvgStroke(args.vg);
-					nvgClosePath(args.vg);
-					nvgStroke(args.vg);
+					/// FOR EACH NOTE ROW	
+					x_row = p.x + 2.0;
+					for (i = 0; i < pattern->note_count; ++i) {
+						row = pattern->notes[i];
+						/// FOR EACH ROW LINE
+						for (j = 0; j < pattern->line_count; ++j) {
+							x = x_row;//p.x + 2.0;
+							y = p.y + 11.0 + 8.5 * j;
+							note = &(row->notes[j]);
+							/// PITCH
+							nvgFillColor(args.vg, module->colors[3]);
+							if (note->mode == PATTERN_NOTE_KEEP) {
+								nvgText(args.vg, x, y, "..", NULL);
+							} else {
+								nvgText(args.vg, x, y,
+								/**/ table_pitch[note->pitch % 12], NULL);
+							}
+							x += char_width * 2.0;
+							/// OCTAVE
+							nvgFillColor(args.vg, module->colors[2]);
+							if (note->mode == PATTERN_NOTE_KEEP) {
+								str[0] = '.';
+								str[1] = 0;
+							} else {
+								itoa(note->pitch / 12, str, 10);
+							}
+							nvgText(args.vg, x, y, str, NULL);
+							x += char_width * 1.0;
+							/// VELOCITY
+							nvgFillColor(args.vg, module->colors[5]);
+							if (note->mode == PATTERN_NOTE_KEEP) {
+								str[0] = '.';
+								str[1] = '.';
+								str[2] = 0;
+							} else {
+								itoa(note->velocity, str, 16);
+							}
+							nvgText(args.vg, x, y, str, NULL);
+							x += char_width * 2.0;
+							/// SYNTH
+							nvgFillColor(args.vg, module->colors[4]);
+							if (note->mode == PATTERN_NOTE_KEEP) {
+								str[0] = '.';
+								str[1] = '.';
+								str[2] = 0;
+							} else {
+								itoa(note->synth, str, 16);
+							}
+							nvgText(args.vg, x, y, str, NULL);
+							x += char_width * 2.0;
+							/// DELAY
+							nvgFillColor(args.vg, module->colors[9]);
+							if (note->mode == PATTERN_NOTE_KEEP) {
+								str[0] = '.';
+								str[1] = '.';
+								str[2] = 0;
+							} else {
+								itoa(note->delay, str, 16);
+							}
+							nvgText(args.vg, x, y, str, NULL);
+							x += char_width * 2.0;
+							/// EFFECTS
+							for (k = 0; k < row->effect_count; ++k) {
+								if (k & 1)
+									nvgFillColor(args.vg, module->colors[13]);
+								else
+									nvgFillColor(args.vg, module->colors[12]);
+								effect = &(note->effects[k]);
+								if (note->mode == PATTERN_NOTE_KEEP
+								|| effect->type == PATTERN_EFFECT_NONE) {
+									str[0] = '.';
+									str[1] = '.';
+									str[2] = '.';
+									str[3] = 0;
+								} else {
+									str[0] = table_effect[effect->type + 1];
+									itoa(note->effects[k].value, str + 1, 16);
+								}
+								nvgText(args.vg, x, y, str, NULL);
+								x += char_width * 3.0;
+							}
+						}
+						x_row = x;
+					}
 				}
-
-				//nvgRestore(args.vg);
-				nvgResetScissor(args.vg);
 			}
 		}
 		LedDisplay::drawLayer(args, layer);
@@ -423,9 +497,9 @@ struct TrackerWidget : ModuleWidget {
 		}
 
 		/// MAIN LED DISPLAY
-		display = createWidget<TrackerDisplay>(mm2px(Vec(20.25, 7.15)));
-		//display->box.size = mm2px(Vec(181.65, 85.75));
-		display->box.size = mm2px(Vec(181.65, 94.5));
+		display = createWidget<TrackerDisplay>(mm2px(Vec(20.25 + 8.15, 7.15)));
+		//display->box.size = mm2px(Vec(181.65, 94.5));
+		display->box.size = mm2px(Vec(173.5, 94.5));
 		display->module = module;
 		display->moduleWidget = this;
 		addChild(display);
