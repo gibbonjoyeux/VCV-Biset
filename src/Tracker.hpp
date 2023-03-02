@@ -70,16 +70,12 @@ struct PatternEffect {
 
 struct PatternCV {
 	i8							mode;		// PATTERN_CV_xxx
-	u8							synth;
-	u8							channel;
 	u8							value;
 	u8							delay;
 	u8							glide;
 
 	PatternCV() {
 		this->mode = PATTERN_CV_KEEP;
-		this->synth = 0;
-		this->channel = 0;
 		this->value = 0;
 		this->glide = 0;
 	}
@@ -109,12 +105,12 @@ struct PatternNote {
 struct PatternCVRow {
 	u8							synth;		// CV synth output
 	u8							channel;	// CV synth channel output
-	PatternCV					cvs[0];		// CVs (memory as struct extension)
+	PatternCV					lines[0];	// CVs (memory as struct extension)
 };
 
 struct PatternNoteRow {
 	u8							effect_count;
-	PatternNote					notes[0];	// Notes (memory as struct extension)
+	PatternNote					lines[0];	// Notes (memory as struct extension)
 };
 
 // PatternSource is the object that stores a pattern content (notes, cv...).
@@ -473,7 +469,7 @@ struct PatternInstance {
 
 		/// [1] COMPUTE PATTERN NOTE ROWS
 		for (row = 0; row < pattern->note_count; ++row) {
-			note = &(pattern->notes[row]->notes[line]);
+			note = &(pattern->notes[row]->lines[line]);
 			voice = this->voices[row];
 			/// CELL CHANGE
 			// TODO: ! ! ! Dangerous comparision as the PatternSource arrays
@@ -512,7 +508,7 @@ struct PatternInstance {
 		/// [2] COMPUTE PATTERN CV ROWS
 		for (row = 0; row < pattern->cv_count; ++row) {
 			/// [A] COMPUTE KEY CV LINES
-			cv_line = &(pattern->cvs[row]->cvs[line]);
+			cv_line = &(pattern->cvs[row]->lines[line]);
 			cv_from = NULL;
 			cv_to = NULL;
 			line_from = 0;
@@ -535,21 +531,21 @@ struct PatternInstance {
 			if (cv_from == NULL) {
 				line_from = line - 1;
 				while (line_from >= 0
-				&& pattern->cvs[row]->cvs[line_from].mode != PATTERN_CV_SET)
+				&& pattern->cvs[row]->lines[line_from].mode != PATTERN_CV_SET)
 					line_from -= 1;
 				if (line_from < 0)
 					line_from = line;
-				cv_from = &(pattern->cvs[row]->cvs[line_from]);
+				cv_from = &(pattern->cvs[row]->lines[line_from]);
 			}
 			/// FIND LINE TO
 			if (cv_to == NULL) {
 				line_to = line + 1;
 				while (line_to < pattern->line_count
-				&& pattern->cvs[row]->cvs[line_to].mode != PATTERN_CV_SET)
+				&& pattern->cvs[row]->lines[line_to].mode != PATTERN_CV_SET)
 					line_to += 1;
 				if (line_to >= pattern->line_count)
 					line_to = line;
-				cv_to = &(pattern->cvs[row]->cvs[line_to]);
+				cv_to = &(pattern->cvs[row]->lines[line_to]);
 			}
 			/// [B] COMPUTE CV PHASE
 			if (line_from == line_to) {

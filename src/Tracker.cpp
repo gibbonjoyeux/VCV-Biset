@@ -93,65 +93,65 @@ struct Tracker : Module {
 		//pattern.lines.allocate(pattern.track_count, pattern.line_count);
 
 		/// FILL PATTERN SOURCE NOTES
-		pattern->notes[0]->notes[0].mode = PATTERN_NOTE_NEW;
-		pattern->notes[0]->notes[0].synth = 0;
-		pattern->notes[0]->notes[0].pitch = 64;
-		pattern->notes[0]->notes[0].velocity = 255;
-		pattern->notes[0]->notes[0].delay = 0;
-		pattern->notes[0]->notes[0].chance = 255;
+		pattern->notes[0]->lines[0].mode = PATTERN_NOTE_NEW;
+		pattern->notes[0]->lines[0].synth = 0;
+		pattern->notes[0]->lines[0].pitch = 64;
+		pattern->notes[0]->lines[0].velocity = 255;
+		pattern->notes[0]->lines[0].delay = 0;
+		pattern->notes[0]->lines[0].chance = 255;
 		for (i = 0; i < 8; ++i)
-			pattern->notes[0]->notes[0].effects[i].type = PATTERN_EFFECT_NONE;
-		pattern->notes[0]->notes[0].effects[0].type = PATTERN_EFFECT_TREMOLO;
-		pattern->notes[0]->notes[0].effects[0].value = 0x49;
-		pattern->notes[0]->notes[0].effects[1].type = PATTERN_EFFECT_VIBRATO;
-		pattern->notes[0]->notes[0].effects[1].value = 0x42;
+			pattern->notes[0]->lines[0].effects[i].type = PATTERN_EFFECT_NONE;
+		pattern->notes[0]->lines[0].effects[0].type = PATTERN_EFFECT_TREMOLO;
+		pattern->notes[0]->lines[0].effects[0].value = 0x49;
+		pattern->notes[0]->lines[0].effects[1].type = PATTERN_EFFECT_VIBRATO;
+		pattern->notes[0]->lines[0].effects[1].value = 0x42;
 
-		pattern->notes[0]->notes[4].mode = PATTERN_NOTE_NEW;
-		pattern->notes[0]->notes[4].glide = 100;
-		pattern->notes[0]->notes[4].synth = 0;
-		pattern->notes[0]->notes[4].pitch = 66;
-		pattern->notes[0]->notes[4].velocity = 200;
-		pattern->notes[0]->notes[4].delay = 0;
-		pattern->notes[0]->notes[4].chance = 255;
+		pattern->notes[0]->lines[4].mode = PATTERN_NOTE_NEW;
+		pattern->notes[0]->lines[4].glide = 100;
+		pattern->notes[0]->lines[4].synth = 0;
+		pattern->notes[0]->lines[4].pitch = 66;
+		pattern->notes[0]->lines[4].velocity = 200;
+		pattern->notes[0]->lines[4].delay = 0;
+		pattern->notes[0]->lines[4].chance = 255;
 		for (i = 0; i < 8; ++i)
-			pattern->notes[0]->notes[4].effects[i].type = PATTERN_EFFECT_NONE;
+			pattern->notes[0]->lines[4].effects[i].type = PATTERN_EFFECT_NONE;
 
-		pattern->notes[0]->notes[8].mode = PATTERN_NOTE_NEW;
-		pattern->notes[0]->notes[8].glide = 100;
-		pattern->notes[0]->notes[8].synth = 0;
-		pattern->notes[0]->notes[8].pitch = 68;
-		pattern->notes[0]->notes[8].velocity = 128;
-		pattern->notes[0]->notes[8].delay = 0;
-		pattern->notes[0]->notes[8].chance = 255;
+		pattern->notes[0]->lines[8].mode = PATTERN_NOTE_NEW;
+		pattern->notes[0]->lines[8].glide = 100;
+		pattern->notes[0]->lines[8].synth = 0;
+		pattern->notes[0]->lines[8].pitch = 68;
+		pattern->notes[0]->lines[8].velocity = 128;
+		pattern->notes[0]->lines[8].delay = 0;
+		pattern->notes[0]->lines[8].chance = 255;
 		for (i = 0; i < 8; ++i)
-			pattern->notes[0]->notes[8].effects[i].type = PATTERN_EFFECT_NONE;
+			pattern->notes[0]->lines[8].effects[i].type = PATTERN_EFFECT_NONE;
 
 		//pattern->notes[0][10].mode = -1;
 		//pattern->notes[0][10].delay = 0;
 		//for (i = 0; i < 8; ++i)
 		//	pattern->notes[0][10].effects[i].type = PATTERN_EFFECT_NONE;
 
-		pattern->notes[0]->notes[12].mode = PATTERN_NOTE_NEW;
-		pattern->notes[0]->notes[12].glide = 100;
-		pattern->notes[0]->notes[12].synth = 0;
-		pattern->notes[0]->notes[12].pitch = 71;
-		pattern->notes[0]->notes[12].velocity = 80;
-		pattern->notes[0]->notes[12].delay = 0;
-		pattern->notes[0]->notes[12].chance = 255;
+		pattern->notes[0]->lines[12].mode = PATTERN_NOTE_NEW;
+		pattern->notes[0]->lines[12].glide = 100;
+		pattern->notes[0]->lines[12].synth = 0;
+		pattern->notes[0]->lines[12].pitch = 71;
+		pattern->notes[0]->lines[12].velocity = 80;
+		pattern->notes[0]->lines[12].delay = 0;
+		pattern->notes[0]->lines[12].chance = 255;
 		for (i = 0; i < 8; ++i)
-			pattern->notes[0]->notes[12].effects[i].type = PATTERN_EFFECT_NONE;
+			pattern->notes[0]->lines[12].effects[i].type = PATTERN_EFFECT_NONE;
 
 		/// FILL PATTERN SOURCE CVS
 		// TODO: use ArrayExt and set SYNTH & CHANNEL on row
 		pattern->cvs[0]->synth = 1;
 		pattern->cvs[0]->channel = 0;
-		pattern->cvs[0]->cvs[0].mode = PATTERN_CV_SET;
-		pattern->cvs[0]->cvs[0].value = 0;
-		pattern->cvs[0]->cvs[8].mode = PATTERN_CV_SET;
-		pattern->cvs[0]->cvs[8].value = 255;
-		pattern->cvs[0]->cvs[15].mode = PATTERN_CV_SET;
-		pattern->cvs[0]->cvs[15].delay = 255;
-		pattern->cvs[0]->cvs[15].value = 0;
+		pattern->cvs[0]->lines[0].mode = PATTERN_CV_SET;
+		pattern->cvs[0]->lines[0].value = 0;
+		pattern->cvs[0]->lines[8].mode = PATTERN_CV_SET;
+		pattern->cvs[0]->lines[8].value = 255;
+		pattern->cvs[0]->lines[15].mode = PATTERN_CV_SET;
+		pattern->cvs[0]->lines[15].delay = 255;
+		pattern->cvs[0]->lines[15].value = 0;
 
 		//pattern->notes[1][6].mode = -1;
 		//pattern->notes[1][6].delay = 0;
@@ -294,7 +294,7 @@ struct TrackerDisplay : LedDisplay {
 						for (j = 0; j < pattern->line_count; ++j) {
 							x = x_row;//p.x + 2.0;
 							y = p.y + 11.0 + 8.5 * j;
-							note = &(note_row->notes[j]);
+							note = &(note_row->lines[j]);
 							/// GLIDE
 							nvgFillColor(args.vg, module->colors[9]);
 							if (note->mode == PATTERN_NOTE_KEEP
@@ -337,17 +337,6 @@ struct TrackerDisplay : LedDisplay {
 							}
 							nvgText(args.vg, x, y, str, NULL);
 							x += char_width * 2.0;
-							/// SYNTH
-							nvgFillColor(args.vg, module->colors[4]);
-							if (note->mode == PATTERN_NOTE_KEEP) {
-								str[0] = '.';
-								str[1] = '.';
-								str[2] = 0;
-							} else {
-								itoa(note->synth, str, 16);
-							}
-							nvgText(args.vg, x, y, str, NULL);
-							x += char_width * 2.0;
 							/// DELAY
 							nvgFillColor(args.vg, module->colors[10]);
 							if (note->mode == PATTERN_NOTE_KEEP) {
@@ -356,6 +345,28 @@ struct TrackerDisplay : LedDisplay {
 								str[2] = 0;
 							} else {
 								itoa(note->delay, str, 16);
+							}
+							nvgText(args.vg, x, y, str, NULL);
+							x += char_width * 2.0;
+							/// CHANCE
+							nvgFillColor(args.vg, module->colors[11]);
+							if (note->mode == PATTERN_NOTE_KEEP) {
+								str[0] = '.';
+								str[1] = '.';
+								str[2] = 0;
+							} else {
+								itoa(note->chance, str, 16);
+							}
+							nvgText(args.vg, x, y, str, NULL);
+							x += char_width * 2.0;
+							/// SYNTH
+							nvgFillColor(args.vg, module->colors[4]);
+							if (note->mode == PATTERN_NOTE_KEEP) {
+								str[0] = '.';
+								str[1] = '.';
+								str[2] = 0;
+							} else {
+								itoa(note->synth, str, 16);
 							}
 							nvgText(args.vg, x, y, str, NULL);
 							x += char_width * 2.0;
@@ -380,17 +391,54 @@ struct TrackerDisplay : LedDisplay {
 								x += char_width * 3.0;
 							}
 						}
-						x_row = x + char_width;
+						if (pattern->line_count > 0)
+							x_row = x + char_width;
 					}
 					/// FOR EACH CV ROW
-					//for (i = 0; i < pattern->cv_count; ++i) {
-					//	cv_row = pattern->cvs[i];
-					//	/// FOR EACH CV ROW LINE
-					//	for (j = 0; j < pattern->line_count; ++j) {
-					//		x = x_note_row;
-					//		y = p.y + 11.0 + 8.5 * j;
-					//		note = &(note_row->notes[j]);
-					//}
+					for (i = 0; i < pattern->cv_count; ++i) {
+						cv_row = pattern->cvs[i];
+						/// FOR EACH CV ROW LINE
+						for (j = 0; j < pattern->line_count; ++j) {
+							x = x_row;
+							y = p.y + 11.0 + 8.5 * j;
+							cv = &(cv_row->lines[j]);
+							/// GLIDE
+							nvgFillColor(args.vg, module->colors[9]);
+							if (cv->mode == PATTERN_CV_KEEP) {
+								str[0] = '.';
+								str[1] = '.';
+								str[2] = 0;
+							} else {
+								itoa(cv->glide, str, 16);
+							}
+							nvgText(args.vg, x, y, str, NULL);
+							x += char_width * 2.0;
+							/// VALUE
+							nvgFillColor(args.vg, module->colors[3]);
+							if (cv->mode == PATTERN_CV_KEEP) {
+								str[0] = '.';
+								str[1] = '.';
+								str[2] = 0;
+							} else {
+								itoa(cv->value, str, 16);
+							}
+							nvgText(args.vg, x, y, str, NULL);
+							x += char_width * 2.0;
+							/// DELAY
+							nvgFillColor(args.vg, module->colors[10]);
+							if (cv->mode == PATTERN_NOTE_KEEP) {
+								str[0] = '.';
+								str[1] = '.';
+								str[2] = 0;
+							} else {
+								itoa(cv->delay, str, 16);
+							}
+							nvgText(args.vg, x, y, str, NULL);
+							x += char_width * 2.0;
+						}
+						if (pattern->line_count > 0)
+							x_row = x + char_width;
+					}
 				}
 			}
 		}
