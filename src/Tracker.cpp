@@ -6,6 +6,45 @@ char	table_pitch[12][3] = {
 };
 char	table_effect[] = "VTFfR";
 char	table_hex[] = "0123456789ABCDEF";
+int		table_row_note_width[] = {
+	2,	// Glide	(2)
+	2,	// Pitch	(2)
+	1,	// Octave	(1)
+	2,	// Velocity	(2)
+	2,	// Delay	(2)
+	2,	// Chance	(2)
+	2,	// Synth	(2)
+	3,	// Effect 1	(3)
+	3,	// Effect 2	(3)
+	3,	// Effect 3	(3)
+	3,	// Effect 4	(3)
+	3,	// Effect 5	(3)
+	3,	// Effect 6	(3)
+	3,	// Effect 7	(3)
+	3,	// Effect 8	(3)
+};
+int		table_row_note_pos[] = {
+	0,	// Glide	(2)
+	2,	// Pitch	(2)
+	4,	// Octave	(1)
+	5,	// Velocity	(2)
+	7,	// Delay	(2)
+	9,	// Chance	(2)
+	11,	// Synth	(2)
+	13,	// Effect 1	(3)
+	16,	// Effect 2	(3)
+	19,	// Effect 3	(3)
+	22,	// Effect 4	(3)
+	25,	// Effect 5	(3)
+	28,	// Effect 6	(3)
+	31,	// Effect 7	(3)
+	34,	// Effect 8	(3)
+};
+int		table_row_cv[] = {
+	0,	// Curve	(2)
+	2,	// Value	(2)
+	4	// Delay	(2)
+};
 
 struct Tracker : Module {
 	enum	ParamIds {
@@ -33,8 +72,16 @@ struct Tracker : Module {
 	float				clock_time;
 	float				clock_time_p;
 
+	int						pattern_row;
+	int						pattern_line;
+	int						pattern_cell;
+
 	Tracker() {
 		int	i;
+
+		pattern_row = 0;
+		pattern_line = 0;
+		pattern_cell = 2;
 
 		config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 		configParam(PARAM_BPM, 30.0f, 300.0f, 120.f, "BPM");
@@ -197,31 +244,6 @@ struct TrackerDisplay : LedDisplay {
 		font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
 	}
 
-	void itohex(char *string, int number, int width) {
-		int						length;
-		int						i;
-
-		if (number < 16)
-			length = 1;
-		else if (number < 256)
-			length = 2;
-		else
-			length = 3;
-		/// FILL NUMBER
-		i = 0;
-		while (number > 0) {
-			string[length - i - 1] = table_hex[number % 16];
-			number /= 16;
-			i += 1;
-		}
-		/// FILL WIDTH
-		while (i < width) {
-			string[i] = '0';
-			i += 1;
-		}
-		string[length] = 0;
-	}
-
 	void drawLayer(const DrawArgs& args, int layer) override {
 		std::shared_ptr<Font>	font;
 		Rect					rect;
@@ -230,7 +252,7 @@ struct TrackerDisplay : LedDisplay {
 		Vec						corner_br, corner_tr;
 		float					char_width;
 		int						i, j, k;
-		float					x, y;
+		float					x, y, w;
 		float					x_row;
 
 		if (layer == 1 && module) {
@@ -277,6 +299,17 @@ struct TrackerDisplay : LedDisplay {
 				/**/ rect.getWidth() + 0.5, 8.5);
 				nvgFill(args.vg);
 
+				/// DRAW PATTERN CURSOR
+				nvgBeginPath(args.vg);
+				nvgFillColor(args.vg, module->colors[12]);
+				x = p.x + 2 + table_row_note_pos[this->module->pattern_cell] * char_width;
+				y = p.y + 3.5 + 8.5 * this->module->pattern_line;
+				w = table_row_note_width[this->module->pattern_cell] * char_width;
+				nvgRect(args.vg, x, y, w, 8.5);
+				nvgFill(args.vg);
+
+
+				/// DRAW PATTERN ROWS
 				if (module->timeline.patterns.size() > 0) {
 					PatternSource	*pattern = &(module->timeline.patterns[0]);
 					PatternNote		*note;
@@ -581,6 +614,22 @@ struct TrackerWidget : ModuleWidget {
 		display_bpm->module = module;
 		display_bpm->moduleWidget = this;
 		addChild(display_bpm);
+	}
+
+	void onHoverKey(const HoverKeyEvent &e) override {
+		e.stopPropagating();
+		e.consume(this);
+		if (e.action == GLFW_PRESS) {
+			if (e.key == GLFW_KEY_A) {
+				this->module->pattern_cell -= 1;
+			} else if (e.key == GLFW_KEY_D) {
+				this->module->pattern_cell += 1;
+			} else if (e.key == GLFW_KEY_W) {
+				this->module->pattern_line -= 1;
+			} else if (e.key == GLFW_KEY_S) {
+				this->module->pattern_line += 1;
+			}
+		}
 	}
 
 	//void onDragStart(const DragStartEvent& e) override {
