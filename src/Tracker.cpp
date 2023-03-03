@@ -72,13 +72,15 @@ struct Tracker : Module {
 	float				clock_time;
 	float				clock_time_p;
 
-	int						pattern_row;
-	int						pattern_line;
-	int						pattern_cell;
+	bool				editor_selected;
+	int					pattern_row;
+	int					pattern_line;
+	int					pattern_cell;
 
 	Tracker() {
 		int	i;
 
+		editor_selected = false;
 		pattern_row = 0;
 		pattern_line = 0;
 		pattern_cell = 2;
@@ -266,10 +268,21 @@ struct TrackerDisplay : LedDisplay {
 			corner_br = rect.getBottomRight();
 			corner_tr = rect.getTopRight();
 
+			/// BACKGROUND
 			nvgBeginPath(args.vg);
 			nvgFillColor(args.vg, module->colors[0]);
 			nvgRect(args.vg, RECT_ARGS(rect));
 			nvgFill(args.vg);
+			/// EDITOR SELECTED BACKGROUND
+			if (this->module->editor_selected) {
+				nvgBeginPath(args.vg);
+				nvgStrokeColor(args.vg, module->colors[8]);
+				nvgStrokeWidth(args.vg, 3);
+				nvgRect(args.vg,
+				/**/ rect.pos.x + 1.5, rect.pos.y + 1.5,
+				/**/ rect.size.x - 3, rect.size.y - 3);
+				nvgStroke(args.vg);
+			}
 
 			// TMP DEBUG ! ! !
 			nvgFillColor(args.vg, module->colors[3]);
@@ -475,6 +488,14 @@ struct TrackerDisplay : LedDisplay {
 				}
 			}
 		}
+
+		//if (this->module->editor_selected == false) {
+		//	nvgBeginPath(args.vg);
+		//	nvgFillColor(args.vg, nvgRGBA(0xff, 0xff, 0xff, 0x40));
+		//	nvgRect(args.vg, RECT_ARGS(rect));
+		//	nvgFill(args.vg);
+		//}
+
 		LedDisplay::drawLayer(args, layer);
 	}
 
@@ -616,20 +637,39 @@ struct TrackerWidget : ModuleWidget {
 		addChild(display_bpm);
 	}
 
-	void onHoverKey(const HoverKeyEvent &e) override {
-		e.stopPropagating();
+	void onSelectKey(const SelectKeyEvent &e) override {
 		e.consume(this);
 		if (e.action == GLFW_PRESS) {
-			if (e.key == GLFW_KEY_A) {
+			/// MOVE CURSOR
+			if (e.key == GLFW_KEY_LEFT)
 				this->module->pattern_cell -= 1;
-			} else if (e.key == GLFW_KEY_D) {
+			else if (e.key == GLFW_KEY_RIGHT)
 				this->module->pattern_cell += 1;
-			} else if (e.key == GLFW_KEY_W) {
+			else if (e.key == GLFW_KEY_UP)
 				this->module->pattern_line -= 1;
-			} else if (e.key == GLFW_KEY_S) {
+			else if (e.key == GLFW_KEY_DOWN)
 				this->module->pattern_line += 1;
-			}
+			if (this->module->pattern_line < 0)
+				this->module->pattern_line = 0;
+			if (this->module->pattern_cell < 0)
+				this->module->pattern_cell = 0;
 		}
+	}
+
+	void onHoverScroll(const HoverScrollEvent &e) override {
+		if (e.scrollDelta.y > 0)
+			this->module->pattern_line -= 1;
+		else
+			this->module->pattern_line += 1;
+		e.consume(this);
+	}
+
+	void onSelect(const SelectEvent &e) override {
+		this->module->editor_selected = true;
+	}
+
+	void onDeselect(const DeselectEvent &e) override {
+		this->module->editor_selected = false;
 	}
 
 	//void onDragStart(const DragStartEvent& e) override {
