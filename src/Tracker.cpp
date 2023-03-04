@@ -233,7 +233,7 @@ struct Tracker : Module {
 		else
 			outputs[OUTPUT_CLOCK].setVoltage(0.0f);
 
-		g_timeline.process(this, dt_sec, dt_beat);
+		g_timeline.process(dt_sec, dt_beat);
 
 
 		/// USE / MODIFY EXPANDERS
