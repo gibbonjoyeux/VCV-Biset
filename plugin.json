@@ -18,6 +18,12 @@
 		"name": "Tracker",
 		"description": "Advanced pattern based tracker sequencer",
 		"tags": ["Digital", "Sequencer"]
+	},
+	{
+		"slug": "TrackerOut",
+		"name": "TrackerOut",
+		"description": "Tracker synth output",
+		"tags": ["Digital", "Sequencer"]
 	}
   ]
 }

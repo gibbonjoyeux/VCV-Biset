@@ -46,6 +46,9 @@ int		table_row_cv[] = {
 	4	// Delay	(2)
 };
 
+
+Timeline		g_timeline;
+
 struct Tracker : Module {
 	enum	ParamIds {
 		PARAM_BPM,
@@ -66,13 +69,14 @@ struct Tracker : Module {
 	};
 
 	NVGcolor			colors[16];
-	Timeline			timeline;
+	//Timeline			timeline;
 
 	dsp::TTimer<float>	clock_timer;
 	float				clock_time;
 	float				clock_time_p;
 
 	bool				editor_selected;
+	PatternSource		*editor_pattern;
 	int					pattern_row;
 	int					pattern_line;
 	int					pattern_cell;
@@ -81,6 +85,7 @@ struct Tracker : Module {
 		int	i;
 
 		editor_selected = false;
+		editor_pattern = NULL;
 		pattern_row = 0;
 		pattern_line = 0;
 		pattern_cell = 2;
@@ -117,22 +122,23 @@ struct Tracker : Module {
 		/// INIT PATTERN SOURCE
 		PatternSource	*pattern;
 
-		timeline.debug = 0;
+		g_timeline.debug = 0;
 		//timeline.beat_count = 4;
 		//timeline.timeline.allocate(32, timeline.beat_count);
 		//for (i = 0; i < 32; ++i) {
 		//	timeline.timeline[i][0].mode = 0;
 		//}
-		timeline.resize(4);
-		timeline.timeline[0][0].mode = 1;
-		timeline.timeline[0][0].pattern = 0;
-		timeline.timeline[0][0].beat = 0;
+		g_timeline.resize(4);
+		g_timeline.timeline[0][0].mode = 1;
+		g_timeline.timeline[0][0].pattern = 0;
+		g_timeline.timeline[0][0].beat = 0;
 
-		timeline.synths[0].init(0, 6);
-		timeline.synths[1].init(1, 6);
+		g_timeline.synths[0].init(0, 6);
+		g_timeline.synths[1].init(1, 6);
 
-		timeline.patterns.resize(1);
-		pattern = &(timeline.patterns[0]);
+		g_timeline.patterns.resize(1);
+		pattern = &(g_timeline.patterns[0]);
+		this->editor_pattern = pattern;
 
 		pattern->resize(3, 1, 4, 4);
 		pattern->notes[0]->effect_count = 2;
@@ -227,7 +233,7 @@ struct Tracker : Module {
 		else
 			outputs[OUTPUT_CLOCK].setVoltage(0.0f);
 
-		timeline.process(this, dt_sec, dt_beat);
+		g_timeline.process(this, dt_sec, dt_beat);
 
 
 		/// USE / MODIFY EXPANDERS
@@ -286,7 +292,7 @@ struct TrackerDisplay : LedDisplay {
 
 			// TMP DEBUG ! ! !
 			nvgFillColor(args.vg, module->colors[3]);
-			nvgText(args.vg, p.x + 100, p.y + 11.0, module->timeline.debug_str, NULL);
+			nvgText(args.vg, p.x + 100, p.y + 11.0, g_timeline.debug_str, NULL);
 
 
 			//char text[1024];
@@ -308,7 +314,7 @@ struct TrackerDisplay : LedDisplay {
 				nvgBeginPath(args.vg);
 				nvgFillColor(args.vg, module->colors[15]);
 				nvgRect(args.vg,
-				/**/ p.x, p.y + 3.5 + 8.5 * module->timeline.debug,
+				/**/ p.x, p.y + 3.5 + 8.5 * g_timeline.debug,
 				/**/ rect.getWidth() + 0.5, 8.5);
 				nvgFill(args.vg);
 
@@ -323,8 +329,8 @@ struct TrackerDisplay : LedDisplay {
 
 
 				/// DRAW PATTERN ROWS
-				if (module->timeline.patterns.size() > 0) {
-					PatternSource	*pattern = &(module->timeline.patterns[0]);
+				if (this->module->editor_pattern) {
+					PatternSource	*pattern = this->module->editor_pattern;
 					PatternNote		*note;
 					PatternNoteRow	*note_row;
 					PatternCV		*cv;
@@ -418,23 +424,28 @@ struct TrackerDisplay : LedDisplay {
 							x += char_width * 2.0;
 							/// EFFECTS
 							for (k = 0; k < note_row->effect_count; ++k) {
-								if (k & 1)
-									nvgFillColor(args.vg, module->colors[14]);
-								else
-									nvgFillColor(args.vg, module->colors[13]);
 								effect = &(note->effects[k]);
+								/// COMPUTE STRINGS
 								if (note->mode == PATTERN_NOTE_KEEP
 								|| effect->type == PATTERN_EFFECT_NONE) {
 									str[0] = '.';
-									str[1] = '.';
+									str[1] = 0;
 									str[2] = '.';
-									str[3] = 0;
+									str[3] = '.';
+									str[4] = 0;
 								} else {
 									str[0] = table_effect[effect->type - 1];
-									itoa(note->effects[k].value, str + 1, 16);
+									str[1] = 0;
+									itoa(note->effects[k].value, str + 2, 16);
 								}
+								/// EFFECT TYPE
+								nvgFillColor(args.vg, module->colors[13]);
 								nvgText(args.vg, x, y, str, NULL);
-								x += char_width * 3.0;
+								x += char_width * 1.0;
+								/// EFFECT VALUE
+								nvgFillColor(args.vg, module->colors[14]);
+								nvgText(args.vg, x, y, str + 2, NULL);
+								x += char_width * 2.0;
 							}
 						}
 						if (pattern->line_count > 0)
@@ -640,27 +651,55 @@ struct TrackerWidget : ModuleWidget {
 	void onSelectKey(const SelectKeyEvent &e) override {
 		e.consume(this);
 		if (e.action == GLFW_PRESS) {
-			/// MOVE CURSOR
-			if (e.key == GLFW_KEY_LEFT)
-				this->module->pattern_cell -= 1;
-			else if (e.key == GLFW_KEY_RIGHT)
-				this->module->pattern_cell += 1;
-			else if (e.key == GLFW_KEY_UP)
-				this->module->pattern_line -= 1;
-			else if (e.key == GLFW_KEY_DOWN)
-				this->module->pattern_line += 1;
-			if (this->module->pattern_line < 0)
-				this->module->pattern_line = 0;
-			if (this->module->pattern_cell < 0)
-				this->module->pattern_cell = 0;
+			if (this->module->editor_pattern) {
+				/// MOVE CURSOR
+				if (e.key == GLFW_KEY_LEFT)
+					this->module->pattern_cell -= 1;
+				else if (e.key == GLFW_KEY_RIGHT)
+					this->module->pattern_cell += 1;
+				else if (e.key == GLFW_KEY_UP)
+					this->module->pattern_line -= 1;
+				else if (e.key == GLFW_KEY_DOWN)
+					this->module->pattern_line += 1;
+				/// CLAMP CURSOR
+				if (this->module->pattern_line < 0)
+					this->module->pattern_line = 0;
+				if (this->module->pattern_line >= this->module->editor_pattern->line_count)
+					this->module->pattern_line = this->module->editor_pattern->line_count - 1;
+				if (this->module->pattern_cell < 0)
+					this->module->pattern_cell = 0;
+			}
 		}
 	}
 
 	void onHoverScroll(const HoverScrollEvent &e) override {
-		if (e.scrollDelta.y > 0)
-			this->module->pattern_line -= 1;
-		else
-			this->module->pattern_line += 1;
+		if (this->module->editor_pattern) {
+			/// SCROLL X
+			if (APP->window->getMods() & GLFW_MOD_SHIFT) {
+				/// MOVE CURSOR
+				if (e.scrollDelta.y > 0)
+					this->module->pattern_cell -= 1;
+				else
+					this->module->pattern_cell += 1;
+				/// CLAMP CURSOR
+				if (this->module->pattern_cell < 0)
+					this->module->pattern_cell = 0;
+				if (this->module->pattern_cell > 6) // TMP
+					this->module->pattern_cell = 6;
+			/// SCROLL Y
+			} else {
+				/// MOVE CURSOR
+				if (e.scrollDelta.y > 0)
+					this->module->pattern_line -= 1;
+				else
+					this->module->pattern_line += 1;
+				/// CLAMP CURSOR
+				if (this->module->pattern_line < 0)
+					this->module->pattern_line = 0;
+				if (this->module->pattern_line >= this->module->editor_pattern->line_count)
+					this->module->pattern_line = this->module->editor_pattern->line_count - 1;
+			}
+		}
 		e.consume(this);
 	}
 

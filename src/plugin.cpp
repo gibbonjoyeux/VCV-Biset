@@ -6,6 +6,6 @@ void init(Plugin* p) {
 	pluginInstance = p;
 
 	p->addModel(modelTracker);
-	//p->addModel(modelTrackerClockExpander);
-	//p->addModel(modelTrackeriOutputExpander);
+	p->addModel(modelTrackerOut);
+	//p->addModel(modelTrackerClock);
 }

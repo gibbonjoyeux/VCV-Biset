@@ -211,11 +211,12 @@ struct SynthVoice {
 		this->reset();
 	}
 
-	void process(Module *module, float dt_sec, float dt_beat) {
+	void process(Module *module, float dt_sec, float dt_beat, float *output) {
 		float					pitch, mix;
 		float					velocity;
 		float					vibrato, tremolo;
 
+		/// ON NOTE PLAY
 		if (this->active && this->delay <= 0 && this->delay_gate <= 0) {
 			/// COMPUTE CV
 			//pitch = (float)(this->pitch - 69) / 12.0f;
@@ -252,10 +253,14 @@ struct SynthVoice {
 				/**/ * this->tremolo_amp;
 				velocity *= tremolo;
 			}
-			/// SET OUTPUT
-			module->outputs[1 + this->synth].setVoltage(pitch, this->channel);
-			module->outputs[9 + this->synth].setVoltage(10.0f, this->channel);
-			module->outputs[17 + this->synth].setVoltage(velocity, this->channel);
+			/// SET OUTPUT (PITCH + GATE + VELOCITY)
+			//module->outputs[1 + this->synth].setVoltage(pitch, this->channel);
+			//module->outputs[9 + this->synth].setVoltage(10.0f, this->channel);
+			//module->outputs[17 + this->synth].setVoltage(velocity, this->channel);
+			output[this->channel * 3 + 0] = pitch;
+			output[this->channel * 3 + 1] = 10.0f;
+			output[this->channel * 3 + 2] = velocity;
+		/// ON NOTE DELAY
 		} else {
 			/// HANDLE NOTE DELAY
 			if (this->delay > 0)
@@ -263,8 +268,9 @@ struct SynthVoice {
 			/// HANDLE INTER NOTES GATE DELAY
 			if (this->delay_gate > 0)
 				this->delay_gate -= dt_sec;
-			/// SET OUTPUT
-			module->outputs[9 + this->synth].setVoltage(0.0f, this->channel);
+			/// SET OUTPUT (GATE)
+			//module->outputs[9 + this->synth].setVoltage(0.0f, this->channel);
+			output[this->channel * 3 + 1] = 0.0f;
 		}
 	}
 
@@ -376,6 +382,8 @@ struct Synth {
 	u8							channel_cur;
 	u8							channel_count;
 	SynthVoice					voices[16];
+	float						out_synth[16 * 3];	// Out synth (pitch, gate...)
+	float						out_cv[8];			// Out CV
 
 	Synth() {
 		this->active = false;
@@ -385,13 +393,20 @@ struct Synth {
 	}
 
 	void init(int synth_index, int channel_count) {
-		int			i;
+		int			i, j;
 
 		this->active = true;
 		/// INIT VOICES
 		this->index = synth_index;
-		for (i = 0; i < 16; ++i)
+		for (i = 0; i < 16; ++i) {
 			this->voices[i].init(this->index, i);
+		}
+		/// INIT OUTPUTS
+		for (i = 0; i < 16; ++i)
+			for (j = 0; j < 3; ++j)
+				this->out_synth[i * 3 + j] = 0.0;
+		for (i = 0; i < 8; ++i)
+				this->out_cv[i] = 0.0;
 		/// SET CHANNEL COUNT
 		this->channel_count = channel_count;
 	}
@@ -402,12 +417,12 @@ struct Synth {
 		if (this->active == false)
 			return;
 		/// SET OUTPUT CHANNELS
-		module->outputs[1 + this->index].setChannels(this->channel_count);
-		module->outputs[1 + 8 + this->index].setChannels(this->channel_count);
-		module->outputs[1 + 16 + this->index].setChannels(this->channel_count);
+		//module->outputs[1 + this->index].setChannels(this->channel_count);
+		//module->outputs[1 + 8 + this->index].setChannels(this->channel_count);
+		//module->outputs[1 + 16 + this->index].setChannels(this->channel_count);
 		/// COMPUTE VOICES
 		for (i = 0; i < 16; ++i)
-			this->voices[i].process(module, dt_sec, dt_beat);
+			this->voices[i].process(module, dt_sec, dt_beat, this->out_synth);
 	}
 
 	SynthVoice* add(PatternNote *note, int lpb) {
@@ -449,6 +464,7 @@ struct PatternInstance {
 	void process(Module *module, Synth *synths, PatternSource* pattern,
 	Clock clock, int *debug, int *debug_2, char *debug_str) {
 		int						line, row;
+		Synth					*synth;
 		PatternCV				*cv_line, *cv_from, *cv_to;
 		PatternNote				*note;
 		SynthVoice				*voice;
@@ -563,7 +579,9 @@ struct PatternInstance {
 			/// REMAP CV FROM [0:255] TO [0:10]
 			cv_value /= 25.5;
 			/// [D] OUTPUT CV
-			module->outputs[1 + pattern->cvs[row]->synth].setVoltage(cv_value);
+			//module->outputs[1 + pattern->cvs[row]->synth].setVoltage(cv_value);
+			synth = &(synths[pattern->cvs[row]->synth]);
+			synth->out_cv[pattern->cvs[row]->channel] = cv_value;
 		}
 	}
 
@@ -702,5 +720,8 @@ struct Timeline {
 		this->timeline.allocate(32, this->beat_count);
 	}
 };
+
+
+extern Timeline	g_timeline;
 
 #endif
