@@ -40,7 +40,12 @@ int		table_row_note_pos[] = {
 	31,	// Effect 7	(3)
 	34,	// Effect 8	(3)
 };
-int		table_row_cv[] = {
+int		table_row_cv_width[] = {
+	2,	// Curve	(2)
+	2,	// Value	(2)
+	2	// Delay	(2)
+};
+int		table_row_cv_pos[] = {
 	0,	// Curve	(2)
 	2,	// Value	(2)
 	4	// Delay	(2)
@@ -77,6 +82,7 @@ struct Tracker : Module {
 
 	bool				editor_selected;
 	PatternSource		*editor_pattern;
+	int					pattern_track;
 	int					pattern_row;
 	int					pattern_line;
 	int					pattern_cell;
@@ -86,9 +92,10 @@ struct Tracker : Module {
 
 		editor_selected = false;
 		editor_pattern = NULL;
+		pattern_track = 0;
 		pattern_row = 0;
 		pattern_line = 0;
-		pattern_cell = 2;
+		pattern_cell = 0;
 
 		config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 		configParam(PARAM_BPM, 30.0f, 300.0f, 120.f, "BPM");
@@ -214,7 +221,7 @@ struct Tracker : Module {
 		//	pattern->notes[1][6].effects[i].type = PATTERN_EFFECT_NONE;
 	}
 
-	void	process(const ProcessArgs& args) override {
+	void process(const ProcessArgs& args) override {
 		float	dt_sec, dt_beat;
 		float	bpm;
 
@@ -241,6 +248,80 @@ struct Tracker : Module {
 		//	rightExpander.module->params[0].setValue(0);
 		//}
 	}
+
+	void editor_pattern_clamp_cursor(void) {
+		PatternSource	*pattern;
+		PatternNoteRow	*row_note;
+		//PatternCVRow	*row_cv;
+		//int				i, j;
+
+		pattern = this->editor_pattern;
+		if (pattern == NULL)
+			return;
+
+		/// HANDLE LINE UNDERFLOW
+		if (this->pattern_line < 0)
+			this->pattern_line = 0;
+		/// HANDLE LINE OVERFLOW
+		if (this->pattern_line >= pattern->line_count)
+			this->pattern_line = pattern->line_count - 1;
+		/// HANDLE CELL UNDERFLOW
+		if (this->pattern_cell < 0) {
+			this->pattern_row -= 1;
+			/// HANDLE ROW UNDERFLOW
+			if (this->pattern_row < 0) {
+				this->pattern_row = 0;
+				this->pattern_cell = 0;
+			/// HANDLE ROW OFFSET
+			} else {
+				/// FALL ON NOTE ROW
+				if (this->pattern_row < pattern->note_count) {
+					row_note = pattern->notes[this->pattern_row];
+					this->pattern_cell = 7 + row_note->effect_count - 1;
+				/// FALL ON CV ROW
+				} else {
+					this->pattern_cell = 2;
+				}
+			}
+		}
+		/// HANDLE CELL OVERFLOW
+		/// ON NOTE ROW
+		if (this->pattern_row < pattern->note_count) {
+			row_note = pattern->notes[this->pattern_row];
+			/// HANDLE ROW NOTE OVERFLOW
+			if (this->pattern_cell >= 7 + row_note->effect_count) {
+				/// FROM NOTE TO CV
+				if (this->pattern_row >= pattern->note_count) {
+					/// GOT NO CV
+					if (pattern->cv_count == 0) {
+						this->pattern_cell = 7 + row_note->effect_count - 1;
+					/// GOT CV
+					} else {
+						this->pattern_row += 1;
+						this->pattern_cell = 0;
+					}
+				/// FROM NOTE TO NOTE
+				} else {
+					this->pattern_row += 1;
+					this->pattern_cell = 0;
+				}
+			}
+		/// ON CV ROW
+		} else {
+			/// HANDLE ROW CV OVERFLOW
+			if (this->pattern_cell > 2) {
+				/// GOT NO NEXT
+				if (this->pattern_row >=
+				pattern->note_count + pattern->cv_count - 1) {
+					this->pattern_cell = 2;
+				/// GOT NEXT
+				} else {
+					this->pattern_row += 1;
+					this->pattern_cell = 0;
+				}
+			}
+		}
+	}
 };
 
 struct TrackerDisplay : LedDisplay {
@@ -262,241 +343,273 @@ struct TrackerDisplay : LedDisplay {
 		int						i, j, k;
 		float					x, y, w;
 		float					x_row;
+		PatternSource			*pattern;
+		PatternNote				*note;
+		PatternNoteRow			*note_row;
+		PatternCV				*cv;
+		PatternCVRow			*cv_row;
+		PatternEffect			*effect;
+		char					str[32];
 
-		if (layer == 1 && module) {
-			font = APP->window->loadFont(font_path);
+		if (module == NULL || layer != 1)
+			return;
+		font = APP->window->loadFont(font_path);
+		if (font == NULL)
+			return;
 
-			/// GET CANVAS FORMAT
-			rect = box.zeroPos();
-			p = rect.getTopLeft();
-			corner_bl = rect.getBottomLeft();
-			corner_tl = rect.getTopLeft();
-			corner_br = rect.getBottomRight();
-			corner_tr = rect.getTopRight();
+		/// SET FONT
+		nvgFontSize(args.vg, 9);
+		nvgFontFaceId(args.vg, font->handle);
 
-			/// BACKGROUND
+		/// GET CANVAS FORMAT
+		rect = box.zeroPos();
+		p = rect.getTopLeft();
+		corner_bl = rect.getBottomLeft();
+		corner_tl = rect.getTopLeft();
+		corner_br = rect.getBottomRight();
+		corner_tr = rect.getTopRight();
+
+		/// BACKGROUND
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, module->colors[0]);
+		nvgRect(args.vg, RECT_ARGS(rect));
+		nvgFill(args.vg);
+		/// EDITOR SELECTED BACKGROUND
+		if (this->module->editor_selected) {
 			nvgBeginPath(args.vg);
-			nvgFillColor(args.vg, module->colors[0]);
-			nvgRect(args.vg, RECT_ARGS(rect));
+			nvgStrokeColor(args.vg, module->colors[8]);
+			nvgStrokeWidth(args.vg, 3);
+			nvgRect(args.vg,
+			/**/ rect.pos.x + 1.5, rect.pos.y + 1.5,
+			/**/ rect.size.x - 3, rect.size.y - 3);
+			nvgStroke(args.vg);
+		}
+
+		// TMP DEBUG ! ! !
+		nvgFillColor(args.vg, module->colors[3]);
+		nvgText(args.vg, p.x + 100, p.y + 11.0, g_timeline.debug_str, NULL);
+		// TMP DEBUG ! ! !
+		char text[1024];
+		//int test = 0x49;
+		//itoa(sizeof(Test), text, 10);
+		////int a1 = (test << 4) >> 4;
+		////int a2 = (test >> 4);
+		sprintf(text, "%d %dx%d", this->module->pattern_row,
+		/**/ this->module->pattern_line, this->module->pattern_cell);
+		nvgText(args.vg, p.x + 100, p.y + 11.0, text, NULL);
+		// TMP DEBUG ! ! !
+
+		char_width = nvgTextBounds(args.vg, 0, 0, "X", NULL, NULL);
+
+		/// DRAW PATTERN ROWS
+		if (this->module->editor_pattern) {
+			pattern = this->module->editor_pattern;
+
+			/// [1] LAYER 1 (MARKERS + NOTES + CURVES)
+
+			/// DRAW BEAT CURSOR
+			nvgBeginPath(args.vg);
+			nvgFillColor(args.vg, module->colors[15]);
+			nvgRect(args.vg,
+			/**/ p.x, p.y + 3.5 + 8.5 * g_timeline.debug,
+			/**/ rect.getWidth() + 0.5, 8.5);
 			nvgFill(args.vg);
-			/// EDITOR SELECTED BACKGROUND
-			if (this->module->editor_selected) {
-				nvgBeginPath(args.vg);
-				nvgStrokeColor(args.vg, module->colors[8]);
-				nvgStrokeWidth(args.vg, 3);
-				nvgRect(args.vg,
-				/**/ rect.pos.x + 1.5, rect.pos.y + 1.5,
-				/**/ rect.size.x - 3, rect.size.y - 3);
-				nvgStroke(args.vg);
-			}
 
-			// TMP DEBUG ! ! !
-			nvgFillColor(args.vg, module->colors[3]);
-			nvgText(args.vg, p.x + 100, p.y + 11.0, g_timeline.debug_str, NULL);
-
-
-			//char text[1024];
-			//int test = 0x49;
-			//itoa(sizeof(Test), text, 10);
-			////int a1 = (test << 4) >> 4;
-			////int a2 = (test >> 4);
-			//sprintf(text, "%d %d", test / 16, test % 16);
-			//nvgText(args.vg, p.x + 100, p.y + 11.0, text, NULL);
-
-
-			if (font) { 
-				nvgFontSize(args.vg, 9);
-				nvgFontFaceId(args.vg, font->handle);
-
-				char_width = nvgTextBounds(args.vg, 0, 0, "X", NULL, NULL);
-
-				// TMP TIME BEAT MARKER
-				nvgBeginPath(args.vg);
-				nvgFillColor(args.vg, module->colors[15]);
-				nvgRect(args.vg,
-				/**/ p.x, p.y + 3.5 + 8.5 * g_timeline.debug,
-				/**/ rect.getWidth() + 0.5, 8.5);
-				nvgFill(args.vg);
-
-				/// DRAW PATTERN CURSOR
-				nvgBeginPath(args.vg);
-				nvgFillColor(args.vg, module->colors[12]);
-				x = p.x + 2 + table_row_note_pos[this->module->pattern_cell] * char_width;
-				y = p.y + 3.5 + 8.5 * this->module->pattern_line;
-				w = table_row_note_width[this->module->pattern_cell] * char_width;
-				nvgRect(args.vg, x, y, w, 8.5);
-				nvgFill(args.vg);
-
-
-				/// DRAW PATTERN ROWS
-				if (this->module->editor_pattern) {
-					PatternSource	*pattern = this->module->editor_pattern;
-					PatternNote		*note;
-					PatternNoteRow	*note_row;
-					PatternCV		*cv;
-					PatternCVRow	*cv_row;
-					PatternEffect	*effect;
-					char			str[32];
-
-					/// FOR EACH NOTE ROW	
-					x_row = p.x + 2.0;
-					for (i = 0; i < pattern->note_count; ++i) {
-						note_row = pattern->notes[i];
-						/// FOR EACH NOTE ROW LINE
-						for (j = 0; j < pattern->line_count; ++j) {
-							x = x_row;//p.x + 2.0;
-							y = p.y + 11.0 + 8.5 * j;
-							note = &(note_row->lines[j]);
-							/// GLIDE
-							nvgFillColor(args.vg, module->colors[9]);
-							if (note->mode == PATTERN_NOTE_KEEP
-							|| note->mode == PATTERN_NOTE_NEW) {
-								str[0] = '.';
-								str[1] = '.';
-								str[2] = 0;
-							} else {
-								itoa(note->glide, str, 16);
-							}
-							nvgText(args.vg, x, y, str, NULL);
-							x += char_width * 2.0;
-							/// PITCH
-							nvgFillColor(args.vg, module->colors[3]);
-							if (note->mode == PATTERN_NOTE_KEEP) {
-								nvgText(args.vg, x, y, "..", NULL);
-							} else {
-								nvgText(args.vg, x, y,
-								/**/ table_pitch[note->pitch % 12], NULL);
-							}
-							x += char_width * 2.0;
-							/// OCTAVE
-							nvgFillColor(args.vg, module->colors[2]);
-							if (note->mode == PATTERN_NOTE_KEEP) {
-								str[0] = '.';
-								str[1] = 0;
-							} else {
-								itoa(note->pitch / 12, str, 10);
-							}
-							nvgText(args.vg, x, y, str, NULL);
-							x += char_width * 1.0;
-							/// VELOCITY
-							nvgFillColor(args.vg, module->colors[5]);
-							if (note->mode == PATTERN_NOTE_KEEP) {
-								str[0] = '.';
-								str[1] = '.';
-								str[2] = 0;
-							} else {
-								itoa(note->velocity, str, 16);
-							}
-							nvgText(args.vg, x, y, str, NULL);
-							x += char_width * 2.0;
-							/// DELAY
-							nvgFillColor(args.vg, module->colors[10]);
-							if (note->mode == PATTERN_NOTE_KEEP) {
-								str[0] = '.';
-								str[1] = '.';
-								str[2] = 0;
-							} else {
-								itoa(note->delay, str, 16);
-							}
-							nvgText(args.vg, x, y, str, NULL);
-							x += char_width * 2.0;
-							/// CHANCE
-							nvgFillColor(args.vg, module->colors[11]);
-							if (note->mode == PATTERN_NOTE_KEEP) {
-								str[0] = '.';
-								str[1] = '.';
-								str[2] = 0;
-							} else {
-								itoa(note->chance, str, 16);
-							}
-							nvgText(args.vg, x, y, str, NULL);
-							x += char_width * 2.0;
-							/// SYNTH
-							nvgFillColor(args.vg, module->colors[4]);
-							if (note->mode == PATTERN_NOTE_KEEP) {
-								str[0] = '.';
-								str[1] = '.';
-								str[2] = 0;
-							} else {
-								itoa(note->synth, str, 16);
-							}
-							nvgText(args.vg, x, y, str, NULL);
-							x += char_width * 2.0;
-							/// EFFECTS
-							for (k = 0; k < note_row->effect_count; ++k) {
-								effect = &(note->effects[k]);
-								/// COMPUTE STRINGS
-								if (note->mode == PATTERN_NOTE_KEEP
-								|| effect->type == PATTERN_EFFECT_NONE) {
-									str[0] = '.';
-									str[1] = 0;
-									str[2] = '.';
-									str[3] = '.';
-									str[4] = 0;
-								} else {
-									str[0] = table_effect[effect->type - 1];
-									str[1] = 0;
-									itoa(note->effects[k].value, str + 2, 16);
-								}
-								/// EFFECT TYPE
-								nvgFillColor(args.vg, module->colors[13]);
-								nvgText(args.vg, x, y, str, NULL);
-								x += char_width * 1.0;
-								/// EFFECT VALUE
-								nvgFillColor(args.vg, module->colors[14]);
-								nvgText(args.vg, x, y, str + 2, NULL);
-								x += char_width * 2.0;
-							}
-						}
-						if (pattern->line_count > 0)
-							x_row = x + char_width;
+			/// DRAW PATTERN CURSOR
+			x = 0;
+			y = this->module->pattern_line;
+			w = 1;
+			i = 0;
+			while (i < pattern->note_count + pattern->cv_count) {
+				/// ON NOTE
+				if (i < pattern->note_count) {
+					note_row = pattern->notes[i];
+					if (i == this->module->pattern_row) {
+						x += table_row_note_pos[this->module->pattern_cell];
+						w = table_row_note_width[this->module->pattern_cell];
+						break;
 					}
-					/// FOR EACH CV ROW
-					for (i = 0; i < pattern->cv_count; ++i) {
-						cv_row = pattern->cvs[i];
-						/// FOR EACH CV ROW LINE
-						for (j = 0; j < pattern->line_count; ++j) {
-							x = x_row;
-							y = p.y + 11.0 + 8.5 * j;
-							cv = &(cv_row->lines[j]);
-							/// GLIDE
-							nvgFillColor(args.vg, module->colors[9]);
-							if (cv->mode == PATTERN_CV_KEEP) {
-								str[0] = '.';
-								str[1] = '.';
-								str[2] = 0;
-							} else {
-								itoa(cv->glide, str, 16);
-							}
-							nvgText(args.vg, x, y, str, NULL);
-							x += char_width * 2.0;
-							/// VALUE
-							nvgFillColor(args.vg, module->colors[3]);
-							if (cv->mode == PATTERN_CV_KEEP) {
-								str[0] = '.';
-								str[1] = '.';
-								str[2] = 0;
-							} else {
-								itoa(cv->value, str, 16);
-							}
-							nvgText(args.vg, x, y, str, NULL);
-							x += char_width * 2.0;
-							/// DELAY
-							nvgFillColor(args.vg, module->colors[10]);
-							if (cv->mode == PATTERN_NOTE_KEEP) {
-								str[0] = '.';
-								str[1] = '.';
-								str[2] = 0;
-							} else {
-								itoa(cv->delay, str, 16);
-							}
-							nvgText(args.vg, x, y, str, NULL);
-							x += char_width * 2.0;
+					x += (2 + 2 + 1 + 2 + 2 + 2 + 2
+					/**/ + 3 * note_row->effect_count + 1);
+				/// ON CV
+				} else {
+					cv_row = pattern->cvs[i - pattern->note_count];
+					if (i == this->module->pattern_row) {
+						x += table_row_cv_pos[this->module->pattern_cell];
+						w = table_row_cv_width[this->module->pattern_cell];
+						break;
+					}
+					x += (2 + 2 + 2 + 1);
+				}
+				i += 1;
+			}
+			x = x * char_width + 2.0;
+			y = y * 8.5 + 3.5;
+			w = w * char_width;
+			nvgBeginPath(args.vg);
+			nvgFillColor(args.vg, module->colors[12]);
+			nvgRect(args.vg, x, y, w, 8.5);
+			nvgFill(args.vg);
+
+			/// [2] LAYER 2 (TRACKER)
+
+			/// FOR EACH NOTE ROW	
+			x_row = p.x + 2.0;
+			for (i = 0; i < pattern->note_count; ++i) {
+				note_row = pattern->notes[i];
+				/// FOR EACH NOTE ROW LINE
+				for (j = 0; j < pattern->line_count; ++j) {
+					x = x_row;//p.x + 2.0;
+					y = p.y + 11.0 + 8.5 * j;
+					note = &(note_row->lines[j]);
+					/// GLIDE
+					nvgFillColor(args.vg, module->colors[9]);
+					if (note->mode == PATTERN_NOTE_KEEP
+					|| note->mode == PATTERN_NOTE_NEW) {
+						str[0] = '.';
+						str[1] = '.';
+						str[2] = 0;
+					} else {
+						itoa(note->glide, str, 16);
+					}
+					nvgText(args.vg, x, y, str, NULL);
+					x += char_width * 2.0;
+					/// PITCH
+					nvgFillColor(args.vg, module->colors[3]);
+					if (note->mode == PATTERN_NOTE_KEEP) {
+						nvgText(args.vg, x, y, "..", NULL);
+					} else {
+						nvgText(args.vg, x, y,
+						/**/ table_pitch[note->pitch % 12], NULL);
+					}
+					x += char_width * 2.0;
+					/// OCTAVE
+					nvgFillColor(args.vg, module->colors[2]);
+					if (note->mode == PATTERN_NOTE_KEEP) {
+						str[0] = '.';
+						str[1] = 0;
+					} else {
+						itoa(note->pitch / 12, str, 10);
+					}
+					nvgText(args.vg, x, y, str, NULL);
+					x += char_width * 1.0;
+					/// VELOCITY
+					nvgFillColor(args.vg, module->colors[5]);
+					if (note->mode == PATTERN_NOTE_KEEP) {
+						str[0] = '.';
+						str[1] = '.';
+						str[2] = 0;
+					} else {
+						itoa(note->velocity, str, 16);
+					}
+					nvgText(args.vg, x, y, str, NULL);
+					x += char_width * 2.0;
+					/// DELAY
+					nvgFillColor(args.vg, module->colors[10]);
+					if (note->mode == PATTERN_NOTE_KEEP) {
+						str[0] = '.';
+						str[1] = '.';
+						str[2] = 0;
+					} else {
+						itoa(note->delay, str, 16);
+					}
+					nvgText(args.vg, x, y, str, NULL);
+					x += char_width * 2.0;
+					/// CHANCE
+					nvgFillColor(args.vg, module->colors[11]);
+					if (note->mode == PATTERN_NOTE_KEEP) {
+						str[0] = '.';
+						str[1] = '.';
+						str[2] = 0;
+					} else {
+						itoa(note->chance, str, 16);
+					}
+					nvgText(args.vg, x, y, str, NULL);
+					x += char_width * 2.0;
+					/// SYNTH
+					nvgFillColor(args.vg, module->colors[4]);
+					if (note->mode == PATTERN_NOTE_KEEP) {
+						str[0] = '.';
+						str[1] = '.';
+						str[2] = 0;
+					} else {
+						itoa(note->synth, str, 16);
+					}
+					nvgText(args.vg, x, y, str, NULL);
+					x += char_width * 2.0;
+					/// EFFECTS
+					for (k = 0; k < note_row->effect_count; ++k) {
+						effect = &(note->effects[k]);
+						/// COMPUTE STRINGS
+						if (note->mode == PATTERN_NOTE_KEEP
+						|| effect->type == PATTERN_EFFECT_NONE) {
+							str[0] = '.';
+							str[1] = 0;
+							str[2] = '.';
+							str[3] = '.';
+							str[4] = 0;
+						} else {
+							str[0] = table_effect[effect->type - 1];
+							str[1] = 0;
+							itoa(note->effects[k].value, str + 2, 16);
 						}
-						if (pattern->line_count > 0)
-							x_row = x + char_width;
+						/// EFFECT TYPE
+						nvgFillColor(args.vg, module->colors[13]);
+						nvgText(args.vg, x, y, str, NULL);
+						x += char_width * 1.0;
+						/// EFFECT VALUE
+						nvgFillColor(args.vg, module->colors[14]);
+						nvgText(args.vg, x, y, str + 2, NULL);
+						x += char_width * 2.0;
 					}
 				}
+				if (pattern->line_count > 0)
+					x_row = x + char_width;
+			}
+			/// FOR EACH CV ROW
+			for (i = 0; i < pattern->cv_count; ++i) {
+				cv_row = pattern->cvs[i];
+				/// FOR EACH CV ROW LINE
+				for (j = 0; j < pattern->line_count; ++j) {
+					x = x_row;
+					y = p.y + 11.0 + 8.5 * j;
+					cv = &(cv_row->lines[j]);
+					/// GLIDE
+					nvgFillColor(args.vg, module->colors[9]);
+					if (cv->mode == PATTERN_CV_KEEP) {
+						str[0] = '.';
+						str[1] = '.';
+						str[2] = 0;
+					} else {
+						itoa(cv->glide, str, 16);
+					}
+					nvgText(args.vg, x, y, str, NULL);
+					x += char_width * 2.0;
+					/// VALUE
+					nvgFillColor(args.vg, module->colors[3]);
+					if (cv->mode == PATTERN_CV_KEEP) {
+						str[0] = '.';
+						str[1] = '.';
+						str[2] = 0;
+					} else {
+						itoa(cv->value, str, 16);
+					}
+					nvgText(args.vg, x, y, str, NULL);
+					x += char_width * 2.0;
+					/// DELAY
+					nvgFillColor(args.vg, module->colors[10]);
+					if (cv->mode == PATTERN_NOTE_KEEP) {
+						str[0] = '.';
+						str[1] = '.';
+						str[2] = 0;
+					} else {
+						itoa(cv->delay, str, 16);
+					}
+					nvgText(args.vg, x, y, str, NULL);
+					x += char_width * 2.0;
+				}
+				if (pattern->line_count > 0)
+					x_row = x + char_width;
 			}
 		}
 
@@ -662,12 +775,20 @@ struct TrackerWidget : ModuleWidget {
 				else if (e.key == GLFW_KEY_DOWN)
 					this->module->pattern_line += 1;
 				/// CLAMP CURSOR
-				if (this->module->pattern_line < 0)
-					this->module->pattern_line = 0;
-				if (this->module->pattern_line >= this->module->editor_pattern->line_count)
-					this->module->pattern_line = this->module->editor_pattern->line_count - 1;
-				if (this->module->pattern_cell < 0)
-					this->module->pattern_cell = 0;
+				this->module->editor_pattern_clamp_cursor();
+
+				///// CLAMP CURSOR
+				//if (this->module->pattern_line < 0)
+				//	this->module->pattern_line = 0;
+				//if (this->module->pattern_line >= this->module->editor_pattern->line_count)
+				//	this->module->pattern_line = this->module->editor_pattern->line_count - 1;
+				//if (this->module->pattern_cell < 0)
+				//	this->module->pattern_cell = 0;
+
+				//if (e.key == GLFW_KEY_LEFT)
+				//	this->module->pattern_track -= 1;
+				//else if (e.key == GLFW_KEY_RIGHT)
+				//	this->module->pattern_track += 1;
 			}
 		}
 	}
@@ -681,11 +802,6 @@ struct TrackerWidget : ModuleWidget {
 					this->module->pattern_cell -= 1;
 				else
 					this->module->pattern_cell += 1;
-				/// CLAMP CURSOR
-				if (this->module->pattern_cell < 0)
-					this->module->pattern_cell = 0;
-				if (this->module->pattern_cell > 6) // TMP
-					this->module->pattern_cell = 6;
 			/// SCROLL Y
 			} else {
 				/// MOVE CURSOR
@@ -693,12 +809,9 @@ struct TrackerWidget : ModuleWidget {
 					this->module->pattern_line -= 1;
 				else
 					this->module->pattern_line += 1;
-				/// CLAMP CURSOR
-				if (this->module->pattern_line < 0)
-					this->module->pattern_line = 0;
-				if (this->module->pattern_line >= this->module->editor_pattern->line_count)
-					this->module->pattern_line = this->module->editor_pattern->line_count - 1;
 			}
+			/// CLAMP CURSOR
+			this->module->editor_pattern_clamp_cursor();
 		}
 		e.consume(this);
 	}
