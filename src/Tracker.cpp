@@ -2,7 +2,7 @@
 #include "plugin.hpp"
 
 char	table_pitch[12][3] = {
-	"C.", "C#", "D.", "D#", "E.", "F.", "F#", "G.", "G#", "A.", "A#", "B."
+	"C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"
 };
 char	table_effect[] = "VTFfR";
 char	table_hex[] = "0123456789ABCDEF";
@@ -50,6 +50,7 @@ int		table_row_cv_pos[] = {
 	2,	// Value	(2)
 	4	// Delay	(2)
 };
+int		table_keyboard[128];
 
 
 Timeline		g_timeline;
@@ -86,6 +87,8 @@ struct Tracker : Module {
 	int					pattern_row;
 	int					pattern_line;
 	int					pattern_cell;
+	char				pattern_edit[4];
+	int					pattern_edit_index;
 
 	Tracker() {
 		int	i;
@@ -96,6 +99,8 @@ struct Tracker : Module {
 		pattern_row = 0;
 		pattern_line = 0;
 		pattern_cell = 0;
+		pattern_edit[0] = 0;
+		pattern_edit_index = 0;
 
 		config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 		configParam(PARAM_BPM, 30.0f, 300.0f, 120.f, "BPM");
@@ -107,6 +112,7 @@ struct Tracker : Module {
 			configOutput(OUTPUT_VELO + i, string::f("VELOCITY %d", i + 1));
 		}
 
+		/// DEFINE GLOBAL COLOR
 		colors[0] = nvgRGBA(0x1A, 0x1C, 0x2C, 0xFF);
 		colors[1] = nvgRGBA(0x5D, 0x27, 0x5D, 0xFF);
 		colors[2] = nvgRGBA(0xB1, 0x3E, 0x53, 0xFF);
@@ -124,17 +130,58 @@ struct Tracker : Module {
 		colors[14] = nvgRGBA(0x56, 0x6C, 0x86, 0xFF);
 		colors[15] = nvgRGBA(0x33, 0x3C, 0x57, 0xFF);
 
+		/// DEFINE GLOBAL KEYBOARD
+		for (i = 0; i < 128; ++i)
+			table_keyboard[i] = -1;
+		//// OCTAVE LOW 1
+		table_keyboard['Z'] = 0;		// C
+			table_keyboard['S'] = 1;	// C#
+		table_keyboard['X'] = 2;		// D
+			table_keyboard['D'] = 3;	// D#
+		table_keyboard['C'] = 4;		// E
+		table_keyboard['V'] = 5;		// F
+			table_keyboard['G'] = 6;	// F#
+		table_keyboard['B'] = 7;		// G
+			table_keyboard['H'] = 8;	// G#
+		table_keyboard['N'] = 9;		// A
+			table_keyboard['J'] = 10;	// A#
+		table_keyboard['M'] = 11;		// B
+		//// OCTAVE LOW 2
+		table_keyboard[','] = 12;		// C
+			table_keyboard['L'] = 13;	// C#
+		table_keyboard['.'] = 14;		// D
+			table_keyboard[';'] = 15;	// D#
+		table_keyboard['/'] = 16;		// E
+		//// OCTAVE HIGH 2
+		table_keyboard['Q'] = 12;		// C
+			table_keyboard['2'] = 13;	// C#
+		table_keyboard['W'] = 14;		// D
+			table_keyboard['3'] = 15;	// D#
+		table_keyboard['E'] = 16;		// E
+		table_keyboard['R'] = 17;		// F
+			table_keyboard['5'] = 18;	// F#
+		table_keyboard['T'] = 19;		// G
+			table_keyboard['6'] = 20;	// G#
+		table_keyboard['Y'] = 21;		// A
+			table_keyboard['7'] = 22;	// A#
+		table_keyboard['U'] = 23;		// B
+		//// OCTAVE HIGH 3
+		table_keyboard['I'] = 24;		// C
+			table_keyboard['9'] = 25;	// C#
+		table_keyboard['O'] = 26;		// D
+			table_keyboard['0'] = 27;	// D#
+		table_keyboard['P'] = 28;		// E
+		table_keyboard['['] = 29;		// F
+			table_keyboard['='] = 30;	// F#
+		table_keyboard[']'] = 31;		// G
+
+
 		clock_timer.reset();
 
 		/// INIT PATTERN SOURCE
 		PatternSource	*pattern;
 
 		g_timeline.debug = 0;
-		//timeline.beat_count = 4;
-		//timeline.timeline.allocate(32, timeline.beat_count);
-		//for (i = 0; i < 32; ++i) {
-		//	timeline.timeline[i][0].mode = 0;
-		//}
 		g_timeline.resize(4);
 		g_timeline.timeline[0][0].mode = 1;
 		g_timeline.timeline[0][0].pattern = 0;
@@ -149,10 +196,6 @@ struct Tracker : Module {
 
 		pattern->resize(3, 1, 4, 4);
 		pattern->notes[0]->effect_count = 2;
-		//pattern->line_count = 4;
-		//pattern->row_count = 1;
-		//pattern->lpb = 4;
-		//pattern.lines.allocate(pattern.track_count, pattern.line_count);
 
 		/// FILL PATTERN SOURCE NOTES
 		pattern->notes[0]->lines[0].mode = PATTERN_NOTE_NEW;
@@ -385,18 +428,18 @@ struct TrackerDisplay : LedDisplay {
 			nvgStroke(args.vg);
 		}
 
-		// TMP DEBUG ! ! !
+		//// TMP DEBUG ! ! !
 		nvgFillColor(args.vg, module->colors[3]);
 		nvgText(args.vg, p.x + 100, p.y + 11.0, g_timeline.debug_str, NULL);
 		// TMP DEBUG ! ! !
-		char text[1024];
+		//char text[1024];
 		//int test = 0x49;
 		//itoa(sizeof(Test), text, 10);
 		////int a1 = (test << 4) >> 4;
 		////int a2 = (test >> 4);
-		sprintf(text, "%d %dx%d", this->module->pattern_row,
-		/**/ this->module->pattern_line, this->module->pattern_cell);
-		nvgText(args.vg, p.x + 100, p.y + 11.0, text, NULL);
+		//sprintf(text, "%d %dx%d", this->module->pattern_row,
+		///**/ this->module->pattern_line, this->module->pattern_cell);
+		nvgText(args.vg, p.x + 400, p.y + 11.0, this->module->pattern_edit, NULL);
 		// TMP DEBUG ! ! !
 
 		char_width = nvgTextBounds(args.vg, 0, 0, "X", NULL, NULL);
@@ -762,35 +805,124 @@ struct TrackerWidget : ModuleWidget {
 	}
 
 	void onSelectKey(const SelectKeyEvent &e) override {
+		PatternSource	*pattern;
+		PatternNoteRow	*row_note;
+		PatternNote		*line_note;
+		int				key;
+
 		e.consume(this);
 		if (e.action == GLFW_PRESS) {
 			if (this->module->editor_pattern) {
-				/// MOVE CURSOR
-				if (e.key == GLFW_KEY_LEFT)
+				/// EVENT CURSOR MOVE
+				if (e.key == GLFW_KEY_LEFT) {
 					this->module->pattern_cell -= 1;
-				else if (e.key == GLFW_KEY_RIGHT)
+				} else if (e.key == GLFW_KEY_RIGHT) {
 					this->module->pattern_cell += 1;
-				else if (e.key == GLFW_KEY_UP)
+				} else if (e.key == GLFW_KEY_UP) {
 					this->module->pattern_line -= 1;
-				else if (e.key == GLFW_KEY_DOWN)
+				} else if (e.key == GLFW_KEY_DOWN) {
 					this->module->pattern_line += 1;
+				/// EVENT KEYBOARD
+				} else {
+					pattern = this->module->editor_pattern;
+					/// KEY ON NOTE
+					if (this->module->pattern_row < pattern->note_count) {
+						row_note = pattern->notes[this->module->pattern_row];
+						line_note = &(row_note->lines[this->module->pattern_line]);
+						/// NOTE DELETE
+						if (e.key == GLFW_KEY_DELETE
+						|| e.key == GLFW_KEY_BACKSPACE) {
+							line_note->mode = PATTERN_NOTE_KEEP;
+						/// NOTE EDIT / ADD
+						} else {
+							switch (this->module->pattern_cell) {
+								/// GLIDE
+								case 0:
+									break;
+								/// PITCH
+								case 1:
+									key = this->key_midi(e);
+									/// NOTE NEW
+									if (key >= 0) {
+										line_note->pitch = key;
+										if (line_note->mode != PATTERN_NOTE_NEW) {
+											line_note->mode = PATTERN_NOTE_NEW;
+											line_note->velocity = 255;
+											line_note->chance = 255;
+										}
+										strcpy(this->module->pattern_edit,
+										/**/ table_pitch[key % 12]);
+									/// NOTE STOP
+									} else if (key == -1) {
+										line_note->mode = PATTERN_NOTE_STOP;
+									}
+									break;
+								/// OCTAVE
+								case 2:
+									key = this->key_hex(e);
+									if (key >= 0 && key <= 9) {
+										line_note->pitch =
+										/**/ line_note->pitch % 12
+										/**/ + key * 12;
+									}
+									break;
+								/// VELOCITY
+								case 3:
+									break;
+								/// SYNTH
+								case 4:
+									break;
+								/// DELAY
+								case 5:
+									break;
+								/// CHANCE
+								case 6:
+									break;
+								/// EFFECT
+								default:
+									break;
+							}
+						}
+					/// KEY ON CV
+					} else {
+					}
+					//key = e.key;
+					//if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
+					//	this->module->pattern_edit[0] = '0' + (key - GLFW_KEY_0);
+					//	this->module->pattern_edit[1] = 0;
+					//} else {
+					//	key = e.keyName[0];
+					//	if (key >= 'a' && key <= 'z') {
+					//		this->module->pattern_edit[0] = key;
+					//		this->module->pattern_edit[1] = 0;
+					//	}
+					//}
+				}
 				/// CLAMP CURSOR
 				this->module->editor_pattern_clamp_cursor();
-
-				///// CLAMP CURSOR
-				//if (this->module->pattern_line < 0)
-				//	this->module->pattern_line = 0;
-				//if (this->module->pattern_line >= this->module->editor_pattern->line_count)
-				//	this->module->pattern_line = this->module->editor_pattern->line_count - 1;
-				//if (this->module->pattern_cell < 0)
-				//	this->module->pattern_cell = 0;
-
-				//if (e.key == GLFW_KEY_LEFT)
-				//	this->module->pattern_track -= 1;
-				//else if (e.key == GLFW_KEY_RIGHT)
-				//	this->module->pattern_track += 1;
 			}
 		}
+	}
+
+	int key_midi(const SelectKeyEvent &e) {
+		int			midi;
+
+		if (e.key < 0)
+			return -2;
+		if (e.keyName[0] == 'o')
+			return -1;
+		midi = table_keyboard[e.key];
+		if (midi < 0)
+			return -2;
+		return midi + 60;
+	}
+
+	int key_hex(const SelectKeyEvent &e) {
+		if (e.key >= GLFW_KEY_0 && e.key <= GLFW_KEY_9)
+			return e.key - GLFW_KEY_0;
+		else if (e.keyName[0] >= 'a' && e.keyName[0] <= 'f')
+			return 10 + e.keyName[0] - 'a';
+		return -1;
 	}
 
 	void onHoverScroll(const HoverScrollEvent &e) override {
