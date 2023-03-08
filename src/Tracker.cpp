@@ -87,6 +87,7 @@ struct Tracker : Module {
 	int					pattern_row;
 	int					pattern_line;
 	int					pattern_cell;
+	int					pattern_char;
 	char				pattern_edit[4];
 	int					pattern_edit_index;
 
@@ -99,6 +100,7 @@ struct Tracker : Module {
 		pattern_row = 0;
 		pattern_line = 0;
 		pattern_cell = 0;
+		pattern_char = 0;
 		pattern_edit[0] = 0;
 		pattern_edit_index = 0;
 
@@ -816,12 +818,16 @@ struct TrackerWidget : ModuleWidget {
 				/// EVENT CURSOR MOVE
 				if (e.key == GLFW_KEY_LEFT) {
 					this->module->pattern_cell -= 1;
+					this->module->pattern_char = 0;
 				} else if (e.key == GLFW_KEY_RIGHT) {
 					this->module->pattern_cell += 1;
+					this->module->pattern_char = 0;
 				} else if (e.key == GLFW_KEY_UP) {
 					this->module->pattern_line -= 1;
+					this->module->pattern_char = 0;
 				} else if (e.key == GLFW_KEY_DOWN) {
 					this->module->pattern_line += 1;
+					this->module->pattern_char = 0;
 				/// EVENT KEYBOARD
 				} else {
 					pattern = this->module->editor_pattern;
@@ -835,6 +841,8 @@ struct TrackerWidget : ModuleWidget {
 							line_note->mode = PATTERN_NOTE_KEEP;
 						/// NOTE EDIT / ADD
 						} else {
+							// TODO: Use new order
+							// PITCH-OCT VELO SYNTH DELAY GLIDE FX FX FX
 							switch (this->module->pattern_cell) {
 								/// GLIDE
 								case 0:
@@ -845,7 +853,8 @@ struct TrackerWidget : ModuleWidget {
 									/// NOTE NEW
 									if (key >= 0) {
 										line_note->pitch = key;
-										if (line_note->mode != PATTERN_NOTE_NEW) {
+										if (line_note->mode == PATTERN_NOTE_KEEP
+										|| line_note->mode == PATTERN_NOTE_STOP) {
 											line_note->mode = PATTERN_NOTE_NEW;
 											line_note->velocity = 255;
 											line_note->chance = 255;
@@ -868,15 +877,63 @@ struct TrackerWidget : ModuleWidget {
 									break;
 								/// VELOCITY
 								case 3:
-									break;
-								/// SYNTH
-								case 4:
+									key = this->key_hex(e);
+									if (key >= 0) {
+										if (this->module->pattern_char == 0) {
+											line_note->velocity =
+											/**/ line_note->velocity % 16
+											/**/ + key * 16;
+											this->module->pattern_char += 1;
+										} else {
+											line_note->velocity =
+											/**/ (line_note->velocity / 16) * 16
+											/**/ + key;
+											this->module->pattern_char = 0;
+											this->module->pattern_line += 1;
+											this->module->editor_pattern_clamp_cursor();
+										}
+									}
 									break;
 								/// DELAY
-								case 5:
+								case 4:
+									key = this->key_hex(e);
+									if (key >= 0) {
+										if (this->module->pattern_char == 0) {
+											line_note->delay =
+											/**/ line_note->delay % 16
+											/**/ + key * 16;
+											this->module->pattern_char += 1;
+										} else {
+											line_note->delay =
+											/**/ (line_note->delay / 16) * 16
+											/**/ + key;
+											this->module->pattern_char = 0;
+											this->module->pattern_line += 1;
+											this->module->editor_pattern_clamp_cursor();
+										}
+									}
 									break;
 								/// CHANCE
+								case 5:
+									break;
+								/// SYNTH
 								case 6:
+									key = this->key_hex(e);
+									if (key >= 0) {
+										if (this->module->pattern_char == 0) {
+											line_note->synth =
+											/**/ line_note->synth % 16
+											/**/ + key * 16;
+											this->module->pattern_char += 1;
+										} else {
+											line_note->synth =
+											/**/ (line_note->synth / 16) * 16
+											/**/ + key;
+											this->module->pattern_char = 0;
+											this->module->pattern_line += 1;
+											this->module->editor_pattern_clamp_cursor();
+										}
+									}
 									break;
 								/// EFFECT
 								default:
@@ -934,6 +991,7 @@ struct TrackerWidget : ModuleWidget {
 					this->module->pattern_cell -= 1;
 				else
 					this->module->pattern_cell += 1;
+				this->module->pattern_char = 0;
 			/// SCROLL Y
 			} else {
 				/// MOVE CURSOR
@@ -941,6 +999,7 @@ struct TrackerWidget : ModuleWidget {
 					this->module->pattern_line -= 1;
 				else
 					this->module->pattern_line += 1;
+				this->module->pattern_char = 0;
 			}
 			/// CLAMP CURSOR
 			this->module->editor_pattern_clamp_cursor();

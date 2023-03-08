@@ -141,8 +141,9 @@ struct SynthVoice {
 	float						pitch_from;
 	float						pitch_to;
 
-	float						delay;
-	float						delay_gate;
+	float						delay;		// Delay before start
+	float						delay_gate;	// Delay between 2 notes using same voice
+	float						delay_stop;	// Delay before stop
 
 	float						vibrato_amp;
 	float						vibrato_freq;
@@ -155,7 +156,7 @@ struct SynthVoice {
 
 	void process(float dt_sec, float dt_beat, float *output);
 	bool start(PatternNote *note, int lpb);
-	void stop();
+	void stop(PatternNote *note, int lpb);
 	void init(int synth, int channel);
 	void reset();
 	void glide(PatternNote *note);

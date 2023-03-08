@@ -13,3 +13,6 @@
 - [x] Pattern play CV interpolation
 - [x] Pattern play CV interpolation with delay
 - [ ] Pattern play CV interpolation with curves
+
+- [ ] Chance as effect (Cxx + cxx)
+- [x] Handle delay on note stop / new for running note

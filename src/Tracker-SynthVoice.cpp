@@ -50,16 +50,22 @@ void SynthVoice::process(
 			/**/ * this->tremolo_amp;
 			velocity *= tremolo;
 		}
+		/// COMPUTE STOPPING DELAY
+		if (this->delay_stop > 0) {
+			this->delay_stop -= dt_beat;
+			if (this->delay_stop < 0)
+				this->active = false;
+		}
 		/// SET OUTPUT (PITCH + GATE + VELOCITY)
 		output[this->channel * 3 + 0] = pitch;
 		output[this->channel * 3 + 1] = 10.0f;
 		output[this->channel * 3 + 2] = velocity;
 	/// ON NOTE DELAY
 	} else {
-		/// HANDLE NOTE DELAY
+		/// COMPUTE NOTE STARTING DELAY
 		if (this->delay > 0)
 			this->delay -= dt_beat;
-		/// HANDLE INTER NOTES GATE DELAY
+		/// COMPUTE INTER NOTES GATE DELAY
 		if (this->delay_gate > 0)
 			this->delay_gate -= dt_sec;
 		/// SET OUTPUT (GATE)
@@ -80,6 +86,7 @@ bool SynthVoice::start(
 		this->delay_gate = (this->active) ? 0.001f : 0.0f;
 		/// SET MAIN DELAY
 		this->delay = delay;
+		this->delay_stop = 0;
 		/// SET NOTE PROPS
 		this->velocity = note->velocity;
 		this->pitch = note->pitch;
@@ -140,8 +147,19 @@ void SynthVoice::glide(
 	}
 }
 
-void SynthVoice::stop() {
-	this->active = false;
+void SynthVoice::stop(PatternNote *note, int lpb) {
+	// TODO: get stopping line to get delay
+	// Stop only after certain delay
+	if (note) {
+		if (note->delay > 0) {
+			this->delay_stop =
+			/**/ (1.0f / (float)lpb) * ((float)note->delay / 256.0f);
+		} else {
+			this->active = false;
+		}
+	} else {
+		this->active = false;
+	}
 }
 
 void SynthVoice::init(int synth, int channel) {

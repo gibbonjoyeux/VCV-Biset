@@ -54,7 +54,7 @@ void PatternInstance::process(
 			if (note->mode == PATTERN_NOTE_NEW) {
 				/// CLOSE ACTIVE NOTE
 				if (voice) {
-					voice->stop();
+					voice->stop(note, pattern->lpb);
 					this->voices[row] = NULL;
 				}
 				/// ADD NEW NOTE
@@ -73,7 +73,7 @@ void PatternInstance::process(
 			} else if (note->mode == PATTERN_NOTE_STOP) {
 				/// CLOSE ACTIVE NOTE
 				if (voice) {
-					voice->stop();
+					voice->stop(note, pattern->lpb);
 					this->voices[row] = NULL;
 				}
 			}
@@ -148,7 +148,7 @@ void PatternInstance::stop() {
 
 	for (row = 0; row < 32; ++row) {
 		if (this->voices[row])
-			this->voices[row]->stop();
+			this->voices[row]->stop(NULL, 0);
 		this->voices[row] = NULL;
 		this->notes[row] = NULL;
 	}
