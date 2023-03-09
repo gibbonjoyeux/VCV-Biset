@@ -19,8 +19,8 @@ void Synth::init(int synth_index, int channel_count) {
 	}
 	/// INIT OUTPUTS
 	for (i = 0; i < 16; ++i)
-		for (j = 0; j < 3; ++j)
-			this->out_synth[i * 3 + j] = 0.0;
+		for (j = 0; j < 4; ++j)
+			this->out_synth[i * 4 + j] = 0.0;
 	for (i = 0; i < 8; ++i)
 			this->out_cv[i] = 0.0;
 	/// SET CHANNEL COUNT

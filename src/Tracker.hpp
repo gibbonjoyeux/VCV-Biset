@@ -84,6 +84,7 @@ struct PatternNote {
 	u8							synth;
 	u8							pitch;
 	u8							velocity;
+	u8							panning;
 	u8							delay;
 	u8							chance;
 	PatternEffect				effects[8];
@@ -142,6 +143,7 @@ struct SynthVoice {
 	u8							channel;
 	u8							pitch;
 	u8							velocity;
+	u8							panning;
 
 	float						pitch_glide_len;
 	float						pitch_glide_cur;
@@ -175,7 +177,7 @@ struct Synth {
 	u8							channel_cur;
 	u8							channel_count;
 	SynthVoice					voices[16];
-	float						out_synth[16 * 3];	// Out synth (pitch, gate...)
+	float						out_synth[16 * 4];	// Out synth (pitch, gate...)
 	float						out_cv[8];			// Out CV
 
 	Synth();

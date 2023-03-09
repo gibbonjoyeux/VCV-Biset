@@ -10,6 +10,7 @@ int		table_row_note_width[] = {
 	2,	// Pitch	(2)
 	1,	// Octave	(1)
 	2,	// Velocity	(2)
+	2,	// Panning	(2)
 	2,	// Synth	(2)
 	2,	// Delay	(2)
 	2,	// Glide	(2)
@@ -26,17 +27,18 @@ int		table_row_note_pos[] = {
 	0,	// Pitch	(2)
 	2,	// Octave	(1)
 	3,	// Velocity	(2)
-	5,	// Synth	(2)
-	7,	// Delay	(2)
-	9,	// Glide	(2)
-	11,	// Effect 1	(3)
-	14,	// Effect 2	(3)
-	17,	// Effect 3	(3)
-	20,	// Effect 4	(3)
-	23,	// Effect 5	(3)
-	26,	// Effect 6	(3)
-	29,	// Effect 7	(3)
-	31,	// Effect 8	(3)
+	5,	// Panning	(2)
+	7,	// Synth	(2)
+	9,	// Delay	(2)
+	11,	// Glide	(2)
+	13,	// Effect 1	(3)
+	16,	// Effect 2	(3)
+	19,	// Effect 3	(3)
+	22,	// Effect 4	(3)
+	25,	// Effect 5	(3)
+	28,	// Effect 6	(3)
+	30,	// Effect 7	(3)
+	33,	// Effect 8	(3)
 };
 int		table_row_cv_width[] = {
 	2,	// Value	(2)
@@ -202,6 +204,7 @@ struct Tracker : Module {
 		pattern->notes[0]->lines[0].synth = 0;
 		pattern->notes[0]->lines[0].pitch = 64;
 		pattern->notes[0]->lines[0].velocity = 255;
+		pattern->notes[0]->lines[0].panning = 128;
 		pattern->notes[0]->lines[0].delay = 0;
 		for (i = 0; i < 8; ++i)
 			pattern->notes[0]->lines[0].effects[i].type = PATTERN_EFFECT_NONE;
@@ -215,6 +218,7 @@ struct Tracker : Module {
 		pattern->notes[0]->lines[4].synth = 0;
 		pattern->notes[0]->lines[4].pitch = 66;
 		pattern->notes[0]->lines[4].velocity = 200;
+		pattern->notes[0]->lines[4].panning = 128;
 		pattern->notes[0]->lines[4].delay = 0;
 		for (i = 0; i < 8; ++i)
 			pattern->notes[0]->lines[4].effects[i].type = PATTERN_EFFECT_NONE;
@@ -226,6 +230,7 @@ struct Tracker : Module {
 		pattern->notes[0]->lines[8].synth = 0;
 		pattern->notes[0]->lines[8].pitch = 68;
 		pattern->notes[0]->lines[8].velocity = 128;
+		pattern->notes[0]->lines[8].panning = 128;
 		pattern->notes[0]->lines[8].delay = 0;
 		for (i = 0; i < 8; ++i)
 			pattern->notes[0]->lines[8].effects[i].type = PATTERN_EFFECT_NONE;
@@ -240,6 +245,7 @@ struct Tracker : Module {
 		pattern->notes[0]->lines[12].synth = 0;
 		pattern->notes[0]->lines[12].pitch = 71;
 		pattern->notes[0]->lines[12].velocity = 80;
+		pattern->notes[0]->lines[12].panning = 128;
 		pattern->notes[0]->lines[12].delay = 0;
 		for (i = 0; i < 8; ++i)
 			pattern->notes[0]->lines[12].effects[i].type = PATTERN_EFFECT_NONE;
@@ -318,7 +324,7 @@ struct Tracker : Module {
 				/// FALL ON NOTE ROW
 				if (this->pattern_row < pattern->note_count) {
 					row_note = pattern->notes[this->pattern_row];
-					this->pattern_cell = 6 + row_note->effect_count - 1;
+					this->pattern_cell = 7 + row_note->effect_count - 1;
 				/// FALL ON CV ROW
 				} else {
 					this->pattern_cell = 2;
@@ -330,12 +336,12 @@ struct Tracker : Module {
 		if (this->pattern_row < pattern->note_count) {
 			row_note = pattern->notes[this->pattern_row];
 			/// HANDLE ROW NOTE OVERFLOW
-			if (this->pattern_cell >= 6 + row_note->effect_count) {
+			if (this->pattern_cell >= 7 + row_note->effect_count) {
 				/// FROM NOTE TO CV
 				if (this->pattern_row >= pattern->note_count) {
 					/// GOT NO CV
 					if (pattern->cv_count == 0) {
-						this->pattern_cell = 6 + row_note->effect_count - 1;
+						this->pattern_cell = 7 + row_note->effect_count - 1;
 					/// GOT CV
 					} else {
 						this->pattern_row += 1;
@@ -470,7 +476,7 @@ struct TrackerDisplay : LedDisplay {
 						w = table_row_note_width[this->module->pattern_cell];
 						break;
 					}
-					x += (2 + 1 + 2 + 2 + 2 + 2
+					x += (2 + 1 + 2 + 2 + 2 + 2 + 2
 					/**/ + 3 * note_row->effect_count + 1);
 				/// ON CV
 				} else {
@@ -530,6 +536,17 @@ struct TrackerDisplay : LedDisplay {
 						str[2] = 0;
 					} else {
 						itoa(note->velocity, str, 16);
+					}
+					nvgText(args.vg, x, y, str, NULL);
+					x += char_width * 2.0;
+					/// PANNING
+					nvgFillColor(args.vg, module->colors[6]);
+					if (note->mode == PATTERN_NOTE_KEEP) {
+						str[0] = '.';
+						str[1] = '.';
+						str[2] = 0;
+					} else {
+						itoa(note->panning, str, 16);
 					}
 					nvgText(args.vg, x, y, str, NULL);
 					x += char_width * 2.0;
@@ -874,8 +891,27 @@ struct TrackerWidget : ModuleWidget {
 									}
 								}
 								break;
-							/// SYNTH
+							/// PANNING
 							case 3:
+								key = this->key_hex(e);
+								if (key >= 0) {
+									if (this->module->pattern_char == 0) {
+										line_note->panning =
+										/**/ line_note->panning % 16
+										/**/ + key * 16;
+										this->module->pattern_char += 1;
+									} else {
+										line_note->panning =
+										/**/ (line_note->panning / 16) * 16
+										/**/ + key;
+										this->module->pattern_char = 0;
+										this->module->pattern_line += 1;
+										this->module->editor_pattern_clamp_cursor();
+									}
+								}
+								break;
+							/// SYNTH
+							case 4:
 								key = this->key_hex(e);
 								if (key >= 0) {
 									if (this->module->pattern_char == 0) {
@@ -894,7 +930,7 @@ struct TrackerWidget : ModuleWidget {
 								}
 								break;
 							/// DELAY
-							case 4:
+							case 5:
 								key = this->key_hex(e);
 								if (key >= 0) {
 									if (this->module->pattern_char == 0) {
@@ -913,30 +949,27 @@ struct TrackerWidget : ModuleWidget {
 								}
 								break;
 							/// GLIDE
-							case 5:
+							case 6:
 								// TODO: Set glide mode if glide set
 								// TODO: Remove glide mode if press DEL
-								key = this->key_hex(e);
-								if (key >= 0) {
-									if (this->module->pattern_char == 0) {
-										line_note->glide =
-										/**/ line_note->glide % 16
-										/**/ + key * 16;
-										this->module->pattern_char += 1;
-										if (line_note->mode != PATTERN_NOTE_GLIDE)
-											line_note->mode = PATTERN_NOTE_GLIDE;
-									} else {
-										line_note->glide =
-										/**/ (line_note->glide / 16) * 16
-										/**/ + key;
-										this->module->pattern_char = 0;
-										this->module->pattern_line += 1;
-										this->module->editor_pattern_clamp_cursor();
-									}
-								}
-								break;
-							/// CHANCE
-							case 6:
+								//key = this->key_hex(e);
+								//if (key >= 0) {
+								//	if (this->module->pattern_char == 0) {
+								//		line_note->glide =
+								//		/**/ line_note->glide % 16
+								//		/**/ + key * 16;
+								//		this->module->pattern_char += 1;
+								//		if (line_note->mode != PATTERN_NOTE_GLIDE)
+								//			line_note->mode = PATTERN_NOTE_GLIDE;
+								//	} else {
+								//		line_note->glide =
+								//		/**/ (line_note->glide / 16) * 16
+								//		/**/ + key;
+								//		this->module->pattern_char = 0;
+								//		this->module->pattern_line += 1;
+								//		this->module->editor_pattern_clamp_cursor();
+								//	}
+								//}
 								break;
 							/// EFFECT
 							default:

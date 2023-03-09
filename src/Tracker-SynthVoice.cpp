@@ -11,13 +11,15 @@ void SynthVoice::process(
 	float					*output) {
 	float					pitch, mix;
 	float					velocity;
+	float					panning;
 	float					vibrato, tremolo;
 
 	/// ON NOTE PLAY
 	if (this->active && this->delay <= 0 && this->delay_gate <= 0) {
 		/// COMPUTE CV
 		//pitch = (float)(this->pitch - 69) / 12.0f;
-		velocity = (float)this->velocity / 25.5;
+		velocity = (float)this->velocity / 255.0 * 10.0;
+		panning = (float)this->panning / 255.0 * 10.0;
 		/// COMPUTE EFFECTS
 		//// COMPUTE GLIDE
 		if (this->pitch_glide_len > 0) {
@@ -57,9 +59,10 @@ void SynthVoice::process(
 				this->active = false;
 		}
 		/// SET OUTPUT (PITCH + GATE + VELOCITY)
-		output[this->channel * 3 + 0] = pitch;
-		output[this->channel * 3 + 1] = 10.0f;
-		output[this->channel * 3 + 2] = velocity;
+		output[this->channel * 4 + 0] = pitch;
+		output[this->channel * 4 + 1] = 10.0f;
+		output[this->channel * 4 + 2] = velocity;
+		output[this->channel * 4 + 3] = panning;
 	/// ON NOTE DELAY
 	} else {
 		/// COMPUTE NOTE STARTING DELAY
@@ -69,7 +72,7 @@ void SynthVoice::process(
 		if (this->delay_gate > 0)
 			this->delay_gate -= dt_sec;
 		/// SET OUTPUT (GATE)
-		output[this->channel * 3 + 1] = 0.0f;
+		output[this->channel * 4 + 1] = 0.0f;
 	}
 }
 
@@ -90,6 +93,7 @@ bool SynthVoice::start(
 	this->delay_stop = 0;
 	/// SET NOTE PROPS
 	this->velocity = note->velocity;
+	this->panning = note->panning;
 	this->pitch = note->pitch;
 	this->pitch_from = note->pitch;
 	this->pitch_to = note->pitch;
