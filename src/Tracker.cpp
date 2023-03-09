@@ -7,38 +7,38 @@ char	table_pitch[12][3] = {
 char	table_effect[] = "APOMSVTFfCcR";
 char	table_hex[] = "0123456789ABCDEF";
 int		table_row_note_width[] = {
-	2,	// Pitch	(2)
-	1,	// Octave	(1)
-	2,	// Velocity	(2)
-	2,	// Panning	(2)
-	2,	// Synth	(2)
-	2,	// Delay	(2)
-	2,	// Glide	(2)
-	3,	// Effect 1	(3)
-	3,	// Effect 2	(3)
-	3,	// Effect 3	(3)
-	3,	// Effect 4	(3)
-	3,	// Effect 5	(3)
-	3,	// Effect 6	(3)
-	3,	// Effect 7	(3)
-	3,	// Effect 8	(3)
+	2,		// Pitch	(2)
+	1,		// Octave	(1)
+	2,		// Velocity	(2)
+	2,		// Panning	(2)
+	2,		// Synth	(2)
+	2,		// Delay	(2)
+	2,		// Glide	(2)
+	1, 2,	// Effect 1	(3)
+	1, 2,	// Effect 2	(3)
+	1, 2,	// Effect 3	(3)
+	1, 2,	// Effect 4	(3)
+	1, 2,	// Effect 5	(3)
+	1, 2,	// Effect 6	(3)
+	1, 2,	// Effect 7	(3)
+	1, 2	// Effect 8	(3)
 };
 int		table_row_note_pos[] = {
-	0,	// Pitch	(2)
-	2,	// Octave	(1)
-	3,	// Velocity	(2)
-	5,	// Panning	(2)
-	7,	// Synth	(2)
-	9,	// Delay	(2)
-	11,	// Glide	(2)
-	13,	// Effect 1	(3)
-	16,	// Effect 2	(3)
-	19,	// Effect 3	(3)
-	22,	// Effect 4	(3)
-	25,	// Effect 5	(3)
-	28,	// Effect 6	(3)
-	30,	// Effect 7	(3)
-	33,	// Effect 8	(3)
+	0,		// Pitch	(2)
+	2,		// Octave	(1)
+	3,		// Velocity	(2)
+	5,		// Panning	(2)
+	7,		// Synth	(2)
+	9,		// Delay	(2)
+	11,		// Glide	(2)
+	13, 14,	// Effect 1	(3)
+	16,	17,	// Effect 2	(3)
+	19,	20,	// Effect 3	(3)
+	22,	23,	// Effect 4	(3)
+	25,	26,	// Effect 5	(3)
+	28,	29,	// Effect 6	(3)
+	30,	31,	// Effect 7	(3)
+	33,	34	// Effect 8	(3)
 };
 int		table_row_cv_width[] = {
 	2,	// Value	(2)
@@ -324,7 +324,7 @@ struct Tracker : Module {
 				/// FALL ON NOTE ROW
 				if (this->pattern_row < pattern->note_count) {
 					row_note = pattern->notes[this->pattern_row];
-					this->pattern_cell = 7 + row_note->effect_count - 1;
+					this->pattern_cell = 7 + 2 * row_note->effect_count - 1;
 				/// FALL ON CV ROW
 				} else {
 					this->pattern_cell = 2;
@@ -336,12 +336,12 @@ struct Tracker : Module {
 		if (this->pattern_row < pattern->note_count) {
 			row_note = pattern->notes[this->pattern_row];
 			/// HANDLE ROW NOTE OVERFLOW
-			if (this->pattern_cell >= 7 + row_note->effect_count) {
+			if (this->pattern_cell >= 7 + 2 * row_note->effect_count) {
 				/// FROM NOTE TO CV
 				if (this->pattern_row >= pattern->note_count) {
 					/// GOT NO CV
 					if (pattern->cv_count == 0) {
-						this->pattern_cell = 7 + row_note->effect_count - 1;
+						this->pattern_cell = 7 + 2 * row_note->effect_count - 1;
 					/// GOT CV
 					} else {
 						this->pattern_row += 1;
@@ -812,7 +812,10 @@ struct TrackerWidget : ModuleWidget {
 		PatternSource	*pattern;
 		PatternNoteRow	*row_note;
 		PatternNote		*line_note;
+		PatternEffect	*effect;
+		int				fx_1, fx_2;
 		int				key;
+		int				i;
 
 		e.consume(this);
 		if (e.action == GLFW_PRESS) {
@@ -973,22 +976,57 @@ struct TrackerWidget : ModuleWidget {
 								break;
 							/// EFFECT
 							default:
+								fx_1 = (this->module->pattern_cell - 7) / 2;
+								fx_2 = (this->module->pattern_cell - 7) % 2;
+								effect = &(line_note->effects[fx_1]);
+								/// EFFECT DELETE
+								if (e.key == GLFW_KEY_DELETE
+								|| e.key == GLFW_KEY_BACKSPACE) {
+									effect->type = PATTERN_EFFECT_NONE;
+									effect->value = 0;
+								/// EFFECT EDIT
+								} else {
+									/// EDIT EFFECT TYPE
+									if (fx_2 == 0) {
+										key = this->key_alpha(e);
+										if (key > 0) {
+											i = 0;
+											/// FIND EFFECT TYPE
+											while (i < (int)sizeof(table_effect)) {
+												/// MATCH EFFECT TYPE
+												if (key == table_effect[i]) {
+													effect->type = i + 1;
+													this->module->pattern_line += 1;
+													this->module->editor_pattern_clamp_cursor();
+												}
+												i += 1;
+											}
+										}
+									/// EDIT EFFECT VALUE
+									} else {
+										key = this->key_hex(e);
+										if (key >= 0) {
+											if (this->module->pattern_char == 0) {
+												effect->value =
+												/**/ effect->value % 16
+												/**/ + key * 16;
+												this->module->pattern_char += 1;
+											} else {
+												effect->value =
+												/**/ (effect->value / 16) * 16
+												/**/ + key;
+												this->module->pattern_char = 0;
+												this->module->pattern_line += 1;
+												this->module->editor_pattern_clamp_cursor();
+											}
+										}
+									}
+								}
 								break;
 						}
 					/// KEY ON CV
 					} else {
 					}
-					//key = e.key;
-					//if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
-					//	this->module->pattern_edit[0] = '0' + (key - GLFW_KEY_0);
-					//	this->module->pattern_edit[1] = 0;
-					//} else {
-					//	key = e.keyName[0];
-					//	if (key >= 'a' && key <= 'z') {
-					//		this->module->pattern_edit[0] = key;
-					//		this->module->pattern_edit[1] = 0;
-					//	}
-					//}
 				}
 				/// CLAMP CURSOR
 				this->module->editor_pattern_clamp_cursor();
@@ -1014,6 +1052,16 @@ struct TrackerWidget : ModuleWidget {
 			return e.key - GLFW_KEY_0;
 		else if (e.keyName[0] >= 'a' && e.keyName[0] <= 'f')
 			return 10 + e.keyName[0] - 'a';
+		return -1;
+	}
+
+	int key_alpha(const SelectKeyEvent &e) {
+		if (e.keyName[0] >= 'a' && e.keyName[0] <= 'z') {
+			if (e.mods & GLFW_MOD_SHIFT)
+				return e.keyName[0] + ('A' - 'a');
+			else
+				return e.keyName[0];
+		}
 		return -1;
 	}
 

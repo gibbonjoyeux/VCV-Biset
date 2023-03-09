@@ -115,12 +115,12 @@ bool SynthVoice::start(
 				break;
 			case PATTERN_EFFECT_RAND_OCT:		// Oxy
 				x = effect->value / 16;
-				y = effect->value % 16;
-				if (x == 0)						// > -+
+				y = effect->value % 16 + 1;
+				if (x == 0)					// > -+
 					int_1 = (random::u32() % (2 * y) - y) * 12;
-				else if (x == 1)				// > +
+				else if (x == 1)			// > +
 					int_1 = (random::u32() % y) * 12;
-				else							// > -
+				else						// > -
 					int_1 = -(random::u32() % y) * 12;
 				this->pitch += int_1;
 				this->pitch_from += int_1;
@@ -150,7 +150,7 @@ bool SynthVoice::start(
 			case PATTERN_EFFECT_TREMOLO:		// Txy
 				this->tremolo_freq =
 				/**/ (float)(effect->value / 16) * M_PI * 2.0f;
-				this->tremolo_amp = (float)(effect->value % 16) / 16.0;
+				this->tremolo_amp = (float)(effect->value % 16) / 32.0;
 				break;
 			case PATTERN_EFFECT_FADE_IN:		// Fxx
 				break;
