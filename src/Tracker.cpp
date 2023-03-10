@@ -55,6 +55,23 @@ int		table_keyboard[128];
 
 Timeline		g_timeline;
 
+void int_to_hex(char *str, int number, int width) {
+	char		digit;
+	int			i;
+
+	str[width] = 0;
+	for (i = width - 1; i >= 0; --i) {
+		digit = number % 16;
+		if (digit < 10)
+			str[i] = '0' + digit;
+		else
+			str[i] = 'A' + (digit - 10);
+		number /= 16;
+	}
+}
+
+
+
 struct Tracker : Module {
 	enum	ParamIds {
 		PARAM_BPM,
@@ -502,11 +519,11 @@ struct TrackerDisplay : LedDisplay {
 				y = p.y + 11.0 + i * 8.5;
 				/// BEAT COUNT
 				if (i % pattern->lpb == 0) {
-					itoa(i / pattern->lpb, str, 16);
+					int_to_hex(str, i / pattern->lpb, 2);
 					nvgFillColor(args.vg, module->colors[13]);
 				/// LINE COUNT
 				} else {
-					itoa(i % pattern->lpb, str, 16);
+					int_to_hex(str, i % pattern->lpb, 2);
 					nvgFillColor(args.vg, module->colors[15]);
 				}
 				nvgText(args.vg, x, y, str, NULL);
@@ -549,7 +566,7 @@ struct TrackerDisplay : LedDisplay {
 						str[1] = '.';
 						str[2] = 0;
 					} else {
-						itoa(note->velocity, str, 16);
+						int_to_hex(str, note->velocity, 2);
 					}
 					nvgText(args.vg, x, y, str, NULL);
 					x += char_width * 2.0;
@@ -560,7 +577,7 @@ struct TrackerDisplay : LedDisplay {
 						str[1] = '.';
 						str[2] = 0;
 					} else {
-						itoa(note->panning, str, 16);
+						int_to_hex(str, note->panning, 2);
 					}
 					nvgText(args.vg, x, y, str, NULL);
 					x += char_width * 2.0;
@@ -571,7 +588,7 @@ struct TrackerDisplay : LedDisplay {
 						str[1] = '.';
 						str[2] = 0;
 					} else {
-						itoa(note->synth, str, 16);
+						int_to_hex(str, note->synth, 2);
 					}
 					nvgText(args.vg, x, y, str, NULL);
 					x += char_width * 2.0;
@@ -582,7 +599,7 @@ struct TrackerDisplay : LedDisplay {
 						str[1] = '.';
 						str[2] = 0;
 					} else {
-						itoa(note->delay, str, 16);
+						int_to_hex(str, note->delay, 2);
 					}
 					nvgText(args.vg, x, y, str, NULL);
 					x += char_width * 2.0;
@@ -594,7 +611,7 @@ struct TrackerDisplay : LedDisplay {
 						str[1] = '.';
 						str[2] = 0;
 					} else {
-						itoa(note->glide, str, 16);
+						int_to_hex(str, note->glide, 2);
 					}
 					nvgText(args.vg, x, y, str, NULL);
 					x += char_width * 2.0;
@@ -612,7 +629,7 @@ struct TrackerDisplay : LedDisplay {
 						} else {
 							str[0] = table_effect[effect->type - 1];
 							str[1] = 0;
-							itoa(note->effects[k].value, str + 2, 16);
+							int_to_hex(str + 2, note->effects[k].value, 2);
 						}
 						/// EFFECT TYPE
 						nvgFillColor(args.vg, module->colors[13]);
@@ -642,7 +659,7 @@ struct TrackerDisplay : LedDisplay {
 						str[1] = '.';
 						str[2] = 0;
 					} else {
-						itoa(cv->value, str, 16);
+						int_to_hex(str, cv->value, 2);
 					}
 					nvgText(args.vg, x, y, str, NULL);
 					x += char_width * 2.0;
@@ -653,7 +670,7 @@ struct TrackerDisplay : LedDisplay {
 						str[1] = '.';
 						str[2] = 0;
 					} else {
-						itoa(cv->glide, str, 16);
+						int_to_hex(str, cv->glide, 2);
 					}
 					nvgText(args.vg, x, y, str, NULL);
 					x += char_width * 2.0;
@@ -664,7 +681,7 @@ struct TrackerDisplay : LedDisplay {
 						str[1] = '.';
 						str[2] = 0;
 					} else {
-						itoa(cv->delay, str, 16);
+						int_to_hex(str, cv->delay, 2);
 					}
 					nvgText(args.vg, x, y, str, NULL);
 					x += char_width * 2.0;
