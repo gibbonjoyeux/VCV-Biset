@@ -115,16 +115,18 @@ bool SynthVoice::start(
 				break;
 			case PATTERN_EFFECT_RAND_OCT:		// Oxy
 				x = effect->value / 16;
-				y = effect->value % 16 + 1;
-				if (x == 0)					// > -+
-					int_1 = (random::u32() % (2 * y) - y) * 12;
-				else if (x == 1)			// > +
-					int_1 = (random::u32() % y) * 12;
-				else						// > -
-					int_1 = -(random::u32() % y) * 12;
-				this->pitch += int_1;
-				this->pitch_from += int_1;
-				this->pitch_to += int_1;
+				y = effect->value % 16;
+				if (y > 0) {
+					if (x == 0)					// > -+
+						int_1 = (random::u32() % (2 * y) - y) * 12;
+					else if (x == 1)			// > +
+						int_1 = (random::u32() % (y + 1)) * 12;
+					else						// > -
+						int_1 = -(random::u32() % (y + 1)) * 12;
+					this->pitch += int_1;
+					this->pitch_from += int_1;
+					this->pitch_to += int_1;
+				}
 				break;
 			case PATTERN_EFFECT_RAND_PITCH:		// Mxy
 				x = effect->value / 16;

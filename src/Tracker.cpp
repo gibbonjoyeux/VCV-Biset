@@ -813,6 +813,8 @@ struct TrackerWidget : ModuleWidget {
 		PatternNoteRow	*row_note;
 		PatternNote		*line_note;
 		PatternEffect	*effect;
+		PatternCVRow	*row_cv;
+		PatternCV		*line_cv;
 		int				fx_1, fx_2;
 		int				key;
 		int				i;
@@ -953,26 +955,32 @@ struct TrackerWidget : ModuleWidget {
 								break;
 							/// GLIDE
 							case 6:
-								// TODO: Set glide mode if glide set
-								// TODO: Remove glide mode if press DEL
-								//key = this->key_hex(e);
-								//if (key >= 0) {
-								//	if (this->module->pattern_char == 0) {
-								//		line_note->glide =
-								//		/**/ line_note->glide % 16
-								//		/**/ + key * 16;
-								//		this->module->pattern_char += 1;
-								//		if (line_note->mode != PATTERN_NOTE_GLIDE)
-								//			line_note->mode = PATTERN_NOTE_GLIDE;
-								//	} else {
-								//		line_note->glide =
-								//		/**/ (line_note->glide / 16) * 16
-								//		/**/ + key;
-								//		this->module->pattern_char = 0;
-								//		this->module->pattern_line += 1;
-								//		this->module->editor_pattern_clamp_cursor();
-								//	}
-								//}
+								/// GLIDE DELETE
+								if (e.key == GLFW_KEY_DELETE
+								|| e.key == GLFW_KEY_BACKSPACE) {
+									if (line_note->mode == PATTERN_NOTE_GLIDE)
+										line_note->mode = PATTERN_NOTE_NEW;
+								/// GLIDE EDIT
+								} else {
+									key = this->key_hex(e);
+									if (key >= 0) {
+										if (line_note->mode == PATTERN_NOTE_NEW)
+											line_note->mode = PATTERN_NOTE_GLIDE;
+										if (this->module->pattern_char == 0) {
+											line_note->glide =
+											/**/ line_note->glide % 16
+											/**/ + key * 16;
+											this->module->pattern_char += 1;
+										} else {
+											line_note->glide =
+											/**/ (line_note->glide / 16) * 16
+											/**/ + key;
+											this->module->pattern_char = 0;
+											this->module->pattern_line += 1;
+											this->module->editor_pattern_clamp_cursor();
+										}
+									}
+								}
 								break;
 							/// EFFECT
 							default:
@@ -1026,6 +1034,70 @@ struct TrackerWidget : ModuleWidget {
 						}
 					/// KEY ON CV
 					} else {
+						row_cv = pattern->cvs[this->module->pattern_row - pattern->note_count];
+						line_cv = &(row_cv->lines[this->module->pattern_line]);
+						switch (this->module->pattern_cell) {
+							/// VALUE
+							case 0:
+								/// VALUE DELETE
+								if (e.key == GLFW_KEY_DELETE
+								|| e.key == GLFW_KEY_BACKSPACE) {
+									line_cv->mode = PATTERN_CV_KEEP;
+								/// VALUE EDIT
+								} else {
+									if (line_cv->mode == PATTERN_CV_KEEP)
+										line_cv->mode = PATTERN_CV_SET;
+									key = this->key_hex(e);
+									if (key >= 0) {
+										if (this->module->pattern_char == 0) {
+											line_cv->value =
+											/**/ line_cv->value % 16
+											/**/ + key * 16;
+											this->module->pattern_char += 1;
+										} else {
+											line_cv->value =
+											/**/ (line_cv->value / 16) * 16
+											/**/ + key;
+											this->module->pattern_char = 0;
+										}
+									}
+								}
+								break;
+							/// GLIDE
+							case 1:
+								key = this->key_hex(e);
+								if (key >= 0) {
+									if (this->module->pattern_char == 0) {
+										line_cv->glide =
+										/**/ line_cv->glide % 16
+										/**/ + key * 16;
+										this->module->pattern_char += 1;
+									} else {
+										line_cv->glide =
+										/**/ (line_cv->glide / 16) * 16
+										/**/ + key;
+										this->module->pattern_char = 0;
+									}
+								}
+								break;
+							/// DELAY
+							case 2:
+								key = this->key_hex(e);
+								if (key >= 0) {
+									if (this->module->pattern_char == 0) {
+										line_cv->delay =
+										/**/ line_cv->delay % 16
+										/**/ + key * 16;
+										this->module->pattern_char += 1;
+									} else {
+										line_cv->delay =
+										/**/ (line_cv->delay / 16) * 16
+										/**/ + key;
+										this->module->pattern_char = 0;
+									}
+								}
+								break;
+						}
 					}
 				}
 				/// CLAMP CURSOR
