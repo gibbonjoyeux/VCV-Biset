@@ -199,7 +199,7 @@ struct Tracker : Module {
 		PatternSource	*pattern;
 
 		g_timeline.debug = 0;
-		g_timeline.resize(4);
+		g_timeline.resize(16);
 		g_timeline.timeline[0][0].mode = 1;
 		g_timeline.timeline[0][0].pattern = 0;
 		g_timeline.timeline[0][0].beat = 0;
@@ -211,59 +211,39 @@ struct Tracker : Module {
 		pattern = &(g_timeline.patterns[0]);
 		this->editor_pattern = pattern;
 
-		pattern->resize(3, 1, 4, 4);
+		pattern->resize(3, 1, 16, 4);
 		pattern->notes[0]->effect_count = 2;
 
 		/// FILL PATTERN SOURCE NOTES
 		pattern->notes[0]->lines[0].mode = PATTERN_NOTE_NEW;
 		pattern->notes[0]->lines[0].synth = 0;
-		pattern->notes[0]->lines[0].pitch = 64;
+		pattern->notes[0]->lines[0].pitch = 63;
 		pattern->notes[0]->lines[0].velocity = 255;
-		pattern->notes[0]->lines[0].panning = 128;
-		pattern->notes[0]->lines[0].delay = 0;
-		for (i = 0; i < 8; ++i)
-			pattern->notes[0]->lines[0].effects[i].type = PATTERN_EFFECT_NONE;
-		pattern->notes[0]->lines[0].effects[0].type = PATTERN_EFFECT_TREMOLO;
-		pattern->notes[0]->lines[0].effects[0].value = 0x49;
-		pattern->notes[0]->lines[0].effects[1].type = PATTERN_EFFECT_VIBRATO;
-		pattern->notes[0]->lines[0].effects[1].value = 0x42;
-
-		pattern->notes[0]->lines[4].mode = PATTERN_NOTE_NEW;
-		pattern->notes[0]->lines[4].glide = 100;
-		pattern->notes[0]->lines[4].synth = 0;
-		pattern->notes[0]->lines[4].pitch = 66;
-		pattern->notes[0]->lines[4].velocity = 200;
-		pattern->notes[0]->lines[4].panning = 128;
-		pattern->notes[0]->lines[4].delay = 0;
-		for (i = 0; i < 8; ++i)
-			pattern->notes[0]->lines[4].effects[i].type = PATTERN_EFFECT_NONE;
-		pattern->notes[0]->lines[4].effects[0].type = PATTERN_EFFECT_RAND_OCT;
-		pattern->notes[0]->lines[4].effects[0].value = 0x02;
-
 		pattern->notes[0]->lines[8].mode = PATTERN_NOTE_NEW;
-		pattern->notes[0]->lines[8].glide = 100;
 		pattern->notes[0]->lines[8].synth = 0;
-		pattern->notes[0]->lines[8].pitch = 68;
-		pattern->notes[0]->lines[8].velocity = 128;
-		pattern->notes[0]->lines[8].panning = 128;
-		pattern->notes[0]->lines[8].delay = 0;
-		for (i = 0; i < 8; ++i)
-			pattern->notes[0]->lines[8].effects[i].type = PATTERN_EFFECT_NONE;
+		pattern->notes[0]->lines[8].pitch = 61;
+		pattern->notes[0]->lines[8].velocity = 255;
+		pattern->notes[0]->lines[16].mode = PATTERN_NOTE_NEW;
+		pattern->notes[0]->lines[16].synth = 0;
+		pattern->notes[0]->lines[16].pitch = 66;
+		pattern->notes[0]->lines[16].velocity = 255;
+		pattern->notes[0]->lines[24].mode = PATTERN_NOTE_NEW;
+		pattern->notes[0]->lines[24].synth = 0;
+		pattern->notes[0]->lines[24].pitch = 70;
+		pattern->notes[0]->lines[24].velocity = 255;
 
-		//pattern->notes[0][10].mode = -1;
-		//pattern->notes[0][10].delay = 0;
-		//for (i = 0; i < 8; ++i)
-		//	pattern->notes[0][10].effects[i].type = PATTERN_EFFECT_NONE;
-
-		pattern->notes[0]->lines[12].mode = PATTERN_NOTE_NEW;
-		pattern->notes[0]->lines[12].glide = 100;
-		pattern->notes[0]->lines[12].synth = 0;
-		pattern->notes[0]->lines[12].pitch = 71;
-		pattern->notes[0]->lines[12].velocity = 80;
-		pattern->notes[0]->lines[12].panning = 128;
-		pattern->notes[0]->lines[12].delay = 0;
-		for (i = 0; i < 8; ++i)
-			pattern->notes[0]->lines[12].effects[i].type = PATTERN_EFFECT_NONE;
+		pattern->notes[0]->lines[32].mode = PATTERN_NOTE_NEW;
+		pattern->notes[0]->lines[32].synth = 0;
+		pattern->notes[0]->lines[32].pitch = 68;
+		pattern->notes[0]->lines[32].velocity = 255;
+		pattern->notes[0]->lines[40].mode = PATTERN_NOTE_NEW;
+		pattern->notes[0]->lines[40].synth = 0;
+		pattern->notes[0]->lines[40].pitch = 63;
+		pattern->notes[0]->lines[40].velocity = 255;
+		pattern->notes[0]->lines[48].mode = PATTERN_NOTE_NEW;
+		pattern->notes[0]->lines[48].synth = 0;
+		pattern->notes[0]->lines[48].pitch = 70;
+		pattern->notes[0]->lines[48].velocity = 255;
 
 		/// FILL PATTERN SOURCE CVS
 		// TODO: use ArrayExt and set SYNTH & CHANNEL on row
@@ -460,6 +440,8 @@ struct TrackerDisplay : LedDisplay {
 		///**/ this->module->pattern_line, this->module->pattern_cell);
 		nvgText(args.vg, p.x + 400, p.y + 11.0, this->module->pattern_debug, NULL);
 		// TMP DEBUG ! ! !
+
+		nvgScissor(args.vg, RECT_ARGS(rect));
 
 		char_width = nvgTextBounds(args.vg, 0, 0, "X", NULL, NULL);
 
@@ -690,6 +672,8 @@ struct TrackerDisplay : LedDisplay {
 					x_row = x + char_width;
 			}
 		}
+
+		nvgResetScissor(args.vg);
 
 		//if (this->module->editor_selected == false) {
 		//	nvgBeginPath(args.vg);
