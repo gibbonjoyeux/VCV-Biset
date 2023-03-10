@@ -14,9 +14,12 @@
 - [x] Pattern play CV interpolation with delay
 - [ ] Pattern play CV interpolation with curves
 
-- [ ] Chance as effect (Cxx + cxx)
+- [x] Chance as effect (Cxx + cxx)
 - [x] Handle delay on note stop / new for running note
-- [ ] Define synth row order (PITCH-OCT VELO SYNTH DELAY GLIDE FX FX ...)
+- [x] Define synth row order (PITCH-OCT VELO SYNTH DELAY GLIDE FX FX ...)
+- [ ] Line / Beat number on left
+- [ ] Scroll Y
+- [ ] Scroll X
 
 
 # Effects

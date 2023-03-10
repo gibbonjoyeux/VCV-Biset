@@ -88,8 +88,7 @@ struct Tracker : Module {
 	int					pattern_line;
 	int					pattern_cell;
 	int					pattern_char;
-	char				pattern_edit[4];
-	int					pattern_edit_index;
+	char				pattern_debug[4];
 
 	Tracker() {
 		int	i;
@@ -101,8 +100,7 @@ struct Tracker : Module {
 		pattern_line = 0;
 		pattern_cell = 0;
 		pattern_char = 0;
-		pattern_edit[0] = 0;
-		pattern_edit_index = 0;
+		pattern_debug[0] = 0;
 
 		config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 		configParam(PARAM_BPM, 30.0f, 300.0f, 120.f, "BPM");
@@ -443,7 +441,7 @@ struct TrackerDisplay : LedDisplay {
 		////int a2 = (test >> 4);
 		//sprintf(text, "%d %dx%d", this->module->pattern_row,
 		///**/ this->module->pattern_line, this->module->pattern_cell);
-		nvgText(args.vg, p.x + 400, p.y + 11.0, this->module->pattern_edit, NULL);
+		nvgText(args.vg, p.x + 400, p.y + 11.0, this->module->pattern_debug, NULL);
 		// TMP DEBUG ! ! !
 
 		char_width = nvgTextBounds(args.vg, 0, 0, "X", NULL, NULL);
@@ -490,7 +488,7 @@ struct TrackerDisplay : LedDisplay {
 				}
 				i += 1;
 			}
-			x = x * char_width + 2.0;
+			x = 2.0 * char_width + x * char_width + 2.0;
 			y = y * 8.5 + 3.5;
 			w = w * char_width;
 			nvgBeginPath(args.vg);
@@ -498,10 +496,26 @@ struct TrackerDisplay : LedDisplay {
 			nvgRect(args.vg, x, y, w, 8.5);
 			nvgFill(args.vg);
 
+			/// DRAW LINE / BEAT COUNT
+			x = p.x + 2;
+			for (i = 0; i < pattern->line_count; ++i) {
+				y = p.y + 11.0 + i * 8.5;
+				/// BEAT COUNT
+				if (i % pattern->lpb == 0) {
+					itoa(i / pattern->lpb, str, 16);
+					nvgFillColor(args.vg, module->colors[13]);
+				/// LINE COUNT
+				} else {
+					itoa(i % pattern->lpb, str, 16);
+					nvgFillColor(args.vg, module->colors[15]);
+				}
+				nvgText(args.vg, x, y, str, NULL);
+			}
+
 			/// [2] LAYER 2 (TRACKER)
 
 			/// FOR EACH NOTE ROW	
-			x_row = p.x + 2.0;
+			x_row = p.x + 2.0 + 2.0 * char_width;
 			for (i = 0; i < pattern->note_count; ++i) {
 				note_row = pattern->notes[i];
 				/// FOR EACH NOTE ROW LINE
@@ -820,7 +834,8 @@ struct TrackerWidget : ModuleWidget {
 		int				i;
 
 		e.consume(this);
-		if (e.action == GLFW_PRESS) {
+		if (e.action == GLFW_PRESS
+		|| e.action == GLFW_REPEAT) {
 			if (this->module->editor_pattern) {
 				/// EVENT CURSOR MOVE
 				if (e.key == GLFW_KEY_LEFT) {
@@ -859,8 +874,9 @@ struct TrackerWidget : ModuleWidget {
 										|| line_note->mode == PATTERN_NOTE_STOP) {
 											line_note->mode = PATTERN_NOTE_NEW;
 											line_note->velocity = 255;
+											line_note->panning = 128;
 										}
-										strcpy(this->module->pattern_edit,
+										strcpy(this->module->pattern_debug,
 										/**/ table_pitch[key % 12]);
 									/// NOTE STOP
 									} else if (key == -1) {
@@ -1045,10 +1061,10 @@ struct TrackerWidget : ModuleWidget {
 									line_cv->mode = PATTERN_CV_KEEP;
 								/// VALUE EDIT
 								} else {
-									if (line_cv->mode == PATTERN_CV_KEEP)
-										line_cv->mode = PATTERN_CV_SET;
 									key = this->key_hex(e);
 									if (key >= 0) {
+										if (line_cv->mode == PATTERN_CV_KEEP)
+											line_cv->mode = PATTERN_CV_SET;
 										if (this->module->pattern_char == 0) {
 											line_cv->value =
 											/**/ line_cv->value % 16
@@ -1109,7 +1125,7 @@ struct TrackerWidget : ModuleWidget {
 	int key_midi(const SelectKeyEvent &e) {
 		int			midi;
 
-		if (e.key < 0)
+		if (e.key < 0 || e.key >= 128)
 			return -2;
 		if (e.keyName[0] == 'o')
 			return -1;
@@ -1138,6 +1154,8 @@ struct TrackerWidget : ModuleWidget {
 	}
 
 	void onHoverScroll(const HoverScrollEvent &e) override {
+		if (this->module->editor_selected == false)
+			return;
 		if (this->module->editor_pattern) {
 			/// SCROLL X
 			if (APP->window->getMods() & GLFW_MOD_SHIFT) {
