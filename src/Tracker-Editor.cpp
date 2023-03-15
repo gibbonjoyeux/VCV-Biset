@@ -10,27 +10,45 @@ Editor::Editor() {
 	this->pattern_cell = 0;
 	this->pattern_char = 0;
 	this->pattern_cam_x = 0;
-	this->pattern_cam_y = 3;
+	this->pattern_cam_y = 0;
 	this->pattern_debug[0] = 0;
+}
+
+void Editor::pattern_move_cursor_x(int x) {
+	/// MOVE CURSOR
+	this->pattern_cell += x;
+	this->pattern_char = 0;
+	/// HANDLE CLAMPING
+	this->pattern_clamp_cursor();
+}
+
+void Editor::pattern_move_cursor_y(int y) {
+	/// MOVE CURSOR
+	this->pattern_line += y;
+	this->pattern_char = 0;
+	/// HANDLE CLAMPING
+	this->pattern_clamp_cursor();
+	/// HANDLE CAMERA
+	if (this->pattern_cam_y < this->pattern_line - 31)
+		this->pattern_cam_y = this->pattern_line - 31;
+	else if (this->pattern_cam_y > this->pattern_line)
+		this->pattern_cam_y = this->pattern_line;
 }
 
 void Editor::pattern_clamp_cursor(void) {
 	PatternSource	*pattern;
 	PatternNoteRow	*row_note;
-	//PatternCVRow	*row_cv;
-	//int				i, j;
 
-	//pattern = this->editor_pattern;
 	pattern = g_editor.pattern;
 	if (pattern == NULL)
 		return;
 
 	/// HANDLE LINE UNDERFLOW
 	if (this->pattern_line < 0)
-		this->pattern_line = 0;
+		this->pattern_line = pattern->line_count - 1;
 	/// HANDLE LINE OVERFLOW
 	if (this->pattern_line >= pattern->line_count)
-		this->pattern_line = pattern->line_count - 1;
+		this->pattern_line = 0;
 	/// HANDLE CELL UNDERFLOW
 	if (this->pattern_cell < 0) {
 		this->pattern_row -= 1;
@@ -88,6 +106,3 @@ void Editor::pattern_clamp_cursor(void) {
 		}
 	}
 }
-
-//void Editor::pattern_move_cursor(int x, int y);
-//}

@@ -764,17 +764,13 @@ struct TrackerWidget : ModuleWidget {
 			if (g_editor.pattern) {
 				/// EVENT CURSOR MOVE
 				if (e.key == GLFW_KEY_LEFT) {
-					g_editor.pattern_cell -= 1;
-					g_editor.pattern_char = 0;
+					g_editor.pattern_move_cursor_x(-1);
 				} else if (e.key == GLFW_KEY_RIGHT) {
-					g_editor.pattern_cell += 1;
-					g_editor.pattern_char = 0;
+					g_editor.pattern_move_cursor_x(+1);
 				} else if (e.key == GLFW_KEY_UP) {
-					g_editor.pattern_line -= 1;
-					g_editor.pattern_char = 0;
+					g_editor.pattern_move_cursor_y(-1);
 				} else if (e.key == GLFW_KEY_DOWN) {
-					g_editor.pattern_line += 1;
-					g_editor.pattern_char = 0;
+					g_editor.pattern_move_cursor_y(+1);
 				/// EVENT KEYBOARD
 				} else {
 					pattern = g_editor.pattern;
@@ -803,6 +799,7 @@ struct TrackerWidget : ModuleWidget {
 										}
 										strcpy(g_editor.pattern_debug,
 										/**/ table_pitch[key % 12]);
+										g_editor.pattern_move_cursor_y(1);
 									/// NOTE STOP
 									} else if (key == -1) {
 										line_note->mode = PATTERN_NOTE_STOP;
@@ -831,9 +828,7 @@ struct TrackerWidget : ModuleWidget {
 										line_note->velocity =
 										/**/ (line_note->velocity / 16) * 16
 										/**/ + key;
-										g_editor.pattern_char = 0;
-										g_editor.pattern_line += 1;
-										g_editor.pattern_clamp_cursor();
+										g_editor.pattern_move_cursor_y(1);
 									}
 								}
 								break;
@@ -850,9 +845,7 @@ struct TrackerWidget : ModuleWidget {
 										line_note->panning =
 										/**/ (line_note->panning / 16) * 16
 										/**/ + key;
-										g_editor.pattern_char = 0;
-										g_editor.pattern_line += 1;
-										g_editor.pattern_clamp_cursor();
+										g_editor.pattern_move_cursor_y(1);
 									}
 								}
 								break;
@@ -869,9 +862,7 @@ struct TrackerWidget : ModuleWidget {
 										line_note->synth =
 										/**/ (line_note->synth / 16) * 16
 										/**/ + key;
-										g_editor.pattern_char = 0;
-										g_editor.pattern_line += 1;
-										g_editor.pattern_clamp_cursor();
+										g_editor.pattern_move_cursor_y(1);
 									}
 								}
 								break;
@@ -888,9 +879,7 @@ struct TrackerWidget : ModuleWidget {
 										line_note->delay =
 										/**/ (line_note->delay / 16) * 16
 										/**/ + key;
-										g_editor.pattern_char = 0;
-										g_editor.pattern_line += 1;
-										g_editor.pattern_clamp_cursor();
+										g_editor.pattern_move_cursor_y(1);
 									}
 								}
 								break;
@@ -916,9 +905,7 @@ struct TrackerWidget : ModuleWidget {
 											line_note->glide =
 											/**/ (line_note->glide / 16) * 16
 											/**/ + key;
-											g_editor.pattern_char = 0;
-											g_editor.pattern_line += 1;
-											g_editor.pattern_clamp_cursor();
+											g_editor.pattern_move_cursor_y(1);
 										}
 									}
 								}
@@ -945,8 +932,7 @@ struct TrackerWidget : ModuleWidget {
 												/// MATCH EFFECT TYPE
 												if (key == table_effect[i]) {
 													effect->type = i + 1;
-													g_editor.pattern_line += 1;
-													g_editor.pattern_clamp_cursor();
+													g_editor.pattern_move_cursor_y(1);
 												}
 												i += 1;
 											}
@@ -964,9 +950,7 @@ struct TrackerWidget : ModuleWidget {
 												effect->value =
 												/**/ (effect->value / 16) * 16
 												/**/ + key;
-												g_editor.pattern_char = 0;
-												g_editor.pattern_line += 1;
-												g_editor.pattern_clamp_cursor();
+												g_editor.pattern_move_cursor_y(1);
 											}
 										}
 									}
@@ -1086,21 +1070,17 @@ struct TrackerWidget : ModuleWidget {
 			if (APP->window->getMods() & GLFW_MOD_SHIFT) {
 				/// MOVE CURSOR
 				if (e.scrollDelta.y > 0)
-					g_editor.pattern_cell -= 1;
+					g_editor.pattern_move_cursor_x(-1);
 				else
-					g_editor.pattern_cell += 1;
-				g_editor.pattern_char = 0;
+					g_editor.pattern_move_cursor_x(+1);
 			/// SCROLL Y
 			} else {
 				/// MOVE CURSOR
 				if (e.scrollDelta.y > 0)
-					g_editor.pattern_line -= 1;
+					g_editor.pattern_move_cursor_y(-1);
 				else
-					g_editor.pattern_line += 1;
-				g_editor.pattern_char = 0;
+					g_editor.pattern_move_cursor_y(+1);
 			}
-			/// CLAMP CURSOR
-			g_editor.pattern_clamp_cursor();
 		}
 		e.consume(this);
 	}

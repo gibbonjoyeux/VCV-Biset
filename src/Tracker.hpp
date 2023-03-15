@@ -274,7 +274,8 @@ struct Editor {
 	Editor();
 
 	void pattern_clamp_cursor(void);
-	//void pattern_move_cursor(int x, int y);
+	void pattern_move_cursor_x(int x);
+	void pattern_move_cursor_y(int y);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
