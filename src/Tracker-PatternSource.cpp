@@ -23,11 +23,11 @@ PatternNote::PatternNote() {
 }
 
 PatternSource::PatternSource() {
-	this->beat_count = 4;
-	this->line_count = this->beat_count * 4;
-	this->note_count = 4;
+	this->note_count = 1;
 	this->cv_count = 0;
-	this->lpb = 4;
+	this->beat_count = 1;
+	this->lpb = 1;
+	this->line_count = this->beat_count * this->lpb;
 	this->notes.allocate(this->note_count,
 	/**/ this->line_count * sizeof(PatternNote));
 	this->cvs.allocate(this->cv_count,

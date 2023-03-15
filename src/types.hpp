@@ -84,10 +84,12 @@ template<typename T> struct Array2D {
 template<typename T> struct ArrayExt {
 	T**			ptr;
 	size_t		size;
+	size_t		extension_slot;
 
 	ArrayExt() {
 		this->ptr = NULL;
 		this->size = 0;
+		this->extension_slot = 0;
 	}
 
 	~ArrayExt() {
@@ -100,6 +102,7 @@ template<typename T> struct ArrayExt {
 		void	**array_ptr;
 		int8_t	*array_byte;
 		size_t	total_size;
+		size_t	min_size;
 		size_t	i;
 
 		/// DEFINE ARRAY SIZE
@@ -120,15 +123,21 @@ template<typename T> struct ArrayExt {
 
 		/// COPY PREVIOUS ARRAY
 		if (this->ptr) {
-			/// COPY
+			/// COMPUTE PREV / CURRENT LOWEST EXTENSION SLOT SIZE
+			if (extension_slot > this->extension_slot)
+				min_size = this->extension_slot;
+			else
+				min_size = extension_slot;
+			/// COPY PREVIOUS ITEMS CONTENT
 			for (i = 0; i < size && i < this->size; ++i)
-				memcpy(new_ptr[i], this->ptr[i], sizeof(T) + extension_slot);
+				memcpy(new_ptr[i], this->ptr[i], sizeof(T) + min_size);
 			/// FREE PREVIOUS
 			free(this->ptr);
 		}
 		/// UPDATE ARRAY
 		this->ptr = new_ptr;
 		this->size = size;
+		this->extension_slot = extension_slot;
 		return true;
 	}
 

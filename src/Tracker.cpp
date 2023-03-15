@@ -190,7 +190,7 @@ struct Tracker : Module {
 		g_timeline.synths[0].init(0, 6);
 		g_timeline.synths[1].init(1, 6);
 
-		g_timeline.patterns.resize(1);
+		//g_timeline.patterns.resize(1);
 		pattern = &(g_timeline.patterns[0]);
 		//this->editor_pattern = pattern;
 		g_editor.pattern = pattern;
@@ -293,6 +293,7 @@ struct TrackerDisplay : LedDisplay {
 		Vec						corner_br, corner_tr;
 		float					char_width;
 		int						i, j, k;
+		int						line;
 		float					x, y, w;
 		float					x_row;
 		PatternSource			*pattern;
@@ -362,16 +363,20 @@ struct TrackerDisplay : LedDisplay {
 			/// [1] LAYER 1 (MARKERS + NOTES + CURVES)
 
 			/// DRAW BEAT CURSOR
+			// TODO: clean and not use g_timeline.debug
+			// but a pattern internal variable that is set to the line that
+			// is being read (last updated if multiple instance of same pattern)
 			nvgBeginPath(args.vg);
 			nvgFillColor(args.vg, module->colors[15]);
 			nvgRect(args.vg,
-			/**/ p.x, p.y + 3.5 + 8.5 * g_timeline.debug,
+			/**/ p.x,
+			/**/ p.y + 3.5 + 8.5 * (g_timeline.debug - g_editor.pattern_cam_y),
 			/**/ rect.getWidth() + 0.5, 8.5);
 			nvgFill(args.vg);
 
 			/// DRAW PATTERN CURSOR
 			x = 0;
-			y = g_editor.pattern_line;
+			y = g_editor.pattern_line - g_editor.pattern_cam_y;
 			w = 1;
 			i = 0;
 			while (i < pattern->note_count + pattern->cv_count) {
@@ -407,15 +412,17 @@ struct TrackerDisplay : LedDisplay {
 
 			/// DRAW LINE / BEAT COUNT
 			x = p.x + 2;
-			for (i = 0; i < pattern->line_count; ++i) {
+			//for (i = 0; i < pattern->line_count; ++i) {
+			for (i = 0; i < 32; ++i) {
+				line = g_editor.pattern_cam_y + i;
 				y = p.y + 11.0 + i * 8.5;
 				/// BEAT COUNT
-				if (i % pattern->lpb == 0) {
-					int_to_hex(str, i / pattern->lpb, 2);
+				if (line % pattern->lpb == 0) {
+					int_to_hex(str, line / pattern->lpb, 2);
 					nvgFillColor(args.vg, module->colors[13]);
 				/// LINE COUNT
 				} else {
-					int_to_hex(str, i % pattern->lpb, 2);
+					int_to_hex(str, line % pattern->lpb, 2);
 					nvgFillColor(args.vg, module->colors[15]);
 				}
 				nvgText(args.vg, x, y, str, NULL);
@@ -428,10 +435,14 @@ struct TrackerDisplay : LedDisplay {
 			for (i = 0; i < pattern->note_count; ++i) {
 				note_row = pattern->notes[i];
 				/// FOR EACH NOTE ROW LINE
-				for (j = 0; j < pattern->line_count; ++j) {
-					x = x_row;//p.x + 2.0;
+				//for (j = 0; j < pattern->line_count; ++j) {
+				for (j = 0; j < 32; ++j) {
+					line = g_editor.pattern_cam_y + j;
+					if (line >= pattern->line_count)
+						break;
+					x = x_row;
 					y = p.y + 11.0 + 8.5 * j;
-					note = &(note_row->lines[j]);
+					note = &(note_row->lines[line]);
 					/// PITCH
 					nvgFillColor(args.vg, module->colors[3]);
 					if (note->mode == PATTERN_NOTE_KEEP) {
@@ -541,9 +552,12 @@ struct TrackerDisplay : LedDisplay {
 				cv_row = pattern->cvs[i];
 				/// FOR EACH CV ROW LINE
 				for (j = 0; j < pattern->line_count; ++j) {
+					line = g_editor.pattern_cam_y + j;
+					if (line >= pattern->line_count)
+						break;
 					x = x_row;
 					y = p.y + 11.0 + 8.5 * j;
-					cv = &(cv_row->lines[j]);
+					cv = &(cv_row->lines[line]);
 					/// VALUE
 					nvgFillColor(args.vg, module->colors[3]);
 					if (cv->mode == PATTERN_CV_KEEP) {

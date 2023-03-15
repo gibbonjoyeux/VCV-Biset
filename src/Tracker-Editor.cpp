@@ -10,7 +10,7 @@ Editor::Editor() {
 	this->pattern_cell = 0;
 	this->pattern_char = 0;
 	this->pattern_cam_x = 0;
-	this->pattern_cam_y = 0;
+	this->pattern_cam_y = 3;
 	this->pattern_debug[0] = 0;
 }
 

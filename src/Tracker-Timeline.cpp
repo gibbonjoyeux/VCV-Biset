@@ -48,7 +48,7 @@ void Timeline::process(float dt_sec, float dt_beat) {
 		/// PATTERN CHANGE
 		if (cell->mode == 1
 		&& this->pattern_cell[i] != cell) {
-			if (cell->pattern < (int)this->patterns.size()) {
+			if (cell->pattern < 256) {
 				/// COMPUTE PATTERN CHANGE / TIMING
 				pattern = &(this->patterns[cell->pattern]);
 				/// RESET RELATIVE CLOCK

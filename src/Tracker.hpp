@@ -242,7 +242,8 @@ struct Timeline {
 	u32							pattern_start[32];
 	PatternInstance				pattern_instance[32];
 
-	vector<PatternSource>		patterns;
+	//vector<PatternSource>		patterns;
+	PatternSource				patterns[256];
 	Synth						synths[64];
 
 	Timeline();
