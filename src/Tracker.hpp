@@ -251,10 +251,36 @@ struct Timeline {
 	void resize(int beat_count);
 };
 
+//////////////////////////////////////////////////
+/// EDITOR
+//////////////////////////////////////////////////
+/// Editor stores the tracker editor information
+///  Such as active row, line, cell, etc.
+//////////////////////////////////////////////////
+
+struct Editor {
+	bool						selected;
+	PatternSource				*pattern;
+	int							pattern_track;
+	int							pattern_row;
+	int							pattern_line;
+	int							pattern_cell;
+	int							pattern_char;
+	int							pattern_cam_x;
+	int							pattern_cam_y;
+	char						pattern_debug[4];
+
+	Editor();
+
+	void pattern_clamp_cursor(void);
+	//void pattern_move_cursor(int x, int y);
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 /// GLOBAL DATA
 ////////////////////////////////////////////////////////////////////////////////
 
 extern Timeline	g_timeline;
+extern Editor	g_editor;
 
 #endif

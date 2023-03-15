@@ -54,6 +54,7 @@ int		table_keyboard[128];
 
 
 Timeline		g_timeline;
+Editor			g_editor;
 
 void int_to_hex(char *str, int number, int width) {
 	char		digit;
@@ -98,26 +99,8 @@ struct Tracker : Module {
 	float				clock_time;
 	float				clock_time_p;
 
-	bool				editor_selected;
-	PatternSource		*editor_pattern;
-	int					pattern_track;
-	int					pattern_row;
-	int					pattern_line;
-	int					pattern_cell;
-	int					pattern_char;
-	char				pattern_debug[4];
-
 	Tracker() {
 		int	i;
-
-		editor_selected = false;
-		editor_pattern = NULL;
-		pattern_track = 0;
-		pattern_row = 0;
-		pattern_line = 0;
-		pattern_cell = 0;
-		pattern_char = 0;
-		pattern_debug[0] = 0;
 
 		config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 		configParam(PARAM_BPM, 30.0f, 300.0f, 120.f, "BPM");
@@ -209,7 +192,8 @@ struct Tracker : Module {
 
 		g_timeline.patterns.resize(1);
 		pattern = &(g_timeline.patterns[0]);
-		this->editor_pattern = pattern;
+		//this->editor_pattern = pattern;
+		g_editor.pattern = pattern;
 
 		pattern->resize(3, 1, 16, 4);
 		pattern->notes[0]->effect_count = 2;
@@ -290,80 +274,6 @@ struct Tracker : Module {
 		//	rightExpander.module->params[0].setValue(0);
 		//}
 	}
-
-	void editor_pattern_clamp_cursor(void) {
-		PatternSource	*pattern;
-		PatternNoteRow	*row_note;
-		//PatternCVRow	*row_cv;
-		//int				i, j;
-
-		pattern = this->editor_pattern;
-		if (pattern == NULL)
-			return;
-
-		/// HANDLE LINE UNDERFLOW
-		if (this->pattern_line < 0)
-			this->pattern_line = 0;
-		/// HANDLE LINE OVERFLOW
-		if (this->pattern_line >= pattern->line_count)
-			this->pattern_line = pattern->line_count - 1;
-		/// HANDLE CELL UNDERFLOW
-		if (this->pattern_cell < 0) {
-			this->pattern_row -= 1;
-			/// HANDLE ROW UNDERFLOW
-			if (this->pattern_row < 0) {
-				this->pattern_row = 0;
-				this->pattern_cell = 0;
-			/// HANDLE ROW OFFSET
-			} else {
-				/// FALL ON NOTE ROW
-				if (this->pattern_row < pattern->note_count) {
-					row_note = pattern->notes[this->pattern_row];
-					this->pattern_cell = 7 + 2 * row_note->effect_count - 1;
-				/// FALL ON CV ROW
-				} else {
-					this->pattern_cell = 2;
-				}
-			}
-		}
-		/// HANDLE CELL OVERFLOW
-		/// ON NOTE ROW
-		if (this->pattern_row < pattern->note_count) {
-			row_note = pattern->notes[this->pattern_row];
-			/// HANDLE ROW NOTE OVERFLOW
-			if (this->pattern_cell >= 7 + 2 * row_note->effect_count) {
-				/// FROM NOTE TO CV
-				if (this->pattern_row >= pattern->note_count) {
-					/// GOT NO CV
-					if (pattern->cv_count == 0) {
-						this->pattern_cell = 7 + 2 * row_note->effect_count - 1;
-					/// GOT CV
-					} else {
-						this->pattern_row += 1;
-						this->pattern_cell = 0;
-					}
-				/// FROM NOTE TO NOTE
-				} else {
-					this->pattern_row += 1;
-					this->pattern_cell = 0;
-				}
-			}
-		/// ON CV ROW
-		} else {
-			/// HANDLE ROW CV OVERFLOW
-			if (this->pattern_cell > 2) {
-				/// GOT NO NEXT
-				if (this->pattern_row >=
-				pattern->note_count + pattern->cv_count - 1) {
-					this->pattern_cell = 2;
-				/// GOT NEXT
-				} else {
-					this->pattern_row += 1;
-					this->pattern_cell = 0;
-				}
-			}
-		}
-	}
 };
 
 struct TrackerDisplay : LedDisplay {
@@ -417,7 +327,7 @@ struct TrackerDisplay : LedDisplay {
 		nvgRect(args.vg, RECT_ARGS(rect));
 		nvgFill(args.vg);
 		/// EDITOR SELECTED BACKGROUND
-		if (this->module->editor_selected) {
+		if (g_editor.selected) {
 			nvgBeginPath(args.vg);
 			nvgStrokeColor(args.vg, module->colors[8]);
 			nvgStrokeWidth(args.vg, 3);
@@ -436,9 +346,9 @@ struct TrackerDisplay : LedDisplay {
 		//itoa(sizeof(Test), text, 10);
 		////int a1 = (test << 4) >> 4;
 		////int a2 = (test >> 4);
-		//sprintf(text, "%d %dx%d", this->module->pattern_row,
-		///**/ this->module->pattern_line, this->module->pattern_cell);
-		nvgText(args.vg, p.x + 400, p.y + 11.0, this->module->pattern_debug, NULL);
+		//sprintf(text, "%d %dx%d", g_editor.pattern_row,
+		///**/ g_editor.pattern_line, g_editor.pattern_cell);
+		nvgText(args.vg, p.x + 400, p.y + 11.0, g_editor.pattern_debug, NULL);
 		// TMP DEBUG ! ! !
 
 		nvgScissor(args.vg, RECT_ARGS(rect));
@@ -446,8 +356,8 @@ struct TrackerDisplay : LedDisplay {
 		char_width = nvgTextBounds(args.vg, 0, 0, "X", NULL, NULL);
 
 		/// DRAW PATTERN ROWS
-		if (this->module->editor_pattern) {
-			pattern = this->module->editor_pattern;
+		if (g_editor.pattern) {
+			pattern = g_editor.pattern;
 
 			/// [1] LAYER 1 (MARKERS + NOTES + CURVES)
 
@@ -461,16 +371,16 @@ struct TrackerDisplay : LedDisplay {
 
 			/// DRAW PATTERN CURSOR
 			x = 0;
-			y = this->module->pattern_line;
+			y = g_editor.pattern_line;
 			w = 1;
 			i = 0;
 			while (i < pattern->note_count + pattern->cv_count) {
 				/// ON NOTE
 				if (i < pattern->note_count) {
 					note_row = pattern->notes[i];
-					if (i == this->module->pattern_row) {
-						x += table_row_note_pos[this->module->pattern_cell];
-						w = table_row_note_width[this->module->pattern_cell];
+					if (i == g_editor.pattern_row) {
+						x += table_row_note_pos[g_editor.pattern_cell];
+						w = table_row_note_width[g_editor.pattern_cell];
 						break;
 					}
 					x += (2 + 1 + 2 + 2 + 2 + 2 + 2
@@ -478,9 +388,9 @@ struct TrackerDisplay : LedDisplay {
 				/// ON CV
 				} else {
 					cv_row = pattern->cvs[i - pattern->note_count];
-					if (i == this->module->pattern_row) {
-						x += table_row_cv_pos[this->module->pattern_cell];
-						w = table_row_cv_width[this->module->pattern_cell];
+					if (i == g_editor.pattern_row) {
+						x += table_row_cv_pos[g_editor.pattern_cell];
+						w = table_row_cv_width[g_editor.pattern_cell];
 						break;
 					}
 					x += (2 + 2 + 2 + 1);
@@ -675,7 +585,7 @@ struct TrackerDisplay : LedDisplay {
 
 		nvgResetScissor(args.vg);
 
-		//if (this->module->editor_selected == false) {
+		//if (g_editor.selected == false) {
 		//	nvgBeginPath(args.vg);
 		//	nvgFillColor(args.vg, nvgRGBA(0xff, 0xff, 0xff, 0x40));
 		//	nvgRect(args.vg, RECT_ARGS(rect));
@@ -837,28 +747,28 @@ struct TrackerWidget : ModuleWidget {
 		e.consume(this);
 		if (e.action == GLFW_PRESS
 		|| e.action == GLFW_REPEAT) {
-			if (this->module->editor_pattern) {
+			if (g_editor.pattern) {
 				/// EVENT CURSOR MOVE
 				if (e.key == GLFW_KEY_LEFT) {
-					this->module->pattern_cell -= 1;
-					this->module->pattern_char = 0;
+					g_editor.pattern_cell -= 1;
+					g_editor.pattern_char = 0;
 				} else if (e.key == GLFW_KEY_RIGHT) {
-					this->module->pattern_cell += 1;
-					this->module->pattern_char = 0;
+					g_editor.pattern_cell += 1;
+					g_editor.pattern_char = 0;
 				} else if (e.key == GLFW_KEY_UP) {
-					this->module->pattern_line -= 1;
-					this->module->pattern_char = 0;
+					g_editor.pattern_line -= 1;
+					g_editor.pattern_char = 0;
 				} else if (e.key == GLFW_KEY_DOWN) {
-					this->module->pattern_line += 1;
-					this->module->pattern_char = 0;
+					g_editor.pattern_line += 1;
+					g_editor.pattern_char = 0;
 				/// EVENT KEYBOARD
 				} else {
-					pattern = this->module->editor_pattern;
+					pattern = g_editor.pattern;
 					/// KEY ON NOTE
-					if (this->module->pattern_row < pattern->note_count) {
-						row_note = pattern->notes[this->module->pattern_row];
-						line_note = &(row_note->lines[this->module->pattern_line]);
-						switch (this->module->pattern_cell) {
+					if (g_editor.pattern_row < pattern->note_count) {
+						row_note = pattern->notes[g_editor.pattern_row];
+						line_note = &(row_note->lines[g_editor.pattern_line]);
+						switch (g_editor.pattern_cell) {
 							/// PITCH
 							case 0:
 								/// NOTE DELETE
@@ -877,7 +787,7 @@ struct TrackerWidget : ModuleWidget {
 											line_note->velocity = 255;
 											line_note->panning = 128;
 										}
-										strcpy(this->module->pattern_debug,
+										strcpy(g_editor.pattern_debug,
 										/**/ table_pitch[key % 12]);
 									/// NOTE STOP
 									} else if (key == -1) {
@@ -898,18 +808,18 @@ struct TrackerWidget : ModuleWidget {
 							case 2:
 								key = this->key_hex(e);
 								if (key >= 0) {
-									if (this->module->pattern_char == 0) {
+									if (g_editor.pattern_char == 0) {
 										line_note->velocity =
 										/**/ line_note->velocity % 16
 										/**/ + key * 16;
-										this->module->pattern_char += 1;
+										g_editor.pattern_char += 1;
 									} else {
 										line_note->velocity =
 										/**/ (line_note->velocity / 16) * 16
 										/**/ + key;
-										this->module->pattern_char = 0;
-										this->module->pattern_line += 1;
-										this->module->editor_pattern_clamp_cursor();
+										g_editor.pattern_char = 0;
+										g_editor.pattern_line += 1;
+										g_editor.pattern_clamp_cursor();
 									}
 								}
 								break;
@@ -917,18 +827,18 @@ struct TrackerWidget : ModuleWidget {
 							case 3:
 								key = this->key_hex(e);
 								if (key >= 0) {
-									if (this->module->pattern_char == 0) {
+									if (g_editor.pattern_char == 0) {
 										line_note->panning =
 										/**/ line_note->panning % 16
 										/**/ + key * 16;
-										this->module->pattern_char += 1;
+										g_editor.pattern_char += 1;
 									} else {
 										line_note->panning =
 										/**/ (line_note->panning / 16) * 16
 										/**/ + key;
-										this->module->pattern_char = 0;
-										this->module->pattern_line += 1;
-										this->module->editor_pattern_clamp_cursor();
+										g_editor.pattern_char = 0;
+										g_editor.pattern_line += 1;
+										g_editor.pattern_clamp_cursor();
 									}
 								}
 								break;
@@ -936,18 +846,18 @@ struct TrackerWidget : ModuleWidget {
 							case 4:
 								key = this->key_hex(e);
 								if (key >= 0) {
-									if (this->module->pattern_char == 0) {
+									if (g_editor.pattern_char == 0) {
 										line_note->synth =
 										/**/ line_note->synth % 16
 										/**/ + key * 16;
-										this->module->pattern_char += 1;
+										g_editor.pattern_char += 1;
 									} else {
 										line_note->synth =
 										/**/ (line_note->synth / 16) * 16
 										/**/ + key;
-										this->module->pattern_char = 0;
-										this->module->pattern_line += 1;
-										this->module->editor_pattern_clamp_cursor();
+										g_editor.pattern_char = 0;
+										g_editor.pattern_line += 1;
+										g_editor.pattern_clamp_cursor();
 									}
 								}
 								break;
@@ -955,18 +865,18 @@ struct TrackerWidget : ModuleWidget {
 							case 5:
 								key = this->key_hex(e);
 								if (key >= 0) {
-									if (this->module->pattern_char == 0) {
+									if (g_editor.pattern_char == 0) {
 										line_note->delay =
 										/**/ line_note->delay % 16
 										/**/ + key * 16;
-										this->module->pattern_char += 1;
+										g_editor.pattern_char += 1;
 									} else {
 										line_note->delay =
 										/**/ (line_note->delay / 16) * 16
 										/**/ + key;
-										this->module->pattern_char = 0;
-										this->module->pattern_line += 1;
-										this->module->editor_pattern_clamp_cursor();
+										g_editor.pattern_char = 0;
+										g_editor.pattern_line += 1;
+										g_editor.pattern_clamp_cursor();
 									}
 								}
 								break;
@@ -983,26 +893,26 @@ struct TrackerWidget : ModuleWidget {
 									if (key >= 0) {
 										if (line_note->mode == PATTERN_NOTE_NEW)
 											line_note->mode = PATTERN_NOTE_GLIDE;
-										if (this->module->pattern_char == 0) {
+										if (g_editor.pattern_char == 0) {
 											line_note->glide =
 											/**/ line_note->glide % 16
 											/**/ + key * 16;
-											this->module->pattern_char += 1;
+											g_editor.pattern_char += 1;
 										} else {
 											line_note->glide =
 											/**/ (line_note->glide / 16) * 16
 											/**/ + key;
-											this->module->pattern_char = 0;
-											this->module->pattern_line += 1;
-											this->module->editor_pattern_clamp_cursor();
+											g_editor.pattern_char = 0;
+											g_editor.pattern_line += 1;
+											g_editor.pattern_clamp_cursor();
 										}
 									}
 								}
 								break;
 							/// EFFECT
 							default:
-								fx_1 = (this->module->pattern_cell - 7) / 2;
-								fx_2 = (this->module->pattern_cell - 7) % 2;
+								fx_1 = (g_editor.pattern_cell - 7) / 2;
+								fx_2 = (g_editor.pattern_cell - 7) % 2;
 								effect = &(line_note->effects[fx_1]);
 								/// EFFECT DELETE
 								if (e.key == GLFW_KEY_DELETE
@@ -1021,8 +931,8 @@ struct TrackerWidget : ModuleWidget {
 												/// MATCH EFFECT TYPE
 												if (key == table_effect[i]) {
 													effect->type = i + 1;
-													this->module->pattern_line += 1;
-													this->module->editor_pattern_clamp_cursor();
+													g_editor.pattern_line += 1;
+													g_editor.pattern_clamp_cursor();
 												}
 												i += 1;
 											}
@@ -1031,18 +941,18 @@ struct TrackerWidget : ModuleWidget {
 									} else {
 										key = this->key_hex(e);
 										if (key >= 0) {
-											if (this->module->pattern_char == 0) {
+											if (g_editor.pattern_char == 0) {
 												effect->value =
 												/**/ effect->value % 16
 												/**/ + key * 16;
-												this->module->pattern_char += 1;
+												g_editor.pattern_char += 1;
 											} else {
 												effect->value =
 												/**/ (effect->value / 16) * 16
 												/**/ + key;
-												this->module->pattern_char = 0;
-												this->module->pattern_line += 1;
-												this->module->editor_pattern_clamp_cursor();
+												g_editor.pattern_char = 0;
+												g_editor.pattern_line += 1;
+												g_editor.pattern_clamp_cursor();
 											}
 										}
 									}
@@ -1051,9 +961,9 @@ struct TrackerWidget : ModuleWidget {
 						}
 					/// KEY ON CV
 					} else {
-						row_cv = pattern->cvs[this->module->pattern_row - pattern->note_count];
-						line_cv = &(row_cv->lines[this->module->pattern_line]);
-						switch (this->module->pattern_cell) {
+						row_cv = pattern->cvs[g_editor.pattern_row - pattern->note_count];
+						line_cv = &(row_cv->lines[g_editor.pattern_line]);
+						switch (g_editor.pattern_cell) {
 							/// VALUE
 							case 0:
 								/// VALUE DELETE
@@ -1066,16 +976,16 @@ struct TrackerWidget : ModuleWidget {
 									if (key >= 0) {
 										if (line_cv->mode == PATTERN_CV_KEEP)
 											line_cv->mode = PATTERN_CV_SET;
-										if (this->module->pattern_char == 0) {
+										if (g_editor.pattern_char == 0) {
 											line_cv->value =
 											/**/ line_cv->value % 16
 											/**/ + key * 16;
-											this->module->pattern_char += 1;
+											g_editor.pattern_char += 1;
 										} else {
 											line_cv->value =
 											/**/ (line_cv->value / 16) * 16
 											/**/ + key;
-											this->module->pattern_char = 0;
+											g_editor.pattern_char = 0;
 										}
 									}
 								}
@@ -1084,16 +994,16 @@ struct TrackerWidget : ModuleWidget {
 							case 1:
 								key = this->key_hex(e);
 								if (key >= 0) {
-									if (this->module->pattern_char == 0) {
+									if (g_editor.pattern_char == 0) {
 										line_cv->glide =
 										/**/ line_cv->glide % 16
 										/**/ + key * 16;
-										this->module->pattern_char += 1;
+										g_editor.pattern_char += 1;
 									} else {
 										line_cv->glide =
 										/**/ (line_cv->glide / 16) * 16
 										/**/ + key;
-										this->module->pattern_char = 0;
+										g_editor.pattern_char = 0;
 									}
 								}
 								break;
@@ -1101,16 +1011,16 @@ struct TrackerWidget : ModuleWidget {
 							case 2:
 								key = this->key_hex(e);
 								if (key >= 0) {
-									if (this->module->pattern_char == 0) {
+									if (g_editor.pattern_char == 0) {
 										line_cv->delay =
 										/**/ line_cv->delay % 16
 										/**/ + key * 16;
-										this->module->pattern_char += 1;
+										g_editor.pattern_char += 1;
 									} else {
 										line_cv->delay =
 										/**/ (line_cv->delay / 16) * 16
 										/**/ + key;
-										this->module->pattern_char = 0;
+										g_editor.pattern_char = 0;
 									}
 								}
 								break;
@@ -1118,7 +1028,7 @@ struct TrackerWidget : ModuleWidget {
 					}
 				}
 				/// CLAMP CURSOR
-				this->module->editor_pattern_clamp_cursor();
+				g_editor.pattern_clamp_cursor();
 			}
 		}
 	}
@@ -1155,38 +1065,38 @@ struct TrackerWidget : ModuleWidget {
 	}
 
 	void onHoverScroll(const HoverScrollEvent &e) override {
-		if (this->module->editor_selected == false)
+		if (g_editor.selected == false)
 			return;
-		if (this->module->editor_pattern) {
+		if (g_editor.pattern) {
 			/// SCROLL X
 			if (APP->window->getMods() & GLFW_MOD_SHIFT) {
 				/// MOVE CURSOR
 				if (e.scrollDelta.y > 0)
-					this->module->pattern_cell -= 1;
+					g_editor.pattern_cell -= 1;
 				else
-					this->module->pattern_cell += 1;
-				this->module->pattern_char = 0;
+					g_editor.pattern_cell += 1;
+				g_editor.pattern_char = 0;
 			/// SCROLL Y
 			} else {
 				/// MOVE CURSOR
 				if (e.scrollDelta.y > 0)
-					this->module->pattern_line -= 1;
+					g_editor.pattern_line -= 1;
 				else
-					this->module->pattern_line += 1;
-				this->module->pattern_char = 0;
+					g_editor.pattern_line += 1;
+				g_editor.pattern_char = 0;
 			}
 			/// CLAMP CURSOR
-			this->module->editor_pattern_clamp_cursor();
+			g_editor.pattern_clamp_cursor();
 		}
 		e.consume(this);
 	}
 
 	void onSelect(const SelectEvent &e) override {
-		this->module->editor_selected = true;
+		g_editor.selected = true;
 	}
 
 	void onDeselect(const DeselectEvent &e) override {
-		this->module->editor_selected = false;
+		g_editor.selected = false;
 	}
 
 	//void onDragStart(const DragStartEvent& e) override {
