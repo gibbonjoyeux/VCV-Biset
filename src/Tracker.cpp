@@ -89,6 +89,7 @@ struct Tracker : Module {
 		OUTPUT_COUNT
 	};
 	enum	LightIds {
+		LIGHT_FOCUS,
 		LIGHT_COUNT
 	};
 
@@ -104,13 +105,8 @@ struct Tracker : Module {
 
 		config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 		configParam(PARAM_BPM, 30.0f, 300.0f, 120.f, "BPM");
-		//configInput(INPUT_CLOCK, "Clock");
 		configOutput(OUTPUT_CLOCK, "Clock");
-		for (i = 0; i < 8; ++i) {
-			configOutput(OUTPUT_CV + i, string::f("CV/PITCH %d", i + 1));
-			configOutput(OUTPUT_GATE + i, string::f("GATE %d", i + 1));
-			configOutput(OUTPUT_VELO + i, string::f("VELOCITY %d", i + 1));
-		}
+		configLight(LIGHT_FOCUS, "Focus");
 
 		/// DEFINE GLOBAL COLOR
 		colors[0] = nvgRGBA(0x1A, 0x1C, 0x2C, 0xFF);
@@ -327,16 +323,6 @@ struct TrackerDisplay : LedDisplay {
 		nvgFillColor(args.vg, module->colors[0]);
 		nvgRect(args.vg, RECT_ARGS(rect));
 		nvgFill(args.vg);
-		/// EDITOR SELECTED BACKGROUND
-		if (g_editor.selected) {
-			nvgBeginPath(args.vg);
-			nvgStrokeColor(args.vg, module->colors[8]);
-			nvgStrokeWidth(args.vg, 3);
-			nvgRect(args.vg,
-			/**/ rect.pos.x + 1.5, rect.pos.y + 1.5,
-			/**/ rect.size.x - 3, rect.size.y - 3);
-			nvgStroke(args.vg);
-		}
 
 		//// TMP DEBUG ! ! !
 		nvgFillColor(args.vg, module->colors[3]);
@@ -412,7 +398,6 @@ struct TrackerDisplay : LedDisplay {
 
 			/// DRAW LINE / BEAT COUNT
 			x = p.x + 2;
-			//for (i = 0; i < pattern->line_count; ++i) {
 			for (i = 0; i < 32; ++i) {
 				line = g_editor.pattern_cam_y + i;
 				y = p.y + 11.0 + i * 8.5;
@@ -435,7 +420,6 @@ struct TrackerDisplay : LedDisplay {
 			for (i = 0; i < pattern->note_count; ++i) {
 				note_row = pattern->notes[i];
 				/// FOR EACH NOTE ROW LINE
-				//for (j = 0; j < pattern->line_count; ++j) {
 				for (j = 0; j < 32; ++j) {
 					line = g_editor.pattern_cam_y + j;
 					if (line >= pattern->line_count)
@@ -680,7 +664,6 @@ struct TrackerWidget : ModuleWidget {
 	TrackerWidget(Tracker* _module) {
 		TrackerDisplay*		display;
 		TrackerBPMDisplay*	display_bpm;
-		int			i;
 
 		//
 		// BUTTONS:
@@ -701,45 +684,38 @@ struct TrackerWidget : ModuleWidget {
 		// OUTPUTS:
 		// - PJ301MPort
 		//
+		// LIGHTS:
+		// - LargeLight<YellowLight>
+		// - SmallLight<YellowLight>
+		//
 
 		module = _module;
 		setModule(module);
 		setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker.svg")));
 
+		/// [1] ADD PARAMS
 		addParam(
 		/**/ createParamCentered<Rogan2PSWhite>(mm2px(Vec(10.125, 14.0)),
 		/**/ module,
 		/**/ Tracker::PARAM_BPM));
-
+		/// [2] ADD OUTPUT
 		addOutput(
 		/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(9.1, 119.35)), //135.05
 		/**/ module,
 		/**/ Tracker::OUTPUT_CLOCK));
-
-		for (i = 0; i < 8; ++i) {
-			addOutput(
-			/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(213.25, 9.45 + 15.7 * i)),
-			/**/ module,
-			/**/ Tracker::OUTPUT_CV + i));
-			addOutput(
-			/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(213.25 + 10.7, 9.45 + 15.7 * i)),
-			/**/ module,
-			/**/ Tracker::OUTPUT_GATE + i));
-			addOutput(
-			/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(213.25 + 10.7 * 2.0, 9.45 + 15.7 * i)),
-			/**/ module,
-			/**/ Tracker::OUTPUT_VELO + i));
-		}
-
-		/// MAIN LED DISPLAY
-		display = createWidget<TrackerDisplay>(mm2px(Vec(20.25 + 8.15, 7.15)));
-		//display->box.size = mm2px(Vec(181.65, 94.5));
+		/// [3] ADD LIGHTS
+		addChild(
+		/**/ createLightCentered<LargeLight<YellowLight>>(mm2px(Vec(240.0, 3.5)),
+		/**/ module,
+		/**/ Tracker::LIGHT_FOCUS));
+		/// [4] ADD DISPLAYS
+		//// MAIN LED DISPLAY
+		display = createWidget<TrackerDisplay>(mm2px(Vec(63.40, 7.15)));
 		display->box.size = mm2px(Vec(173.5, 94.5));
 		display->module = module;
 		display->moduleWidget = this;
 		addChild(display);
-
-		/// BPM LED DISPLAY
+		//// BPM LED DISPLAY
 		display_bpm = createWidget<TrackerBPMDisplay>(mm2px(Vec(2.0, 23.0)));
 		display_bpm->box.size = mm2px(Vec(16.5, 10.0));
 		display_bpm->module = module;
@@ -1087,10 +1063,12 @@ struct TrackerWidget : ModuleWidget {
 
 	void onSelect(const SelectEvent &e) override {
 		g_editor.selected = true;
+		this->module->lights[0].setBrightness(1.0);
 	}
 
 	void onDeselect(const DeselectEvent &e) override {
 		g_editor.selected = false;
+		this->module->lights[0].setBrightness(0.0);
 	}
 
 	//void onDragStart(const DragStartEvent& e) override {
