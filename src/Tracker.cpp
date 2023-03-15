@@ -191,7 +191,7 @@ struct Tracker : Module {
 		//this->editor_pattern = pattern;
 		g_editor.pattern = pattern;
 
-		pattern->resize(3, 1, 16, 4);
+		pattern->resize(6, 1, 16, 4);
 		pattern->notes[0]->effect_count = 2;
 
 		/// FILL PATTERN SOURCE NOTES
@@ -287,15 +287,17 @@ struct TrackerDisplay : LedDisplay {
 		Vec						p;
 		Vec						corner_bl, corner_tl;
 		Vec						corner_br, corner_tr;
-		float					char_width;
 		int						i, j, k;
 		int						line;
-		float					x, y, w;
-		float					x_row;
+		float					x, y;
+		int						tx, ty, tw;	// Tracker coords (cell)
+		float					sx, sy, sw;	// Screen coords (pixel)
+		int						tx_row;
+		float					sx_base;
 		PatternSource			*pattern;
 		PatternNote				*note;
 		PatternNoteRow			*note_row;
-		PatternCV				*cv;
+		//PatternCV				*cv;
 		PatternCVRow			*cv_row;
 		PatternEffect			*effect;
 		char					str[32];
@@ -333,14 +335,13 @@ struct TrackerDisplay : LedDisplay {
 		//itoa(sizeof(Test), text, 10);
 		////int a1 = (test << 4) >> 4;
 		////int a2 = (test >> 4);
-		//sprintf(text, "%d %dx%d", g_editor.pattern_row,
+		//sprintf(text, "%f", char_width);
 		///**/ g_editor.pattern_line, g_editor.pattern_cell);
 		nvgText(args.vg, p.x + 400, p.y + 11.0, g_editor.pattern_debug, NULL);
+		//nvgText(args.vg, p.x + 400, p.y + 22.0, text, NULL);
 		// TMP DEBUG ! ! !
 
 		nvgScissor(args.vg, RECT_ARGS(rect));
-
-		char_width = nvgTextBounds(args.vg, 0, 0, "X", NULL, NULL);
 
 		/// DRAW PATTERN ROWS
 		if (g_editor.pattern) {
@@ -352,55 +353,56 @@ struct TrackerDisplay : LedDisplay {
 			// TODO: clean and not use g_timeline.debug
 			// but a pattern internal variable that is set to the line that
 			// is being read (last updated if multiple instance of same pattern)
+			// Only if play is on
 			nvgBeginPath(args.vg);
 			nvgFillColor(args.vg, module->colors[15]);
 			nvgRect(args.vg,
 			/**/ p.x,
-			/**/ p.y + 3.5 + 8.5 * (g_timeline.debug - g_editor.pattern_cam_y),
-			/**/ rect.getWidth() + 0.5, 8.5);
+			/**/ p.y + 3.5 + CHAR_H * (g_timeline.debug - g_editor.pattern_cam_y),
+			/**/ rect.getWidth() + 0.5, CHAR_H);
 			nvgFill(args.vg);
 
 			/// DRAW PATTERN CURSOR
-			x = 0;
-			y = g_editor.pattern_line - g_editor.pattern_cam_y;
-			w = 1;
+			tx = 0;
+			ty = g_editor.pattern_line - g_editor.pattern_cam_y;
+			tw = 1;
 			i = 0;
 			while (i < pattern->note_count + pattern->cv_count) {
 				/// ON NOTE
 				if (i < pattern->note_count) {
 					note_row = pattern->notes[i];
 					if (i == g_editor.pattern_row) {
-						x += table_row_note_pos[g_editor.pattern_cell];
-						w = table_row_note_width[g_editor.pattern_cell];
+						tx += table_row_note_pos[g_editor.pattern_cell];
+						tw = table_row_note_width[g_editor.pattern_cell];
 						break;
 					}
-					x += (2 + 1 + 2 + 2 + 2 + 2 + 2
+					tx += (2 + 1 + 2 + 2 + 2 + 2 + 2
 					/**/ + 3 * note_row->effect_count + 1);
 				/// ON CV
 				} else {
 					cv_row = pattern->cvs[i - pattern->note_count];
 					if (i == g_editor.pattern_row) {
-						x += table_row_cv_pos[g_editor.pattern_cell];
-						w = table_row_cv_width[g_editor.pattern_cell];
+						tx += table_row_cv_pos[g_editor.pattern_cell];
+						tw = table_row_cv_width[g_editor.pattern_cell];
 						break;
 					}
-					x += (2 + 2 + 2 + 1);
+					tx += (2 + 2 + 2 + 1);
 				}
 				i += 1;
 			}
-			x = 2.0 * char_width + x * char_width + 2.0;
-			y = y * 8.5 + 3.5;
-			w = w * char_width;
+			sx = 2.0 * CHAR_W + tx * CHAR_W + 2.0;
+			sy = ty * CHAR_H + 3.5;
+			sw = tw * CHAR_W;
 			nvgBeginPath(args.vg);
 			nvgFillColor(args.vg, module->colors[12]);
-			nvgRect(args.vg, x, y, w, 8.5);
+			nvgRect(args.vg, sx, sy, sw, CHAR_H);
 			nvgFill(args.vg);
 
 			/// DRAW LINE / BEAT COUNT
 			x = p.x + 2;
 			for (i = 0; i < 32; ++i) {
 				line = g_editor.pattern_cam_y + i;
-				y = p.y + 11.0 + i * 8.5;
+				y = p.y + 11.0 + i * CHAR_H;
 				/// BEAT COUNT
 				if (line % pattern->lpb == 0) {
 					int_to_hex(str, line / pattern->lpb, 2);
@@ -416,7 +418,8 @@ struct TrackerDisplay : LedDisplay {
 			/// [2] LAYER 2 (TRACKER)
 
 			/// FOR EACH NOTE ROW	
-			x_row = p.x + 2.0 + 2.0 * char_width;
+			tx = 0;
+			sx_base = p.x + 2.0 + 2.0 * CHAR_W;
 			for (i = 0; i < pattern->note_count; ++i) {
 				note_row = pattern->notes[i];
 				/// FOR EACH NOTE ROW LINE
@@ -424,19 +427,24 @@ struct TrackerDisplay : LedDisplay {
 					line = g_editor.pattern_cam_y + j;
 					if (line >= pattern->line_count)
 						break;
-					x = x_row;
-					y = p.y + 11.0 + 8.5 * j;
+					tx_row = tx;
+					sy = p.y + 11.0 + CHAR_H * j;
 					note = &(note_row->lines[line]);
 					/// PITCH
+					sx = sx_base + tx_row * CHAR_W;
 					nvgFillColor(args.vg, module->colors[3]);
 					if (note->mode == PATTERN_NOTE_KEEP) {
-						nvgText(args.vg, x, y, "..", NULL);
+						str[0] = '.';
+						str[1] = '.';
+						str[2] = 0;
+						this->text(args, p, tx_row, j, str, 3);
 					} else {
-						nvgText(args.vg, x, y,
-						/**/ table_pitch[note->pitch % 12], NULL);
+						this->text(args, p, tx_row, j,
+						/**/ table_pitch[note->pitch % 12], 3);
 					}
-					x += char_width * 2.0;
+					tx_row += 2;
 					/// OCTAVE
+					sx = sx_base + tx_row * CHAR_W;
 					nvgFillColor(args.vg, module->colors[2]);
 					if (note->mode == PATTERN_NOTE_KEEP) {
 						str[0] = '.';
@@ -444,10 +452,10 @@ struct TrackerDisplay : LedDisplay {
 					} else {
 						itoa(note->pitch / 12, str, 10);
 					}
-					nvgText(args.vg, x, y, str, NULL);
-					x += char_width * 1.0;
+					this->text(args, p, tx_row, j, str, 2);
+					tx_row += 1;
 					/// VELOCITY
-					nvgFillColor(args.vg, module->colors[5]);
+					sx = sx_base + tx_row * CHAR_W;
 					if (note->mode == PATTERN_NOTE_KEEP) {
 						str[0] = '.';
 						str[1] = '.';
@@ -455,10 +463,10 @@ struct TrackerDisplay : LedDisplay {
 					} else {
 						int_to_hex(str, note->velocity, 2);
 					}
-					nvgText(args.vg, x, y, str, NULL);
-					x += char_width * 2.0;
+					this->text(args, p, tx_row, j, str, 5);
+					tx_row += 2;
 					/// PANNING
-					nvgFillColor(args.vg, module->colors[6]);
+					sx = sx_base + tx_row * CHAR_W;
 					if (note->mode == PATTERN_NOTE_KEEP) {
 						str[0] = '.';
 						str[1] = '.';
@@ -466,10 +474,10 @@ struct TrackerDisplay : LedDisplay {
 					} else {
 						int_to_hex(str, note->panning, 2);
 					}
-					nvgText(args.vg, x, y, str, NULL);
-					x += char_width * 2.0;
+					this->text(args, p, tx_row, j, str, 6);
+					tx_row += 2;
 					/// SYNTH
-					nvgFillColor(args.vg, module->colors[4]);
+					sx = sx_base + tx_row * CHAR_W;
 					if (note->mode == PATTERN_NOTE_KEEP) {
 						str[0] = '.';
 						str[1] = '.';
@@ -477,10 +485,10 @@ struct TrackerDisplay : LedDisplay {
 					} else {
 						int_to_hex(str, note->synth, 2);
 					}
-					nvgText(args.vg, x, y, str, NULL);
-					x += char_width * 2.0;
+					this->text(args, p, tx_row, j, str, 4);
+					tx_row += 2;
 					/// DELAY
-					nvgFillColor(args.vg, module->colors[10]);
+					sx = sx_base + tx_row * CHAR_W;
 					if (note->mode == PATTERN_NOTE_KEEP) {
 						str[0] = '.';
 						str[1] = '.';
@@ -488,10 +496,10 @@ struct TrackerDisplay : LedDisplay {
 					} else {
 						int_to_hex(str, note->delay, 2);
 					}
-					nvgText(args.vg, x, y, str, NULL);
-					x += char_width * 2.0;
+					this->text(args, p, tx_row, j, str, 10);
+					tx_row += 2;
 					/// GLIDE
-					nvgFillColor(args.vg, module->colors[11]);
+					sx = sx_base + tx_row * CHAR_W;
 					if (note->mode == PATTERN_NOTE_KEEP
 					|| note->mode == PATTERN_NOTE_NEW) {
 						str[0] = '.';
@@ -500,8 +508,8 @@ struct TrackerDisplay : LedDisplay {
 					} else {
 						int_to_hex(str, note->glide, 2);
 					}
-					nvgText(args.vg, x, y, str, NULL);
-					x += char_width * 2.0;
+					this->text(args, p, tx_row, j, str, 11);
+					tx_row += 2;
 					/// EFFECTS
 					for (k = 0; k < note_row->effect_count; ++k) {
 						effect = &(note->effects[k]);
@@ -519,66 +527,67 @@ struct TrackerDisplay : LedDisplay {
 							int_to_hex(str + 2, note->effects[k].value, 2);
 						}
 						/// EFFECT TYPE
-						nvgFillColor(args.vg, module->colors[13]);
-						nvgText(args.vg, x, y, str, NULL);
-						x += char_width * 1.0;
+						sx = sx_base + tx_row * CHAR_W;
+						this->text(args, p, tx_row, j, str, 13);
+						tx_row += 1;
 						/// EFFECT VALUE
-						nvgFillColor(args.vg, module->colors[14]);
-						nvgText(args.vg, x, y, str + 2, NULL);
-						x += char_width * 2.0;
+						sx = sx_base + tx_row * CHAR_W;
+						this->text(args, p, tx_row, j, str + 2, 14);
+						tx_row += 2;
 					}
 				}
-				if (pattern->line_count > 0)
-					x_row = x + char_width;
+				/// OFFSET X
+				tx += (2 + 1 + 2 + 2 + 2 + 2 + 2
+				/**/ + 3 * note_row->effect_count + 1);
 			}
 			/// FOR EACH CV ROW
-			for (i = 0; i < pattern->cv_count; ++i) {
-				cv_row = pattern->cvs[i];
-				/// FOR EACH CV ROW LINE
-				for (j = 0; j < pattern->line_count; ++j) {
-					line = g_editor.pattern_cam_y + j;
-					if (line >= pattern->line_count)
-						break;
-					x = x_row;
-					y = p.y + 11.0 + 8.5 * j;
-					cv = &(cv_row->lines[line]);
-					/// VALUE
-					nvgFillColor(args.vg, module->colors[3]);
-					if (cv->mode == PATTERN_CV_KEEP) {
-						str[0] = '.';
-						str[1] = '.';
-						str[2] = 0;
-					} else {
-						int_to_hex(str, cv->value, 2);
-					}
-					nvgText(args.vg, x, y, str, NULL);
-					x += char_width * 2.0;
-					/// GLIDE
-					nvgFillColor(args.vg, module->colors[5]);
-					if (cv->mode == PATTERN_CV_KEEP) {
-						str[0] = '.';
-						str[1] = '.';
-						str[2] = 0;
-					} else {
-						int_to_hex(str, cv->glide, 2);
-					}
-					nvgText(args.vg, x, y, str, NULL);
-					x += char_width * 2.0;
-					/// DELAY
-					nvgFillColor(args.vg, module->colors[10]);
-					if (cv->mode == PATTERN_CV_KEEP) {
-						str[0] = '.';
-						str[1] = '.';
-						str[2] = 0;
-					} else {
-						int_to_hex(str, cv->delay, 2);
-					}
-					nvgText(args.vg, x, y, str, NULL);
-					x += char_width * 2.0;
-				}
-				if (pattern->line_count > 0)
-					x_row = x + char_width;
-			}
+			//for (i = 0; i < pattern->cv_count; ++i) {
+			//	cv_row = pattern->cvs[i];
+			//	/// FOR EACH CV ROW LINE
+			//	for (j = 0; j < pattern->line_count; ++j) {
+			//		line = g_editor.pattern_cam_y + j;
+			//		if (line >= pattern->line_count)
+			//			break;
+			//		x = x_row;
+			//		y = p.y + 11.0 + CHAR_H * j;
+			//		cv = &(cv_row->lines[line]);
+			//		/// VALUE
+			//		nvgFillColor(args.vg, module->colors[3]);
+			//		if (cv->mode == PATTERN_CV_KEEP) {
+			//			str[0] = '.';
+			//			str[1] = '.';
+			//			str[2] = 0;
+			//		} else {
+			//			int_to_hex(str, cv->value, 2);
+			//		}
+			//		nvgText(args.vg, x, y, str, NULL);
+			//		x += CHAR_W * 2.0;
+			//		/// GLIDE
+			//		nvgFillColor(args.vg, module->colors[5]);
+			//		if (cv->mode == PATTERN_CV_KEEP) {
+			//			str[0] = '.';
+			//			str[1] = '.';
+			//			str[2] = 0;
+			//		} else {
+			//			int_to_hex(str, cv->glide, 2);
+			//		}
+			//		nvgText(args.vg, x, y, str, NULL);
+			//		x += CHAR_W * 2.0;
+			//		/// DELAY
+			//		nvgFillColor(args.vg, module->colors[10]);
+			//		if (cv->mode == PATTERN_CV_KEEP) {
+			//			str[0] = '.';
+			//			str[1] = '.';
+			//			str[2] = 0;
+			//		} else {
+			//			int_to_hex(str, cv->delay, 2);
+			//		}
+			//		nvgText(args.vg, x, y, str, NULL);
+			//		x += CHAR_W * 2.0;
+			//	}
+			//	if (pattern->line_count > 0)
+			//		x_row = x + CHAR_W;
+			//}
 		}
 
 		nvgResetScissor(args.vg);
@@ -591,6 +600,27 @@ struct TrackerDisplay : LedDisplay {
 		//}
 
 		LedDisplay::drawLayer(args, layer);
+	}
+
+	void text(const DrawArgs& args, Vec p, float x, float y, char *str,
+		int color) {
+		float	sx, sy;
+
+		// TODO: handle left under flow ?
+		// TODO: handle right over flow ?
+
+		/// [1] OFFSET COORD WITH CAMERA
+		x -= g_editor.pattern_cam_x;
+		if (x < 0)
+			return;
+		if (x > 78)
+			return;
+		/// [2] COMPUTE REAL COORD
+		sx = p.x + 2.0 + CHAR_W * (x + 2.0);
+		sy = p.y + 11.0 + CHAR_H * y;
+		/// [3] DRAW TEXT
+		nvgFillColor(args.vg, module->colors[color]);
+		nvgText(args.vg, sx, sy, str, NULL);
 	}
 
 	//void onDragHover(const DragHoverEvent& e) override {
