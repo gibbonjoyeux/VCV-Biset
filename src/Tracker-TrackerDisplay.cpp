@@ -108,7 +108,15 @@ void TrackerDisplay::drawLayer(const DrawArgs& args, int layer) {
 		/**/ rect.getWidth() + 0.5, CHAR_H);
 		nvgFill(args.vg);
 
-		/// DRAW PATTERN CURSOR
+		/// DRAW PATTERN CURSOR LINE
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, module->colors[15]);
+		nvgRect(args.vg,
+		/**/ p.x,
+		/**/ p.y + 3.5 + CHAR_H * (g_editor.pattern_line - g_editor.pattern_cam_y),
+		/**/ rect.getWidth() + 0.5, CHAR_H);
+		nvgFill(args.vg);
+		/// DRAW PATTERN CURSOR CELL
 		tx = -g_editor.pattern_cam_x;
 		ty = g_editor.pattern_line - g_editor.pattern_cam_y;
 		tw = 1;

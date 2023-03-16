@@ -14,6 +14,8 @@ Tracker::Tracker() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 	configParam(PARAM_BPM, 30.0f, 300.0f, 120.f, "BPM");
+	for (i = 0; i < 8; ++i)
+		configParam(PARAM_SELECT + i, 0.0f, 1.0f, 0.0f, "Select");
 	configOutput(OUTPUT_CLOCK, "Clock");
 	configLight(LIGHT_FOCUS, "Focus");
 
@@ -98,7 +100,7 @@ Tracker::Tracker() {
 	//g_timeline.patterns.resize(1);
 	pattern = &(g_timeline.patterns[0]);
 	//this->editor_pattern = pattern;
-	g_editor.pattern = pattern;
+	//g_editor.pattern = pattern;
 
 	pattern->resize(6, 1, 16, 4);
 	pattern->notes[0]->effect_count = 2;
@@ -155,6 +157,15 @@ Tracker::Tracker() {
 void Tracker::process(const ProcessArgs& args) {
 	float	dt_sec, dt_beat;
 	float	bpm;
+	int		i;
+
+	/// HANDLE SWITCHES
+	for (i = 0; i < 5; ++i) {
+		if (g_editor.view_switch[i].process(params[PARAM_VIEW + i].getValue()))
+			lights[LIGHT_VIEW + i].setBrightness(1.0);
+		else
+			lights[LIGHT_VIEW + i].setBrightness(0.0);
+	}
 
 	/// COMPUTE CLOCK
 	bpm = params[PARAM_BPM].getValue();

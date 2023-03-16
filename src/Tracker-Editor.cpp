@@ -9,9 +9,13 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////
+/// EDITOR STRUCT
+//////////////////////////////////////////////////
+
 Editor::Editor() {
 	this->selected = false;
-	this->pattern = NULL;
+	this->pattern = &(g_timeline.patterns[0]);
 	this->pattern_track = 0;
 	this->pattern_row = 0;
 	this->pattern_line = 0;
@@ -189,4 +193,20 @@ void Editor::pattern_clamp_cursor(void) {
 			}
 		}
 	}
+}
+
+//////////////////////////////////////////////////
+/// EDITORSWITCH STRUCT
+//////////////////////////////////////////////////
+
+EditorSwitch::EditorSwitch(void) {
+	this->state = true;
+	this->previous_input = 0.0;
+}
+
+bool EditorSwitch::process(float in) {
+	if (in > this->previous_input)
+		this->state = !this->state;
+	this->previous_input = in;
+	return this->state;
 }

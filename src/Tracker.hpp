@@ -274,6 +274,15 @@ struct Timeline {
 ///  Such as active row, line, cell, etc.
 //////////////////////////////////////////////////
 
+struct EditorSwitch {
+	bool						state;
+	float						previous_input;
+
+	EditorSwitch();
+
+	bool process(float in);
+};
+
 struct Editor {
 	bool						selected;
 	PatternSource				*pattern;
@@ -291,6 +300,8 @@ struct Editor {
 	bool						pattern_view_delay;
 	bool						pattern_view_fx;
 
+	EditorSwitch				view_switch[5];
+
 	Editor();
 
 	void pattern_clamp_cursor(void);
@@ -303,29 +314,32 @@ struct Editor {
 ////////////////////////////////////////////////////////////////////////////////
 
 struct Tracker : Module {
-	enum	ParamIds {
-		PARAM_BPM,
-		PARAM_COUNT
+	enum ParamIds {
+								PARAM_BPM,
+								ENUMS(PARAM_VIEW, 5),
+								ENUMS(PARAM_SELECT, 8),
+								PARAM_COUNT
 	};
-	enum	InputIds {
-		INPUT_COUNT
+	enum InputIds {
+								INPUT_COUNT
 	};
-	enum	OutputIds {
-		OUTPUT_CLOCK,
-		ENUMS(OUTPUT_CV, 8),
-		ENUMS(OUTPUT_GATE, 8),
-		ENUMS(OUTPUT_VELO, 8),
-		OUTPUT_COUNT
+	enum OutputIds {
+								OUTPUT_CLOCK,
+								ENUMS(OUTPUT_CV, 8),
+								ENUMS(OUTPUT_GATE, 8),
+								ENUMS(OUTPUT_VELO, 8),
+								OUTPUT_COUNT
 	};
-	enum	LightIds {
-		LIGHT_FOCUS,
-		LIGHT_COUNT
+	enum LightIds {
+								LIGHT_FOCUS,
+								ENUMS(LIGHT_VIEW, 5),
+								LIGHT_COUNT
 	};
 
-	NVGcolor			colors[16];
-	dsp::TTimer<float>	clock_timer;
-	float				clock_time;
-	float				clock_time_p;
+	NVGcolor					colors[16];
+	dsp::TTimer<float>			clock_timer;
+	float						clock_time;
+	float						clock_time_p;
 
 	Tracker();
 
@@ -333,9 +347,9 @@ struct Tracker : Module {
 };
 
 struct TrackerDisplay : LedDisplay {
-	Tracker*				module;
-	ModuleWidget*			moduleWidget;
-	std::string				font_path;
+	Tracker*					module;
+	ModuleWidget*				moduleWidget;
+	std::string					font_path;
 
 	TrackerDisplay();
 
@@ -345,10 +359,10 @@ struct TrackerDisplay : LedDisplay {
 };
 
 struct TrackerBPMDisplay : LedDisplay {
-	Tracker*		module;
-	ModuleWidget*		moduleWidget;
-	std::string		font_path;
-	char			str_bpm[4];
+	Tracker*					module;
+	ModuleWidget*				moduleWidget;
+	std::string					font_path;
+	char						str_bpm[4];
 
 	TrackerBPMDisplay();
 
@@ -357,7 +371,7 @@ struct TrackerBPMDisplay : LedDisplay {
 
 
 struct TrackerWidget : ModuleWidget {
-	Tracker*	module;
+	Tracker						*module;
 
 	TrackerWidget(Tracker* _module);
 

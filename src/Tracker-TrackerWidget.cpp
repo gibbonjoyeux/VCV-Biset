@@ -43,6 +43,7 @@ static int key_alpha(const Widget::SelectKeyEvent &e) {
 TrackerWidget::TrackerWidget(Tracker* _module) {
 	TrackerDisplay*		display;
 	TrackerBPMDisplay*	display_bpm;
+	int					i;
 
 	//
 	// BUTTONS:
@@ -73,20 +74,42 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker.svg")));
 
 	/// [1] ADD PARAMS
+	//// BPM KNOB
 	addParam(
 	/**/ createParamCentered<Rogan2PSWhite>(mm2px(Vec(10.125, 14.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_BPM));
+	//// SELECT KNOBS
+	for (i = 0; i < 8; ++i) {
+		addParam(
+		/**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 7.0 * i)),
+		/**/ module,
+		/**/ Tracker::PARAM_SELECT + i));
+	}
+	//// VIEW LIGHT SWITCHES
+	for (i = 0; i < 5; ++i) {
+		addParam(
+		/**/ createParamCentered<LEDButton>(mm2px(Vec(90.0 + 8.0 * i, 122.5)),
+		/**/ module,
+		/**/ Tracker::PARAM_VIEW + i));
+		addChild(
+		/**/ createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(90.0 + 8.0 * i, 122.5)),
+		/**/ module,
+		/**/ Tracker::LIGHT_VIEW + i));
+	}
+
 	/// [2] ADD OUTPUT
 	addOutput(
 	/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(9.1, 119.35)), //135.05
 	/**/ module,
 	/**/ Tracker::OUTPUT_CLOCK));
+
 	/// [3] ADD LIGHTS
 	addChild(
 	/**/ createLightCentered<LargeLight<YellowLight>>(mm2px(Vec(240.0, 3.5)),
 	/**/ module,
 	/**/ Tracker::LIGHT_FOCUS));
+
 	/// [4] ADD DISPLAYS
 	//// MAIN LED DISPLAY
 	display = createWidget<TrackerDisplay>(mm2px(Vec(63.40, 7.15)));
