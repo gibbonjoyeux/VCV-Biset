@@ -191,7 +191,7 @@ struct Tracker : Module {
 		//this->editor_pattern = pattern;
 		g_editor.pattern = pattern;
 
-		pattern->resize(3, 1, 16, 4);
+		pattern->resize(6, 1, 16, 4);
 		pattern->notes[0]->effect_count = 2;
 
 		/// FILL PATTERN SOURCE NOTES
@@ -362,7 +362,7 @@ struct TrackerDisplay : LedDisplay {
 			nvgFill(args.vg);
 
 			/// DRAW PATTERN CURSOR
-			tx = 0;
+			tx = -g_editor.pattern_cam_x;
 			ty = g_editor.pattern_line - g_editor.pattern_cam_y;
 			tw = 1;
 			i = 0;
@@ -418,7 +418,6 @@ struct TrackerDisplay : LedDisplay {
 
 			/// FOR EACH NOTE ROW	
 			tx = 0;
-			sx_base = p.x + 2.0 + 2.0 * CHAR_W;
 			for (i = 0; i < pattern->note_count; ++i) {
 				note_row = pattern->notes[i];
 				/// FOR EACH NOTE ROW LINE

@@ -17,9 +17,10 @@
 - [x] Chance as effect (Cxx + cxx)
 - [x] Handle delay on note stop / new for running note
 - [x] Define synth row order (PITCH-OCT VELO SYNTH DELAY GLIDE FX FX ...)
-- [ ] Line / Beat number on left
-- [ ] Scroll Y
+- [x] Line / Beat number on left
+- [x] Scroll Y
 - [ ] Scroll X
+- [ ] Display modes (show VELO PAN DELAY GLIDE FX)
 
 
 # Effects

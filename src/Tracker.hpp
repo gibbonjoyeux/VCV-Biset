@@ -274,6 +274,11 @@ struct Editor {
 	int							pattern_cam_x;
 	int							pattern_cam_y;
 	char						pattern_debug[4];
+	bool						pattern_view_velo;
+	bool						pattern_view_pan;
+	bool						pattern_view_glide;
+	bool						pattern_view_delay;
+	bool						pattern_view_fx;
 
 	Editor();
 
