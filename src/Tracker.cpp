@@ -14,6 +14,11 @@ Tracker::Tracker() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 	configParam(PARAM_BPM, 30.0f, 300.0f, 120.f, "BPM");
+	configParam(PARAM_VIEW, 0.0f, 1.0f, 0.f, "View Velocity");
+	configParam(PARAM_VIEW + 1, 0.0f, 1.0f, 0.f, "View Panning");
+	configParam(PARAM_VIEW + 2, 0.0f, 1.0f, 0.f, "View Delay");
+	configParam(PARAM_VIEW + 3, 0.0f, 1.0f, 0.f, "View Glide");
+	configParam(PARAM_VIEW + 4, 0.0f, 1.0f, 0.f, "View Effects");
 	for (i = 0; i < 8; ++i)
 		configParam(PARAM_SELECT + i, 0.0f, 1.0f, 0.0f, "Select");
 	configOutput(OUTPUT_CLOCK, "Clock");

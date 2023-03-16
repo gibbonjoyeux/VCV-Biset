@@ -354,8 +354,9 @@ struct TrackerDisplay : LedDisplay {
 	TrackerDisplay();
 
 	void drawLayer(const DrawArgs& args, int layer) override;
+	void drawPattern(const DrawArgs& args, Rect rect);
 	void text(const DrawArgs& args, Vec p, float x, float y, char *str,
-	int color);
+	int color, bool background);
 };
 
 struct TrackerBPMDisplay : LedDisplay {

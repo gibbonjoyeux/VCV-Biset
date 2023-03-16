@@ -41,10 +41,48 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 	/// [1] MOVE CURSOR
 	this->pattern_cell += delta_x;
 	this->pattern_char = 0;
-	/// [2] HANDLE CLAMPING
+	/// [2] HANDLE ON/OFF VIEW MODES
+	if (this->pattern_row < pattern->note_count) {
+		note_row = pattern->notes[this->pattern_row];
+		/// TO RIGHT
+		if (delta_x > 0) {
+			//// VELOCITY
+			if (this->pattern_cell == 2 && !g_editor.view_switch[0].state)
+				this->pattern_cell += 1;
+			//// PANNING
+			if (this->pattern_cell == 3 && !g_editor.view_switch[1].state)
+				this->pattern_cell += 1;
+			//// DELAY
+			if (this->pattern_cell == 5 && !g_editor.view_switch[2].state)
+				this->pattern_cell += 1;
+			//// GLIDE
+			if (this->pattern_cell == 6 && !g_editor.view_switch[3].state)
+				this->pattern_cell += 1;
+			//// EFFECT
+			if (this->pattern_cell > 6 && !g_editor.view_switch[4].state)
+				this->pattern_cell = 7 + 2 * note_row ->effect_count;
+		/// TO LEFT
+		} else if (delta_x < 0) {
+			//// EFFECT
+			if (this->pattern_cell > 6 && !g_editor.view_switch[4].state)
+				this->pattern_cell = 6;
+			//// GLIDE
+			if (this->pattern_cell == 6 && !g_editor.view_switch[3].state)
+				this->pattern_cell -= 1;
+			//// DELAY
+			if (this->pattern_cell == 5 && !g_editor.view_switch[2].state)
+				this->pattern_cell -= 1;
+			//// PANNING
+			if (this->pattern_cell == 3 && !g_editor.view_switch[1].state)
+				this->pattern_cell -= 1;
+			//// VELOCITY
+			if (this->pattern_cell == 2 && !g_editor.view_switch[0].state)
+				this->pattern_cell -= 1;
+		}
+	}
+	/// [3] HANDLE CLAMPING
 	this->pattern_clamp_cursor();
-	/// [3] HANDLE CAMERA
-
+	/// [4] HANDLE CAMERA
 	//// COMPUTE X POSITION
 	x = 0;
 	i = 0;
@@ -53,50 +91,43 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 		if (i < this->pattern->note_count) {
 			note_row = this->pattern->notes[i];
 			if (i == this->pattern_row) {
-				switch (this->pattern_cell) {
-					case 0:			// PITCH
-						break;
-					case 1:			// OCT
-						x += 2;
-						break;
-					case 2:			// VELO
-						x += 3;
-						break;
-					case 3:			// PAN
-						x += 5;
-						break;
-					case 4:			// SYNTH
-						x += 7;
-						break;
-					case 5:			// DELAY
-						x += 9;
-						break;
-					case 6:			// GLIDE
-						x += 11;
-						break;
-					default:		// EFFECT
-						x += 13;
-						x += ((this->pattern_cell - 7) / 2) * 3;
-						if ((this->pattern_cell - 7) % 2 == 1)
-							x += 1;
-						break;
+				if (this->pattern_cell > 0)
+					x += 2;
+				if (this->pattern_cell > 1)
+					x += 1;
+				if (this->pattern_cell > 2 && this->view_switch[0].state)
+					x += 2;
+				if (this->pattern_cell > 3 && this->view_switch[1].state)
+					x += 2;
+				if (this->pattern_cell > 4)
+					x += 2;
+				if (this->pattern_cell > 5 && this->view_switch[2].state)
+					x += 2;
+				if (this->pattern_cell > 6 && this->view_switch[3].state)
+					x += 2;
+				if (this->pattern_cell > 7 && this->view_switch[4].state) {
+					x += 3 * ((this->pattern_cell - 7) / 2);
+					x += (this->pattern_cell - 7) % 2;
 				}
 				break;
 			}
-			x += (2 + 1 + 2 + 2 + 2 + 2 + 2 + 3 * note_row->effect_count + 1);
+			x += (2 + 1
+			/**/ + g_editor.view_switch[0].state * 2
+			/**/ + g_editor.view_switch[1].state * 2
+			/**/ + 2
+			/**/ + g_editor.view_switch[2].state * 2
+			/**/ + g_editor.view_switch[3].state * 2
+			/**/ + g_editor.view_switch[4].state * 3 * note_row->effect_count
+			/**/ + 1);
 		/// ON CV
 		} else {
 			if (i == this->pattern_row) {
-				switch (this->pattern_cell) {
-					case 0:			// VALUE
-						break;
-					case 1:			// CURVE
-						x += 2;
-						break;
-					case 2:			// DELAY
-						x += 4;
-						break;
-				}
+				if (this->pattern_cell == 0)
+					;
+				else if (this->pattern_cell == 1)
+					x += 2;
+				else if (this->pattern_cell == 2)
+					x += 4;
 				break;
 			}
 			x += (2 + 2 + 2 + 1);
@@ -163,10 +194,22 @@ void Editor::pattern_clamp_cursor(void) {
 		/// HANDLE ROW NOTE OVERFLOW
 		if (this->pattern_cell >= 7 + 2 * row_note->effect_count) {
 			/// FROM NOTE TO CV
-			if (this->pattern_row >= pattern->note_count) {
+			if (this->pattern_row == pattern->note_count - 1) {
 				/// GOT NO CV
 				if (pattern->cv_count == 0) {
 					this->pattern_cell = 7 + 2 * row_note->effect_count - 1;
+					/// CHECK ON/OFF VIEW MODES
+					//// EFFECT
+					if (g_editor.view_switch[4].state == false)
+						this->pattern_cell -= 1;
+					//// GLIDE
+					if (this->pattern_cell == 6
+					&& g_editor.view_switch[3].state == false)
+						this->pattern_cell -= 1;
+					//// DELAY
+					if (this->pattern_cell == 5
+					&& g_editor.view_switch[2].state == false)
+						this->pattern_cell -= 1;
 				/// GOT CV
 				} else {
 					this->pattern_row += 1;
