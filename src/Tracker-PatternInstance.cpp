@@ -82,13 +82,13 @@ void PatternInstance::process(
 	}
 	/// [2] COMPUTE PATTERN CV ROWS
 	for (row = 0; row < pattern->cv_count; ++row) {
-		/// [A] COMPUTE KEY CV LINES
+		/// [A] COMPUTE KEY CV INTERPOLATION LINES
 		cv_line = &(pattern->cvs[row]->lines[line]);
 		cv_from = NULL;
 		cv_to = NULL;
 		line_from = 0;
 		line_to = 0;
-		/// ON ACTIVE LINE
+		//// ON ACTIVE LINE
 		if (cv_line->mode == PATTERN_CV_SET) {
 			/// AFTER DELAY
 			if (phase * 255.0 >= cv_line->delay) {
@@ -99,42 +99,58 @@ void PatternInstance::process(
 				cv_to = cv_line;
 				line_to = line;
 			}
-		/// ON PASSIVE LINE
+		//// ON PASSIVE LINE
 		} else {
 		}
-		/// FIND LINE FROM
+		//// FIND LINE FROM
 		if (cv_from == NULL) {
 			line_from = line - 1;
 			while (line_from >= 0
 			&& pattern->cvs[row]->lines[line_from].mode != PATTERN_CV_SET)
 				line_from -= 1;
-			if (line_from < 0)
-				line_from = line;
-			cv_from = &(pattern->cvs[row]->lines[line_from]);
+			//if (line_from < 0)
+			//	line_from = line;
+			//cv_from = &(pattern->cvs[row]->lines[line_from]);
+			if (line_from >= 0)
+				cv_from = &(pattern->cvs[row]->lines[line_from]);
 		}
-		/// FIND LINE TO
+		//// FIND LINE TO
 		if (cv_to == NULL) {
 			line_to = line + 1;
 			while (line_to < pattern->line_count
 			&& pattern->cvs[row]->lines[line_to].mode != PATTERN_CV_SET)
 				line_to += 1;
-			if (line_to >= pattern->line_count)
-				line_to = line;
-			cv_to = &(pattern->cvs[row]->lines[line_to]);
+			//if (line_to >= pattern->line_count)
+			//	line_to = line;
+			//cv_to = &(pattern->cvs[row]->lines[line_to]);
+			if (line_to < pattern->line_count)
+				cv_to = &(pattern->cvs[row]->lines[line_to]);
 		}
-		/// [B] COMPUTE CV PHASE
-		if (line_from == line_to) {
-			cv_phase = 0;
+		/// [B] COMPUTE CV
+		//// WITH BOTH INTERPOLATION LINES
+		if (cv_from && cv_to) {
+			/// COMPUTE CV PHASE
+			if (line_from == line_to) {
+				cv_phase = 0;
+			} else {
+				phase_from = (float)line_from + (float)cv_from->delay / 255.0;
+				phase_to = (float)line_to + (float)cv_to->delay / 255.0;
+				cv_phase = (((float)line + phase) - phase_from)
+				/**/ / (phase_to - phase_from);
+			}
+			/// COMPUTE CV VALUE
+			cv_value = (float)cv_from->value +
+			/**/ ((float)cv_to->value - (float)cv_from->value)
+			/**/ * cv_phase;
+		//// WITHOUT BOTH INTERPOLATION LINES
 		} else {
-			phase_from = (float)line_from + (float)cv_from->delay / 255.0;
-			phase_to = (float)line_to + (float)cv_to->delay / 255.0;
-			cv_phase = (((float)line + phase) - phase_from)
-			/**/ / (phase_to - phase_from);
+			if (cv_from)
+				cv_value = cv_from->value;
+			else if (cv_to)
+				cv_value = cv_to->value;
+			else
+				cv_value = 128.0;
 		}
-		/// [C] COMPUTE CV VALUE
-		cv_value = (float)cv_from->value +
-		/**/ ((float)cv_to->value - (float)cv_from->value)
-		/**/ * cv_phase;
 		/// REMAP CV FROM [0:255] TO [0:10]
 		cv_value /= 25.5;
 		/// [D] OUTPUT CV
