@@ -1,4 +1,5 @@
 
+
 #ifndef TRACKER_HPP
 #define TRACKER_HPP
 
@@ -36,6 +37,16 @@
 
 #define CHAR_W						6.302522
 #define CHAR_H						8.5
+
+
+extern char	table_pitch[12][3];
+extern char	table_effect[13];					// 12
+extern char	table_hex[17];					// 16
+extern int	table_row_note_width[23];			// 23
+extern int	table_row_note_pos[23];			// 23
+extern int	table_row_cv_width[3];			// 3
+extern int	table_row_cv_pos[3];				// 3
+extern int	table_keyboard[128];
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -285,6 +296,79 @@ struct Editor {
 	void pattern_clamp_cursor(void);
 	void pattern_move_cursor_x(int x);
 	void pattern_move_cursor_y(int y);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+/// VCV RACK DATA STRUCTURE
+////////////////////////////////////////////////////////////////////////////////
+
+struct Tracker : Module {
+	enum	ParamIds {
+		PARAM_BPM,
+		PARAM_COUNT
+	};
+	enum	InputIds {
+		INPUT_COUNT
+	};
+	enum	OutputIds {
+		OUTPUT_CLOCK,
+		ENUMS(OUTPUT_CV, 8),
+		ENUMS(OUTPUT_GATE, 8),
+		ENUMS(OUTPUT_VELO, 8),
+		OUTPUT_COUNT
+	};
+	enum	LightIds {
+		LIGHT_FOCUS,
+		LIGHT_COUNT
+	};
+
+	NVGcolor			colors[16];
+	dsp::TTimer<float>	clock_timer;
+	float				clock_time;
+	float				clock_time_p;
+
+	Tracker();
+
+	void process(const ProcessArgs& args) override;
+};
+
+struct TrackerDisplay : LedDisplay {
+	Tracker*				module;
+	ModuleWidget*			moduleWidget;
+	std::string				font_path;
+
+	TrackerDisplay();
+
+	void drawLayer(const DrawArgs& args, int layer) override;
+	void text(const DrawArgs& args, Vec p, float x, float y, char *str,
+	int color);
+};
+
+struct TrackerBPMDisplay : LedDisplay {
+	Tracker*		module;
+	ModuleWidget*		moduleWidget;
+	std::string		font_path;
+	char			str_bpm[4];
+
+	TrackerBPMDisplay();
+
+	void drawLayer(const DrawArgs& args, int layer) override;
+};
+
+
+struct TrackerWidget : ModuleWidget {
+	Tracker*	module;
+
+	TrackerWidget(Tracker* _module);
+
+	void onSelectKey(const SelectKeyEvent &e) override;
+	void onHoverScroll(const HoverScrollEvent &e) override;
+	void onSelect(const SelectEvent &e) override;
+	void onDeselect(const DeselectEvent &e) override;
+
+	//void onDragStart(const DragStartEvent& e) override;
+	//void onDragMove(const DragMoveEvent& e) override;
+	//void onDragEnd(const DragEndEvent& e) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

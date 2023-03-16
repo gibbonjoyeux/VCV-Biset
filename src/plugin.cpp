@@ -7,5 +7,6 @@ void init(Plugin* p) {
 
 	p->addModel(modelTracker);
 	p->addModel(modelTrackerOut);
+	//p->addModel(modelTrackerOutDrum);
 	//p->addModel(modelTrackerClock);
 }

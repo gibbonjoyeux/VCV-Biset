@@ -17,5 +17,5 @@ extern Plugin*		pluginInstance;
 // Declare each Model, defined in each module source file
 extern Model*		modelTracker;
 extern Model*		modelTrackerOut;
+//extern Model*		modelTrackerOutDrum;
 //extern Model*		modelTrackerClock;
-
