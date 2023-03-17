@@ -164,10 +164,10 @@ void Editor::pattern_clamp_cursor(void) {
 
 	/// HANDLE LINE UNDERFLOW
 	if (this->pattern_line < 0)
-		this->pattern_line = pattern->line_count - 1;
+		this->pattern_line = 0;
 	/// HANDLE LINE OVERFLOW
 	if (this->pattern_line >= pattern->line_count)
-		this->pattern_line = 0;
+		this->pattern_line = pattern->line_count - 1;
 	/// HANDLE CELL UNDERFLOW
 	if (this->pattern_cell < 0) {
 		this->pattern_row -= 1;
@@ -181,6 +181,18 @@ void Editor::pattern_clamp_cursor(void) {
 			if (this->pattern_row < pattern->note_count) {
 				row_note = pattern->notes[this->pattern_row];
 				this->pattern_cell = 7 + 2 * row_note->effect_count - 1;
+				/// CHECK ON/OFF VIEW MODES
+				//// EFFECT
+				if (g_editor.view_switch[4].state == false)
+					this->pattern_cell = 6;
+				//// GLIDE
+				if (this->pattern_cell == 6
+				&& g_editor.view_switch[3].state == false)
+					this->pattern_cell -= 1;
+				//// DELAY
+				if (this->pattern_cell == 5
+				&& g_editor.view_switch[2].state == false)
+					this->pattern_cell -= 1;
 			/// FALL ON CV ROW
 			} else {
 				this->pattern_cell = 2;
@@ -201,7 +213,7 @@ void Editor::pattern_clamp_cursor(void) {
 					/// CHECK ON/OFF VIEW MODES
 					//// EFFECT
 					if (g_editor.view_switch[4].state == false)
-						this->pattern_cell -= 1;
+						this->pattern_cell = 6;
 					//// GLIDE
 					if (this->pattern_cell == 6
 					&& g_editor.view_switch[3].state == false)

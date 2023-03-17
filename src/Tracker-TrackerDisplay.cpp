@@ -234,11 +234,11 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 		cv_row = pattern->cvs[i];
 		focus_row = (g_editor.pattern_row == pattern->note_count + i);
 		/// FOR EACH CV ROW LINE
-		for (j = 0; j < pattern->line_count; ++j) {
+		for (j = 0; j < 32; ++j) {
 			line = g_editor.pattern_cam_y + j;
 			if (line >= pattern->line_count)
 				break;
-			focus_line = focus_row & (g_editor.pattern_line == j);
+			focus_line = focus_row & (g_editor.pattern_line == line);
 			tx_row = tx;
 			cv = &(cv_row->lines[line]);
 			/// VALUE

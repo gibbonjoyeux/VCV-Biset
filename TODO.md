@@ -19,8 +19,15 @@
 - [x] Define synth row order (PITCH-OCT VELO SYNTH DELAY GLIDE FX FX ...)
 - [x] Line / Beat number on left
 - [x] Scroll Y
-- [ ] Scroll X
-- [ ] Display modes (show VELO PAN DELAY GLIDE FX)
+- [x] Scroll X
+- [x] Display modes (show VELO PAN DELAY GLIDE FX)
+- [ ] Pattern selecting knob
+- [ ] Synth selecting knob (also used in pattern editing)
+- [ ] Editing screen
+	- [ ] Song editing knob
+	- [ ] Pattern editing knobs
+	- [ ] Pattern Row editing knobs
+	- [ ] Update button
 
 
 # Effects
