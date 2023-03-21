@@ -135,8 +135,8 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 		i += 1;
 	}
 	//// OFFSET CAMERA
-	if (this->pattern_cam_x < x - 77)
-		this->pattern_cam_x = x - 77;
+	if (this->pattern_cam_x < x - (CHAR_COUNT_X - 1))
+		this->pattern_cam_x = x - (CHAR_COUNT_X - 1);
 	if (this->pattern_cam_x > x)
 		this->pattern_cam_x = x;
 }
@@ -148,8 +148,8 @@ void Editor::pattern_move_cursor_y(int delta_y) {
 	/// [2] HANDLE CLAMPING
 	this->pattern_clamp_cursor();
 	/// [3] HANDLE CAMERA
-	if (this->pattern_cam_y < this->pattern_line - 31)
-		this->pattern_cam_y = this->pattern_line - 31;
+	if (this->pattern_cam_y < this->pattern_line - (CHAR_COUNT_Y - 1))
+		this->pattern_cam_y = this->pattern_line - (CHAR_COUNT_Y - 1);
 	else if (this->pattern_cam_y > this->pattern_line)
 		this->pattern_cam_y = this->pattern_line;
 }

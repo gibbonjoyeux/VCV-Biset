@@ -37,6 +37,8 @@
 
 #define CHAR_W						6.302522
 #define CHAR_H						8.5
+#define CHAR_COUNT_X				84
+#define CHAR_COUNT_Y				37
 
 
 extern char	table_pitch[12][3];

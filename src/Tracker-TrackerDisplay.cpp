@@ -77,7 +77,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 
 	/// DRAW LINE / BEAT COUNT
 	x = p.x + 2;
-	for (i = 0; i < 32; ++i) {
+	for (i = 0; i < CHAR_COUNT_Y; ++i) {
 		line = g_editor.pattern_cam_y + i;
 		y = p.y + 11.0 + i * CHAR_H;
 		/// BEAT COUNT
@@ -99,7 +99,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 		note_row = pattern->notes[i];
 		focus_row = (g_editor.pattern_row == i);
 		/// FOR EACH NOTE ROW LINE
-		for (j = 0; j < 32; ++j) {
+		for (j = 0; j < CHAR_COUNT_Y; ++j) {
 			line = g_editor.pattern_cam_y + j;
 			if (line >= pattern->line_count)
 				break;
@@ -238,7 +238,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 		cv_row = pattern->cvs[i];
 		focus_row = (g_editor.pattern_row == pattern->note_count + i);
 		/// FOR EACH CV ROW LINE
-		for (j = 0; j < 32; ++j) {
+		for (j = 0; j < CHAR_COUNT_Y; ++j) {
 			line = g_editor.pattern_cam_y + j;
 			if (line >= pattern->line_count)
 				break;
@@ -344,7 +344,7 @@ void TrackerDisplay::text(const DrawArgs& args, Vec p, float x, float y,
 	x -= g_editor.pattern_cam_x;
 	if (x < 0)
 		return;
-	if (x > 78)
+	if (x > CHAR_COUNT_X)
 		return;
 	/// [2] COMPUTE REAL COORD
 	sx = p.x + 2.0 + CHAR_W * (x + 2.0);
@@ -428,9 +428,8 @@ TrackerEditDisplay::TrackerEditDisplay() {
 
 void TrackerEditDisplay::drawLayer(const DrawArgs& args, int layer) {
 	std::shared_ptr<Font>	font;
-	Rect			rect;
-	Vec			p;
-	int			bpm;
+	Rect					rect;
+	Vec						p;
 
 	font = APP->window->loadFont(font_path);
 	if (layer == 1 && module) {
