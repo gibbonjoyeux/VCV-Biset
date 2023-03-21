@@ -374,47 +374,50 @@ TrackerBPMDisplay::TrackerBPMDisplay() {
 
 void TrackerBPMDisplay::drawLayer(const DrawArgs& args, int layer) {
 	std::shared_ptr<Font>	font;
-	Rect			rect;
-	Vec			p;
-	int			bpm;
+	Rect					rect;
+	Vec						p;
+	int						bpm;
+	int						synth;
+	int						pattern;
 
+	if (module == NULL || layer != 1)
+		return;
+	/// GET FONT
 	font = APP->window->loadFont(font_path);
-	if (layer == 1 && module) {
-		/// GET CANVAS FORMAT
-		rect = box.zeroPos();
-		p = rect.getTopLeft();
+	if (font == NULL)
+		return;
+	/// SET FONT
+	nvgFontSize(args.vg, 18);
+	nvgFontFaceId(args.vg, font->handle);
+	/// GET CANVAS FORMAT
+	rect = box.zeroPos();
+	/// BACKGROUND
+	nvgBeginPath(args.vg);
+	nvgFillColor(args.vg, module->colors[0]);
+	nvgRect(args.vg, RECT_ARGS(rect));
+	nvgFill(args.vg);
 
-		nvgBeginPath(args.vg);
-		nvgFillColor(args.vg, module->colors[15]);
-		nvgRect(args.vg, RECT_ARGS(rect));
-		nvgFill(args.vg);
-
-		if (font) { 
-			bpm = module->params[Tracker::PARAM_BPM].getValue();
-			if (bpm < 100) {
-				itoa(bpm, str_bpm + 1, 10);
-				str_bpm[0] = ' ';
-			} else {
-				itoa(bpm, str_bpm, 10);
-			}
-			nvgFontSize(args.vg, 22);
-			nvgFontFaceId(args.vg, font->handle);
-			nvgFillColor(args.vg, module->colors[12]);
-			nvgText(args.vg, p.x + 1.25, p.y + 22.5, str_bpm, NULL);
-		} else {
-			nvgStrokeColor(args.vg, nvgRGBA(0xff, 0xff, 0x00, 0xff));
-			nvgStrokeWidth(args.vg, 1.5f);
-			{
-				nvgLineCap(args.vg, NVG_ROUND);
-				nvgBeginPath(args.vg);
-				nvgMoveTo(args.vg, p.x, p.y);
-				nvgLineTo(args.vg, p.x + 10.0, p.y + 10.0);
-				nvgStroke(args.vg);
-				nvgClosePath(args.vg);
-				nvgStroke(args.vg);
-			}
-		}
+	/// DRAW BPM
+	bpm = module->params[Tracker::PARAM_BPM].getValue();
+	if (bpm < 100) {
+		itoa(bpm, str_bpm + 1, 10);
+		str_bpm[0] = ' ';
+	} else {
+		itoa(bpm, str_bpm, 10);
 	}
+	nvgFillColor(args.vg, module->colors[12]);
+	nvgText(args.vg, p.x + 40.0, p.y + 25.0, str_bpm, NULL);
+	/// DRAW ACTIVE SYNTH
+	synth = module->params[Tracker::PARAM_SYNTH].getValue();
+	int_to_hex(str_bpm, synth, 2);
+	nvgFillColor(args.vg, module->colors[12]);
+	nvgText(args.vg, p.x + 40.0 + CHAR_W * 2, p.y + 25.0 + 25.0, str_bpm, NULL);
+	/// DRAW ACTIVE PATTERN
+	pattern = module->params[Tracker::PARAM_PATTERN].getValue();
+	int_to_hex(str_bpm, pattern, 2);
+	nvgFillColor(args.vg, module->colors[12]);
+	nvgText(args.vg, p.x + 40.0 + CHAR_W * 2, p.y + 25.0 + 50.0, str_bpm, NULL);
+
 	LedDisplay::drawLayer(args, layer);
 }
 
@@ -431,19 +434,22 @@ void TrackerEditDisplay::drawLayer(const DrawArgs& args, int layer) {
 	Rect					rect;
 	Vec						p;
 
+	if (module == NULL || layer != 1)
+		return;
+	/// GET FONT
 	font = APP->window->loadFont(font_path);
-	if (layer == 1 && module) {
-		/// GET CANVAS FORMAT
-		rect = box.zeroPos();
-		p = rect.getTopLeft();
+	if (font == NULL)
+		return;
+	/// SET FONT
+	nvgFontSize(args.vg, 18);
+	nvgFontFaceId(args.vg, font->handle);
+	/// GET CANVAS FORMAT
+	rect = box.zeroPos();
+	/// BACKGROUND
+	nvgBeginPath(args.vg);
+	nvgFillColor(args.vg, module->colors[0]);
+	nvgRect(args.vg, RECT_ARGS(rect));
+	nvgFill(args.vg);
 
-		nvgBeginPath(args.vg);
-		nvgFillColor(args.vg, module->colors[15]);
-		nvgRect(args.vg, RECT_ARGS(rect));
-		nvgFill(args.vg);
-
-		if (font) { 
-		}
-	}
 	LedDisplay::drawLayer(args, layer);
 }
