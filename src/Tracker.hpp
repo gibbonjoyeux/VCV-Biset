@@ -316,6 +316,8 @@ struct Editor {
 struct Tracker : Module {
 	enum ParamIds {
 								PARAM_BPM,
+								PARAM_SYNTH,
+								PARAM_PATTERN,
 								ENUMS(PARAM_VIEW, 5),
 								ENUMS(PARAM_SELECT, 8),
 								PARAM_COUNT
@@ -366,6 +368,16 @@ struct TrackerBPMDisplay : LedDisplay {
 	char						str_bpm[4];
 
 	TrackerBPMDisplay();
+
+	void drawLayer(const DrawArgs& args, int layer) override;
+};
+
+struct TrackerEditDisplay : LedDisplay {
+	Tracker*					module;
+	ModuleWidget*				moduleWidget;
+	std::string					font_path;
+
+	TrackerEditDisplay();
 
 	void drawLayer(const DrawArgs& args, int layer) override;
 };

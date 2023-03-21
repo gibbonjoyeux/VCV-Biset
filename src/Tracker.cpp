@@ -14,6 +14,8 @@ Tracker::Tracker() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 	configParam(PARAM_BPM, 30.0f, 300.0f, 120.f, "BPM");
+	configParam(PARAM_SYNTH, 0.0f, 64.0f, 0.f, "Synth")->snapEnabled = true;
+	configParam(PARAM_PATTERN, 0.0f, 256.0f, 0.f, "Pattern")->snapEnabled = true;
 	configParam(PARAM_VIEW, 0.0f, 1.0f, 0.f, "View Velocity");
 	configParam(PARAM_VIEW + 1, 0.0f, 1.0f, 0.f, "View Panning");
 	configParam(PARAM_VIEW + 2, 0.0f, 1.0f, 0.f, "View Delay");

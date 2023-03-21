@@ -43,6 +43,7 @@ static int key_alpha(const Widget::SelectKeyEvent &e) {
 TrackerWidget::TrackerWidget(Tracker* _module) {
 	TrackerDisplay*		display;
 	TrackerBPMDisplay*	display_bpm;
+	TrackerEditDisplay*	display_edit;
 	int					i;
 
 	//
@@ -76,13 +77,21 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	/// [1] ADD PARAMS
 	//// BPM KNOB
 	addParam(
-	/**/ createParamCentered<Rogan2PSWhite>(mm2px(Vec(10.125, 14.0)),
+	/**/ createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40.0, 14.0 - 4.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_BPM));
+	addParam(
+	/**/ createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40.0, 23.0 - 4.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_SYNTH));
+	addParam(
+	/**/ createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40.0, 32.0 - 4.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_PATTERN));
 	//// SELECT KNOBS
 	for (i = 0; i < 8; ++i) {
 		addParam(
-		/**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 7.0 * i)),
+		/**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 7.0 * i - 32.5)),
 		/**/ module,
 		/**/ Tracker::PARAM_SELECT + i));
 	}
@@ -100,29 +109,35 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 
 	/// [2] ADD OUTPUT
 	addOutput(
-	/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(9.1, 119.35)), //135.05
+	/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(237.0, 122.00)),
 	/**/ module,
 	/**/ Tracker::OUTPUT_CLOCK));
 
 	/// [3] ADD LIGHTS
 	addChild(
-	/**/ createLightCentered<LargeLight<YellowLight>>(mm2px(Vec(240.0, 3.5)),
+	/**/ createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(241.0, 3.0)),
 	/**/ module,
 	/**/ Tracker::LIGHT_FOCUS));
 
 	/// [4] ADD DISPLAYS
 	//// MAIN LED DISPLAY
-	display = createWidget<TrackerDisplay>(mm2px(Vec(63.40, 7.15)));
-	display->box.size = mm2px(Vec(173.5, 94.5));
+	display = createWidget<TrackerDisplay>(mm2px(Vec(65.50 - 14.0, 5.0)));
+	display->box.size = mm2px(Vec(173.5 + 14.0, 94.5 + 15.0));
 	display->module = module;
 	display->moduleWidget = this;
 	addChild(display);
 	//// BPM LED DISPLAY
-	display_bpm = createWidget<TrackerBPMDisplay>(mm2px(Vec(2.0, 23.0)));
-	display_bpm->box.size = mm2px(Vec(16.5, 10.0));
+	display_bpm = createWidget<TrackerBPMDisplay>(mm2px(Vec(5.0, 5.0)));
+	display_bpm->box.size = mm2px(Vec(29.5, 28.0));
 	display_bpm->module = module;
 	display_bpm->moduleWidget = this;
 	addChild(display_bpm);
+	//// EDIT LED DISPLAY
+	display_edit = createWidget<TrackerEditDisplay>(mm2px(Vec(5.0, 70.5 - 32.5)));
+	display_edit->box.size = mm2px(Vec(29.5, 55.0));
+	display_edit->module = module;
+	display_edit->moduleWidget = this;
+	addChild(display_edit);
 }
 
 void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {

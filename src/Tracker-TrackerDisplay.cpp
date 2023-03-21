@@ -24,6 +24,10 @@ static void int_to_hex(char *str, int number, int width) {
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////
+/// DISPLAY MAIN
+//////////////////////////////////////////////////
+
 TrackerDisplay::TrackerDisplay() {
 	font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
 }
@@ -360,6 +364,9 @@ void TrackerDisplay::text(const DrawArgs& args, Vec p, float x, float y,
 	nvgText(args.vg, sx, sy, str, NULL);
 }
 
+///////////////////////////////////////////////////
+/// DISPLAY GLOBAL
+//////////////////////////////////////////////////
 
 TrackerBPMDisplay::TrackerBPMDisplay() {
 	font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
@@ -406,6 +413,37 @@ void TrackerBPMDisplay::drawLayer(const DrawArgs& args, int layer) {
 				nvgClosePath(args.vg);
 				nvgStroke(args.vg);
 			}
+		}
+	}
+	LedDisplay::drawLayer(args, layer);
+}
+
+///////////////////////////////////////////////////
+/// DISPLAY EDIT
+//////////////////////////////////////////////////
+
+TrackerEditDisplay::TrackerEditDisplay() {
+	font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
+}
+
+void TrackerEditDisplay::drawLayer(const DrawArgs& args, int layer) {
+	std::shared_ptr<Font>	font;
+	Rect			rect;
+	Vec			p;
+	int			bpm;
+
+	font = APP->window->loadFont(font_path);
+	if (layer == 1 && module) {
+		/// GET CANVAS FORMAT
+		rect = box.zeroPos();
+		p = rect.getTopLeft();
+
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, module->colors[15]);
+		nvgRect(args.vg, RECT_ARGS(rect));
+		nvgFill(args.vg);
+
+		if (font) { 
 		}
 	}
 	LedDisplay::drawLayer(args, layer);
