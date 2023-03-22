@@ -47,9 +47,11 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 	int						tx, tx_row;
 	char					str[32];
 
-	p = rect.getTopLeft();
-
+	if (g_editor.pattern == NULL)
+		return;
 	pattern = g_editor.pattern;
+
+	p = rect.getTopLeft();
 
 	/// [1] LAYER 1 (MARKERS + NOTES + CURVES)
 
@@ -325,9 +327,8 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 	nvgScissor(args.vg, RECT_ARGS(rect));
 
 	/// DRAW PATTERN
-	if (g_editor.pattern) {
+	if (g_editor.mode == EDITOR_MODE_PATTERN)
 		this->drawPattern(args, rect);
-	}
 
 	nvgResetScissor(args.vg);
 	LedDisplay::drawLayer(args, layer);

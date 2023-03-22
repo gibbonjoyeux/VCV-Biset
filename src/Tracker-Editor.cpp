@@ -14,6 +14,8 @@
 //////////////////////////////////////////////////
 
 Editor::Editor() {
+	this->mode = EDITOR_MODE_PATTERN;
+
 	this->selected = false;
 	this->pattern = &(g_timeline.patterns[0]);
 	this->pattern_track = 0;

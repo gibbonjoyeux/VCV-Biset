@@ -9,6 +9,10 @@
 /// CONSTANTS
 ////////////////////////////////////////////////////////////////////////////////
 
+#define EDITOR_MODE_PATTERN			0
+#define EDITOR_MODE_TIMELINE		1
+#define EDITOR_MODE_PARAMETERS		2
+
 #define PATTERN_EFFECT_NONE			0
 #define PATTERN_EFFECT_RAND_AMP		1	// Axx
 #define PATTERN_EFFECT_RAND_PAN		2	// Pxx
@@ -285,7 +289,11 @@ struct EditorSwitch {
 	bool process(float in);
 };
 
+struct EditorTrigger : dsp::BooleanTrigger {
+};
+
 struct Editor {
+	int							mode;			// Pattern / Timeline / Param
 	bool						selected;
 	PatternSource				*pattern;
 	int							pattern_track;
@@ -303,6 +311,7 @@ struct Editor {
 	bool						pattern_view_fx;
 
 	EditorSwitch				view_switch[5];
+	EditorTrigger				mode_button[3];
 
 	Editor();
 
