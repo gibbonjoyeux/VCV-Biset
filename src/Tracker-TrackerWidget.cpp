@@ -75,66 +75,123 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker.svg")));
 
 	/// [1] ADD PARAMS
-	//// BPM KNOB
+	//// PLAY BUTTONS
 	addParam(
-	/**/ createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40.0, 14.0 - 4.0)),
+	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0, 6.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_PLAY_SONG));
+	addParam(
+	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0 + 8.0 * 1, 6.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_PLAY_PATTERN));
+	addParam(
+	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0 + 8.0 * 2, 6.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_PLAY));
+	addParam(
+	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0 + 8.0 * 3, 6.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_STOP));
+
+	//// MODE BUTTON
+	//// VIEW LIGHT SWITCHES
+	for (i = 0; i < 3; ++i) {
+		addParam(
+		/**/ createParamCentered<LEDButton>(mm2px(Vec(55.0 + 8.0 * i, 123.7)),
+		/**/ module,
+		/**/ Tracker::PARAM_MODE + i));
+		addChild(
+		/**/ createLightCentered<LargeLight<YellowLight>>(mm2px(Vec(55.0 + 8.0 * i, 123.7)),
+		/**/ module,
+		/**/ Tracker::LIGHT_MODE + i));
+	}
+
+	//// BPM / SYNTH / PATTERN KNOBS
+	addParam(
+	/**/ createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(9.0, 24.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_BPM));
 	addParam(
-	/**/ createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40.0, 23.0 - 4.0)),
+	/**/ createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(9.0 + 11, 24.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_SYNTH));
 	addParam(
-	/**/ createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(40.0, 32.0 - 4.0)),
+	/**/ createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(9.0 + 22, 24.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_PATTERN));
-	//// SELECT KNOBS
+
+	//// EDIT KNOBS
 	for (i = 0; i < 8; ++i) {
 		addParam(
-		/**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 7.0 * i - 32.5)),
+		/**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 8.75 * i - 37.5)),
 		/**/ module,
-		/**/ Tracker::PARAM_SELECT + i));
+		/**/ Tracker::PARAM_EDIT + i));
 	}
+	//// EDIT BUTTONS
+	addParam(
+	/**/ createParamCentered<VCVButton>(mm2px(Vec(13.0, 106.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_EDIT_RESET));
+	addParam(
+	/**/ createParamCentered<VCVButton>(mm2px(Vec(26.5, 106.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_EDIT_SAVE));
+
+	//// OCTAVE BUTTONS
+	addParam(
+	/**/ createParamCentered<TL1105>(mm2px(Vec(47.0, 12.5)),
+	/**/ module,
+	/**/ Tracker::PARAM_OCTAVE_UP));
+	addParam(
+	/**/ createParamCentered<TL1105>(mm2px(Vec(47.0, 18.5)),
+	/**/ module,
+	/**/ Tracker::PARAM_OCTAVE_DOWN));
+
 	//// VIEW LIGHT SWITCHES
 	for (i = 0; i < 5; ++i) {
 		addParam(
-		/**/ createParamCentered<LEDButton>(mm2px(Vec(90.0 + 8.0 * i, 122.5)),
+		/**/ createParamCentered<LEDButton>(mm2px(Vec(90.0 + 8.0 * i, 123.7)),
 		/**/ module,
 		/**/ Tracker::PARAM_VIEW + i));
 		addChild(
-		/**/ createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(90.0 + 8.0 * i, 122.5)),
+		/**/ createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(90.0 + 8.0 * i, 123.7)),
 		/**/ module,
 		/**/ Tracker::LIGHT_VIEW + i));
 	}
 
 	/// [2] ADD OUTPUT
 	addOutput(
-	/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(237.0, 122.00)),
+	/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(237.0, 123.00)),
 	/**/ module,
 	/**/ Tracker::OUTPUT_CLOCK));
 
 	/// [3] ADD LIGHTS
 	addChild(
-	/**/ createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(241.0, 3.0)),
+	/**/ createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(241.25, 3.0)),
 	/**/ module,
 	/**/ Tracker::LIGHT_FOCUS));
+	addChild(
+	/**/ createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(241.25, 7.5)),
+	/**/ module,
+	/**/ Tracker::LIGHT_PLAY));
 
 	/// [4] ADD DISPLAYS
 	//// MAIN LED DISPLAY
 	display = createWidget<TrackerDisplay>(mm2px(Vec(65.50 - 14.0, 5.0)));
-	display->box.size = mm2px(Vec(173.5 + 14.0, 94.5 + 15.0));
+	//display->box.size = mm2px(Vec(173.5 + 14.0, 94.5 + 15.0));
+	display->box.size = Vec(CHAR_W * (CHAR_COUNT_X + 2) + 4, CHAR_H * CHAR_COUNT_Y + 5.5);
 	display->module = module;
 	display->moduleWidget = this;
 	addChild(display);
 	//// BPM LED DISPLAY
-	display_bpm = createWidget<TrackerBPMDisplay>(mm2px(Vec(5.0, 5.0)));
-	display_bpm->box.size = mm2px(Vec(29.5, 28.0));
+	display_bpm = createWidget<TrackerBPMDisplay>(mm2px(Vec(5.0, 13.0)));
+	display_bpm->box.size = mm2px(Vec(29.5, 5.0));
 	display_bpm->module = module;
 	display_bpm->moduleWidget = this;
 	addChild(display_bpm);
 	//// EDIT LED DISPLAY
-	display_edit = createWidget<TrackerEditDisplay>(mm2px(Vec(5.0, 70.5 - 32.5)));
-	display_edit->box.size = mm2px(Vec(29.5, 55.0));
+	display_edit = createWidget<TrackerEditDisplay>(mm2px(Vec(5.0, 70.5 - 38.0)));
+	display_edit->box.size = mm2px(Vec(29.5, 68.0));
 	display_edit->module = module;
 	display_edit->moduleWidget = this;
 	addChild(display_edit);

@@ -387,7 +387,7 @@ void TrackerBPMDisplay::drawLayer(const DrawArgs& args, int layer) {
 	if (font == NULL)
 		return;
 	/// SET FONT
-	nvgFontSize(args.vg, 18);
+	nvgFontSize(args.vg, 9);
 	nvgFontFaceId(args.vg, font->handle);
 	/// GET CANVAS FORMAT
 	rect = box.zeroPos();
@@ -405,18 +405,18 @@ void TrackerBPMDisplay::drawLayer(const DrawArgs& args, int layer) {
 	} else {
 		itoa(bpm, str_bpm, 10);
 	}
-	nvgFillColor(args.vg, module->colors[12]);
-	nvgText(args.vg, p.x + 40.0, p.y + 25.0, str_bpm, NULL);
+	nvgFillColor(args.vg, module->colors[13]);
+	nvgText(args.vg, p.x + 5.0, p.y + 11.0, str_bpm, NULL);
 	/// DRAW ACTIVE SYNTH
 	synth = module->params[Tracker::PARAM_SYNTH].getValue();
 	int_to_hex(str_bpm, synth, 2);
-	nvgFillColor(args.vg, module->colors[12]);
-	nvgText(args.vg, p.x + 40.0 + CHAR_W * 2, p.y + 25.0 + 25.0, str_bpm, NULL);
+	nvgFillColor(args.vg, module->colors[13]);
+	nvgText(args.vg, p.x + 5.0 + CHAR_W * 5, p.y + 11.0, str_bpm, NULL);
 	/// DRAW ACTIVE PATTERN
 	pattern = module->params[Tracker::PARAM_PATTERN].getValue();
 	int_to_hex(str_bpm, pattern, 2);
-	nvgFillColor(args.vg, module->colors[12]);
-	nvgText(args.vg, p.x + 40.0 + CHAR_W * 2, p.y + 25.0 + 50.0, str_bpm, NULL);
+	nvgFillColor(args.vg, module->colors[13]);
+	nvgText(args.vg, p.x + 5.0 + CHAR_W * 9, p.y + 11.0, str_bpm, NULL);
 
 	LedDisplay::drawLayer(args, layer);
 }
@@ -441,7 +441,7 @@ void TrackerEditDisplay::drawLayer(const DrawArgs& args, int layer) {
 	if (font == NULL)
 		return;
 	/// SET FONT
-	nvgFontSize(args.vg, 18);
+	nvgFontSize(args.vg, 9);
 	nvgFontFaceId(args.vg, font->handle);
 	/// GET CANVAS FORMAT
 	rect = box.zeroPos();
@@ -450,6 +450,15 @@ void TrackerEditDisplay::drawLayer(const DrawArgs& args, int layer) {
 	nvgFillColor(args.vg, module->colors[0]);
 	nvgRect(args.vg, RECT_ARGS(rect));
 	nvgFill(args.vg);
+
+
+	int i;
+
+	nvgFillColor(args.vg, module->colors[13]);
+	for (i = 0; i < 8; ++i) {
+		nvgText(args.vg, p.x + 3.5, p.y + 10.0 + CHAR_H * i * 3, "line title", NULL);
+		nvgText(args.vg, p.x + 3.5, p.y + 10.0 + CHAR_H * (i * 3 + 1), " line conten", NULL);
+	}
 
 	LedDisplay::drawLayer(args, layer);
 }

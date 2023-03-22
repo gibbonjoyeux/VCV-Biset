@@ -13,18 +13,38 @@ Tracker::Tracker() {
 	int	i;
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
+
+	configParam(PARAM_PLAY_SONG, 0.0f, 1.0f, 0.f, "Play song");
+	configParam(PARAM_PLAY_PATTERN, 0.0f, 1.0f, 0.f, "Play pattern");
+	configParam(PARAM_PLAY, 0.0f, 1.0f, 0.f, "Play");
+	configParam(PARAM_STOP, 0.0f, 1.0f, 0.f, "Stop");
+
 	configParam(PARAM_BPM, 30.0f, 300.0f, 120.f, "BPM");
 	configParam(PARAM_SYNTH, 0.0f, 63.0f, 0.f, "Synth")->snapEnabled = true;
 	configParam(PARAM_PATTERN, 0.0f, 255.0f, 0.f, "Pattern")->snapEnabled = true;
+
 	configParam(PARAM_VIEW, 0.0f, 1.0f, 0.f, "View Velocity");
 	configParam(PARAM_VIEW + 1, 0.0f, 1.0f, 0.f, "View Panning");
 	configParam(PARAM_VIEW + 2, 0.0f, 1.0f, 0.f, "View Delay");
 	configParam(PARAM_VIEW + 3, 0.0f, 1.0f, 0.f, "View Glide");
 	configParam(PARAM_VIEW + 4, 0.0f, 1.0f, 0.f, "View Effects");
+
 	for (i = 0; i < 8; ++i)
-		configParam(PARAM_SELECT + i, 0.0f, 1.0f, 0.0f, "Select");
-	configOutput(OUTPUT_CLOCK, "Clock");
+		configParam(PARAM_EDIT + i, 0.0f, 1.0f, 0.0f, "Select");
+	configParam(PARAM_EDIT_SAVE, 0.0f, 1.0f, 0.0f, "Save");
+	configParam(PARAM_EDIT_RESET, 0.0f, 1.0f, 0.0f, "Reset");
+
+	configParam(PARAM_MODE + 0, 0.0f, 1.0f, 0.0f, "Mode pattern");
+	configParam(PARAM_MODE + 1, 0.0f, 1.0f, 0.0f, "Mode timeline");
+	configParam(PARAM_MODE + 2, 0.0f, 1.0f, 0.0f, "Mode parameters");
+
+	configParam(PARAM_OCTAVE_UP, 0.0f, 1.0f, 0.0f, "Octave +");
+	configParam(PARAM_OCTAVE_DOWN, 0.0f, 1.0f, 0.0f, "Octave -");
+
 	configLight(LIGHT_FOCUS, "Focus");
+	configLight(LIGHT_PLAY, "Play");
+
+	configOutput(OUTPUT_CLOCK, "Clock");
 
 	/// DEFINE GLOBAL COLOR
 	colors[0] = nvgRGBA(0x1A, 0x1C, 0x2C, 0xFF);

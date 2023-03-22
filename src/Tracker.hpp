@@ -37,8 +37,8 @@
 
 #define CHAR_W						6.302522
 #define CHAR_H						8.5
-#define CHAR_COUNT_X				84
-#define CHAR_COUNT_Y				37
+#define CHAR_COUNT_X				85
+#define CHAR_COUNT_Y				39
 
 
 extern char	table_pitch[12][3];
@@ -317,11 +317,20 @@ struct Editor {
 
 struct Tracker : Module {
 	enum ParamIds {
+								PARAM_PLAY_SONG,
+								PARAM_PLAY_PATTERN,
+								PARAM_PLAY,
+								PARAM_STOP,
 								PARAM_BPM,
 								PARAM_SYNTH,
 								PARAM_PATTERN,
+								PARAM_OCTAVE_UP,
+								PARAM_OCTAVE_DOWN,
+								PARAM_EDIT_SAVE,
+								PARAM_EDIT_RESET,
+								ENUMS(PARAM_EDIT, 8),
+								ENUMS(PARAM_MODE, 3),
 								ENUMS(PARAM_VIEW, 5),
-								ENUMS(PARAM_SELECT, 8),
 								PARAM_COUNT
 	};
 	enum InputIds {
@@ -336,6 +345,8 @@ struct Tracker : Module {
 	};
 	enum LightIds {
 								LIGHT_FOCUS,
+								LIGHT_PLAY,
+								ENUMS(LIGHT_MODE, 3),
 								ENUMS(LIGHT_VIEW, 5),
 								LIGHT_COUNT
 	};
