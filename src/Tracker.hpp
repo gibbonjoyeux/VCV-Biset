@@ -295,6 +295,7 @@ struct EditorTrigger : dsp::BooleanTrigger {
 struct Editor {
 	int							mode;			// Pattern / Timeline / Param
 	bool						selected;
+	int							pattern_id;
 	PatternSource				*pattern;
 	int							pattern_track;
 	int							pattern_row;
@@ -310,11 +311,14 @@ struct Editor {
 	bool						pattern_view_delay;
 	bool						pattern_view_fx;
 
+	int							synth_id;
+
 	EditorSwitch				view_switch[5];
 	EditorTrigger				mode_button[3];
 
 	Editor();
 
+	void process(Module *module);
 	void pattern_clamp_cursor(void);
 	void pattern_move_cursor_x(int x);
 	void pattern_move_cursor_y(int y);

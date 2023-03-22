@@ -241,6 +241,7 @@ void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
 								/// NOTE NEW
 								if (key >= 0) {
 									line_note->pitch = key;
+									line_note->synth = g_editor.synth_id;
 									if (line_note->mode == PATTERN_NOTE_KEEP
 									|| line_note->mode == PATTERN_NOTE_STOP) {
 										line_note->mode = PATTERN_NOTE_NEW;

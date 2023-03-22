@@ -47,10 +47,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 	int						tx, tx_row;
 	char					str[32];
 
-	if (g_editor.pattern == NULL)
-		return;
 	pattern = g_editor.pattern;
-
 	p = rect.getTopLeft();
 
 	/// [1] LAYER 1 (MARKERS + NOTES + CURVES)

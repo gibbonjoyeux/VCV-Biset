@@ -184,37 +184,10 @@ Tracker::Tracker() {
 void Tracker::process(const ProcessArgs& args) {
 	float	dt_sec, dt_beat;
 	float	bpm;
-	int		i;
 
-	/// HANDLE SWITCHES
-	for (i = 0; i < 5; ++i) {
-		if (g_editor.view_switch[i].process(params[PARAM_VIEW + i].getValue()))
-			lights[LIGHT_VIEW + i].setBrightness(1.0);
-		else
-			lights[LIGHT_VIEW + i].setBrightness(0.0);
-	}
-
-	/// HANDLE MODE
-	if (g_editor.mode_button[0].process(params[PARAM_MODE + 0].getValue()))
-		g_editor.mode = EDITOR_MODE_PATTERN;
-	if (g_editor.mode_button[1].process(params[PARAM_MODE + 1].getValue()))
-		g_editor.mode = EDITOR_MODE_TIMELINE;
-	if (g_editor.mode_button[2].process(params[PARAM_MODE + 2].getValue()))
-		g_editor.mode = EDITOR_MODE_PARAMETERS;
-	/// HANDLE MODE LIGHTS
-	if (g_editor.mode == EDITOR_MODE_PATTERN) {
-		lights[LIGHT_MODE].setBrightness(1.0);
-		lights[LIGHT_MODE + 1].setBrightness(0.0);
-		lights[LIGHT_MODE + 2].setBrightness(0.0);
-	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
-		lights[LIGHT_MODE].setBrightness(0.0);
-		lights[LIGHT_MODE + 1].setBrightness(1.0);
-		lights[LIGHT_MODE + 2].setBrightness(0.0);
-	} else {
-		lights[LIGHT_MODE].setBrightness(0.0);
-		lights[LIGHT_MODE + 1].setBrightness(0.0);
-		lights[LIGHT_MODE + 2].setBrightness(1.0);
-	}
+	/// PROCESS EDITOR
+	if (args.frame % 256 == 0)
+		g_editor.process(this);
 
 	/// COMPUTE CLOCK
 	bpm = params[PARAM_BPM].getValue();
@@ -225,12 +198,13 @@ void Tracker::process(const ProcessArgs& args) {
 	if (clock_timer.time >= 64.0f)
 		clock_timer.time -= 64.0f;
 	clock_time = clock_timer.time;
-
+	/// OUTPUT CLOCK
 	if (clock_time_p - (int)clock_time_p > clock_time - (int)clock_time)
 		outputs[OUTPUT_CLOCK].setVoltage(10.0f);
 	else
 		outputs[OUTPUT_CLOCK].setVoltage(0.0f);
 
+	/// PROCESS TIMELINE
 	g_timeline.process(dt_sec, dt_beat);
 
 

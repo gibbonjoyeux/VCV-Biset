@@ -17,6 +17,7 @@ Editor::Editor() {
 	this->mode = EDITOR_MODE_PATTERN;
 
 	this->selected = false;
+	this->pattern_id = 0;
 	this->pattern = &(g_timeline.patterns[0]);
 	this->pattern_track = 0;
 	this->pattern_row = 0;
@@ -33,6 +34,59 @@ Editor::Editor() {
 	this->pattern_view_fx = true;
 
 	this->pattern_debug[0] = 0;
+
+	this->synth_id = 0;
+}
+
+void Editor::process(Module *module) {
+	int		value;
+	int		i;
+
+	/// HANDLE VIEW SWITCHES
+	for (i = 0; i < 5; ++i) {
+		if (this->view_switch[i].process(module->params[Tracker::PARAM_VIEW + i].getValue()))
+			module->lights[Tracker::LIGHT_VIEW + i].setBrightness(1.0);
+		else
+			module->lights[Tracker::LIGHT_VIEW + i].setBrightness(0.0);
+	}
+
+	/// HANDLE EDITOR MODES
+	if (this->mode_button[0].process(module->params[Tracker::PARAM_MODE + 0].getValue()))
+		this->mode = EDITOR_MODE_PATTERN;
+	if (this->mode_button[1].process(module->params[Tracker::PARAM_MODE + 1].getValue()))
+		this->mode = EDITOR_MODE_TIMELINE;
+	if (this->mode_button[2].process(module->params[Tracker::PARAM_MODE + 2].getValue()))
+		this->mode = EDITOR_MODE_PARAMETERS;
+	/// HANDLE EDITOR MODES LIGHTS
+	if (this->mode == EDITOR_MODE_PATTERN) {
+		module->lights[Tracker::LIGHT_MODE].setBrightness(1.0);
+		module->lights[Tracker::LIGHT_MODE + 1].setBrightness(0.0);
+		module->lights[Tracker::LIGHT_MODE + 2].setBrightness(0.0);
+	} else if (this->mode == EDITOR_MODE_TIMELINE) {
+		module->lights[Tracker::LIGHT_MODE].setBrightness(0.0);
+		module->lights[Tracker::LIGHT_MODE + 1].setBrightness(1.0);
+		module->lights[Tracker::LIGHT_MODE + 2].setBrightness(0.0);
+	} else {
+		module->lights[Tracker::LIGHT_MODE].setBrightness(0.0);
+		module->lights[Tracker::LIGHT_MODE + 1].setBrightness(0.0);
+		module->lights[Tracker::LIGHT_MODE + 2].setBrightness(1.0);
+	}
+
+	/// HANDLE PATTERN SELECTION
+	value = module->params[Tracker::PARAM_PATTERN].getValue();
+	if (value != this->pattern_id) {
+		if (value >= 0 && value < 256) {
+			this->pattern_id = value;
+			this->pattern = &(g_timeline.patterns[value]);
+		}
+	}
+	/// HANDLE SYNTH SELECTION
+	value = module->params[Tracker::PARAM_SYNTH].getValue();
+	if (value != this->synth_id) {
+		if (value >= 0 && value < 64) {
+			this->synth_id = value;
+		}
+	}
 }
 
 void Editor::pattern_move_cursor_x(int delta_x) {
