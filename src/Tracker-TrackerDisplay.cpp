@@ -5,28 +5,40 @@
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-static void int_to_hex(char *str, int number, int width) {
-	char		digit;
-	int			i;
+static void text(const Widget::DrawArgs& args, Vec p, float x, float y,
+	char *str, int color, bool background) {
+	float	sx, sy;
 
-	str[width] = 0;
-	for (i = width - 1; i >= 0; --i) {
-		digit = number % 16;
-		if (digit < 10)
-			str[i] = '0' + digit;
-		else
-			str[i] = 'A' + (digit - 10);
-		number /= 16;
+	// TODO: handle left under flow ?
+	// TODO: handle right over flow ?
+
+	/// [1] OFFSET COORD WITH CAMERA
+	x -= g_editor.pattern_cam_x;
+	if (x < 0)
+		return;
+	if (x > CHAR_COUNT_X)
+		return;
+	/// [2] COMPUTE REAL COORD
+	sx = p.x + 2.0 + CHAR_W * (x + 2.0);
+	sy = p.y + 11.0 + CHAR_H * y;
+	/// [3] DRAW BACKGROUND
+	if (background) {
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, colors[12]);
+		if (str[1] == 0)
+			nvgRect(args.vg, sx, sy - CHAR_H + 1.0, CHAR_W, CHAR_H);
+		else if (str[2] == 0)
+			nvgRect(args.vg, sx, sy - CHAR_H + 1.0, 2.0 * CHAR_W, CHAR_H);
+		nvgFill(args.vg);
 	}
+	/// [4] DRAW TEXT
+	nvgFillColor(args.vg, colors[color]);
+	nvgText(args.vg, sx, sy, str, NULL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////
-/// DISPLAY MAIN
-//////////////////////////////////////////////////
 
 TrackerDisplay::TrackerDisplay() {
 	font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
@@ -58,7 +70,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 	// is being read (last updated if multiple instance of same pattern)
 	// Only if play is on
 	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, module->colors[15]);
+	nvgFillColor(args.vg, colors[15]);
 	nvgRect(args.vg,
 	/**/ p.x,
 	/**/ p.y + 3.5 + CHAR_H * (g_timeline.debug - g_editor.pattern_cam_y),
@@ -67,7 +79,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 
 	/// DRAW PATTERN CURSOR LINE
 	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, module->colors[15]);
+	nvgFillColor(args.vg, colors[15]);
 	nvgRect(args.vg,
 	/**/ p.x,
 	/**/ p.y + 3.5 + CHAR_H * (g_editor.pattern_line - g_editor.pattern_cam_y),
@@ -82,11 +94,11 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 		/// BEAT COUNT
 		if (line % pattern->lpb == 0) {
 			int_to_hex(str, line / pattern->lpb, 2);
-			nvgFillColor(args.vg, module->colors[13]);
+			nvgFillColor(args.vg, colors[13]);
 		/// LINE COUNT
 		} else {
 			int_to_hex(str, line % pattern->lpb, 2);
-			nvgFillColor(args.vg, module->colors[15]);
+			nvgFillColor(args.vg, colors[15]);
 		}
 		nvgText(args.vg, x, y, str, NULL);
 	}
@@ -107,27 +119,27 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 			note = &(note_row->lines[line]);
 			/// PITCH
 			focus = focus_line & (g_editor.pattern_cell == 0);
-			nvgFillColor(args.vg, module->colors[3]);
+			nvgFillColor(args.vg, colors[3]);
 			if (note->mode == PATTERN_NOTE_KEEP) {
 				str[0] = '.';
 				str[1] = '.';
 				str[2] = 0;
-				this->text(args, p, tx_row, j, str, 3, focus);
+				text(args, p, tx_row, j, str, 3, focus);
 			} else {
-				this->text(args, p, tx_row, j,
+				text(args, p, tx_row, j,
 				/**/ table_pitch[note->pitch % 12], 3, focus);
 			}
 			tx_row += 2;
 			/// OCTAVE
 			focus = focus_line & (g_editor.pattern_cell == 1);
-			nvgFillColor(args.vg, module->colors[2]);
+			nvgFillColor(args.vg, colors[2]);
 			if (note->mode == PATTERN_NOTE_KEEP) {
 				str[0] = '.';
 				str[1] = 0;
 			} else {
 				itoa(note->pitch / 12, str, 10);
 			}
-			this->text(args, p, tx_row, j, str, 2, focus);
+			text(args, p, tx_row, j, str, 2, focus);
 			tx_row += 1;
 			/// VELOCITY
 			if (g_editor.view_switch[0].state) {
@@ -139,7 +151,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 				} else {
 					int_to_hex(str, note->velocity, 2);
 				}
-				this->text(args, p, tx_row, j, str, 5, focus);
+				text(args, p, tx_row, j, str, 5, focus);
 				tx_row += 2;
 			}
 			/// PANNING
@@ -152,7 +164,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 				} else {
 					int_to_hex(str, note->panning, 2);
 				}
-				this->text(args, p, tx_row, j, str, 6, focus);
+				text(args, p, tx_row, j, str, 6, focus);
 				tx_row += 2;
 			}
 			/// SYNTH
@@ -164,7 +176,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 			} else {
 				int_to_hex(str, note->synth, 2);
 			}
-			this->text(args, p, tx_row, j, str, 4, focus);
+			text(args, p, tx_row, j, str, 4, focus);
 			tx_row += 2;
 			/// DELAY
 			if (g_editor.view_switch[2].state) {
@@ -176,7 +188,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 				} else {
 					int_to_hex(str, note->delay, 2);
 				}
-				this->text(args, p, tx_row, j, str, 10, focus);
+				text(args, p, tx_row, j, str, 10, focus);
 				tx_row += 2;
 			}
 			/// GLIDE
@@ -190,7 +202,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 				} else {
 					int_to_hex(str, note->glide, 2);
 				}
-				this->text(args, p, tx_row, j, str, 11, focus);
+				text(args, p, tx_row, j, str, 11, focus);
 				tx_row += 2;
 			}
 			/// EFFECTS
@@ -213,11 +225,11 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 					}
 					/// EFFECT TYPE
 					focus = focus_fx & ((g_editor.pattern_cell - 7) % 2 == 0);
-					this->text(args, p, tx_row, j, str, 13, focus);
+					text(args, p, tx_row, j, str, 13, focus);
 					tx_row += 1;
 					/// EFFECT VALUE
 					focus = focus_fx & ((g_editor.pattern_cell - 7) % 2 == 1);
-					this->text(args, p, tx_row, j, str + 2, 14, focus);
+					text(args, p, tx_row, j, str + 2, 14, focus);
 					tx_row += 2;
 				}
 			}
@@ -246,7 +258,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 			cv = &(cv_row->lines[line]);
 			/// VALUE
 			focus = focus_line & (g_editor.pattern_cell == 0);
-			nvgFillColor(args.vg, module->colors[3]);
+			nvgFillColor(args.vg, colors[3]);
 			if (cv->mode == PATTERN_CV_KEEP) {
 				str[0] = '.';
 				str[1] = '.';
@@ -254,11 +266,11 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 			} else {
 				int_to_hex(str, cv->value, 2);
 			}
-			this->text(args, p, tx_row, j, str, 3, focus);
+			text(args, p, tx_row, j, str, 3, focus);
 			tx_row += 2;
 			/// GLIDE
 			focus = focus_line & (g_editor.pattern_cell == 1);
-			nvgFillColor(args.vg, module->colors[5]);
+			nvgFillColor(args.vg, colors[5]);
 			if (cv->mode == PATTERN_CV_KEEP) {
 				str[0] = '.';
 				str[1] = '.';
@@ -266,11 +278,11 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 			} else {
 				int_to_hex(str, cv->glide, 2);
 			}
-			this->text(args, p, tx_row, j, str, 5, focus);
+			text(args, p, tx_row, j, str, 5, focus);
 			tx_row += 2;
 			/// DELAY
 			focus = focus_line & (g_editor.pattern_cell == 2);
-			nvgFillColor(args.vg, module->colors[10]);
+			nvgFillColor(args.vg, colors[10]);
 			if (cv->mode == PATTERN_CV_KEEP) {
 				str[0] = '.';
 				str[1] = '.';
@@ -278,7 +290,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 			} else {
 				int_to_hex(str, cv->delay, 2);
 			}
-			this->text(args, p, tx_row, j, str, 10, focus);
+			text(args, p, tx_row, j, str, 10, focus);
 			tx_row += 2;
 		}
 		tx += (2 + 2 + 2 + 1);
@@ -302,12 +314,12 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 	rect = box.zeroPos();
 	/// BACKGROUND
 	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, module->colors[0]);
+	nvgFillColor(args.vg, colors[0]);
 	nvgRect(args.vg, RECT_ARGS(rect));
 	nvgFill(args.vg);
 
 	//// TMP DEBUG ! ! !
-	//nvgFillColor(args.vg, module->colors[3]);
+	//nvgFillColor(args.vg, colors[3]);
 	//nvgText(args.vg, p.x + 100, p.y + 11.0, g_timeline.debug_str, NULL);
 	// TMP DEBUG ! ! !
 	//char text[1024];
@@ -324,139 +336,13 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 	nvgScissor(args.vg, RECT_ARGS(rect));
 
 	/// DRAW PATTERN
-	if (g_editor.mode == EDITOR_MODE_PATTERN)
+	if (g_editor.mode == EDITOR_MODE_PATTERN) {
 		this->drawPattern(args, rect);
+	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+	} else if (g_editor.mode == EDITOR_MODE_PARAMETERS) {
+	}
 
 	nvgResetScissor(args.vg);
 	LedDisplay::drawLayer(args, layer);
 }
 
-void TrackerDisplay::text(const DrawArgs& args, Vec p, float x, float y,
-	char *str, int color, bool background) {
-	float	sx, sy;
-
-	// TODO: handle left under flow ?
-	// TODO: handle right over flow ?
-
-	/// [1] OFFSET COORD WITH CAMERA
-	x -= g_editor.pattern_cam_x;
-	if (x < 0)
-		return;
-	if (x > CHAR_COUNT_X)
-		return;
-	/// [2] COMPUTE REAL COORD
-	sx = p.x + 2.0 + CHAR_W * (x + 2.0);
-	sy = p.y + 11.0 + CHAR_H * y;
-	/// [3] DRAW BACKGROUND
-	if (background) {
-		nvgBeginPath(args.vg);
-		nvgFillColor(args.vg, module->colors[12]);
-		if (str[1] == 0)
-			nvgRect(args.vg, sx, sy - CHAR_H + 1.0, CHAR_W, CHAR_H);
-		else if (str[2] == 0)
-			nvgRect(args.vg, sx, sy - CHAR_H + 1.0, 2.0 * CHAR_W, CHAR_H);
-		nvgFill(args.vg);
-	}
-	/// [4] DRAW TEXT
-	nvgFillColor(args.vg, module->colors[color]);
-	nvgText(args.vg, sx, sy, str, NULL);
-}
-
-///////////////////////////////////////////////////
-/// DISPLAY GLOBAL
-//////////////////////////////////////////////////
-
-TrackerBPMDisplay::TrackerBPMDisplay() {
-	font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
-}
-
-void TrackerBPMDisplay::drawLayer(const DrawArgs& args, int layer) {
-	std::shared_ptr<Font>	font;
-	Rect					rect;
-	Vec						p;
-	int						bpm;
-	int						synth;
-	int						pattern;
-
-	if (module == NULL || layer != 1)
-		return;
-	/// GET FONT
-	font = APP->window->loadFont(font_path);
-	if (font == NULL)
-		return;
-	/// SET FONT
-	nvgFontSize(args.vg, 9);
-	nvgFontFaceId(args.vg, font->handle);
-	/// GET CANVAS FORMAT
-	rect = box.zeroPos();
-	/// BACKGROUND
-	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, module->colors[0]);
-	nvgRect(args.vg, RECT_ARGS(rect));
-	nvgFill(args.vg);
-
-	/// DRAW BPM
-	bpm = module->params[Tracker::PARAM_BPM].getValue();
-	if (bpm < 100) {
-		itoa(bpm, str_bpm + 1, 10);
-		str_bpm[0] = ' ';
-	} else {
-		itoa(bpm, str_bpm, 10);
-	}
-	nvgFillColor(args.vg, module->colors[13]);
-	nvgText(args.vg, p.x + 5.0, p.y + 11.0, str_bpm, NULL);
-	/// DRAW ACTIVE SYNTH
-	synth = module->params[Tracker::PARAM_SYNTH].getValue();
-	int_to_hex(str_bpm, synth, 2);
-	nvgFillColor(args.vg, module->colors[13]);
-	nvgText(args.vg, p.x + 5.0 + CHAR_W * 5, p.y + 11.0, str_bpm, NULL);
-	/// DRAW ACTIVE PATTERN
-	pattern = module->params[Tracker::PARAM_PATTERN].getValue();
-	int_to_hex(str_bpm, pattern, 2);
-	nvgFillColor(args.vg, module->colors[13]);
-	nvgText(args.vg, p.x + 5.0 + CHAR_W * 9, p.y + 11.0, str_bpm, NULL);
-
-	LedDisplay::drawLayer(args, layer);
-}
-
-///////////////////////////////////////////////////
-/// DISPLAY EDIT
-//////////////////////////////////////////////////
-
-TrackerEditDisplay::TrackerEditDisplay() {
-	font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
-}
-
-void TrackerEditDisplay::drawLayer(const DrawArgs& args, int layer) {
-	std::shared_ptr<Font>	font;
-	Rect					rect;
-	Vec						p;
-
-	if (module == NULL || layer != 1)
-		return;
-	/// GET FONT
-	font = APP->window->loadFont(font_path);
-	if (font == NULL)
-		return;
-	/// SET FONT
-	nvgFontSize(args.vg, 9);
-	nvgFontFaceId(args.vg, font->handle);
-	/// GET CANVAS FORMAT
-	rect = box.zeroPos();
-	/// BACKGROUND
-	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, module->colors[0]);
-	nvgRect(args.vg, RECT_ARGS(rect));
-	nvgFill(args.vg);
-
-
-	int i;
-
-	nvgFillColor(args.vg, module->colors[13]);
-	for (i = 0; i < 8; ++i) {
-		nvgText(args.vg, p.x + 3.5, p.y + 10.0 + CHAR_H * i * 3, "line title", NULL);
-		nvgText(args.vg, p.x + 3.5, p.y + 10.0 + CHAR_H * (i * 3 + 1), " line conten", NULL);
-	}
-
-	LedDisplay::drawLayer(args, layer);
-}

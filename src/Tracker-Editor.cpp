@@ -39,8 +39,8 @@ Editor::Editor() {
 }
 
 void Editor::process(Module *module) {
-	int		value;
-	int		i;
+	int				value;
+	int				i;
 
 	/// HANDLE VIEW SWITCHES
 	for (i = 0; i < 5; ++i) {
@@ -74,19 +74,50 @@ void Editor::process(Module *module) {
 
 	/// HANDLE PATTERN SELECTION
 	value = module->params[Tracker::PARAM_PATTERN].getValue();
-	if (value != this->pattern_id) {
-		if (value >= 0 && value < 256) {
-			this->pattern_id = value;
-			this->pattern = &(g_timeline.patterns[value]);
-		}
-	}
+	if (value != this->pattern_id)
+		if (value >= 0 && value < 256)
+			this->set_pattern(module, value);
 	/// HANDLE SYNTH SELECTION
 	value = module->params[Tracker::PARAM_SYNTH].getValue();
-	if (value != this->synth_id) {
-		if (value >= 0 && value < 64) {
-			this->synth_id = value;
-		}
-	}
+	if (value != this->synth_id)
+		if (value >= 0 && value < 64)
+			this->set_synth(module, value);
+}
+
+void Editor::set_synth(Module *module, int index) {
+	int		value;
+
+	/// UPDATE SYNTH
+	this->synth_id = index;
+	/// UPDATE SYNTH PARAM
+	value = g_timeline.synths[index].channel_count;
+	module->getParamQuantity(Tracker::PARAM_EDIT + 1)->defaultValue = value;
+	module->params[Tracker::PARAM_EDIT + 1].setValue(value);
+}
+
+void Editor::set_pattern(Module *module, int index) {
+	int		value;
+
+	/// UPDATE PATTERN
+	this->pattern_id = index;
+	this->pattern = &(g_timeline.patterns[index]);
+	/// UPDATE PATTERN PARAMS
+	//// PATTERN LENGTH
+	value = this->pattern->beat_count;
+	module->getParamQuantity(Tracker::PARAM_EDIT + 2)->defaultValue = value;
+	module->params[Tracker::PARAM_EDIT + 2].setValue(value);
+	//// PATTERN LPB
+	value = this->pattern->lpb;
+	module->getParamQuantity(Tracker::PARAM_EDIT + 3)->defaultValue = value;
+	module->params[Tracker::PARAM_EDIT + 3].setValue(value);
+	//// PATTERN NOTE COUNT
+	value = this->pattern->note_count;
+	module->getParamQuantity(Tracker::PARAM_EDIT + 4)->defaultValue = value;
+	module->params[Tracker::PARAM_EDIT + 4].setValue(value);
+	//// PATTERN CV COUNT
+	value = this->pattern->cv_count;
+	module->getParamQuantity(Tracker::PARAM_EDIT + 5)->defaultValue = value;
+	module->params[Tracker::PARAM_EDIT + 5].setValue(value);
 }
 
 void Editor::pattern_move_cursor_x(int delta_x) {

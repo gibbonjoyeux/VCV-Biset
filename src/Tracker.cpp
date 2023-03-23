@@ -30,7 +30,13 @@ Tracker::Tracker() {
 	configParam(PARAM_VIEW + 4, 0.0f, 1.0f, 0.f, "View Effects");
 
 	for (i = 0; i < 8; ++i)
-		configParam(PARAM_EDIT + i, 0.0f, 1.0f, 0.0f, "Select");
+		configParam(PARAM_EDIT + i, 0.0f, 1.0f, 0.0f, "Select")->snapEnabled = true;
+	configParam(PARAM_EDIT + 0, 1.0f, 8192.0f, 0.0f, "Song length")->snapEnabled = true;
+	configParam(PARAM_EDIT + 1, 1.0f, 16.0f, 0.0f, "Synth channels")->snapEnabled = true;
+	configParam(PARAM_EDIT + 2, 1.0f, 8192.0f, 0.0f, "Pattern length")->snapEnabled = true;
+	configParam(PARAM_EDIT + 3, 1.0f, 32.0f, 0.0f, "Pattern lpb")->snapEnabled = true;
+	configParam(PARAM_EDIT + 4, 0.0f, 32.0f, 0.0f, "Pattern notes")->snapEnabled = true;
+	configParam(PARAM_EDIT + 5, 0.0f, 32.0f, 0.0f, "Pattern cv")->snapEnabled = true;
 	configParam(PARAM_EDIT_SAVE, 0.0f, 1.0f, 0.0f, "Save");
 	configParam(PARAM_EDIT_RESET, 0.0f, 1.0f, 0.0f, "Reset");
 
@@ -112,6 +118,10 @@ Tracker::Tracker() {
 
 	clock_timer.reset();
 
+	//////////////////////////////	
+	/// TEMPORARY ! ! !
+	//////////////////////////////	
+
 	/// INIT PATTERN SOURCE
 	PatternSource	*pattern;
 
@@ -179,6 +189,15 @@ Tracker::Tracker() {
 	//pattern->notes[1][6].delay = 0;
 	//for (i = 0; i < 8; ++i)
 	//	pattern->notes[1][6].effects[i].type = PATTERN_EFFECT_NONE;
+
+	//////////////////////////////	
+	/// TEMPORARY ! ! !
+	//////////////////////////////	
+
+	/// SET ACTIVE SYNTH & PATTERN
+	g_editor.set_synth(this, this->params[PARAM_SYNTH].getValue());
+	g_editor.set_pattern(this, this->params[PARAM_PATTERN].getValue());
+	this->params[PARAM_EDIT].setValue(g_timeline.beat_count);
 }
 
 void Tracker::process(const ProcessArgs& args) {

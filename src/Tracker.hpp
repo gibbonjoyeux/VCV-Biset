@@ -45,14 +45,15 @@
 #define CHAR_COUNT_Y				39
 
 
-extern char	table_pitch[12][3];
-extern char	table_effect[13];					// 12
-extern char	table_hex[17];					// 16
-extern int	table_row_note_width[23];			// 23
-extern int	table_row_note_pos[23];			// 23
-extern int	table_row_cv_width[3];			// 3
-extern int	table_row_cv_pos[3];				// 3
-extern int	table_keyboard[128];
+extern char		table_pitch[12][3];
+extern char		table_effect[13];					// 12
+extern char		table_hex[17];					// 16
+extern int		table_row_note_width[23];			// 23
+extern int		table_row_note_pos[23];			// 23
+extern int		table_row_cv_width[3];			// 3
+extern int		table_row_cv_pos[3];				// 3
+extern int		table_keyboard[128];
+extern NVGcolor	colors[16];
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -319,6 +320,8 @@ struct Editor {
 	Editor();
 
 	void process(Module *module);
+	void set_synth(Module *module, int index);
+	void set_pattern(Module *module, int index);
 	void pattern_clamp_cursor(void);
 	void pattern_move_cursor_x(int x);
 	void pattern_move_cursor_y(int y);
@@ -383,17 +386,15 @@ struct TrackerDisplay : LedDisplay {
 
 	void drawLayer(const DrawArgs& args, int layer) override;
 	void drawPattern(const DrawArgs& args, Rect rect);
-	void text(const DrawArgs& args, Vec p, float x, float y, char *str,
-	int color, bool background);
 };
 
-struct TrackerBPMDisplay : LedDisplay {
+struct TrackerInfoDisplay : LedDisplay {
 	Tracker*					module;
 	ModuleWidget*				moduleWidget;
 	std::string					font_path;
 	char						str_bpm[4];
 
-	TrackerBPMDisplay();
+	TrackerInfoDisplay();
 
 	void drawLayer(const DrawArgs& args, int layer) override;
 };
@@ -402,6 +403,7 @@ struct TrackerEditDisplay : LedDisplay {
 	Tracker*					module;
 	ModuleWidget*				moduleWidget;
 	std::string					font_path;
+	char						string[16];
 
 	TrackerEditDisplay();
 
@@ -425,7 +427,13 @@ struct TrackerWidget : ModuleWidget {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-/// GLOBAL DATA
+/// PUBLIC FUNCTIONS
+////////////////////////////////////////////////////////////////////////////////
+
+void int_to_hex(char *str, int number, int width);
+
+////////////////////////////////////////////////////////////////////////////////
+/// GLOBAL STRUCTURES
 ////////////////////////////////////////////////////////////////////////////////
 
 extern Timeline	g_timeline;

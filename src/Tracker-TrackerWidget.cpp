@@ -42,7 +42,7 @@ static int key_alpha(const Widget::SelectKeyEvent &e) {
 
 TrackerWidget::TrackerWidget(Tracker* _module) {
 	TrackerDisplay*		display;
-	TrackerBPMDisplay*	display_bpm;
+	TrackerInfoDisplay*	display_bpm;
 	TrackerEditDisplay*	display_edit;
 	int					i;
 
@@ -184,8 +184,8 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	display->moduleWidget = this;
 	addChild(display);
 	//// BPM LED DISPLAY
-	display_bpm = createWidget<TrackerBPMDisplay>(mm2px(Vec(5.0, 13.0)));
-	display_bpm->box.size = mm2px(Vec(29.5, 5.0));
+	display_bpm = createWidget<TrackerInfoDisplay>(mm2px(Vec(5.0, 13.0)));
+	display_bpm->box.size = mm2px(Vec(1.0, 1.0));
 	display_bpm->module = module;
 	display_bpm->moduleWidget = this;
 	addChild(display_bpm);

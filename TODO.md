@@ -21,10 +21,11 @@
 - [x] Scroll Y
 - [x] Scroll X
 - [x] Display modes (show VELO PAN DELAY GLIDE FX)
-- [ ] Pattern selecting knob
-- [ ] Synth selecting knob (also used in pattern editing)
+- [x] Pattern selecting knob
+- [x] Synth selecting knob (also used in pattern editing)
 - [ ] Editing screen
 	- [ ] Song editing knob
+	- [ ] Synth editing knob(s)
 	- [ ] Pattern editing knobs
 	- [ ] Pattern Row editing knobs
 	- [ ] Update button
