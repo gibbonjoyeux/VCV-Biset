@@ -142,7 +142,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 			text(args, p, tx_row, j, str, 2, focus);
 			tx_row += 1;
 			/// VELOCITY
-			if (g_editor.view_switch[0].state) {
+			if (g_editor.switch_view[0].state) {
 				focus = focus_line & (g_editor.pattern_cell == 2);
 				if (note->mode == PATTERN_NOTE_KEEP) {
 					str[0] = '.';
@@ -155,7 +155,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 				tx_row += 2;
 			}
 			/// PANNING
-			if (g_editor.view_switch[1].state) {
+			if (g_editor.switch_view[1].state) {
 				focus = focus_line & (g_editor.pattern_cell == 3);
 				if (note->mode == PATTERN_NOTE_KEEP) {
 					str[0] = '.';
@@ -179,7 +179,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 			text(args, p, tx_row, j, str, 4, focus);
 			tx_row += 2;
 			/// DELAY
-			if (g_editor.view_switch[2].state) {
+			if (g_editor.switch_view[2].state) {
 				focus = focus_line & (g_editor.pattern_cell == 5);
 				if (note->mode == PATTERN_NOTE_KEEP) {
 					str[0] = '.';
@@ -192,7 +192,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 				tx_row += 2;
 			}
 			/// GLIDE
-			if (g_editor.view_switch[3].state) {
+			if (g_editor.switch_view[3].state) {
 				focus = focus_line & (g_editor.pattern_cell == 6);
 				if (note->mode == PATTERN_NOTE_KEEP
 				|| note->mode == PATTERN_NOTE_NEW) {
@@ -206,7 +206,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 				tx_row += 2;
 			}
 			/// EFFECTS
-			if (g_editor.view_switch[4].state) {
+			if (g_editor.switch_view[4].state) {
 				for (k = 0; k < note_row->effect_count; ++k) {
 					effect = &(note->effects[k]);
 					focus_fx = focus_line & ((g_editor.pattern_cell - 7) / 2 == k);
@@ -236,12 +236,12 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 		}
 		/// OFFSET X
 		tx += (2 + 1														// PITCH
-		/**/ + g_editor.view_switch[0].state * 2							// VELOCITY
-		/**/ + g_editor.view_switch[1].state * 2							// PANNING
+		/**/ + g_editor.switch_view[0].state * 2							// VELOCITY
+		/**/ + g_editor.switch_view[1].state * 2							// PANNING
 		/**/ + 2					  										// SYNTH
-		/**/ + g_editor.view_switch[2].state * 2							// DELAY
-		/**/ + g_editor.view_switch[3].state * 2							// GLIDE
-		/**/ + g_editor.view_switch[4].state * 3 * note_row->effect_count	// EFFECTS
+		/**/ + g_editor.switch_view[2].state * 2							// DELAY
+		/**/ + g_editor.switch_view[3].state * 2							// GLIDE
+		/**/ + g_editor.switch_view[4].state * 3 * note_row->effect_count	// EFFECTS
 		/**/ + 1);
 	}
 	/// FOR EACH CV ROW

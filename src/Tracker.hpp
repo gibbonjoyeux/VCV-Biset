@@ -311,11 +311,17 @@ struct Editor {
 	bool						pattern_view_glide;
 	bool						pattern_view_delay;
 	bool						pattern_view_fx;
+	int							pattern_octave;
+	int							pattern_jump;
 
 	int							synth_id;
 
-	EditorSwitch				view_switch[5];
-	EditorTrigger				mode_button[3];
+	EditorSwitch				switch_view[5];
+	EditorTrigger				button_mode[3];
+	EditorTrigger				button_octave[2];
+	EditorTrigger				button_jump[2];
+	EditorTrigger				button_save;
+	EditorTrigger				button_play[4];
 
 	Editor();
 

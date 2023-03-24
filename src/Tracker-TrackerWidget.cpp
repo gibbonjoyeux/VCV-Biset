@@ -15,14 +15,15 @@ static int key_midi(const Widget::SelectKeyEvent &e) {
 	midi = table_keyboard[e.key];
 	if (midi < 0)
 		return -2;
-	return midi + 60;
+	midi += g_editor.pattern_octave * 12;
+	if (midi > 127)
+		midi = 127;
+	return midi;
 }
 
 static int key_dec(const Widget::SelectKeyEvent &e) {
 	if (e.key >= GLFW_KEY_0 && e.key <= GLFW_KEY_9)
 		return e.key - GLFW_KEY_0;
-	//else if (e.keyName[0] >= 'a' && e.keyName[0] <= 'f')
-	//	return 10 + e.keyName[0] - 'a';
 	return -1;
 }
 
