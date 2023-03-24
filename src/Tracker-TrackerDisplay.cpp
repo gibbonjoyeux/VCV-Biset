@@ -19,7 +19,7 @@ static void text(const Widget::DrawArgs& args, Vec p, float x, float y,
 	if (x > CHAR_COUNT_X)
 		return;
 	/// [2] COMPUTE REAL COORD
-	sx = p.x + 2.0 + CHAR_W * (x + 2.0);
+	sx = p.x + 2.0 + CHAR_W * (x + 3.0);
 	sy = p.y + 11.0 + CHAR_H * y;
 	/// [3] DRAW BACKGROUND
 	if (background) {
@@ -93,7 +93,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 		y = p.y + 11.0 + i * CHAR_H;
 		/// BEAT COUNT
 		if (line % pattern->lpb == 0) {
-			itoaw(str, line / pattern->lpb, 2);
+			itoaw(str, line / pattern->lpb, 3);
 			nvgFillColor(args.vg, colors[13]);
 		/// LINE COUNT
 		} else {

@@ -31,9 +31,9 @@ Tracker::Tracker() {
 
 	for (i = 0; i < 8; ++i)
 		configParam(PARAM_EDIT + i, 0.0f, 1.0f, 0.0f, "Select")->snapEnabled = true;
-	configParam(PARAM_EDIT + 0, 1.0f, 8192.0f, 0.0f, "Song length")->snapEnabled = true;
+	configParam(PARAM_EDIT + 0, 1.0f, 9999.0f, 0.0f, "Song length")->snapEnabled = true;
 	configParam(PARAM_EDIT + 1, 1.0f, 16.0f, 0.0f, "Synth channels")->snapEnabled = true;
-	configParam(PARAM_EDIT + 2, 1.0f, 8192.0f, 0.0f, "Pattern length")->snapEnabled = true;
+	configParam(PARAM_EDIT + 2, 1.0f, 999.0f, 0.0f, "Pattern length")->snapEnabled = true;
 	configParam(PARAM_EDIT + 3, 1.0f, 32.0f, 0.0f, "Pattern lpb")->snapEnabled = true;
 	configParam(PARAM_EDIT + 4, 0.0f, 32.0f, 0.0f, "Pattern notes")->snapEnabled = true;
 	configParam(PARAM_EDIT + 5, 0.0f, 32.0f, 0.0f, "Pattern cv")->snapEnabled = true;
@@ -51,24 +51,6 @@ Tracker::Tracker() {
 	configLight(LIGHT_PLAY, "Play");
 
 	configOutput(OUTPUT_CLOCK, "Clock");
-
-	/// DEFINE GLOBAL COLOR
-	colors[0] = nvgRGBA(0x1A, 0x1C, 0x2C, 0xFF);
-	colors[1] = nvgRGBA(0x5D, 0x27, 0x5D, 0xFF);
-	colors[2] = nvgRGBA(0xB1, 0x3E, 0x53, 0xFF);
-	colors[3] = nvgRGBA(0xEF, 0x7D, 0x57, 0xFF);
-	colors[4] = nvgRGBA(0xFF, 0xCD, 0x75, 0xFF);
-	colors[5] = nvgRGBA(0xAF, 0xF0, 0x70, 0xFF);
-	colors[6] = nvgRGBA(0x38, 0xB7, 0x64, 0xFF);
-	colors[7] = nvgRGBA(0x25, 0x71, 0x79, 0xFF);
-	colors[8] = nvgRGBA(0x29, 0x36, 0x6F, 0xFF);
-	colors[9] = nvgRGBA(0x3B, 0x5D, 0xC9, 0xFF);
-	colors[10] = nvgRGBA(0x41, 0xA6, 0xF6, 0xFF);
-	colors[11] = nvgRGBA(0x73, 0xEF, 0xF7, 0xFF);
-	colors[12] = nvgRGBA(0xF4, 0xF4, 0xF4, 0xFF);
-	colors[13] = nvgRGBA(0x94, 0xB0, 0xC2, 0xFF);
-	colors[14] = nvgRGBA(0x56, 0x6C, 0x86, 0xFF);
-	colors[15] = nvgRGBA(0x33, 0x3C, 0x57, 0xFF);
 
 	/// DEFINE GLOBAL KEYBOARD
 	for (i = 0; i < 128; ++i)
@@ -197,7 +179,7 @@ Tracker::Tracker() {
 	/// SET ACTIVE SYNTH & PATTERN
 	g_editor.set_synth(this, this->params[PARAM_SYNTH].getValue());
 	g_editor.set_pattern(this, this->params[PARAM_PATTERN].getValue());
-	this->params[PARAM_EDIT].setValue(g_timeline.beat_count);
+	this->getParamQuantity(PARAM_EDIT)->defaultValue = g_timeline.beat_count;
 }
 
 void Tracker::process(const ProcessArgs& args) {

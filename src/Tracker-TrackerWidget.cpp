@@ -137,6 +137,15 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	/**/ module,
 	/**/ Tracker::PARAM_EDIT_SAVE));
 
+	//// JUMP BUTTONS
+	addParam(
+	/**/ createParamCentered<TL1105>(mm2px(Vec(41.0, 12.5)),
+	/**/ module,
+	/**/ Tracker::PARAM_JUMP_UP));
+	addParam(
+	/**/ createParamCentered<TL1105>(mm2px(Vec(41.0, 18.5)),
+	/**/ module,
+	/**/ Tracker::PARAM_JUMP_DOWN));
 	//// OCTAVE BUTTONS
 	addParam(
 	/**/ createParamCentered<TL1105>(mm2px(Vec(47.0, 12.5)),
@@ -179,7 +188,7 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	//// MAIN LED DISPLAY
 	display = createWidget<TrackerDisplay>(mm2px(Vec(65.50 - 14.0, 5.0)));
 	//display->box.size = mm2px(Vec(173.5 + 14.0, 94.5 + 15.0));
-	display->box.size = Vec(CHAR_W * (CHAR_COUNT_X + 2) + 4, CHAR_H * CHAR_COUNT_Y + 5.5);
+	display->box.size = Vec(CHAR_W * (CHAR_COUNT_X + 3) + 4, CHAR_H * CHAR_COUNT_Y + 5.5);
 	display->module = module;
 	display->moduleWidget = this;
 	addChild(display);

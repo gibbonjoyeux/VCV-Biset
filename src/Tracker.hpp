@@ -41,7 +41,7 @@
 
 #define CHAR_W						6.302522
 #define CHAR_H						8.5
-#define CHAR_COUNT_X				85
+#define CHAR_COUNT_X				84
 #define CHAR_COUNT_Y				39
 
 
@@ -340,6 +340,8 @@ struct Tracker : Module {
 								PARAM_BPM,
 								PARAM_SYNTH,
 								PARAM_PATTERN,
+								PARAM_JUMP_UP,
+								PARAM_JUMP_DOWN,
 								PARAM_OCTAVE_UP,
 								PARAM_OCTAVE_DOWN,
 								PARAM_EDIT_SAVE,
@@ -367,7 +369,6 @@ struct Tracker : Module {
 								LIGHT_COUNT
 	};
 
-	NVGcolor					colors[16];
 	dsp::TTimer<float>			clock_timer;
 	float						clock_time;
 	float						clock_time_p;

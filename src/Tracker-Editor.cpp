@@ -222,8 +222,8 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 		i += 1;
 	}
 	//// OFFSET CAMERA
-	if (this->pattern_cam_x < x - (CHAR_COUNT_X - 1))
-		this->pattern_cam_x = x - (CHAR_COUNT_X - 1);
+	if (this->pattern_cam_x < x - (CHAR_COUNT_X - 2))
+		this->pattern_cam_x = x - (CHAR_COUNT_X - 2);
 	if (this->pattern_cam_x > x)
 		this->pattern_cam_x = x;
 }
