@@ -26,8 +26,8 @@ void SynthVoice::process(
 	if (this->active && this->delay <= 0 && this->delay_gate <= 0) {
 		/// COMPUTE CV
 		//pitch = (float)(this->pitch - 69) / 12.0f;
-		velocity = (float)this->velocity / 255.0 * 10.0;
-		panning = (float)this->panning / 255.0 * 10.0;
+		velocity = (float)this->velocity / 99.0 * 10.0;
+		panning = (float)this->panning / 99.0 * 10.0;
 		/// COMPUTE EFFECTS
 		//// COMPUTE GLIDE
 		if (this->pitch_glide_len > 0) {
@@ -93,7 +93,7 @@ bool SynthVoice::start(
 	int						int_1, int_2;
 	float					float_1;
 
-	delay = (1.0f / (float)lpb) * ((float)note->delay / 256.0f);
+	delay = (1.0f / (float)lpb) * ((float)note->delay / 100.0f);
 	/// SET INTER NOTE GATE DELAY
 	this->delay_gate = (this->active) ? 0.001f : 0.0f;
 	/// SET MAIN DELAY
@@ -116,14 +116,14 @@ bool SynthVoice::start(
 			case PATTERN_EFFECT_NONE:
 				break;
 			case PATTERN_EFFECT_RAND_AMP:		// Axx
-				float_1 = random::uniform() * (effect->value / 255.0);
+				float_1 = random::uniform() * (effect->value / 99.0);
 				this->velocity *= 1.0 - float_1;
 				break;
 			case PATTERN_EFFECT_RAND_PAN:		// Pxx
 				break;
 			case PATTERN_EFFECT_RAND_OCT:		// Oxy
-				x = effect->value / 16;
-				y = effect->value % 16;
+				x = effect->value / 10;
+				y = effect->value % 10;
 				if (y > 0) {
 					if (x == 0)					// > -+
 						int_1 = (random::u32() % (2 * y) - y) * 12;
@@ -137,8 +137,8 @@ bool SynthVoice::start(
 				}
 				break;
 			case PATTERN_EFFECT_RAND_PITCH:		// Mxy
-				x = effect->value / 16;
-				y = effect->value % 16;
+				x = effect->value / 10;
+				y = effect->value % 10;
 				int_1 = random::u32() % 3;
 				if (int_1 == 0)
 					int_2 = this->pitch;
@@ -154,20 +154,20 @@ bool SynthVoice::start(
 				break;
 			case PATTERN_EFFECT_VIBRATO:		// Vxy
 				this->vibrato_freq =
-				/**/ (float)(effect->value / 16) * M_PI * 2.0f;
-				this->vibrato_amp = (float)(effect->value % 16) / 64.0;
+				/**/ (float)(effect->value / 10) * M_PI * 2.0f;
+				this->vibrato_amp = (float)(effect->value % 10) / 128.0;
 				break;
 			case PATTERN_EFFECT_TREMOLO:		// Txy
 				this->tremolo_freq =
-				/**/ (float)(effect->value / 16) * M_PI * 2.0f;
-				this->tremolo_amp = (float)(effect->value % 16) / 32.0;
+				/**/ (float)(effect->value / 10) * M_PI * 2.0f;
+				this->tremolo_amp = (float)(effect->value % 10) / 32.0;
 				break;
 			case PATTERN_EFFECT_FADE_IN:		// Fxx
 				break;
 			case PATTERN_EFFECT_FADE_OUT:		// fxx
 				break;
 			case PATTERN_EFFECT_CHANCE:			// Cxx
-				if (random::uniform() * 255.0 > effect->value)
+				if (random::uniform() * 99.0 > effect->value)
 					return false;
 				break;
 			case PATTERN_EFFECT_CHANCE_STOP:	// cxx
@@ -196,7 +196,7 @@ void SynthVoice::glide(
 		} else {
 		}
 		this->pitch_to = note->pitch;
-		this->pitch_glide_len = (1.0 - ((float)note->glide / 256.0));
+		this->pitch_glide_len = (1.0 - ((float)note->glide / 100.0));
 		this->pitch_glide_cur = 0;
 	}
 }
@@ -207,7 +207,7 @@ void SynthVoice::stop(PatternNote *note, int lpb) {
 	if (note) {
 		if (note->delay > 0) {
 			this->delay_stop =
-			/**/ (1.0f / (float)lpb) * ((float)note->delay / 256.0f);
+			/**/ (1.0f / (float)lpb) * ((float)note->delay / 100.0f);
 		} else {
 			this->active = false;
 		}
@@ -225,7 +225,7 @@ void SynthVoice::init(int synth, int channel) {
 void SynthVoice::reset() {
 	this->active = false;
 	this->pitch = 0;
-	this->velocity = 255;
+	this->velocity = 99;
 	this->pitch_glide_len = 0;
 	this->pitch_glide_cur = 0.0;
 	this->pitch_from = 0.0;

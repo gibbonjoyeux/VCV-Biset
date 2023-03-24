@@ -54,24 +54,19 @@ void TrackerInfoDisplay::drawLayer(const DrawArgs& args, int layer) {
 
 	/// DRAW BPM
 	bpm = module->params[Tracker::PARAM_BPM].getValue();
-	if (bpm < 100) {
-		itoa(bpm, str_bpm + 1, 10);
-		str_bpm[0] = ' ';
-	} else {
-		itoa(bpm, str_bpm, 10);
-	}
+	itoaw(str_bpm, bpm, 3);
 	nvgFillColor(args.vg, module->colors[13]);
 	nvgText(args.vg, p.x + 2.0, p.y + 9.5, str_bpm, NULL);
 	/// DRAW ACTIVE SYNTH
 	synth = module->params[Tracker::PARAM_SYNTH].getValue();
-	int_to_hex(str_bpm, synth, 2);
+	itoaw(str_bpm, synth, 2);
 	nvgFillColor(args.vg, module->colors[13]);
 	nvgText(args.vg, p.x + 6.0 + 33.0, p.y + 9.5, str_bpm, NULL);
 	/// DRAW ACTIVE PATTERN
 	pattern = module->params[Tracker::PARAM_PATTERN].getValue();
-	int_to_hex(str_bpm, pattern, 2);
+	itoaw(str_bpm, pattern, 3);
 	nvgFillColor(args.vg, module->colors[13]);
-	nvgText(args.vg, p.x + 6.0 + 66.0, p.y + 9.5, str_bpm, NULL);
+	nvgText(args.vg, p.x + 2.0 + 66.5, p.y + 9.5, str_bpm, NULL);
 
 	LedDisplay::drawLayer(args, layer);
 }

@@ -146,32 +146,32 @@ Tracker::Tracker() {
 	pattern->notes[0]->lines[0].mode = PATTERN_NOTE_NEW;
 	pattern->notes[0]->lines[0].synth = 0;
 	pattern->notes[0]->lines[0].pitch = 63;
-	pattern->notes[0]->lines[0].velocity = 255;
+	pattern->notes[0]->lines[0].velocity = 99;
 	pattern->notes[0]->lines[8].mode = PATTERN_NOTE_NEW;
 	pattern->notes[0]->lines[8].synth = 0;
 	pattern->notes[0]->lines[8].pitch = 61;
-	pattern->notes[0]->lines[8].velocity = 255;
+	pattern->notes[0]->lines[8].velocity = 99;
 	pattern->notes[0]->lines[16].mode = PATTERN_NOTE_NEW;
 	pattern->notes[0]->lines[16].synth = 0;
 	pattern->notes[0]->lines[16].pitch = 66;
-	pattern->notes[0]->lines[16].velocity = 255;
+	pattern->notes[0]->lines[16].velocity = 99;
 	pattern->notes[0]->lines[24].mode = PATTERN_NOTE_NEW;
 	pattern->notes[0]->lines[24].synth = 0;
 	pattern->notes[0]->lines[24].pitch = 70;
-	pattern->notes[0]->lines[24].velocity = 255;
+	pattern->notes[0]->lines[24].velocity = 99;
 
 	pattern->notes[0]->lines[32].mode = PATTERN_NOTE_NEW;
 	pattern->notes[0]->lines[32].synth = 0;
 	pattern->notes[0]->lines[32].pitch = 68;
-	pattern->notes[0]->lines[32].velocity = 255;
+	pattern->notes[0]->lines[32].velocity = 99;
 	pattern->notes[0]->lines[40].mode = PATTERN_NOTE_NEW;
 	pattern->notes[0]->lines[40].synth = 0;
 	pattern->notes[0]->lines[40].pitch = 63;
-	pattern->notes[0]->lines[40].velocity = 255;
+	pattern->notes[0]->lines[40].velocity = 99;
 	pattern->notes[0]->lines[48].mode = PATTERN_NOTE_NEW;
 	pattern->notes[0]->lines[48].synth = 0;
 	pattern->notes[0]->lines[48].pitch = 70;
-	pattern->notes[0]->lines[48].velocity = 255;
+	pattern->notes[0]->lines[48].velocity = 99;
 
 	/// FILL PATTERN SOURCE CVS
 	// TODO: use ArrayExt and set SYNTH & CHANNEL on row
@@ -180,9 +180,9 @@ Tracker::Tracker() {
 	pattern->cvs[0]->lines[0].mode = PATTERN_CV_SET;
 	pattern->cvs[0]->lines[0].value = 0;
 	pattern->cvs[0]->lines[8].mode = PATTERN_CV_SET;
-	pattern->cvs[0]->lines[8].value = 255;
+	pattern->cvs[0]->lines[8].value = 99;
 	pattern->cvs[0]->lines[15].mode = PATTERN_CV_SET;
-	pattern->cvs[0]->lines[15].delay = 255;
+	pattern->cvs[0]->lines[15].delay = 99;
 	pattern->cvs[0]->lines[15].value = 0;
 
 	//pattern->notes[1][6].mode = -1;

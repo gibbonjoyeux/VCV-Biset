@@ -9,17 +9,14 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-void int_to_hex(char *str, int number, int width) {
+void itoaw(char *str, int number, int width) {
 	char		digit;
 	int			i;
 
 	str[width] = 0;
 	for (i = width - 1; i >= 0; --i) {
-		digit = number % 16;
-		if (digit < 10)
-			str[i] = '0' + digit;
-		else
-			str[i] = 'A' + (digit - 10);
-		number /= 16;
+		digit = number % 10;
+		str[i] = '0' + digit;
+		number /= 10;
 	}
 }

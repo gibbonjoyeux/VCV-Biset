@@ -99,7 +99,7 @@ void PatternInstance::process(
 		//// ON ACTIVE LINE
 		if (cv_line->mode == PATTERN_CV_SET) {
 			/// AFTER DELAY
-			if (phase * 255.0 >= cv_line->delay) {
+			if (phase * 99.0 >= cv_line->delay) {
 				cv_from = cv_line;
 				line_from = line;
 			/// BEFORE DELAY
@@ -116,9 +116,6 @@ void PatternInstance::process(
 			while (line_from >= 0
 			&& pattern->cvs[row]->lines[line_from].mode != PATTERN_CV_SET)
 				line_from -= 1;
-			//if (line_from < 0)
-			//	line_from = line;
-			//cv_from = &(pattern->cvs[row]->lines[line_from]);
 			if (line_from >= 0)
 				cv_from = &(pattern->cvs[row]->lines[line_from]);
 		}
@@ -128,9 +125,6 @@ void PatternInstance::process(
 			while (line_to < pattern->line_count
 			&& pattern->cvs[row]->lines[line_to].mode != PATTERN_CV_SET)
 				line_to += 1;
-			//if (line_to >= pattern->line_count)
-			//	line_to = line;
-			//cv_to = &(pattern->cvs[row]->lines[line_to]);
 			if (line_to < pattern->line_count)
 				cv_to = &(pattern->cvs[row]->lines[line_to]);
 		}
@@ -141,8 +135,8 @@ void PatternInstance::process(
 			if (line_from == line_to) {
 				cv_phase = 0;
 			} else {
-				phase_from = (float)line_from + (float)cv_from->delay / 255.0;
-				phase_to = (float)line_to + (float)cv_to->delay / 255.0;
+				phase_from = (float)line_from + (float)cv_from->delay / 99.0;
+				phase_to = (float)line_to + (float)cv_to->delay / 99.0;
 				cv_phase = (((float)line + phase) - phase_from)
 				/**/ / (phase_to - phase_from);
 			}
@@ -157,10 +151,10 @@ void PatternInstance::process(
 			else if (cv_to)
 				cv_value = cv_to->value;
 			else
-				cv_value = 128.0;
+				cv_value = 50.0;
 		}
-		/// REMAP CV FROM [0:255] TO [0:10]
-		cv_value /= 25.5;
+		/// REMAP CV FROM [0:99] TO [0:10]
+		cv_value /= 10.0;
 		/// [D] OUTPUT CV
 		synth = &(synths[pattern->cvs[row]->synth]);
 		synth->out_cv[pattern->cvs[row]->channel] = cv_value;

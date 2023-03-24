@@ -93,11 +93,11 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 		y = p.y + 11.0 + i * CHAR_H;
 		/// BEAT COUNT
 		if (line % pattern->lpb == 0) {
-			int_to_hex(str, line / pattern->lpb, 2);
+			itoaw(str, line / pattern->lpb, 2);
 			nvgFillColor(args.vg, colors[13]);
 		/// LINE COUNT
 		} else {
-			int_to_hex(str, line % pattern->lpb, 2);
+			itoaw(str, line % pattern->lpb, 2);
 			nvgFillColor(args.vg, colors[15]);
 		}
 		nvgText(args.vg, x, y, str, NULL);
@@ -149,7 +149,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 					str[1] = '.';
 					str[2] = 0;
 				} else {
-					int_to_hex(str, note->velocity, 2);
+					itoaw(str, note->velocity, 2);
 				}
 				text(args, p, tx_row, j, str, 5, focus);
 				tx_row += 2;
@@ -162,7 +162,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 					str[1] = '.';
 					str[2] = 0;
 				} else {
-					int_to_hex(str, note->panning, 2);
+					itoaw(str, note->panning, 2);
 				}
 				text(args, p, tx_row, j, str, 6, focus);
 				tx_row += 2;
@@ -174,7 +174,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 				str[1] = '.';
 				str[2] = 0;
 			} else {
-				int_to_hex(str, note->synth, 2);
+				itoaw(str, note->synth, 2);
 			}
 			text(args, p, tx_row, j, str, 4, focus);
 			tx_row += 2;
@@ -186,7 +186,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 					str[1] = '.';
 					str[2] = 0;
 				} else {
-					int_to_hex(str, note->delay, 2);
+					itoaw(str, note->delay, 2);
 				}
 				text(args, p, tx_row, j, str, 10, focus);
 				tx_row += 2;
@@ -200,7 +200,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 					str[1] = '.';
 					str[2] = 0;
 				} else {
-					int_to_hex(str, note->glide, 2);
+					itoaw(str, note->glide, 2);
 				}
 				text(args, p, tx_row, j, str, 11, focus);
 				tx_row += 2;
@@ -221,7 +221,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 					} else {
 						str[0] = table_effect[effect->type - 1];
 						str[1] = 0;
-						int_to_hex(str + 2, note->effects[k].value, 2);
+						itoaw(str + 2, note->effects[k].value, 2);
 					}
 					/// EFFECT TYPE
 					focus = focus_fx & ((g_editor.pattern_cell - 7) % 2 == 0);
@@ -264,7 +264,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 				str[1] = '.';
 				str[2] = 0;
 			} else {
-				int_to_hex(str, cv->value, 2);
+				itoaw(str, cv->value, 2);
 			}
 			text(args, p, tx_row, j, str, 3, focus);
 			tx_row += 2;
@@ -276,7 +276,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 				str[1] = '.';
 				str[2] = 0;
 			} else {
-				int_to_hex(str, cv->glide, 2);
+				itoaw(str, cv->glide, 2);
 			}
 			text(args, p, tx_row, j, str, 5, focus);
 			tx_row += 2;
@@ -288,7 +288,7 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 				str[1] = '.';
 				str[2] = 0;
 			} else {
-				int_to_hex(str, cv->delay, 2);
+				itoaw(str, cv->delay, 2);
 			}
 			text(args, p, tx_row, j, str, 10, focus);
 			tx_row += 2;
