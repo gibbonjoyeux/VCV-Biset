@@ -124,17 +124,14 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	//// EDIT KNOBS
 	for (i = 0; i < 8; ++i) {
 		addParam(
-		/**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 8.75 * i - 37.5)),
+		///**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 8.75 * i - 37.5)),
+		/**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 6.00 * i - 37.5)),
 		/**/ module,
 		/**/ Tracker::PARAM_EDIT + i));
 	}
-	//// EDIT BUTTONS
+	//// EDIT BUTTON
 	addParam(
-	/**/ createParamCentered<VCVButton>(mm2px(Vec(13.0, 106.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_EDIT_RESET));
-	addParam(
-	/**/ createParamCentered<VCVButton>(mm2px(Vec(26.5, 106.0)),
+	/**/ createParamCentered<VCVButton>(mm2px(Vec(20.5, 106.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_EDIT_SAVE));
 
@@ -521,6 +518,13 @@ void TrackerWidget::onSelect(const SelectEvent &e) {
 }
 
 void TrackerWidget::onDeselect(const DeselectEvent &e) {
+	//ParamWidget	*pw;
+	//
+	//pw = APP->scene->rack->touchedParam;
+	//if (pw && pw->module == this->module) {
+	//	APP->event->setSelectedWidget(this);
+	//	return;
+	//}
 	g_editor.selected = false;
 	this->module->lights[0].setBrightness(0.0);
 }

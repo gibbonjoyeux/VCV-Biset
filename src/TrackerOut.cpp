@@ -154,6 +154,13 @@ struct TrackerOutWidget : ModuleWidget {
 		display->moduleWidget = this;
 		addChild(display);
 	}
+
+	void onSelect(const SelectEvent &e) override {
+		int		synth;
+
+		synth = this->module->params[TrackerOut::PARAM_SYNTH].getValue();
+		g_editor.set_synth(synth, true);
+	}
 };
 
 Model* modelTrackerOut = createModel<TrackerOut, TrackerOutWidget>("TrackerOut");

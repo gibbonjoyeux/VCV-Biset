@@ -38,7 +38,6 @@ Tracker::Tracker() {
 	configParam(PARAM_EDIT + 4, 0.0f, 32.0f, 0.0f, "Pattern notes")->snapEnabled = true;
 	configParam(PARAM_EDIT + 5, 0.0f, 32.0f, 0.0f, "Pattern cv")->snapEnabled = true;
 	configParam(PARAM_EDIT_SAVE, 0.0f, 1.0f, 0.0f, "Save");
-	configParam(PARAM_EDIT_RESET, 0.0f, 1.0f, 0.0f, "Reset");
 
 	configParam(PARAM_MODE + 0, 0.0f, 1.0f, 0.0f, "Mode pattern");
 	configParam(PARAM_MODE + 1, 0.0f, 1.0f, 0.0f, "Mode timeline");
@@ -176,10 +175,15 @@ Tracker::Tracker() {
 	/// TEMPORARY ! ! !
 	//////////////////////////////	
 
+
 	/// SET ACTIVE SYNTH & PATTERN
-	g_editor.set_synth(this, this->params[PARAM_SYNTH].getValue());
-	g_editor.set_pattern(this, this->params[PARAM_PATTERN].getValue());
-	this->getParamQuantity(PARAM_EDIT)->defaultValue = g_timeline.beat_count;
+	g_editor.module = this;
+}
+
+void Tracker::onAdd(const AddEvent &e) {
+	g_editor.set_synth(this->params[PARAM_SYNTH].getValue(), false);
+	g_editor.set_pattern(this->params[PARAM_PATTERN].getValue(), false);
+	g_editor.set_song_length(g_timeline.beat_count, true);
 }
 
 void Tracker::process(const ProcessArgs& args) {
@@ -188,7 +192,7 @@ void Tracker::process(const ProcessArgs& args) {
 
 	/// PROCESS EDITOR
 	if (args.frame % 256 == 0)
-		g_editor.process(this);
+		g_editor.process();
 
 	/// COMPUTE CLOCK
 	bpm = params[PARAM_BPM].getValue();

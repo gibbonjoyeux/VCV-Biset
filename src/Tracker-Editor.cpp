@@ -41,9 +41,14 @@ Editor::Editor() {
 	this->synth_id = 0;
 }
 
-void Editor::process(Module *module) {
+void Editor::process(void) {
+	Module			*module;
 	int				value;
 	int				i;
+
+	module = g_editor.module;
+	// TODO: check change in g_editor.pattern_row
+	// -> On change update edit knobs (Note or CV)
 
 	/// HANDLE VIEW SWITCHES
 	for (i = 0; i < 5; ++i) {
@@ -91,52 +96,108 @@ void Editor::process(Module *module) {
 		if (this->pattern_jump > 0)
 			this->pattern_jump -= 1;
 
+	/// HANDLE EDIT SAVE BUTTON
+	if (this->button_save.process(module->params[Tracker::PARAM_EDIT_SAVE].getValue()))
+		this->save_edition();
+
 	/// HANDLE PATTERN SELECTION
 	value = module->params[Tracker::PARAM_PATTERN].getValue();
 	if (value != this->pattern_id)
 		if (value >= 0 && value < 256)
-			this->set_pattern(module, value);
+			this->set_pattern(value, false);
 	/// HANDLE SYNTH SELECTION
 	value = module->params[Tracker::PARAM_SYNTH].getValue();
 	if (value != this->synth_id)
 		if (value >= 0 && value < 64)
-			this->set_synth(module, value);
+			this->set_synth(value, false);
 }
 
-void Editor::set_synth(Module *module, int index) {
+void Editor::save_edition(void) {
+	int		beat_count;
+	int		note_count, cv_count;
+	int		lpb;
+	int		channels;
+
+	/// SONG LENGTH
+	beat_count = g_editor.module->params[Tracker::PARAM_EDIT + 0].getValue();
+	if (g_timeline.beat_count != beat_count) {
+		g_timeline.resize(beat_count);
+		this->set_song_length(beat_count, true);
+	}
+	/// SYNTH CHANNELS
+	channels = g_editor.module->params[Tracker::PARAM_EDIT + 1].getValue();
+	if (g_timeline.synths[g_editor.synth_id].channel_count != channels) {
+		g_timeline.synths[g_editor.synth_id].channel_count = channels;
+	}
+	/// PATTERN
+	beat_count = g_editor.module->params[Tracker::PARAM_EDIT + 2].getValue();
+	lpb = g_editor.module->params[Tracker::PARAM_EDIT + 3].getValue();
+	note_count = g_editor.module->params[Tracker::PARAM_EDIT + 4].getValue();
+	cv_count = g_editor.module->params[Tracker::PARAM_EDIT + 5].getValue();
+	if (beat_count != g_editor.pattern->beat_count
+	|| lpb != g_editor.pattern->lpb
+	|| note_count != g_editor.pattern->note_count
+	|| cv_count != g_editor.pattern->cv_count) {
+		g_editor.pattern->resize(note_count, cv_count, beat_count, lpb);
+	}
+	/// ROW
+	//// AS NOTE
+	//// AS CV
+}
+
+void Editor::set_song_length(int length, bool mode) {
+	/// UPDATE SONG LENGTH DEFAULT VALUE
+	g_editor.module->getParamQuantity(Tracker::PARAM_EDIT)->defaultValue = length;
+	g_editor.module->params[Tracker::PARAM_EDIT].setValue(length);
+	/// UPDATE SONG LENGTH REAL VALUE
+	if (mode)
+		g_editor.module->params[Tracker::PARAM_EDIT].setValue(length);
+}
+
+void Editor::set_synth(int index, bool mode) {
 	int		value;
 
+	/// [1] UPDATE EDITOR
 	/// UPDATE SYNTH
 	this->synth_id = index;
 	/// UPDATE SYNTH PARAM
 	value = g_timeline.synths[index].channel_count;
-	module->getParamQuantity(Tracker::PARAM_EDIT + 1)->defaultValue = value;
-	module->params[Tracker::PARAM_EDIT + 1].setValue(value);
+	g_editor.module->getParamQuantity(Tracker::PARAM_EDIT + 1)->defaultValue = value;
+	g_editor.module->params[Tracker::PARAM_EDIT + 1].setValue(value);
+	/// [2] UPDATE KNOB
+	/// UPDATE SYNTH KNOB
+	if (mode)
+		g_editor.module->params[Tracker::PARAM_SYNTH].setValue(index);
 }
 
-void Editor::set_pattern(Module *module, int index) {
+void Editor::set_pattern(int index, bool mode) {
 	int		value;
 
+	/// [1] UPDATE EDITOR
 	/// UPDATE PATTERN
 	this->pattern_id = index;
 	this->pattern = &(g_timeline.patterns[index]);
 	/// UPDATE PATTERN PARAMS
 	//// PATTERN LENGTH
 	value = this->pattern->beat_count;
-	module->getParamQuantity(Tracker::PARAM_EDIT + 2)->defaultValue = value;
-	module->params[Tracker::PARAM_EDIT + 2].setValue(value);
+	g_editor.module->getParamQuantity(Tracker::PARAM_EDIT + 2)->defaultValue = value;
+	g_editor.module->params[Tracker::PARAM_EDIT + 2].setValue(value);
 	//// PATTERN LPB
 	value = this->pattern->lpb;
-	module->getParamQuantity(Tracker::PARAM_EDIT + 3)->defaultValue = value;
-	module->params[Tracker::PARAM_EDIT + 3].setValue(value);
+	g_editor.module->getParamQuantity(Tracker::PARAM_EDIT + 3)->defaultValue = value;
+	g_editor.module->params[Tracker::PARAM_EDIT + 3].setValue(value);
 	//// PATTERN NOTE COUNT
 	value = this->pattern->note_count;
-	module->getParamQuantity(Tracker::PARAM_EDIT + 4)->defaultValue = value;
-	module->params[Tracker::PARAM_EDIT + 4].setValue(value);
+	g_editor.module->getParamQuantity(Tracker::PARAM_EDIT + 4)->defaultValue = value;
+	g_editor.module->params[Tracker::PARAM_EDIT + 4].setValue(value);
 	//// PATTERN CV COUNT
 	value = this->pattern->cv_count;
-	module->getParamQuantity(Tracker::PARAM_EDIT + 5)->defaultValue = value;
-	module->params[Tracker::PARAM_EDIT + 5].setValue(value);
+	g_editor.module->getParamQuantity(Tracker::PARAM_EDIT + 5)->defaultValue = value;
+	g_editor.module->params[Tracker::PARAM_EDIT + 5].setValue(value);
+	/// [2] UPDATE KNOB
+	/// UPDATE PATTERN KNOB
+	if (mode)
+		g_editor.module->params[Tracker::PARAM_PATTERN].setValue(index);
 }
 
 void Editor::pattern_move_cursor_x(int delta_x) {

@@ -294,6 +294,8 @@ struct EditorTrigger : dsp::BooleanTrigger {
 };
 
 struct Editor {
+	Module						*module;
+
 	int							mode;			// Pattern / Timeline / Param
 	bool						selected;
 	int							pattern_id;
@@ -325,9 +327,11 @@ struct Editor {
 
 	Editor();
 
-	void process(Module *module);
-	void set_synth(Module *module, int index);
-	void set_pattern(Module *module, int index);
+	void process(void);
+	void save_edition(void);
+	void set_song_length(int length, bool mode);
+	void set_synth(int index, bool mode);
+	void set_pattern(int index, bool mode);
 	void pattern_clamp_cursor(void);
 	void pattern_move_cursor_x(int x);
 	void pattern_move_cursor_y(int y);
@@ -351,7 +355,6 @@ struct Tracker : Module {
 								PARAM_OCTAVE_UP,
 								PARAM_OCTAVE_DOWN,
 								PARAM_EDIT_SAVE,
-								PARAM_EDIT_RESET,
 								ENUMS(PARAM_EDIT, 8),
 								ENUMS(PARAM_MODE, 3),
 								ENUMS(PARAM_VIEW, 5),
@@ -381,6 +384,7 @@ struct Tracker : Module {
 
 	Tracker();
 
+	void onAdd(const AddEvent &e) override;
 	void process(const ProcessArgs& args) override;
 };
 

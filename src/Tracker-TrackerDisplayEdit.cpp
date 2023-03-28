@@ -14,7 +14,7 @@ static void text(const Widget::DrawArgs &args, Vec p, char *title,
 	/// DRAW TITLE
 	nvgText(args.vg,
 	/**/ p.x + 3.5,
-	/**/ p.y + 3.5 + CHAR_H * y * 3,
+	/**/ p.y + 3.5 + CHAR_H * y * 2,
 	/**/ title, NULL);
 	/// DRAW VALUE
 	//// VALUE UNCHANGED
@@ -22,7 +22,7 @@ static void text(const Widget::DrawArgs &args, Vec p, char *title,
 		itoa(value_src, string, 10);
 		nvgText(args.vg,
 		/**/ p.x + 3.5,
-		/**/ p.y + 3.5 + CHAR_H * (y * 3 + 1),
+		/**/ p.y + 3.5 + CHAR_H * (y * 2 + 1),
 		/**/ string, NULL);
 	//// VALUE CHANGED
 	} else {
@@ -30,7 +30,7 @@ static void text(const Widget::DrawArgs &args, Vec p, char *title,
 		nvgFillColor(args.vg, colors[2]);
 		nvgText(args.vg,
 		/**/ p.x + 3.5,
-		/**/ p.y + 3.5 + CHAR_H * (y * 3 + 1),
+		/**/ p.y + 3.5 + CHAR_H * (y * 2 + 1),
 		/**/ string, NULL);
 	}
 }
@@ -45,6 +45,8 @@ TrackerEditDisplay::TrackerEditDisplay() {
 
 void TrackerEditDisplay::drawLayer(const DrawArgs& args, int layer) {
 	std::shared_ptr<Font>	font;
+	PatternSource			*pattern;
+	PatternNoteRow			*col_note;
 	Rect					rect;
 	Vec						p;
 
@@ -101,11 +103,17 @@ void TrackerEditDisplay::drawLayer(const DrawArgs& args, int layer) {
 	/**/ 10, 5);
 	/// PATTERN MODE
 	if (g_editor.mode == EDITOR_MODE_PATTERN) {
+		pattern = g_editor.pattern;
 		/// NOTE ROW
 		if (g_editor.pattern_row < g_editor.pattern->note_count) {
-			text(args, p, (char*)"Pattern Note",
+			col_note = pattern->notes[g_editor.pattern_row];
+			text(args, p, (char*)"Note mode",
 			/**/ 0, 0,
 			/**/ 9, 6);
+			text(args, p, (char*)"Note effects",
+			/**/ col_note->effect_count,
+			/**/ module->params[Tracker::PARAM_EDIT + 7].getValue(),
+			/**/ 9, 7);
 		/// CV ROW
 		} else {
 			text(args, p, (char*)"Pattern CV",
