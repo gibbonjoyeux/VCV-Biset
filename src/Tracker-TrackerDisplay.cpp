@@ -44,7 +44,7 @@ TrackerDisplay::TrackerDisplay() {
 	font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
 }
 
-void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
+void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 	PatternSource			*pattern;
 	PatternNote				*note;
 	PatternNoteRow			*note_row;
@@ -297,6 +297,89 @@ void TrackerDisplay::drawPattern(const DrawArgs &args, Rect rect) {
 	}
 }
 
+void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
+	TimelineCell			*cell;
+	Vec						p;
+	int						line;
+	int						i, j;
+	float					x, y;
+	char					str[32];
+
+	p = rect.getTopLeft();
+
+	/// [1] LAYER 1 (MARKERS + NOTES + CURVES)
+
+	///// DRAW BEAT CURSOR
+	//nvgBeginPath(args.vg);
+	//nvgFillColor(args.vg, colors[15]);
+	//nvgRect(args.vg,
+	///**/ p.x,
+	///**/ p.y + 3.5 + CHAR_H * (g_timeline.debug - g_editor.pattern_cam_y),
+	///**/ rect.getWidth() + 0.5, CHAR_H);
+	//nvgFill(args.vg);
+
+	///// DRAW PATTERN CURSOR LINE
+	//nvgBeginPath(args.vg);
+	//nvgFillColor(args.vg, colors[15]);
+	//nvgRect(args.vg,
+	///**/ p.x,
+	///**/ p.y + 3.5 + CHAR_H * (g_editor.pattern_line - g_editor.pattern_cam_y),
+	///**/ rect.getWidth() + 0.5, CHAR_H);
+	//nvgFill(args.vg);
+
+	/// DRAW LINE / BEAT COUNT
+	x = p.x + 2;
+	for (i = 0; i < CHAR_COUNT_Y; ++i) {
+		line = g_editor.timeline_cam_y + i;
+		y = p.y + 11.0 + i * CHAR_H;
+		itoaw(str, line, 3);
+		if (line % 2 == 0)
+			nvgFillColor(args.vg, colors[13]);
+		else
+			nvgFillColor(args.vg, colors[14]);
+		nvgText(args.vg, x, y, str, NULL);
+	}
+
+	/// [2] LAYER 2 (TIMELINE)
+	/// FOR EACH COLUMN
+	for (i = 0; i < 12; ++i) {
+		/// FOR EACH LINE
+		for (j = 0; j < g_timeline.beat_count; ++j) {
+			cell = &(g_timeline.timeline[i][j]);
+			/// DRAW PATTERN INDEX
+			if (cell->mode == TIMELINE_CELL_ADD) {
+				itoaw(str, g_timeline.timeline[i][j].pattern, 3);
+			} else if (cell->mode == TIMELINE_CELL_KEEP) {
+				str[0] = '.';
+				str[1] = '.';
+				str[2] = '.';
+				str[3] = 0;
+			} else {
+				str[0] = '-';
+				str[1] = '-';
+				str[2] = '-';
+				str[3] = 0;
+			}
+			text(args, p, i * 7, j, str, 2, false);
+			/// DRAW PATTERN START
+			if (cell->mode == TIMELINE_CELL_ADD) {
+				itoaw(str, g_timeline.timeline[i][j].beat, 3);
+			} else if (cell->mode == TIMELINE_CELL_KEEP) {
+				str[0] = '.';
+				str[1] = '.';
+				str[2] = '.';
+				str[3] = 0;
+			} else {
+				str[0] = '-';
+				str[1] = '-';
+				str[2] = '-';
+				str[3] = 0;
+			}
+			text(args, p, i * 7 + 3, j, str, 3, false);
+		}
+	}
+}
+
 void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 	std::shared_ptr<Font>	font;
 	Rect					rect;
@@ -337,8 +420,9 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 
 	/// DRAW PATTERN
 	if (g_editor.mode == EDITOR_MODE_PATTERN) {
-		this->drawPattern(args, rect);
+		this->draw_pattern(args, rect);
 	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+		this->draw_timeline(args, rect);
 	} else if (g_editor.mode == EDITOR_MODE_PARAMETERS) {
 	}
 

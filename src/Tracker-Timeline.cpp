@@ -54,7 +54,7 @@ void Timeline::process(float dt_sec, float dt_beat) {
 	for (i = 0; i < 32; ++i) {
 		cell = &(this->timeline[i][clock.beat]);
 		/// PATTERN CHANGE
-		if (cell->mode == 1
+		if (cell->mode == TIMELINE_CELL_ADD
 		&& this->pattern_cell[i] != cell) {
 			if (cell->pattern < 256) {
 				/// COMPUTE PATTERN CHANGE / TIMING
@@ -73,10 +73,12 @@ void Timeline::process(float dt_sec, float dt_beat) {
 				/**/ &debug, &debug_2, debug_str);
 			}
 		/// PATTERN STOP
-		} else if (cell->mode == -1) {
+		} else if (cell->mode == TIMELINE_CELL_STOP) {
 			/// PATTERN SWITCH OFF
 			if (this->pattern_source[i] != NULL)
 				this->pattern_instance[i].stop();
+			// TODO: Issue here ?
+			//this->pattern_source[i] = NULL;
 		/// PATTERN KEEP
 		} else {
 			if (this->pattern_source[i]) {

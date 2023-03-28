@@ -39,6 +39,9 @@ Editor::Editor() {
 
 	this->pattern_debug[0] = 0;
 
+	this->timeline_cam_x = 0;
+	this->timeline_cam_y = 0;
+
 	this->synth_id = 0;
 }
 

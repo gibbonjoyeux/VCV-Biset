@@ -319,6 +319,9 @@ struct Editor {
 	int							pattern_octave;
 	int							pattern_jump;
 
+	int							timeline_cam_x;
+	int							timeline_cam_y;
+
 	int							synth_id;
 
 	EditorSwitch				switch_view[5];
@@ -400,7 +403,8 @@ struct TrackerDisplay : LedDisplay {
 	TrackerDisplay();
 
 	void drawLayer(const DrawArgs& args, int layer) override;
-	void drawPattern(const DrawArgs& args, Rect rect);
+	void draw_pattern(const DrawArgs& args, Rect rect);
+	void draw_timeline(const DrawArgs& args, Rect rect);
 };
 
 struct TrackerInfoDisplay : LedDisplay {

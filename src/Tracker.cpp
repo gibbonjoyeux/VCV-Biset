@@ -111,6 +111,7 @@ Tracker::Tracker() {
 	g_timeline.timeline[0][0].mode = 1;
 	g_timeline.timeline[0][0].pattern = 0;
 	g_timeline.timeline[0][0].beat = 0;
+	g_timeline.timeline[0][8].mode = TIMELINE_CELL_STOP;
 
 	g_timeline.synths[0].init(0, 6);
 	g_timeline.synths[1].init(1, 6);
