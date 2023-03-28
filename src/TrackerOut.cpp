@@ -59,9 +59,8 @@ struct TrackerOut: Module {
 			this->outputs[OUTPUT_PANNING].setVoltage(synth->out_synth[i * 4 + 3], i);
 		}
 		/// SET OUTPUT CV
-		for (i = 0; i < 8; ++i) {
-			this->outputs[OUTPUT_CV + i].setVoltage(synth->out_cv[i], i);
-		}
+		for (i = 0; i < 8; ++i)
+			this->outputs[OUTPUT_CV + i].setVoltage(synth->out_cv[i]);
 	}
 };
 

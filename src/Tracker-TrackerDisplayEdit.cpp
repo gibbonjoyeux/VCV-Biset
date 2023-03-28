@@ -18,7 +18,8 @@ static void text(const Widget::DrawArgs &args, Vec p, char *title,
 	/**/ title, NULL);
 	/// DRAW VALUE
 	//// VALUE UNCHANGED
-	if (value_src == value_new) {
+	if (value_src == value_new
+	|| g_editor.pattern_row != g_editor.pattern_row_prev) {
 		itoa(value_src, string, 10);
 		nvgText(args.vg,
 		/**/ p.x + 3.5,
@@ -47,6 +48,7 @@ void TrackerEditDisplay::drawLayer(const DrawArgs& args, int layer) {
 	std::shared_ptr<Font>	font;
 	PatternSource			*pattern;
 	PatternNoteRow			*col_note;
+	PatternCVRow			*col_cv;
 	Rect					rect;
 	Vec						p;
 
@@ -101,14 +103,15 @@ void TrackerEditDisplay::drawLayer(const DrawArgs& args, int layer) {
 	/**/ g_editor.pattern->cv_count,
 	/**/ module->params[Tracker::PARAM_EDIT + 5].getValue(),
 	/**/ 10, 5);
-	/// PATTERN MODE
+	/// PATTERN NOTE / CV
 	if (g_editor.mode == EDITOR_MODE_PATTERN) {
 		pattern = g_editor.pattern;
 		/// NOTE ROW
 		if (g_editor.pattern_row < g_editor.pattern->note_count) {
 			col_note = pattern->notes[g_editor.pattern_row];
 			text(args, p, (char*)"Note mode",
-			/**/ 0, 0,
+			/**/ col_note->mode,
+			/**/ module->params[Tracker::PARAM_EDIT + 6].getValue(),
 			/**/ 9, 6);
 			text(args, p, (char*)"Note effects",
 			/**/ col_note->effect_count,
@@ -116,9 +119,19 @@ void TrackerEditDisplay::drawLayer(const DrawArgs& args, int layer) {
 			/**/ 9, 7);
 		/// CV ROW
 		} else {
-			text(args, p, (char*)"Pattern CV",
-			/**/ 0, 0,
+			col_cv = pattern->cvs[g_editor.pattern_row - g_editor.pattern->note_count];
+			text(args, p, (char*)"CV mode",
+			/**/ col_cv->mode,
+			/**/ module->params[Tracker::PARAM_EDIT + 6].getValue(),
 			/**/ 9, 6);
+			text(args, p, (char*)"CV synth",
+			/**/ col_cv->synth,
+			/**/ module->params[Tracker::PARAM_EDIT + 7].getValue(),
+			/**/ 9, 7);
+			text(args, p, (char*)"CV channel",
+			/**/ col_cv->channel,
+			/**/ module->params[Tracker::PARAM_EDIT + 8].getValue(),
+			/**/ 9, 8);
 		}
 	}
 	

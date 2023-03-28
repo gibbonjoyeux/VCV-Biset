@@ -29,7 +29,7 @@ Tracker::Tracker() {
 	configParam(PARAM_VIEW + 3, 0.0f, 1.0f, 0.f, "View Glide");
 	configParam(PARAM_VIEW + 4, 0.0f, 1.0f, 0.f, "View Effects");
 
-	for (i = 0; i < 8; ++i)
+	for (i = 0; i < 9; ++i)
 		configParam(PARAM_EDIT + i, 0.0f, 1.0f, 0.0f, "Select")->snapEnabled = true;
 	configParam(PARAM_EDIT + 0, 1.0f, 9999.0f, 0.0f, "Song length")->snapEnabled = true;
 	configParam(PARAM_EDIT + 1, 1.0f, 16.0f, 0.0f, "Synth channels")->snapEnabled = true;

@@ -33,6 +33,7 @@ void PatternInstance::process(
 	int						line, row;
 	Synth					*synth;
 	PatternCV				*cv_line, *cv_from, *cv_to;
+	PatternNoteRow			*row_note;
 	PatternNote				*note;
 	SynthVoice				*voice;
 	int						line_from, line_to;
@@ -52,7 +53,8 @@ void PatternInstance::process(
 
 	/// [1] COMPUTE PATTERN NOTE ROWS
 	for (row = 0; row < pattern->note_count; ++row) {
-		note = &(pattern->notes[row]->lines[line]);
+		row_note = pattern->notes[row];
+		note = &(row_note->lines[line]);
 		voice = this->voices[row];
 		/// CELL CHANGE
 		// TODO: ! ! ! Dangerous comparision as the PatternSource arrays
@@ -67,7 +69,7 @@ void PatternInstance::process(
 				}
 				/// ADD NEW NOTE
 				if (note->synth < 64) {
-					voice = synths[note->synth].add(note, pattern->lpb);
+					voice = synths[note->synth].add(row_note, note, pattern->lpb);
 					this->voices[row] = voice;
 				}
 			/// NOTE GLIDE

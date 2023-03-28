@@ -122,7 +122,7 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	/**/ Tracker::PARAM_PATTERN));
 
 	//// EDIT KNOBS
-	for (i = 0; i < 8; ++i) {
+	for (i = 0; i < 9; ++i) {
 		addParam(
 		///**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 8.75 * i - 37.5)),
 		/**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 6.00 * i - 37.5)),

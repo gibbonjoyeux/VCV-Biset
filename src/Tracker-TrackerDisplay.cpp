@@ -16,7 +16,7 @@ static void text(const Widget::DrawArgs& args, Vec p, float x, float y,
 	x -= g_editor.pattern_cam_x;
 	if (x < 0)
 		return;
-	if (x > CHAR_COUNT_X)
+	if (x > CHAR_COUNT_X - 1)
 		return;
 	/// [2] COMPUTE REAL COORD
 	sx = p.x + 2.0 + CHAR_W * (x + 3.0);

@@ -45,11 +45,11 @@ void Synth::process(float dt_sec, float dt_beat) {
 		this->voices[i].process(dt_sec, dt_beat, this->out_synth);
 }
 
-SynthVoice* Synth::add(PatternNote *note, int lpb) {
+SynthVoice* Synth::add(PatternNoteRow *row, PatternNote *note, int lpb) {
 	SynthVoice*				voice;
 
 	voice = &(this->voices[this->channel_cur]);
-	if (voice->start(note, lpb) == true) {
+	if (voice->start(row, note, lpb) == true) {
 		this->channel_cur = (this->channel_cur + 1) % channel_count;
 		return voice;
 	}

@@ -21,6 +21,7 @@ Editor::Editor() {
 	this->pattern = &(g_timeline.patterns[0]);
 	this->pattern_track = 0;
 	this->pattern_row = 0;
+	this->pattern_row_prev = -1;
 	this->pattern_line = 0;
 	this->pattern_cell = 0;
 	this->pattern_char = 0;
@@ -50,7 +51,7 @@ void Editor::process(void) {
 	// TODO: check change in g_editor.pattern_row
 	// -> On change update edit knobs (Note or CV)
 
-	/// HANDLE VIEW SWITCHES
+	/// [1] HANDLE VIEW SWITCHES
 	for (i = 0; i < 5; ++i) {
 		if (this->switch_view[i].process(module->params[Tracker::PARAM_VIEW + i].getValue()))
 			module->lights[Tracker::LIGHT_VIEW + i].setBrightness(1.0);
@@ -58,7 +59,7 @@ void Editor::process(void) {
 			module->lights[Tracker::LIGHT_VIEW + i].setBrightness(0.0);
 	}
 
-	/// HANDLE EDITOR MODES
+	/// [2] HANDLE EDITOR MODES
 	if (this->button_mode[0].process(module->params[Tracker::PARAM_MODE + 0].getValue()))
 		this->mode = EDITOR_MODE_PATTERN;
 	if (this->button_mode[1].process(module->params[Tracker::PARAM_MODE + 1].getValue()))
@@ -80,6 +81,7 @@ void Editor::process(void) {
 		module->lights[Tracker::LIGHT_MODE + 2].setBrightness(1.0);
 	}
 
+	/// [3] HANDLE PLAYING BUTTONS
 	/// HANDLE OCTAVE BUTTONS
 	if (this->button_octave[0].process(module->params[Tracker::PARAM_OCTAVE_UP].getValue()))
 		if (this->pattern_octave < 9)
@@ -87,7 +89,6 @@ void Editor::process(void) {
 	if (this->button_octave[1].process(module->params[Tracker::PARAM_OCTAVE_DOWN].getValue()))
 		if (this->pattern_octave > 0)
 			this->pattern_octave -= 1;
-
 	/// HANDLE JUMP BUTTONS
 	if (this->button_jump[0].process(module->params[Tracker::PARAM_JUMP_UP].getValue()))
 		if (this->pattern_jump < 16)
@@ -96,10 +97,7 @@ void Editor::process(void) {
 		if (this->pattern_jump > 0)
 			this->pattern_jump -= 1;
 
-	/// HANDLE EDIT SAVE BUTTON
-	if (this->button_save.process(module->params[Tracker::PARAM_EDIT_SAVE].getValue()))
-		this->save_edition();
-
+	/// [4] HANDLE INFO SCREEN
 	/// HANDLE PATTERN SELECTION
 	value = module->params[Tracker::PARAM_PATTERN].getValue();
 	if (value != this->pattern_id)
@@ -110,13 +108,24 @@ void Editor::process(void) {
 	if (value != this->synth_id)
 		if (value >= 0 && value < 64)
 			this->set_synth(value, false);
+
+	/// [5] HANDLE EDIT SCREEN
+	if (g_editor.pattern_row != g_editor.pattern_row_prev)
+		this->set_row(g_editor.pattern_row);
+	/// HANDLE EDIT SAVE BUTTON
+	if (this->button_save.process(module->params[Tracker::PARAM_EDIT_SAVE].getValue()))
+		this->save_edition();
 }
 
 void Editor::save_edition(void) {
-	int		beat_count;
-	int		note_count, cv_count;
-	int		lpb;
-	int		channels;
+	PatternNoteRow	*col_note;
+	PatternCVRow	*col_cv;
+	int				beat_count;
+	int				note_count, cv_count;
+	int				lpb;
+	int				channels;
+	int				note_mode, note_effect;
+	int				cv_mode, cv_synth, cv_channel;
 
 	/// SONG LENGTH
 	beat_count = g_editor.module->params[Tracker::PARAM_EDIT + 0].getValue();
@@ -142,7 +151,72 @@ void Editor::save_edition(void) {
 	}
 	/// ROW
 	//// AS NOTE
+	if (g_editor.pattern_row < g_editor.pattern->note_count) {
+		col_note = g_editor.pattern->notes[g_editor.pattern_row];
+		note_mode = g_editor.module->params[Tracker::PARAM_EDIT + 6].getValue();
+		note_effect = g_editor.module->params[Tracker::PARAM_EDIT + 7].getValue();
+		if (note_mode != col_note->mode)
+			col_note->mode = note_mode;
+		if (note_effect != col_note->effect_count)
+			col_note->effect_count = note_effect;
 	//// AS CV
+	} else {
+		col_cv = g_editor.pattern->cvs[g_editor.pattern_row - g_editor.pattern->note_count];
+		cv_mode = g_editor.module->params[Tracker::PARAM_EDIT + 6].getValue();
+		cv_synth = g_editor.module->params[Tracker::PARAM_EDIT + 7].getValue();
+		cv_channel = g_editor.module->params[Tracker::PARAM_EDIT + 8].getValue();
+		if (cv_mode != col_cv->mode)
+			col_cv->mode = cv_mode;
+		if (cv_synth != col_cv->synth)
+			col_cv->synth = cv_synth;
+		if (cv_channel != col_cv->channel)
+			col_cv->channel = cv_channel;
+	}
+}
+
+void Editor::set_row(int index) {
+	ParamQuantity	*param;
+	PatternNoteRow	*row_note;
+	PatternCVRow	*row_cv;
+
+	g_editor.pattern_row_prev = g_editor.pattern_row;
+	/// ROW NOTE
+	if (g_editor.pattern_row < g_editor.pattern->note_count) {
+		row_note = g_editor.pattern->notes[g_editor.pattern_row];
+		/// NOTE MODE
+		param = g_editor.module->getParamQuantity(Tracker::PARAM_EDIT + 6);
+		param->defaultValue = row_note->mode;
+		param->minValue = 0;
+		param->maxValue = 1;
+		g_editor.module->params[Tracker::PARAM_EDIT + 6].setValue(row_note->mode);
+		/// NOTE EFFECTS
+		param = g_editor.module->getParamQuantity(Tracker::PARAM_EDIT + 7);
+		param->defaultValue = row_note->effect_count;
+		param->minValue = 0;
+		param->maxValue = 8;
+		g_editor.module->params[Tracker::PARAM_EDIT + 7].setValue(row_note->effect_count);
+	/// ROW CV
+	} else {
+		row_cv = g_editor.pattern->cvs[g_editor.pattern_row - g_editor.pattern->note_count];
+		/// CV MODE
+		param = g_editor.module->getParamQuantity(Tracker::PARAM_EDIT + 6);
+		param->defaultValue = row_cv->mode;
+		param->minValue = 0;
+		param->maxValue = 1;
+		g_editor.module->params[Tracker::PARAM_EDIT + 6].setValue(row_cv->mode);
+		/// CV SYNTH
+		param = g_editor.module->getParamQuantity(Tracker::PARAM_EDIT + 7);
+		param->defaultValue = row_cv->synth;
+		param->minValue = 0;
+		param->maxValue = 63;
+		g_editor.module->params[Tracker::PARAM_EDIT + 7].setValue(row_cv->synth);
+		/// CV CHANNEL
+		param = g_editor.module->getParamQuantity(Tracker::PARAM_EDIT + 8);
+		param->defaultValue = row_cv->channel;
+		param->minValue = 0;
+		param->maxValue = 7;
+		g_editor.module->params[Tracker::PARAM_EDIT + 8].setValue(row_cv->channel);
+	}
 }
 
 void Editor::set_song_length(int length, bool mode) {

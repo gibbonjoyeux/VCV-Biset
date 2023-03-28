@@ -115,12 +115,14 @@ struct PatternNote {
 };
 
 struct PatternCVRow {
+	u8							mode;		// CV | BPM
 	u8							synth;		// CV synth output
 	u8							channel;	// CV synth channel output
 	PatternCV					lines[0];	// CVs (memory as struct extension)
 };
 
 struct PatternNoteRow {
+	u8							mode;		// Synth | Drum
 	u8							effect_count;
 	PatternNote					lines[0];	// Notes (memory as struct extension)
 };
@@ -186,7 +188,7 @@ struct SynthVoice {
 	SynthVoice();
 
 	void process(float dt_sec, float dt_beat, float *output);
-	bool start(PatternNote *note, int lpb);
+	bool start(PatternNoteRow *row, PatternNote *note, int lpb);
 	void stop(PatternNote *note, int lpb);
 	void init(int synth, int channel);
 	void reset();
@@ -206,7 +208,7 @@ struct Synth {
 
 	void process(float dt_sec, float dt_beat);
 	void init(int synth_index, int channel_count);
-	SynthVoice* add(PatternNote *note, int lpb);
+	SynthVoice* add(PatternNoteRow *row, PatternNote *note, int lpb);
 };
 
 //////////////////////////////////////////////////
@@ -302,6 +304,7 @@ struct Editor {
 	PatternSource				*pattern;
 	int							pattern_track;
 	int							pattern_row;
+	int							pattern_row_prev;
 	int							pattern_line;
 	int							pattern_cell;
 	int							pattern_char;
@@ -329,6 +332,7 @@ struct Editor {
 
 	void process(void);
 	void save_edition(void);
+	void set_row(int index);
 	void set_song_length(int length, bool mode);
 	void set_synth(int index, bool mode);
 	void set_pattern(int index, bool mode);
@@ -355,7 +359,7 @@ struct Tracker : Module {
 								PARAM_OCTAVE_UP,
 								PARAM_OCTAVE_DOWN,
 								PARAM_EDIT_SAVE,
-								ENUMS(PARAM_EDIT, 8),
+								ENUMS(PARAM_EDIT, 9),
 								ENUMS(PARAM_MODE, 3),
 								ENUMS(PARAM_VIEW, 5),
 								PARAM_COUNT
