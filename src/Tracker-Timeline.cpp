@@ -75,10 +75,13 @@ void Timeline::process(float dt_sec, float dt_beat) {
 		/// PATTERN STOP
 		} else if (cell->mode == TIMELINE_CELL_STOP) {
 			/// PATTERN SWITCH OFF
-			if (this->pattern_source[i] != NULL)
+			if (this->pattern_source[i] != NULL) {
 				this->pattern_instance[i].stop();
-			// TODO: Issue here ?
-			//this->pattern_source[i] = NULL;
+				this->pattern_source[i] = NULL;
+				this->pattern_source[i] = NULL;
+				this->pattern_cell[i] = NULL;
+				this->pattern_start[i] = 0;
+			}
 		/// PATTERN KEEP
 		} else {
 			if (this->pattern_source[i]) {
