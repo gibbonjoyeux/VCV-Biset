@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="6mm"
+   height="6mm"
+   viewBox="0 0 6 6"
+   version="1.1"
+   id="svg827"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   sodipodi:docname="Outlet.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview829"
+     pagecolor="#d6d6d6"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="true"
+     showborder="true"
+     inkscape:showpageshadow="false"
+     inkscape:zoom="28.963094"
+     inkscape:cx="6.283859"
+     inkscape:cy="10.030006"
+     inkscape:window-width="2560"
+     inkscape:window-height="1494"
+     inkscape:window-x="-11"
+     inkscape:window-y="1609"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     inkscape:deskcolor="#d1d1d1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid888"
+       dotted="true"
+       units="mm"
+       spacingx="0.99999997"
+       spacingy="0.99999997"
+       visible="true"
+       enabled="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs824" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <ellipse
+       style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.100042;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path920"
+       cx="3"
+       cy="3.0000002"
+       rx="2.9499786"
+       ry="2.9499788" />
+    <circle
+       style="display:inline;fill:#282828;fill-opacity:1;stroke:#fbfbfb;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path1159"
+       cx="3"
+       cy="3"
+       r="1.9999995" />
+  </g>
+</svg>

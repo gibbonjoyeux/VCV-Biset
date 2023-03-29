@@ -125,6 +125,11 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 				str[1] = '.';
 				str[2] = 0;
 				text(args, p, tx_row, j, str, 3, focus);
+			} else if (note->mode == PATTERN_NOTE_STOP) {
+				str[0] = '-';
+				str[1] = '-';
+				str[2] = 0;
+				text(args, p, tx_row, j, str, 3, focus);
 			} else {
 				text(args, p, tx_row, j,
 				/**/ table_pitch[note->pitch % 12], 3, focus);
@@ -136,6 +141,9 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			if (note->mode == PATTERN_NOTE_KEEP) {
 				str[0] = '.';
 				str[1] = 0;
+			} else if (note->mode == PATTERN_NOTE_STOP) {
+				str[0] = '-';
+				str[1] = 0;
 			} else {
 				itoa(note->pitch / 12, str, 10);
 			}
@@ -144,12 +152,12 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			/// VELOCITY
 			if (g_editor.switch_view[0].state) {
 				focus = focus_line & (g_editor.pattern_cell == 2);
-				if (note->mode == PATTERN_NOTE_KEEP) {
+				if (note->mode == PATTERN_NOTE_NEW) {
+					itoaw(str, note->velocity, 2);
+				} else {
 					str[0] = '.';
 					str[1] = '.';
 					str[2] = 0;
-				} else {
-					itoaw(str, note->velocity, 2);
 				}
 				text(args, p, tx_row, j, str, 5, focus);
 				tx_row += 2;
@@ -157,36 +165,36 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			/// PANNING
 			if (g_editor.switch_view[1].state) {
 				focus = focus_line & (g_editor.pattern_cell == 3);
-				if (note->mode == PATTERN_NOTE_KEEP) {
+				if (note->mode == PATTERN_NOTE_NEW) {
+					itoaw(str, note->panning, 2);
+				} else {
 					str[0] = '.';
 					str[1] = '.';
 					str[2] = 0;
-				} else {
-					itoaw(str, note->panning, 2);
 				}
 				text(args, p, tx_row, j, str, 6, focus);
 				tx_row += 2;
 			}
 			/// SYNTH
 			focus = focus_line & (g_editor.pattern_cell == 4);
-			if (note->mode == PATTERN_NOTE_KEEP) {
+			if (note->mode == PATTERN_NOTE_NEW) {
+				itoaw(str, note->synth, 2);
+			} else {
 				str[0] = '.';
 				str[1] = '.';
 				str[2] = 0;
-			} else {
-				itoaw(str, note->synth, 2);
 			}
 			text(args, p, tx_row, j, str, 4, focus);
 			tx_row += 2;
 			/// DELAY
 			if (g_editor.switch_view[2].state) {
 				focus = focus_line & (g_editor.pattern_cell == 5);
-				if (note->mode == PATTERN_NOTE_KEEP) {
+				if (note->mode == PATTERN_NOTE_NEW) {
+					itoaw(str, note->delay, 2);
+				} else {
 					str[0] = '.';
 					str[1] = '.';
 					str[2] = 0;
-				} else {
-					itoaw(str, note->delay, 2);
 				}
 				text(args, p, tx_row, j, str, 10, focus);
 				tx_row += 2;
@@ -194,13 +202,12 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			/// GLIDE
 			if (g_editor.switch_view[3].state) {
 				focus = focus_line & (g_editor.pattern_cell == 6);
-				if (note->mode == PATTERN_NOTE_KEEP
-				|| note->mode == PATTERN_NOTE_NEW) {
+				if (note->mode == PATTERN_NOTE_GLIDE) {
+					itoaw(str, note->glide, 2);
+				} else {
 					str[0] = '.';
 					str[1] = '.';
 					str[2] = 0;
-				} else {
-					itoaw(str, note->glide, 2);
 				}
 				text(args, p, tx_row, j, str, 11, focus);
 				tx_row += 2;
@@ -212,6 +219,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 					focus_fx = focus_line & ((g_editor.pattern_cell - 7) / 2 == k);
 					/// COMPUTE STRINGS
 					if (note->mode == PATTERN_NOTE_KEEP
+					|| note->mode == PATTERN_NOTE_STOP
 					|| effect->type == PATTERN_EFFECT_NONE) {
 						str[0] = '.';
 						str[1] = 0;

@@ -109,15 +109,15 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 
 	//// BPM / SYNTH / PATTERN KNOBS
 	addParam(
-	/**/ createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(9.0, 24.0)),
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0, 24.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_BPM));
 	addParam(
-	/**/ createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(9.0 + 11, 24.0)),
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0 + 11, 24.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_SYNTH));
 	addParam(
-	/**/ createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(9.0 + 22, 24.0)),
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0 + 22, 24.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_PATTERN));
 
@@ -125,7 +125,7 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	for (i = 0; i < 9; ++i) {
 		addParam(
 		///**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 8.75 * i - 37.5)),
-		/**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 6.00 * i - 37.5)),
+		/**/ createParamCentered<KnobSmall>(mm2px(Vec(40.0, 73.0 + 6.00 * i - 37.5)),
 		/**/ module,
 		/**/ Tracker::PARAM_EDIT + i));
 	}
@@ -137,20 +137,20 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 
 	//// JUMP BUTTONS
 	addParam(
-	/**/ createParamCentered<TL1105>(mm2px(Vec(41.0, 12.5)),
+	/**/ createParamCentered<TL1105>(mm2px(Vec(41.0, 12.5 + 10.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_JUMP_UP));
 	addParam(
-	/**/ createParamCentered<TL1105>(mm2px(Vec(41.0, 18.5)),
+	/**/ createParamCentered<TL1105>(mm2px(Vec(41.0, 17.5 + 10.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_JUMP_DOWN));
 	//// OCTAVE BUTTONS
 	addParam(
-	/**/ createParamCentered<TL1105>(mm2px(Vec(47.0, 12.5)),
+	/**/ createParamCentered<TL1105>(mm2px(Vec(47.0, 12.5 + 10.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_OCTAVE_UP));
 	addParam(
-	/**/ createParamCentered<TL1105>(mm2px(Vec(47.0, 18.5)),
+	/**/ createParamCentered<TL1105>(mm2px(Vec(47.0, 17.5 + 10.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_OCTAVE_DOWN));
 
@@ -168,7 +168,7 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 
 	/// [2] ADD OUTPUT
 	addOutput(
-	/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(237.0, 123.00)),
+	/**/ createOutputCentered<Outlet>(mm2px(Vec(237.0, 123.00)),
 	/**/ module,
 	/**/ Tracker::OUTPUT_CLOCK));
 
@@ -197,6 +197,10 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	display_bpm->moduleWidget = this;
 	addChild(display_bpm);
 	//// EDIT LED DISPLAY
+	// MODE FULL SCREEN
+	//display_edit = createWidget<TrackerEditDisplay>(mm2px(Vec(16.0, 5.0)));
+	//display_edit->box.size = Vec(CHAR_W * 16 + 4, CHAR_H * CHAR_COUNT_Y + 5.5);
+	// MODE SIDE SCREEN
 	display_edit = createWidget<TrackerEditDisplay>(mm2px(Vec(5.0, 70.5 - 38.0)));
 	display_edit->box.size = mm2px(Vec(29.5, 68.0));
 	display_edit->module = module;
@@ -241,7 +245,12 @@ void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
 							/// NOTE DELETE
 							if (e.key == GLFW_KEY_DELETE
 							|| e.key == GLFW_KEY_BACKSPACE) {
-								line_note->mode = PATTERN_NOTE_KEEP;
+								if (line_note->mode == PATTERN_NOTE_NEW)
+									line_note->mode = PATTERN_NOTE_KEEP;
+								else if (line_note->mode == PATTERN_NOTE_KEEP)
+									line_note->mode = PATTERN_NOTE_STOP;
+								else if (line_note->mode == PATTERN_NOTE_STOP)
+									line_note->mode = PATTERN_NOTE_KEEP;
 							/// NOTE EDIT
 							} else {
 								key = key_midi(e);
@@ -490,26 +499,26 @@ void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
 }
 
 void TrackerWidget::onHoverScroll(const HoverScrollEvent &e) {
-	if (g_editor.selected == false)
-		return;
-	if (g_editor.pattern) {
-		/// SCROLL X
-		if (APP->window->getMods() & GLFW_MOD_SHIFT) {
-			/// MOVE CURSOR
-			if (e.scrollDelta.y > 0)
-				g_editor.pattern_move_cursor_x(-1);
-			else
-				g_editor.pattern_move_cursor_x(+1);
-		/// SCROLL Y
-		} else {
-			/// MOVE CURSOR
-			if (e.scrollDelta.y > 0)
-				g_editor.pattern_move_cursor_y(-1);
-			else
-				g_editor.pattern_move_cursor_y(+1);
-		}
-	}
-	e.consume(this);
+	//if (g_editor.selected == false)
+	//	return;
+	//if (g_editor.pattern) {
+	//	/// SCROLL X
+	//	if (APP->window->getMods() & GLFW_MOD_SHIFT) {
+	//		/// MOVE CURSOR
+	//		if (e.scrollDelta.y > 0)
+	//			g_editor.pattern_move_cursor_x(-1);
+	//		else
+	//			g_editor.pattern_move_cursor_x(+1);
+	//	/// SCROLL Y
+	//	} else {
+	//		/// MOVE CURSOR
+	//		if (e.scrollDelta.y > 0)
+	//			g_editor.pattern_move_cursor_y(-1);
+	//		else
+	//			g_editor.pattern_move_cursor_y(+1);
+	//	}
+	//}
+	//e.consume(this);
 }
 
 void TrackerWidget::onSelect(const SelectEvent &e) {

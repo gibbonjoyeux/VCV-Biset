@@ -14,20 +14,20 @@ Tracker::Tracker() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
-	configParam(PARAM_PLAY_SONG, 0.0f, 1.0f, 0.f, "Play song");
-	configParam(PARAM_PLAY_PATTERN, 0.0f, 1.0f, 0.f, "Play pattern");
-	configParam(PARAM_PLAY, 0.0f, 1.0f, 0.f, "Play");
-	configParam(PARAM_STOP, 0.0f, 1.0f, 0.f, "Stop");
+	configButton(PARAM_PLAY_SONG, "Play song");
+	configButton(PARAM_PLAY_PATTERN, "Play pattern");
+	configButton(PARAM_PLAY, "Play");
+	configButton(PARAM_STOP, "Stop");
 
 	configParam(PARAM_BPM, 30.0f, 300.0f, 120.f, "BPM");
 	configParam(PARAM_SYNTH, 0.0f, 63.0f, 0.f, "Synth")->snapEnabled = true;
 	configParam(PARAM_PATTERN, 0.0f, 255.0f, 0.f, "Pattern")->snapEnabled = true;
 
-	configParam(PARAM_VIEW, 0.0f, 1.0f, 0.f, "View Velocity");
-	configParam(PARAM_VIEW + 1, 0.0f, 1.0f, 0.f, "View Panning");
-	configParam(PARAM_VIEW + 2, 0.0f, 1.0f, 0.f, "View Delay");
-	configParam(PARAM_VIEW + 3, 0.0f, 1.0f, 0.f, "View Glide");
-	configParam(PARAM_VIEW + 4, 0.0f, 1.0f, 0.f, "View Effects");
+	configSwitch(PARAM_VIEW, 0, 1, 0, "View Velocity");
+	configSwitch(PARAM_VIEW + 1, 0, 1, 0, "View Panning");
+	configSwitch(PARAM_VIEW + 2, 0, 1, 0, "View Delay");
+	configSwitch(PARAM_VIEW + 3, 0, 1, 0, "View Glide");
+	configSwitch(PARAM_VIEW + 4, 0, 1, 0, "View Effects");
 
 	for (i = 0; i < 9; ++i)
 		configParam(PARAM_EDIT + i, 0.0f, 1.0f, 0.0f, "Select")->snapEnabled = true;
@@ -37,14 +37,16 @@ Tracker::Tracker() {
 	configParam(PARAM_EDIT + 3, 1.0f, 32.0f, 0.0f, "Pattern lpb")->snapEnabled = true;
 	configParam(PARAM_EDIT + 4, 0.0f, 32.0f, 0.0f, "Pattern notes")->snapEnabled = true;
 	configParam(PARAM_EDIT + 5, 0.0f, 32.0f, 0.0f, "Pattern cv")->snapEnabled = true;
-	configParam(PARAM_EDIT_SAVE, 0.0f, 1.0f, 0.0f, "Save");
+	configButton(PARAM_EDIT_SAVE, "Save");
 
-	configParam(PARAM_MODE + 0, 0.0f, 1.0f, 0.0f, "Mode pattern");
-	configParam(PARAM_MODE + 1, 0.0f, 1.0f, 0.0f, "Mode timeline");
-	configParam(PARAM_MODE + 2, 0.0f, 1.0f, 0.0f, "Mode parameters");
+	configButton(PARAM_MODE + 0, "Mode pattern");
+	configButton(PARAM_MODE + 1, "Mode timeline");
+	configButton(PARAM_MODE + 2, "Mode parameters");
 
-	configParam(PARAM_OCTAVE_UP, 0.0f, 1.0f, 0.0f, "Octave +");
-	configParam(PARAM_OCTAVE_DOWN, 0.0f, 1.0f, 0.0f, "Octave -");
+	configButton(PARAM_OCTAVE_UP, "Octave +");
+	configButton(PARAM_OCTAVE_DOWN, "Octave -");
+	configButton(PARAM_JUMP_UP, "Jump +");
+	configButton(PARAM_JUMP_DOWN, "Jump -");
 
 	configLight(LIGHT_FOCUS, "Focus");
 	configLight(LIGHT_PLAY, "Play");
@@ -111,7 +113,6 @@ Tracker::Tracker() {
 	g_timeline.timeline[0][0].mode = 1;
 	g_timeline.timeline[0][0].pattern = 0;
 	g_timeline.timeline[0][0].beat = 0;
-	g_timeline.timeline[0][8].mode = TIMELINE_CELL_STOP;
 
 	g_timeline.synths[0].init(0, 6);
 	g_timeline.synths[1].init(1, 6);

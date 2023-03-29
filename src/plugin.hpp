@@ -8,6 +8,7 @@ using				std::string;
 using				std::unique_ptr;
 
 #include "types.hpp"
+#include "components.hpp"
 #include "Tracker.hpp"
 //#include "TrackerOut.hpp"
 
