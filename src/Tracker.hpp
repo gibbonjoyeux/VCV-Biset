@@ -273,6 +273,8 @@ struct Timeline {
 
 	u8							*save_buffer;
 	u32							save_length;
+	u32							save_cursor;
+	u32							save_cursor_save;
 	bool						save_to_change;
 
 	Timeline();

@@ -254,6 +254,11 @@ void Editor::set_pattern(int index, bool mode) {
 	/// UPDATE PATTERN
 	this->pattern_id = index;
 	this->pattern = &(g_timeline.patterns[index]);
+	this->pattern_row = 0;
+	this->pattern_line = 0;
+	this->pattern_cell = 0;
+	this->pattern_cam_x = 0;
+	this->pattern_cam_y = 0;
 	/// UPDATE PATTERN PARAMS
 	//// PATTERN LENGTH
 	value = this->pattern->beat_count;

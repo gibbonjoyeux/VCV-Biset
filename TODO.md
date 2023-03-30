@@ -2,6 +2,9 @@
 # BUGS
 
 - Crashed once on pattern change (via knob)
+	-> Might be due to cursor position that gets out of bound on pattern change
+	to a smaller pattern (both line and column)
+	-> Check on empty pattern !
 
 # TODO
 
