@@ -182,12 +182,6 @@ Tracker::Tracker() {
 	g_editor.module = this;
 }
 
-void Tracker::onAdd(const AddEvent &e) {
-	g_editor.set_synth(this->params[PARAM_SYNTH].getValue(), false);
-	g_editor.set_pattern(this->params[PARAM_PATTERN].getValue(), false);
-	g_editor.set_song_length(g_timeline.beat_count, true);
-}
-
 void Tracker::process(const ProcessArgs& args) {
 	float	dt_sec, dt_beat;
 	float	bpm;

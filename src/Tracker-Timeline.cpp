@@ -30,9 +30,13 @@ Timeline::Timeline() {
 		this->pattern_instance[i].reset();
 	}
 	/// [2] INIT CLOCK
-	clock.reset();
+	this->clock.reset();
 	/// [3] INIT TIMELINE
 	this->resize(16);
+	/// [4] INIT SAVE BUFFER
+	this->save_buffer = NULL;
+	this->save_length = 0;
+	this->save_to_change = true;
 
 	debug = 0;
 	debug_2 = 0;

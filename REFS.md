@@ -5,3 +5,7 @@
 # JSON
 - JSON (dataToJson, dataFromJson): https://jansson.readthedocs.io/en/2.8/apiref.html
 - JSON array: https://jansson.readthedocs.io/en/2.8/apiref.html#array
+
+# UNDO / REDO
+- Complex action: https://github.com/Ahornberg/Ahornberg-VCV-Modules/blob/master/src/modules/FlyingFader/FlyingFaderWidget.cpp
+- history::Action cpp derivation: https://github.com/kockie69/SquinkyVCV-main/blob/ce6107f888ea9aac0298ff42a10b324620317bc5/src/seq/UndoBridge.cpp

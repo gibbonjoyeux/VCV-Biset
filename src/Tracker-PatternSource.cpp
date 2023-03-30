@@ -27,7 +27,7 @@ PatternNote::PatternNote() {
 	this->pitch = 0;
 	this->velocity = 255;
 	this->delay = 0;
-	this->chance = 255;
+	//this->chance = 255;
 }
 
 PatternSource::PatternSource() {
@@ -40,7 +40,7 @@ PatternSource::PatternSource() {
 	/**/ this->line_count * sizeof(PatternNote));
 	this->cvs.allocate(this->cv_count,
 	/**/ this->line_count * sizeof(PatternCV));
-	this->color = 0;
+	//this->color = 0;
 }
 
 void PatternSource::resize(int note_count, int cv_count, int beat_count,

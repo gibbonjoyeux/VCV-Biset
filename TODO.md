@@ -1,4 +1,56 @@
 
+# BUGS
+
+- Crashed once on pattern change (via knob)
+
+# TODO
+
+- [ ] MODULE Tracker
+	- [ ] BACKEND
+		- [ ] PLAY
+			- [x] Play song
+			- [ ] Play pattern
+		- [x] TIMELINE
+			- [x] Pattern new		(run new pattern)
+			- [x] Pattern keep		(keep active pattern)
+			- [x] Pattern stop		(stop active pattern)
+		- [ ] PATTERN
+			- [ ] NOTE
+				- [x] Note new		(run new note)
+				- [x] Note keep		(keep active note)
+				- [ ] Note change	(change active note vel or pan)
+				- [x] Note stop		(stop active note)
+				- [x] Note glide	(glide active note to new pitch)
+			- [ ] CV
+				- [ ] CV set		(set cv point)
+				- [x] CV keep		(continue interpolation)
+	- [ ] FRONTEND
+		- [ ] Screen mode (Tracker + Timeline + Parameters)
+		- [ ] Screen Tracker
+			- [x] View modes (amp + pan + ...)
+			- [x] Layer tracker (text only)
+			- [ ] Layer visual (delay + curve representation)
+			- [ ] Layer user (cursor + beat cursor)
+		- [ ] Screen Timeline
+			- [x] Layer tracker (text only)
+			- [ ] Layer user (cursor + beat cursor)
+		- [ ] Screen Parameters
+		- [ ] Screen Edition
+	- [ ] HISTORY (UNDO / REDO)
+		- [ ] ActionNote			(replace note cell by another)
+		- [ ] ActionCV				(replace cv cell by another)
+		- [ ] ActionSongResize		(resize song)
+		- [ ] ActionPatternResize	(resize pattern length or notes or cv. Can contain multiple removed ActionNote & ActionCV)
+		- [ ] ActionPatternColumn	(change pattern column)
+		- [ ] ActionSynth			(change synth)
+		- [ ] ActionSynthOut		(change synth output module)
+- [ ] MODULE TrackerOut
+- [ ] MODULE TrackerDrumOut
+- [ ] MODULE TrackerClock
+- [ ] MODULE TrackerState
+
+
+
 - [x] Tracker play pattern
 - [x] Tracker play pattern (with specified starting beat)
 - [x] Pattern play notes
@@ -23,13 +75,12 @@
 - [x] Display modes (show VELO PAN DELAY GLIDE FX)
 - [x] Pattern selecting knob
 - [x] Synth selecting knob (also used in pattern editing)
-- [ ] Editing screen
-	- [ ] Song editing knob
-	- [ ] Synth editing knob(s)
-	- [ ] Pattern editing knobs
-	- [ ] Pattern Row editing knobs
-	- [ ] Update button
-
+- [x] Editing screen
+	- [x] Song editing knob
+	- [x] Synth editing knob(s)
+	- [x] Pattern editing knobs
+	- [x] Pattern Column editing knobs
+	- [x] Update button
 
 # Effects
 

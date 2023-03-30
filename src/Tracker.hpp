@@ -31,6 +31,7 @@
 #define PATTERN_NOTE_NEW			1
 #define PATTERN_NOTE_STOP			-1
 #define PATTERN_NOTE_GLIDE			2
+#define PATTERN_NOTE_CHANGE			3
 #define PATTERN_CV_KEEP				0
 #define PATTERN_CV_SET				1
 
@@ -108,7 +109,7 @@ struct PatternNote {
 	u8							velocity;
 	u8							panning;
 	u8							delay;
-	u8							chance;
+	//u8							chance;
 	PatternEffect				effects[8];
 
 	PatternNote();
@@ -135,8 +136,8 @@ struct PatternSource {
 	ArrayExt<PatternCVRow>		cvs;		// Row X CV lines
 	ArrayExt<PatternNoteRow>	notes;		// Row X Note lines
 	u8							lpb;		// Lines per beat
-	u8							color;
-	i16							index;
+	//u8							color;
+	//i16							index;
 
 	PatternSource();
 
@@ -270,6 +271,10 @@ struct Timeline {
 	PatternSource				patterns[256];
 	Synth						synths[64];
 
+	u8							*save_buffer;
+	u32							save_length;
+	bool						save_to_change;
+
 	Timeline();
 
 	void process(float dt_sec, float dt_beat);
@@ -391,8 +396,9 @@ struct Tracker : Module {
 
 	Tracker();
 
-	void onAdd(const AddEvent &e) override;
-	void process(const ProcessArgs& args) override;
+	void	onAdd(const AddEvent &e) override;
+	void	onSave(const SaveEvent &e) override;
+	void	process(const ProcessArgs& args) override;
 };
 
 struct TrackerDisplay : LedDisplay {
