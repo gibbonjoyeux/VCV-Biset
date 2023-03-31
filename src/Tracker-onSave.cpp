@@ -219,17 +219,6 @@ static void init_save_buffer() {
 /// FILL BUFFER
 //////////////////////////////////////////////////
 
-static bool get_endian(void) {
-	i32		i;
-
-	i = 1;
-	/// LITTLE ENDIAN
-	if (*((u8*)&i) == 1)
-		return 0;
-	/// BIG ENDIAN
-	return 1;
-}
-
 static void fill_u8(u8 number) {
 	g_timeline.save_buffer[g_timeline.save_cursor] = number;
 	g_timeline.save_cursor += 1;
@@ -288,7 +277,7 @@ static void fill_save_buffer() {
 		return;
 	/// [1] ADD BASICS
 	g_timeline.save_cursor = 0;
-	fill_u8(get_endian());					// Saving endian
+	fill_u8(endian_native());					// Saving endian
 	fill_u32(g_timeline.save_length);		// File size
 	fill_u8(g_editor.synth_id);				// Active synth
 	fill_u8(g_editor.pattern_id);			// Active pattern

@@ -276,6 +276,7 @@ struct Timeline {
 	u32							save_cursor;
 	u32							save_cursor_save;
 	bool						save_to_change;
+	bool						save_endian_reverse;
 
 	Timeline();
 
@@ -458,6 +459,7 @@ struct TrackerWidget : ModuleWidget {
 ////////////////////////////////////////////////////////////////////////////////
 
 void itoaw(char *str, int number, int width);
+bool endian_native(void);
 
 ////////////////////////////////////////////////////////////////////////////////
 /// GLOBAL STRUCTURES
