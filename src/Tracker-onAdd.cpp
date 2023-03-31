@@ -22,7 +22,7 @@ TRACKER BINARY SAVE FORMAT:
 - File size										u32
 - Editor
 	- Active synth								u8
-	- Active pattern							u8 / u16
+	- Active pattern							u16
 	- Used jump									u8
 	- Used octave								u8
 	- View modes
@@ -39,7 +39,7 @@ TRACKER BINARY SAVE FORMAT:
 		- Line (beat) number					u16
 		- Cell mode								u8
 		- ? Mode NEW
-			- Cell pattern						u8 / u16
+			- Cell pattern						u16
 			- Cell beat							u16
 		- ? Mode STOP
 - Patterns													x 256
@@ -100,36 +100,51 @@ TRACKER BINARY SAVE FORMAT:
 //	g_editor.set_song_length(g_timeline.beat_count, true);
 //}
 
-//static u8 load_u8(fd) {
-//	u8		value;
-//
-//	read(fd, &value, sizeof(u8));
-//	return value;
-//}
-//
-//static u16 load_u16(fd) {
-//	u16		value;
-//
-//	read(fd, &value, sizeof(u16));
-//	if (g_editor.save_endian_reverse) {
-//		return ((value << 8)
-//		/**/ | ((value >> 8) & 0x00ff));
-//	}
-//	return value;
-//}
-//
-//static u32 load_u32(fd) {
-//	u32		value;
-//
-//	read(fd, &value, sizeof(u32));
-//	if (g_editor.save_endian_reverse) {
-//		return ((value << 24)
-//		/**/ | ((value <<  8) & 0x00ff0000)
-//		/**/ | ((value >>  8) & 0x0000ff00)
-//		/**/ | ((value >> 24) & 0x000000ff));
-//	}
-//	return value;
-//}
+static u8 read_u8(void) {
+	u8		value;
+
+	if (g_timeline.save_cursor + 1 >= g_timeline.save_length) {
+		strcpy(g_timeline.debug_str, "OVERFLOW !");
+		return 0;
+	}
+	value = g_timeline.save_buffer[g_timeline.save_cursor];
+	g_timeline.save_cursor += 1;
+	return value;
+}
+
+static u16 read_u16(void) {
+	u16		value;
+
+	if (g_timeline.save_cursor + 2 >= g_timeline.save_length) {
+		strcpy(g_timeline.debug_str, "OVERFLOW !");
+		return 0;
+	}
+	value = *((u16*)&(g_timeline.save_buffer[g_timeline.save_cursor]));
+	g_timeline.save_cursor += 2;
+	ENDIAN_16(value);
+	return value;
+}
+
+static u32 read_u32(void) {
+	u32		value;
+
+	if (g_timeline.save_cursor + 4 >= g_timeline.save_length) {
+		strcpy(g_timeline.debug_str, "OVERFLOW !");
+		return 0;
+	}
+	value = *((u32*)&(g_timeline.save_buffer[g_timeline.save_cursor]));
+	g_timeline.save_cursor += 4;
+	ENDIAN_32(value);
+	return value;
+}
+
+static void debug_split(const char *str) {
+	strcat(g_timeline.debug_str, str);
+}
+
+static void debug_num(const int number) {
+	itoa(number, g_timeline.debug_str + strlen(g_timeline.debug_str), 10);
+}
 
 static bool load_save_file(void) {
 	u8			*buffer;
@@ -175,6 +190,134 @@ static bool load_save_file(void) {
 	return true;
 }
 
+static void compute_save_file(void) {
+	TimelineCell	*cell;
+	PatternSource	*pattern;
+	PatternNoteRow	*note_col;
+	PatternNote		*note;
+	PatternCVRow	*cv_col;
+	PatternCV		*cv;
+	int				synth_id, pattern_id;
+	int				beat_count;
+	int				note_count, cv_count;
+	int				lpb;
+	int				count;
+	int				i, j, k, l;
+
+	g_timeline.save_cursor = 1 + 4;
+	/// [1] GET ACTIVE SYNTH & PATTERN
+	synth_id = read_u8();								// Active synth
+	pattern_id = read_u16();							// Active pattern
+	/// [2] GET EDITOR BASICS
+	g_editor.pattern_jump = read_u8();					// Used jump
+	g_editor.pattern_octave = read_u8();				// Used octave
+	g_editor.switch_view[0].state = read_u8();			// View velocity
+	g_editor.switch_view[1].state = read_u8();			// View panning
+	g_editor.switch_view[2].state = read_u8();			// View delay
+	g_editor.switch_view[3].state = read_u8();			// View glide
+	g_editor.switch_view[4].state = read_u8();			// View effects
+
+	//////
+	g_timeline.debug_str[0] = 0;
+
+	debug_num(synth_id); debug_split(" ");
+	debug_num(pattern_id);
+
+	debug_split(" - ");
+	debug_num(g_editor.pattern_jump); debug_split(" ");
+	debug_num(g_editor.pattern_octave);
+
+	debug_split(" - ");
+	debug_num(g_editor.switch_view[0].state); debug_split(" ");
+	debug_num(g_editor.switch_view[1].state); debug_split(" ");
+	debug_num(g_editor.switch_view[2].state); debug_split(" ");
+	debug_num(g_editor.switch_view[3].state); debug_split(" ");
+	debug_num(g_editor.switch_view[4].state);
+	//////
+
+	/// [3] GET TIMELINE
+
+	debug_split(" - ");
+	debug_num(read_u16()); debug_split(" ");
+	debug_num(read_u16()); //debug_split(" ");
+	return;
+
+	g_timeline.resize(read_u16());						// Beat count
+	count = read_u16();									// Set lines count
+	for (i = 0; i < count; ++i) {
+		cell = &(g_timeline.timeline[read_u8()][read_u16()]);	// Line column & number
+		cell->mode = read_u8();							// Cell mode
+		if (cell->mode == TIMELINE_CELL_ADD) {
+			cell->pattern = read_u16();					// Cell pattern
+			cell->beat = read_u16();					// Cell beat
+		}
+	}
+	/// [4] GET PATTERNS
+	for (i = 0; i < 256; ++i) {
+		pattern = &(g_timeline.patterns[i]);
+		/// PATTERN SIZE
+		beat_count = read_u16();						// Beat count
+		note_count = read_u8();							// Note count
+		cv_count = read_u8();							// CV count
+		lpb = read_u8();								// lpb
+		pattern->resize(note_count, cv_count, beat_count, lpb);
+		/// PATTERN NOTES
+		for (j = 0; j < note_count; ++j) {
+			note_col = pattern->notes[j];
+			note_col->mode = read_u8();					// Column mode
+			note_col->effect_count = read_u8();			// Column effect count
+			count = read_u16();							// Set lines count
+			for (k = 0; k < count; ++k) {
+				note = &(note_col->lines[read_u16()]);	// Line number
+				note->mode = read_u8();					// Node mode
+				if (note->mode == PATTERN_NOTE_NEW) {
+					note->pitch = read_u8();			// Note pitch
+					note->velocity = read_u8();			// Note velocity
+					note->panning = read_u8();			// Note panning
+					note->synth = read_u8();			// Note synth
+					note->delay = read_u8();			// Note delay
+					note->glide = read_u8();			// Note glide
+					for (l = 0; l < note_col->effect_count; ++l) {
+						note->effects[l].type = read_u8();
+						note->effects[l].value = read_u8();
+					}
+				} else if (note->mode == PATTERN_NOTE_STOP) {
+					note->delay = read_u8();			// Note delay
+				} else if (note->mode == PATTERN_NOTE_CHANGE) {
+					note->velocity = read_u8();			// Note velocity
+					note->panning = read_u8();			// Note panning
+					note->delay = read_u8();			// Note delay
+				} else if (note->mode == PATTERN_NOTE_GLIDE) {
+					note->pitch = read_u8();			// Note pitch
+					note->glide = read_u8();			// Note glide
+				}
+			}
+		}
+		/// PATTERN CVS
+		for (j = 0; j < cv_count; ++j) {
+			cv_col = pattern->cvs[j];
+			cv_col->mode = read_u8();					// Column mode
+			cv_col->synth = read_u8();					// Column synth
+			cv_col->channel = read_u8();				// Column channel
+			count = read_u16();							// Set lines count
+			for (k = 0; k < count; ++k) {
+				cv = &(cv_col->lines[read_u16()]);		// Line number
+				cv->mode = read_u8();					// CV mode
+				cv->value = read_u16();					// CV value
+				cv->delay = read_u8();					// CV delay
+				cv->glide = read_u8();					// CV curve
+			}
+		}
+	}
+	/// [5] GET SYNTHS
+	for (i = 0; i < 64; ++i) {
+		g_timeline.synths[i].channel_count = read_u8();	// Synth channel count
+	}
+	/// [6] SET ACTIVE SYNTH & PATTERN
+	g_editor.set_synth(synth_id, true);
+	g_editor.set_pattern(pattern_id, true);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
@@ -185,8 +328,11 @@ void Tracker::onAdd(const AddEvent &e) {
 
 	/// LOAD FILE
 	if (load_save_file()) {
+		strcpy(g_timeline.debug_str, "loaded");
+		compute_save_file();
 	/// EMPTY FILE
 	} else {
+		strcpy(g_timeline.debug_str, "not loaded");
 	}
 }
 

@@ -11,7 +11,7 @@ TRACKER BINARY SAVE FORMAT:
 - File size										u32
 - Editor
 	- Active synth								u8
-	- Active pattern							u8 / u16
+	- Active pattern							u16
 	- Used jump									u8
 	- Used octave								u8
 	- View modes
@@ -28,7 +28,7 @@ TRACKER BINARY SAVE FORMAT:
 		- Line (beat) number					u16
 		- Cell mode								u8
 		- ? Mode NEW
-			- Cell pattern						u8 / u16
+			- Cell pattern						u16
 			- Cell beat							u16
 		- ? Mode STOP
 - Patterns													x 256
@@ -58,7 +58,6 @@ TRACKER BINARY SAVE FORMAT:
 			- ? Mode CHANGE
 				- Note velocity					u8
 				- Note panning					u8
-				- Note synth
 				- Note delay					u8
 			- ? Mode GLIDE
 				- Note pitch
@@ -71,7 +70,7 @@ TRACKER BINARY SAVE FORMAT:
 		- Lines (only set lines)
 			- Line number						u16
 			- CV mode							u8
-			- CV value							u8 / u16
+			- CV value							u16
 			- CV delay							u8
 			- CV curve							u8
 - Synths													x 64
@@ -103,7 +102,7 @@ static void init_save_buffer() {
 	size = sizeof(u8)		// Saving endian
 	/**/ + sizeof(u32)		// File size
 	/**/ + sizeof(u8)		// Active synth
-	/**/ + sizeof(u8)		// Active pattern
+	/**/ + sizeof(u16)		// Active pattern
 	/**/ + sizeof(u8)		// Used jump
 	/**/ + sizeof(u8)		// Used octave
 	/**/ + sizeof(u8)		// View velocity
@@ -120,7 +119,7 @@ static void init_save_buffer() {
 				size += sizeof(u8)		// Line (beat) column
 				/**/ + sizeof(u16)		// Line (beat) number
 				/**/ + sizeof(u8)		// Cell mode
-				/**/ + sizeof(u8)		// Cell pattern
+				/**/ + sizeof(u16)		// Cell pattern
 				/**/ + sizeof(u16);		// Cell beat
 			} else if (g_timeline.timeline[i][j].mode == TIMELINE_CELL_STOP) {
 				size += sizeof(u8)		// Line (beat) column
@@ -277,10 +276,10 @@ static void fill_save_buffer() {
 		return;
 	/// [1] ADD BASICS
 	g_timeline.save_cursor = 0;
-	fill_u8(endian_native());					// Saving endian
+	fill_u8(endian_native());				// Saving endian
 	fill_u32(g_timeline.save_length);		// File size
 	fill_u8(g_editor.synth_id);				// Active synth
-	fill_u8(g_editor.pattern_id);			// Active pattern
+	fill_u16(g_editor.pattern_id);			// Active pattern
 	fill_u8(g_editor.pattern_jump);			// Used jump
 	fill_u8(g_editor.pattern_octave);		// Used octave
 	fill_u8(g_editor.switch_view[0].state);	// View velocity
@@ -299,7 +298,7 @@ static void fill_save_buffer() {
 				fill_u8(i);					// Line (beat) column
 				fill_u16(j);				// Line (beat) number
 				fill_u8(cell->mode);		// Cell mode
-				fill_u8(cell->pattern);		// Cell pattern
+				fill_u16(cell->pattern);	// Cell pattern
 				fill_u16(cell->beat);		// Cell beat
 				count += 1;
 			} else if (cell->mode == TIMELINE_CELL_STOP) {
