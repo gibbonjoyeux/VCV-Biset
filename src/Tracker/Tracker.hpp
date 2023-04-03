@@ -3,7 +3,7 @@
 #ifndef TRACKER_HPP
 #define TRACKER_HPP
 
-#include "plugin.hpp"
+#include "../plugin.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// CONSTANTS
@@ -49,10 +49,6 @@
 extern char		table_pitch[12][3];
 extern char		table_effect[13];					// 12
 extern char		table_hex[17];					// 16
-extern int		table_row_note_width[23];			// 23
-extern int		table_row_note_pos[23];			// 23
-extern int		table_row_cv_width[3];			// 3
-extern int		table_row_cv_pos[3];				// 3
 extern int		table_keyboard[128];
 extern NVGcolor	colors[16];
 
@@ -411,6 +407,7 @@ struct TrackerDisplay : LedDisplay {
 
 	TrackerDisplay();
 
+	void draw(const DrawArgs &args) override {};
 	void drawLayer(const DrawArgs& args, int layer) override;
 	void draw_pattern(const DrawArgs& args, Rect rect);
 	void draw_timeline(const DrawArgs& args, Rect rect);
@@ -424,6 +421,7 @@ struct TrackerInfoDisplay : LedDisplay {
 
 	TrackerInfoDisplay();
 
+	void draw(const DrawArgs &args) override {};
 	void drawLayer(const DrawArgs& args, int layer) override;
 };
 
@@ -435,6 +433,7 @@ struct TrackerEditDisplay : LedDisplay {
 
 	TrackerEditDisplay();
 
+	void draw(const DrawArgs &args) override {};
 	void drawLayer(const DrawArgs& args, int layer) override;
 };
 

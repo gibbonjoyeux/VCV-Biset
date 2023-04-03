@@ -1,5 +1,5 @@
 
-#include "plugin.hpp"
+#include "../plugin.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -114,34 +114,34 @@ struct TrackerOutWidget : ModuleWidget {
 		setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker-Out.svg")));
 
 		addParam(
-		/**/ createParamCentered<Rogan3PSWhite>(mm2px(Vec(20.0, 32.0)),
+		/**/ createParamCentered<KnobMedium>(mm2px(Vec(25.0, 30.0)),
 		/**/ module,
 		/**/ TrackerOut::PARAM_SYNTH));
 
 		addOutput(
-		/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(6.0, 55.0)),
+		/**/ createOutputCentered<Outlet>(mm2px(Vec(10.5, 43.0)),
 		/**/ module,
 		/**/ TrackerOut::OUTPUT_PITCH));
 		addOutput(
-		/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(6.0 + 10.0, 55.0)),
+		/**/ createOutputCentered<Outlet>(mm2px(Vec(10.5 + 10.0, 43.0)),
 		/**/ module,
 		/**/ TrackerOut::OUTPUT_GATE));
 		addOutput(
-		/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(6.0 + 10.0 * 2.0, 55.0)),
+		/**/ createOutputCentered<Outlet>(mm2px(Vec(10.5 + 10.0 * 2.0, 43.0)),
 		/**/ module,
 		/**/ TrackerOut::OUTPUT_VELOCITY));
 		addOutput(
-		/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(6.0 + 10.0 * 3.0, 55.0)),
+		/**/ createOutputCentered<Outlet>(mm2px(Vec(10.5 + 10.0 * 3.0, 43.0)),
 		/**/ module,
 		/**/ TrackerOut::OUTPUT_PANNING));
 
 		for (i = 0; i < 4; ++i) {
 			addOutput(
-			/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(9.0, 70.0 + 15.7 * i)),
+			/**/ createOutputCentered<Outlet>(mm2px(Vec(20.5, 65.0 + 10.0 * i)),
 			/**/ module,
 			/**/ TrackerOut::OUTPUT_CV + i * 2));
 			addOutput(
-			/**/ createOutputCentered<PJ301MPort>(mm2px(Vec(9.0 + 10.7, 70.0 + 15.7 * i)),
+			/**/ createOutputCentered<Outlet>(mm2px(Vec(20.5 + 10.7, 65.0 + 10.0 * i)),
 			/**/ module,
 			/**/ TrackerOut::OUTPUT_CV + i * 2 + 1));
 		}

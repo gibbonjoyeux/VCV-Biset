@@ -1,5 +1,5 @@
 
-#include "plugin.hpp"
+#include "Tracker.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -37,18 +37,18 @@ void TrackerInfoDisplay::drawLayer(const DrawArgs& args, int layer) {
 	/// BACKGROUND
 	//// BACKGROUND BPM
 	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[1]);
+	nvgFillColor(args.vg, colors[0]);
 	//nvgRect(args.vg, RECT_ARGS(rect));
 	nvgRect(args.vg, p.x, p.y, CHAR_W * 3 + 5.0, CHAR_H + 4.0);
 	nvgFill(args.vg);
 	//// BACKGROUND SYNTH
 	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[1]);
+	nvgFillColor(args.vg, colors[0]);
 	nvgRect(args.vg, p.x + 33.0, p.y, CHAR_W * 3 + 5.0, CHAR_H + 4.0);
 	nvgFill(args.vg);
 	//// BACKGROUND PATTERN
 	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[1]);
+	nvgFillColor(args.vg, colors[0]);
 	nvgRect(args.vg, p.x + 66.0, p.y, CHAR_W * 3 + 5.0, CHAR_H + 4.0);
 	nvgFill(args.vg);
 
