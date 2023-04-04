@@ -94,23 +94,9 @@ TRACKER BINARY SAVE FORMAT:
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-static void debug_split(const char *str) {
-	strcat(g_timeline.debug_str, str);
-}
-
-static void debug_num(const int number) {
-	itoa(number, g_timeline.debug_str + strlen(g_timeline.debug_str), 10);
-}
-
 static u8 read_u8(void) {
 	u8		value;
 
-	if (g_timeline.save_cursor + 1 > g_timeline.save_length) {
-		g_timeline.debug += 1;
-		strcpy(g_timeline.debug_str, "OVERFLOW !");
-		debug_num(g_timeline.debug);
-		return 0;
-	}
 	value = g_timeline.save_buffer[g_timeline.save_cursor];
 	g_timeline.save_cursor += 1;
 	return value;
@@ -119,30 +105,11 @@ static u8 read_u8(void) {
 static u16 read_u16(void) {
 	u16		value;
 
-	if (g_timeline.save_cursor + 2 > g_timeline.save_length) {
-		g_timeline.debug += 1;
-		strcpy(g_timeline.debug_str, "OVERFLOW !");
-		debug_num(g_timeline.debug);
-		return 0;
-	}
 	value = *((u16*)&(g_timeline.save_buffer[g_timeline.save_cursor]));
 	g_timeline.save_cursor += 2;
 	ENDIAN_16(value);
 	return value;
 }
-
-//static u32 read_u32(void) {
-//	u32		value;
-//
-//	if (g_timeline.save_cursor + 4 >= g_timeline.save_length) {
-//		strcpy(g_timeline.debug_str, "OVERFLOW !");
-//		return 0;
-//	}
-//	value = *((u32*)&(g_timeline.save_buffer[g_timeline.save_cursor]));
-//	g_timeline.save_cursor += 4;
-//	ENDIAN_32(value);
-//	return value;
-//}
 
 static bool load_save_file(void) {
 	u8			*buffer;
@@ -202,11 +169,6 @@ static bool compute_save_file(void) {
 	int				line, column;
 	int				i, j, k, l;
 
-	////////
-	g_timeline.debug_str[0] = 0;
-	g_timeline.debug = 0;
-	////////
-
 	g_timeline.save_cursor = 1 + 4;
 	/// [1] GET ACTIVE SYNTH & PATTERN
 	synth_id = read_u8();								// Active synth
@@ -223,37 +185,12 @@ static bool compute_save_file(void) {
 	g_editor.switch_view[4].state = read_u8();			// View effects
 	if (g_editor.pattern_jump > 16 || g_editor.pattern_octave > 9)
 		return false;
-
-	//////
-	debug_num(synth_id); debug_split(" ");
-	debug_num(pattern_id);
-
-	debug_split(" - ");
-	debug_num(g_editor.pattern_jump); debug_split(" ");
-	debug_num(g_editor.pattern_octave);
-
-	debug_split(" - ");
-	debug_num(g_editor.switch_view[0].state); debug_split(" ");
-	debug_num(g_editor.switch_view[1].state); debug_split(" ");
-	debug_num(g_editor.switch_view[2].state); debug_split(" ");
-	debug_num(g_editor.switch_view[3].state); debug_split(" ");
-	debug_num(g_editor.switch_view[4].state);
-	//////
-
 	/// [3] GET TIMELINE
-
 	count = read_u16();
 	if (count == 0 || count > 9999)
 		return false;
 	g_timeline.resize(count);							// Beat count
 	count = read_u16();									// Set lines count
-
-	///////
-	debug_split(" - ");
-	debug_num(g_timeline.beat_count); debug_split(" ");
-	debug_num(count);
-	//////
-
 	for (i = 0; i < count; ++i) {
 		column = read_u8();								// Column number
 		line = read_u16();								// Line number
@@ -264,7 +201,6 @@ static bool compute_save_file(void) {
 			cell->beat = read_u16();					// Cell beat
 		}
 	}
-
 	/// [4] GET PATTERNS
 	for (i = 0; i < 256; ++i) {
 		pattern = &(g_timeline.patterns[i]);
@@ -392,18 +328,15 @@ void Tracker::onAdd(const AddEvent &e) {
 	/// [1] WAIT FOR THREAD FLAG
 	while (g_timeline.thread_flag.test_and_set()) {}
 
-	///// [2] LOAD FILE
-	//if (load_save_file()) {
-	//	strcpy(g_timeline.debug_str, "loaded");
-	//	if (compute_save_file() == false) {
-	//		load_template();
-	//	}
-	///// [3] LOAD TEMPLATE
-	//} else {
-	//	strcpy(g_timeline.debug_str, "not loaded");
-	//	load_template();
-	//}
-	load_template();
+	/// [2] LOAD FILE
+	if (load_save_file()) {
+		if (compute_save_file() == false) {
+			load_template();
+		}
+	/// [3] LOAD TEMPLATE
+	} else {
+		load_template();
+	}
 
 	/// [4] CLEAR THREAD FLAG
 	g_timeline.thread_flag.clear();
