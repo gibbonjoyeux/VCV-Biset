@@ -21,6 +21,7 @@
 Timeline::Timeline() {
 	int						i;
 
+	this->thread_flag.clear();
 	/// [1] INIT ROWS
 	for (i = 0; i < 32; ++i) {
 		this->pattern_source[i] = NULL;
@@ -28,14 +29,17 @@ Timeline::Timeline() {
 		this->pattern_start[i] = 0;
 		this->pattern_instance[i].reset();
 	}
-	/// [2] INIT CLOCK
+	/// [2] INIT SYNTHS
+	for (i = 0; i < 64; ++i) {
+		this->synths[i].init(i, 6);
+	}
+	/// [3] INIT CLOCK
 	this->clock.reset();
-	/// [3] INIT TIMELINE
+	/// [4] INIT TIMELINE
 	this->resize(16);
-	/// [4] INIT SAVE BUFFER
+	/// [5] INIT SAVE BUFFER
 	this->save_buffer = NULL;
 	this->save_length = 0;
-	this->save_to_change = true;
 
 	debug = 0;
 	debug_2 = 0;
@@ -53,11 +57,15 @@ void Timeline::process(float dt_sec, float dt_beat) {
 	if (this->clock.beat >= this->beat_count)
 		this->clock.beat = 0;
 
-	/// [2] UPDATE TIMELINE ROWS
+	/// [2] CHECK THREAD FLAG
+	if (g_timeline.thread_flag.test_and_set())
+		return;
+
+	/// [3] UPDATE TIMELINE ROWS
 	for (i = 0; i < 32; ++i) {
 		cell = &(this->timeline[i][clock.beat]);
 		/// PATTERN CHANGE
-		if (cell->mode == TIMELINE_CELL_ADD
+		if (cell->mode == TIMELINE_CELL_NEW
 		&& this->pattern_cell[i] != cell) {
 			if (cell->pattern < 256) {
 				/// COMPUTE PATTERN CHANGE / TIMING
@@ -101,13 +109,16 @@ void Timeline::process(float dt_sec, float dt_beat) {
 			}
 		}
 	}
-
-	/// [3] UPDATE SYNTHS
+	/// [4] UPDATE SYNTHS
 	for (i = 0; i < 64; ++i)
 		synths[i].process(dt_sec, dt_beat);
+
+	/// [5] CLEAR THREAD FLAG
+	g_timeline.thread_flag.clear();
 }
 
 void Timeline::resize(int beat_count) {
+	/// [1] RESIZE TIMELINE
 	this->beat_count = beat_count;
 	this->timeline.allocate(32, this->beat_count);
 }

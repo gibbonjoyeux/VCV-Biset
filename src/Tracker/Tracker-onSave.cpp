@@ -95,8 +95,6 @@ static void init_save_buffer() {
 	u32				size;
 	int				i, j, k;
 
-	if (g_timeline.save_to_change == false)
-		return;
 	/// [1] COMPUTE BUFFER SIZE
 	//// BASICS
 	size = sizeof(u8)		// Saving endian
@@ -115,7 +113,7 @@ static void init_save_buffer() {
 	/**/ + sizeof(u16);		// Set lines count
 	for (i = 0; i < 12; ++i) {
 		for (j = 0; j < g_timeline.beat_count; ++j) {
-			if (g_timeline.timeline[i][j].mode == TIMELINE_CELL_ADD) {
+			if (g_timeline.timeline[i][j].mode == TIMELINE_CELL_NEW) {
 				size += sizeof(u8)		// Line (beat) column
 				/**/ + sizeof(u16)		// Line (beat) number
 				/**/ + sizeof(u8)		// Cell mode
@@ -211,7 +209,6 @@ static void init_save_buffer() {
 	}
 	g_timeline.save_buffer = buffer;
 	g_timeline.save_length = size;
-	g_timeline.save_to_change = false;
 }
 
 //////////////////////////////////////////////////
@@ -219,6 +216,10 @@ static void init_save_buffer() {
 //////////////////////////////////////////////////
 
 static void fill_u8(u8 number) {
+	if (g_timeline.save_cursor + 1 > g_timeline.save_length) {
+		strcpy(g_timeline.debug_str, "FILL OVERFLOW");
+		return;
+	}
 	g_timeline.save_buffer[g_timeline.save_cursor] = number;
 	g_timeline.save_cursor += 1;
 }
@@ -226,6 +227,10 @@ static void fill_u8(u8 number) {
 static void fill_u16(u16 number) {
 	u8		*bytes;
 
+	if (g_timeline.save_cursor + 2 > g_timeline.save_length) {
+		strcpy(g_timeline.debug_str, "FILL OVERFLOW");
+		return;
+	}
 	bytes = (u8*)&number;
 	g_timeline.save_buffer[g_timeline.save_cursor] = bytes[0];
 	g_timeline.save_buffer[g_timeline.save_cursor + 1] = bytes[1];
@@ -235,6 +240,10 @@ static void fill_u16(u16 number) {
 static void fill_u32(u32 number) {
 	u8		*bytes;
 
+	if (g_timeline.save_cursor + 4 > g_timeline.save_length) {
+		strcpy(g_timeline.debug_str, "FILL OVERFLOW");
+		return;
+	}
 	bytes = (u8*)&number;
 	g_timeline.save_buffer[g_timeline.save_cursor] = bytes[0];
 	g_timeline.save_buffer[g_timeline.save_cursor + 1] = bytes[1];
@@ -275,6 +284,9 @@ static void fill_save_buffer() {
 	if (g_timeline.save_buffer == NULL)
 		return;
 	/// [1] ADD BASICS
+
+	strcpy(g_timeline.debug_str, "FILLING BUFFER !"); // ! ! ! ! !
+
 	g_timeline.save_cursor = 0;
 	fill_u8(endian_native());				// Saving endian
 	fill_u32(g_timeline.save_length);		// File size
@@ -289,12 +301,12 @@ static void fill_save_buffer() {
 	fill_u8(g_editor.switch_view[4].state);	// View effects
 	/// [2] ADD TIMELINE
 	fill_u16(g_timeline.beat_count);		// Beat count
-	fill_cursor_save(sizeof(u32));			// -> Prepare set lines count
+	fill_cursor_save(sizeof(u16));			// -> Prepare set lines count
 	count = 0;
 	for (i = 0; i < 12; ++i) {
 		for (j = 0; j < g_timeline.beat_count; ++j) {
 			cell = &(g_timeline.timeline[i][j]);
-			if (cell->mode == TIMELINE_CELL_ADD) {
+			if (cell->mode == TIMELINE_CELL_NEW) {
 				fill_u8(i);					// Line (beat) column
 				fill_u16(j);				// Line (beat) number
 				fill_u8(cell->mode);		// Cell mode
@@ -309,7 +321,7 @@ static void fill_save_buffer() {
 			}
 		}
 	}
-	fill_cursor_count(sizeof(u32), count);	// -> Fill set lines count
+	fill_cursor_count(sizeof(u16), count);	// -> Fill set lines count
 	/// [3] ADD PATTERNS
 	for (i = 0; i < 256; ++i) {
 		pattern = &(g_timeline.patterns[i]);
@@ -339,21 +351,25 @@ static void fill_save_buffer() {
 						fill_u8(note->effects[l].type);	// Effect type
 						fill_u8(note->effects[l].value);// Effect value
 					}
+					count += 1;
 				} else if (note->mode == PATTERN_NOTE_STOP) {
 					fill_u16(k);						// Line number
 					fill_u8(note->mode);				// Note mode
 					fill_u8(note->delay);				// Note delay
+					count += 1;
 				} else if (note->mode == PATTERN_NOTE_CHANGE) {
 					fill_u16(k);						// Line number
 					fill_u8(note->mode);				// Note mode
 					fill_u8(note->velocity);			// Note velocity
 					fill_u8(note->panning);				// Note panning
 					fill_u8(note->delay);				// Note delay
+					count += 1;
 				} else if (note->mode == PATTERN_NOTE_GLIDE) {
 					fill_u16(k);						// Line number
 					fill_u8(note->mode);				// Note mode
 					fill_u8(note->pitch);				// Note pitch
 					fill_u8(note->glide);				// Note glide
+					count += 1;
 				}
 			}
 			fill_cursor_count(sizeof(u16), count);	// -> Fill set lines count
@@ -374,6 +390,7 @@ static void fill_save_buffer() {
 					fill_u16(cv->value);				// CV value
 					fill_u8(cv->delay);					// CV delay
 					fill_u8(cv->glide);					// CV curve
+					count += 1;
 				}
 			}
 			fill_cursor_count(sizeof(u16), count);		// -> Fill set lines count
@@ -412,10 +429,16 @@ static void write_save_buffer() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void Tracker::onSave(const SaveEvent &e) {
-	/// [1] INIT SAVE BUFFER
+	/// [1] WAIT FOR THREAD FLAG
+	while (g_timeline.thread_flag.test_and_set()) {}
+
+	/// [2] INIT SAVE BUFFER
 	init_save_buffer();
-	/// [2] FILL SAVE BUFFER
+	/// [3] FILL SAVE BUFFER
 	fill_save_buffer();
-	/// [3] WRITE SAVE BUFFER
+	/// [4] WRITE SAVE BUFFER
 	write_save_buffer();
+
+	/// [5] CLEAR THREAD FLAG
+	g_timeline.thread_flag.clear();
 }

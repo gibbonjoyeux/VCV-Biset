@@ -130,6 +130,9 @@ void Editor::save_edition(void) {
 	int				note_mode, note_effect;
 	int				cv_mode, cv_synth, cv_channel;
 
+	/// WAIT FOR THREAD FLAG
+	while (g_timeline.thread_flag.test_and_set()) {}
+
 	/// SONG LENGTH
 	beat_count = g_editor.module->params[Tracker::PARAM_EDIT + 0].getValue();
 	if (g_timeline.beat_count != beat_count) {
@@ -175,6 +178,9 @@ void Editor::save_edition(void) {
 		if (cv_channel != col_cv->channel)
 			col_cv->channel = cv_channel;
 	}
+
+	/// CLEAR THREAD FLAG
+	g_timeline.thread_flag.clear();
 }
 
 void Editor::set_row(int index) {

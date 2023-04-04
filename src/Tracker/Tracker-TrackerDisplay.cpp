@@ -355,7 +355,7 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 		for (j = 0; j < g_timeline.beat_count; ++j) {
 			cell = &(g_timeline.timeline[i][j]);
 			/// DRAW PATTERN INDEX
-			if (cell->mode == TIMELINE_CELL_ADD) {
+			if (cell->mode == TIMELINE_CELL_NEW) {
 				itoaw(str, g_timeline.timeline[i][j].pattern, 3);
 			} else if (cell->mode == TIMELINE_CELL_KEEP) {
 				str[0] = '.';
@@ -370,7 +370,7 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 			}
 			text(args, p, i * 7, j, str, 2, false);
 			/// DRAW PATTERN START
-			if (cell->mode == TIMELINE_CELL_ADD) {
+			if (cell->mode == TIMELINE_CELL_NEW) {
 				itoaw(str, g_timeline.timeline[i][j].beat, 3);
 			} else if (cell->mode == TIMELINE_CELL_KEEP) {
 				str[0] = '.';

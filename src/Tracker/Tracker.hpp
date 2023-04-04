@@ -29,15 +29,15 @@
 
 #define PATTERN_NOTE_KEEP			0
 #define PATTERN_NOTE_NEW			1
-#define PATTERN_NOTE_STOP			-1
 #define PATTERN_NOTE_GLIDE			2
 #define PATTERN_NOTE_CHANGE			3
+#define PATTERN_NOTE_STOP			4
 #define PATTERN_CV_KEEP				0
 #define PATTERN_CV_SET				1
 
 #define TIMELINE_CELL_KEEP			0
-#define TIMELINE_CELL_ADD			1
-#define TIMELINE_CELL_STOP			-1
+#define TIMELINE_CELL_NEW			1
+#define TIMELINE_CELL_STOP			2
 
 
 #define CHAR_W						6.302522
@@ -251,10 +251,11 @@ struct TimelineCell {
 };
 
 struct Timeline {
-	char						debug_str[1024];
+	char						debug_str[4096];
 	int							debug;
 	int							debug_2;
 
+	std::atomic_flag			thread_flag;
 	Clock						clock;
 	u16							beat_count;
 	Array2D<TimelineCell>		timeline;
@@ -263,7 +264,6 @@ struct Timeline {
 	u32							pattern_start[32];
 	PatternInstance				pattern_instance[32];
 
-	//vector<PatternSource>		patterns;
 	PatternSource				patterns[256];
 	Synth						synths[64];
 
@@ -271,7 +271,6 @@ struct Timeline {
 	u32							save_length;
 	u32							save_cursor;
 	u32							save_cursor_save;
-	bool						save_to_change;
 	bool						save_endian_reverse;
 
 	Timeline();
