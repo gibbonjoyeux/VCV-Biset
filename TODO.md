@@ -1,7 +1,8 @@
 
 # BUGS
 
-- Crashed once on pattern change (via knob)
+- Crash: Cursor on CV column, change CV column count to 0.
+- Crash: once on pattern change (via knob)
 	-> Might be due to cursor position that gets out of bound on pattern change
 	to a smaller pattern (both line and column)
 	-> Check on empty pattern !
@@ -42,7 +43,7 @@
 			- [ ] Temperaments (can be used as scale)
 			- [ ] Temperament preset (equal, just, ...)
 			- [ ] Temperament scale preset (major, minor, modes, ...)
-		- [ ] Screen Edition
+		- [x] Screen Edition
 	- [x] SAVE
 		- [x] Save data
 		- [x] Load data

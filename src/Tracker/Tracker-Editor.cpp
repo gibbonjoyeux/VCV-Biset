@@ -200,7 +200,7 @@ void Editor::set_row(int index) {
 		param = g_editor.module->getParamQuantity(Tracker::PARAM_EDIT + 6);
 		param->defaultValue = row_note->mode;
 		param->minValue = 0;
-		param->maxValue = 1;
+		param->maxValue = 2;
 		g_editor.module->params[Tracker::PARAM_EDIT + 6].setValue(row_note->mode);
 		/// NOTE EFFECTS
 		param = g_editor.module->getParamQuantity(Tracker::PARAM_EDIT + 7);
