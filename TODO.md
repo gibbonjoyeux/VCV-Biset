@@ -2,6 +2,7 @@
 # BUGS
 
 - Crash: Cursor on CV column, change CV column count to 0.
+- Crash: On start / On add with template (due to template ?)
 - Crash: once on pattern change (via knob)
 	-> Might be due to cursor position that gets out of bound on pattern change
 	to a smaller pattern (both line and column)
@@ -20,12 +21,17 @@
 			- [x] Pattern stop		(stop active pattern)
 		- [ ] PATTERN
 			- [ ] NOTE
+				- [x] Mode gate
+				- [x] Mode trigger
+				- [x] Mode drum
 				- [x] Note new		(run new note)
 				- [x] Note keep		(keep active note)
 				- [ ] Note change	(change active note vel or pan)
 				- [x] Note stop		(stop active note)
 				- [x] Note glide	(glide active note to new pitch)
 			- [ ] CV
+				- [ ] Mode CV
+				- [ ] Mode BPM
 				- [ ] CV set		(set cv point)
 				- [x] CV keep		(continue interpolation)
 	- [ ] FRONTEND

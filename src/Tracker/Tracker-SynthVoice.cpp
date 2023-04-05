@@ -100,6 +100,9 @@ bool SynthVoice::start(
 	/// SET MAIN DELAY
 	this->delay = delay;
 	this->delay_stop = 0;
+	if (row->mode == PATTERN_NOTE_MODE_TRIGGER
+	|| row->mode == PATTERN_NOTE_MODE_DRUM)
+		this->delay_stop = 0.001f;
 	/// SET NOTE PROPS
 	this->velocity = note->velocity;
 	this->panning = note->panning;
@@ -121,6 +124,13 @@ bool SynthVoice::start(
 				this->velocity *= 1.0 - float_1;
 				break;
 			case PATTERN_EFFECT_RAND_PAN:		// Pxx
+				int_1 = (random::uniform() * 2.0 - 1.0) * (effect->value / 2.0);
+				int_2 = (int)this->panning + int_1;
+				if (int_2 < 0)
+					int_2 = 0;
+				if (int_2 > 99)
+					int_2 = 99;
+				this->panning = int_2;
 				break;
 			case PATTERN_EFFECT_RAND_OCT:		// Oxy
 				x = effect->value / 10;
@@ -203,8 +213,8 @@ void SynthVoice::glide(
 }
 
 void SynthVoice::stop(PatternNote *note, int lpb) {
-	// TODO: get stopping line to get delay
-	// Stop only after certain delay
+	if (this->active == false)
+		return;
 	if (note) {
 		if (note->delay > 0) {
 			this->delay_stop =
