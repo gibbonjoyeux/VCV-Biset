@@ -39,6 +39,10 @@
 			- [ ] Layer user (cursor + beat cursor)
 		- [ ] Screen Parameters
 		- [ ] Screen Edition
+	- [x] SAVE
+		- [x] Save data
+		- [x] Load data
+		- [x] Load template on empty
 	- [ ] HISTORY (UNDO / REDO)
 		- [ ] ActionNote			(replace note cell by another)
 		- [ ] ActionCV				(replace cv cell by another)

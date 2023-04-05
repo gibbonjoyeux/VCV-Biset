@@ -322,6 +322,10 @@ struct Editor {
 	int							pattern_octave;
 	int							pattern_jump;
 
+	int							timeline_column;
+	int							timeline_line;
+	int							timeline_cell;
+	int							timeline_char;
 	int							timeline_cam_x;
 	int							timeline_cam_y;
 
@@ -345,6 +349,8 @@ struct Editor {
 	void pattern_clamp_cursor(void);
 	void pattern_move_cursor_x(int x);
 	void pattern_move_cursor_y(int y);
+	void timeline_move_cursor_x(int x);
+	void timeline_move_cursor_y(int y);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

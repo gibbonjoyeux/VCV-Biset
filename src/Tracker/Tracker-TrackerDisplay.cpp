@@ -5,7 +5,8 @@
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-static void text(const Widget::DrawArgs& args, Vec p, float x, float y,
+/// PATTERN TEXT
+static void ptext(const Widget::DrawArgs& args, Vec p, float x, float y,
 	char *str, int color, bool background) {
 	float	sx, sy;
 
@@ -29,6 +30,26 @@ static void text(const Widget::DrawArgs& args, Vec p, float x, float y,
 			nvgRect(args.vg, sx, sy - CHAR_H + 1.0, CHAR_W, CHAR_H);
 		else if (str[2] == 0)
 			nvgRect(args.vg, sx, sy - CHAR_H + 1.0, 2.0 * CHAR_W, CHAR_H);
+		nvgFill(args.vg);
+	}
+	/// [4] DRAW TEXT
+	nvgFillColor(args.vg, colors[color]);
+	nvgText(args.vg, sx, sy, str, NULL);
+}
+
+/// TIMELINE TEXT
+static void ttext(const Widget::DrawArgs& args, Vec p, float x, float y,
+	char *str, int color, bool background) {
+	float	sx, sy;
+
+	/// [1] COMPUTE REAL COORD
+	sx = p.x + 2.0 + CHAR_W * (x + 3.0);
+	sy = p.y + 11.0 + CHAR_H * y;
+	/// [3] DRAW BACKGROUND
+	if (background) {
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, colors[12]);
+		nvgRect(args.vg, sx, sy - CHAR_H + 1.0, 3.0 * CHAR_W, CHAR_H);
 		nvgFill(args.vg);
 	}
 	/// [4] DRAW TEXT
@@ -124,14 +145,14 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 				str[0] = '.';
 				str[1] = '.';
 				str[2] = 0;
-				text(args, p, tx_row, j, str, 3, focus);
+				ptext(args, p, tx_row, j, str, 3, focus);
 			} else if (note->mode == PATTERN_NOTE_STOP) {
 				str[0] = '-';
 				str[1] = '-';
 				str[2] = 0;
-				text(args, p, tx_row, j, str, 3, focus);
+				ptext(args, p, tx_row, j, str, 3, focus);
 			} else {
-				text(args, p, tx_row, j,
+				ptext(args, p, tx_row, j,
 				/**/ table_pitch[note->pitch % 12], 3, focus);
 			}
 			tx_row += 2;
@@ -147,7 +168,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			} else {
 				itoa(note->pitch / 12, str, 10);
 			}
-			text(args, p, tx_row, j, str, 2, focus);
+			ptext(args, p, tx_row, j, str, 2, focus);
 			tx_row += 1;
 			/// VELOCITY
 			if (g_editor.switch_view[0].state) {
@@ -159,7 +180,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 					str[1] = '.';
 					str[2] = 0;
 				}
-				text(args, p, tx_row, j, str, 5, focus);
+				ptext(args, p, tx_row, j, str, 5, focus);
 				tx_row += 2;
 			}
 			/// PANNING
@@ -172,7 +193,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 					str[1] = '.';
 					str[2] = 0;
 				}
-				text(args, p, tx_row, j, str, 6, focus);
+				ptext(args, p, tx_row, j, str, 6, focus);
 				tx_row += 2;
 			}
 			/// SYNTH
@@ -184,7 +205,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 				str[1] = '.';
 				str[2] = 0;
 			}
-			text(args, p, tx_row, j, str, 4, focus);
+			ptext(args, p, tx_row, j, str, 4, focus);
 			tx_row += 2;
 			/// DELAY
 			if (g_editor.switch_view[2].state) {
@@ -196,7 +217,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 					str[1] = '.';
 					str[2] = 0;
 				}
-				text(args, p, tx_row, j, str, 10, focus);
+				ptext(args, p, tx_row, j, str, 10, focus);
 				tx_row += 2;
 			}
 			/// GLIDE
@@ -209,7 +230,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 					str[1] = '.';
 					str[2] = 0;
 				}
-				text(args, p, tx_row, j, str, 11, focus);
+				ptext(args, p, tx_row, j, str, 11, focus);
 				tx_row += 2;
 			}
 			/// EFFECTS
@@ -233,11 +254,11 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 					}
 					/// EFFECT TYPE
 					focus = focus_fx & ((g_editor.pattern_cell - 7) % 2 == 0);
-					text(args, p, tx_row, j, str, 13, focus);
+					ptext(args, p, tx_row, j, str, 13, focus);
 					tx_row += 1;
 					/// EFFECT VALUE
 					focus = focus_fx & ((g_editor.pattern_cell - 7) % 2 == 1);
-					text(args, p, tx_row, j, str + 2, 14, focus);
+					ptext(args, p, tx_row, j, str + 2, 14, focus);
 					tx_row += 2;
 				}
 			}
@@ -274,7 +295,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			} else {
 				itoaw(str, cv->value, 2);
 			}
-			text(args, p, tx_row, j, str, 3, focus);
+			ptext(args, p, tx_row, j, str, 3, focus);
 			tx_row += 2;
 			/// GLIDE
 			focus = focus_line & (g_editor.pattern_cell == 1);
@@ -286,7 +307,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			} else {
 				itoaw(str, cv->glide, 2);
 			}
-			text(args, p, tx_row, j, str, 5, focus);
+			ptext(args, p, tx_row, j, str, 5, focus);
 			tx_row += 2;
 			/// DELAY
 			focus = focus_line & (g_editor.pattern_cell == 2);
@@ -298,7 +319,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			} else {
 				itoaw(str, cv->delay, 2);
 			}
-			text(args, p, tx_row, j, str, 10, focus);
+			ptext(args, p, tx_row, j, str, 10, focus);
 			tx_row += 2;
 		}
 		tx += (2 + 2 + 2 + 1);
@@ -311,6 +332,7 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 	int						line;
 	int						i, j;
 	float					x, y;
+	bool					focus_col, focus_line, focus_cell;
 	char					str[32];
 
 	p = rect.getTopLeft();
@@ -326,14 +348,14 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 	///**/ rect.getWidth() + 0.5, CHAR_H);
 	//nvgFill(args.vg);
 
-	///// DRAW PATTERN CURSOR LINE
-	//nvgBeginPath(args.vg);
-	//nvgFillColor(args.vg, colors[15]);
-	//nvgRect(args.vg,
-	///**/ p.x,
-	///**/ p.y + 3.5 + CHAR_H * (g_editor.pattern_line - g_editor.pattern_cam_y),
-	///**/ rect.getWidth() + 0.5, CHAR_H);
-	//nvgFill(args.vg);
+	/// DRAW TIMELINE CURSOR LINE
+	nvgBeginPath(args.vg);
+	nvgFillColor(args.vg, colors[15]);
+	nvgRect(args.vg,
+	/**/ p.x,
+	/**/ p.y + 3.5 + CHAR_H * (g_editor.timeline_line - g_editor.timeline_cam_y),
+	/**/ rect.getWidth() + 0.5, CHAR_H);
+	nvgFill(args.vg);
 
 	/// DRAW LINE / BEAT COUNT
 	x = p.x + 2;
@@ -347,14 +369,19 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 			nvgFillColor(args.vg, colors[14]);
 		nvgText(args.vg, x, y, str, NULL);
 	}
-
 	/// [2] LAYER 2 (TIMELINE)
 	/// FOR EACH COLUMN
 	for (i = 0; i < 12; ++i) {
+		focus_col = (g_editor.timeline_column == i);
 		/// FOR EACH LINE
-		for (j = 0; j < g_timeline.beat_count; ++j) {
-			cell = &(g_timeline.timeline[i][j]);
+		for (j = 0; j < CHAR_COUNT_Y; ++j) {
+			line = g_editor.timeline_cam_y + j;
+			if (line >= g_timeline.beat_count)
+				break;
+			cell = &(g_timeline.timeline[i][line]);
+			focus_line = focus_col && (g_editor.timeline_line == line);
 			/// DRAW PATTERN INDEX
+			focus_cell = focus_line && (g_editor.timeline_cell == 0);
 			if (cell->mode == TIMELINE_CELL_NEW) {
 				itoaw(str, g_timeline.timeline[i][j].pattern, 3);
 			} else if (cell->mode == TIMELINE_CELL_KEEP) {
@@ -368,8 +395,9 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 				str[2] = '-';
 				str[3] = 0;
 			}
-			text(args, p, i * 7, j, str, 2, false);
+			ttext(args, p, i * 7, j, str, 2, focus_cell);
 			/// DRAW PATTERN START
+			focus_cell = focus_line && (g_editor.timeline_cell == 1);
 			if (cell->mode == TIMELINE_CELL_NEW) {
 				itoaw(str, g_timeline.timeline[i][j].beat, 3);
 			} else if (cell->mode == TIMELINE_CELL_KEEP) {
@@ -383,7 +411,7 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 				str[2] = '-';
 				str[3] = 0;
 			}
-			text(args, p, i * 7 + 3, j, str, 3, false);
+			ttext(args, p, i * 7 + 3, j, str, 3, focus_cell);
 		}
 	}
 }

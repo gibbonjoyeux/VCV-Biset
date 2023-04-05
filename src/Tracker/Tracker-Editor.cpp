@@ -39,6 +39,10 @@ Editor::Editor() {
 
 	this->pattern_debug[0] = 0;
 
+	this->timeline_column = 0;
+	this->timeline_line = 0;
+	this->timeline_cell = 0;
+	this->timeline_char = 0;
 	this->timeline_cam_x = 0;
 	this->timeline_cam_y = 0;
 
@@ -503,6 +507,49 @@ void Editor::pattern_clamp_cursor(void) {
 			}
 		}
 	}
+}
+
+void Editor::timeline_move_cursor_x(int delta_x) {
+	/// [1] MOVE CURSOR
+	//// MOVE RIGHT
+	if (delta_x > 0) {
+		if (this->timeline_cell == 1) {
+			if (this->timeline_column < 11) {
+				this->timeline_column += 1;
+				this->timeline_cell = 0;
+			}
+		} else {
+			this->timeline_cell = 1;
+		}
+	//// MOVE LEFT
+	} else if (delta_x < 0) {
+		if (this->timeline_cell == 0) {
+			if (this->timeline_column > 0) {
+				this->timeline_column -= 1;
+				this->timeline_cell = 1;
+			}
+		} else {
+			this->timeline_cell = 0;
+		}
+	}
+	/// [2] RESET CHAR
+	this->timeline_char = 0;
+}
+
+void Editor::timeline_move_cursor_y(int delta_y) {
+	/// [1] MOVE CURSOR
+	this->timeline_line += delta_y;
+	this->timeline_char = 0;
+	/// [2] HANDLE CLAMPING
+	if (this->timeline_line < 0)
+		this->timeline_line = 0;
+	if (this->timeline_line >= g_timeline.beat_count)
+		this->timeline_line = g_timeline.beat_count - 1;
+	/// [3] HANDLE CAMERA
+	if (this->timeline_cam_y < this->timeline_line - (CHAR_COUNT_Y - 1))
+		this->timeline_cam_y = this->timeline_line - (CHAR_COUNT_Y - 1);
+	else if (this->timeline_cam_y > this->timeline_line)
+		this->timeline_cam_y = this->timeline_line;
 }
 
 //////////////////////////////////////////////////

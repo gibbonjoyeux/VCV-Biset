@@ -37,178 +37,7 @@ static int key_alpha(const Widget::SelectKeyEvent &e) {
 	return -1;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// PUBLIC FUNCTIONS
-////////////////////////////////////////////////////////////////////////////////
-
-TrackerWidget::TrackerWidget(Tracker* _module) {
-	TrackerDisplay*		display;
-	TrackerInfoDisplay*	display_bpm;
-	TrackerEditDisplay*	display_edit;
-	int					i;
-
-	//
-	// BUTTONS:
-	// - TL1105
-	//
-	// KNOBS:
-	// - RoundBlackKnob
-	// - RoundKnob
-	// - Round(Big / Huge / Large / Small)BlackKnob
-	// - Trimpot (very small)
-	// - Rogan(1 / 2 / 3 / 5 / 6)(P / PS)(Blue / Green / Red / White / Gray)
-	// - Befaco(Big / Tiny)Knob
-	// - Davies1900h(Large)(Black / Red / White)Knob
-	//
-	// INPUTS:
-	// - PJ301MPort
-	//
-	// OUTPUTS:
-	// - PJ301MPort
-	//
-	// LIGHTS:
-	// - LargeLight<YellowLight>
-	// - SmallLight<YellowLight>
-	//
-
-	module = _module;
-	setModule(module);
-	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker.svg")));
-
-	/// [1] ADD PARAMS
-	//// PLAY BUTTONS
-	addParam(
-	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0, 6.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_PLAY_SONG));
-	addParam(
-	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0 + 8.0 * 1, 6.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_PLAY_PATTERN));
-	addParam(
-	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0 + 8.0 * 2, 6.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_PLAY));
-	addParam(
-	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0 + 8.0 * 3, 6.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_STOP));
-
-	//// MODE BUTTON
-	//// VIEW LIGHT SWITCHES
-	for (i = 0; i < 3; ++i) {
-		addParam(
-		/**/ createParamCentered<LEDButton>(mm2px(Vec(55.0 + 8.0 * i, 123.7)),
-		/**/ module,
-		/**/ Tracker::PARAM_MODE + i));
-		addChild(
-		/**/ createLightCentered<LargeLight<YellowLight>>(mm2px(Vec(55.0 + 8.0 * i, 123.7)),
-		/**/ module,
-		/**/ Tracker::LIGHT_MODE + i));
-	}
-
-	//// BPM / SYNTH / PATTERN KNOBS
-	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0, 24.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_BPM));
-	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0 + 11, 24.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_SYNTH));
-	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0 + 22, 24.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_PATTERN));
-
-	//// EDIT KNOBS
-	for (i = 0; i < 9; ++i) {
-		addParam(
-		///**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 8.75 * i - 37.5)),
-		/**/ createParamCentered<KnobSmall>(mm2px(Vec(40.0, 73.0 + 7.80 * i - 37.5)),
-		/**/ module,
-		/**/ Tracker::PARAM_EDIT + i));
-	}
-	//// EDIT BUTTON
-	addParam(
-	/**/ createParamCentered<VCVButton>(mm2px(Vec(20.5, 106.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_EDIT_SAVE));
-
-	//// JUMP BUTTONS
-	addParam(
-	/**/ createParamCentered<TL1105>(mm2px(Vec(41.0, 12.5 + 10.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_JUMP_UP));
-	addParam(
-	/**/ createParamCentered<TL1105>(mm2px(Vec(41.0, 17.5 + 10.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_JUMP_DOWN));
-	//// OCTAVE BUTTONS
-	addParam(
-	/**/ createParamCentered<TL1105>(mm2px(Vec(47.0, 12.5 + 10.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_OCTAVE_UP));
-	addParam(
-	/**/ createParamCentered<TL1105>(mm2px(Vec(47.0, 17.5 + 10.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_OCTAVE_DOWN));
-
-	//// VIEW LIGHT SWITCHES
-	for (i = 0; i < 5; ++i) {
-		addParam(
-		/**/ createParamCentered<LEDButton>(mm2px(Vec(90.0 + 8.0 * i, 123.7)),
-		/**/ module,
-		/**/ Tracker::PARAM_VIEW + i));
-		addChild(
-		/**/ createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(90.0 + 8.0 * i, 123.7)),
-		/**/ module,
-		/**/ Tracker::LIGHT_VIEW + i));
-	}
-
-	/// [2] ADD OUTPUT
-	addOutput(
-	/**/ createOutputCentered<Outlet>(mm2px(Vec(237.0, 123.00)),
-	/**/ module,
-	/**/ Tracker::OUTPUT_CLOCK));
-
-	/// [3] ADD LIGHTS
-	addChild(
-	/**/ createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(241.25, 3.0)),
-	/**/ module,
-	/**/ Tracker::LIGHT_FOCUS));
-	addChild(
-	/**/ createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(241.25, 7.5)),
-	/**/ module,
-	/**/ Tracker::LIGHT_PLAY));
-
-	/// [4] ADD DISPLAYS
-	//// MAIN LED DISPLAY
-	display = createWidget<TrackerDisplay>(mm2px(Vec(65.50 - 14.0, 5.0)));
-	//display->box.size = mm2px(Vec(173.5 + 14.0, 94.5 + 15.0));
-	display->box.size = Vec(CHAR_W * (CHAR_COUNT_X + 3) + 4, CHAR_H * CHAR_COUNT_Y + 5.5);
-	display->module = module;
-	display->moduleWidget = this;
-	addChild(display);
-	//// BPM LED DISPLAY
-	display_bpm = createWidget<TrackerInfoDisplay>(mm2px(Vec(5.0, 13.0)));
-	display_bpm->box.size = mm2px(Vec(1.0, 1.0));
-	display_bpm->module = module;
-	display_bpm->moduleWidget = this;
-	addChild(display_bpm);
-	//// EDIT LED DISPLAY
-	// MODE FULL SCREEN
-	//display_edit = createWidget<TrackerEditDisplay>(mm2px(Vec(16.0, 5.0)));
-	//display_edit->box.size = Vec(CHAR_W * 16 + 4, CHAR_H * CHAR_COUNT_Y + 5.5);
-	// MODE SIDE SCREEN
-	display_edit = createWidget<TrackerEditDisplay>(mm2px(Vec(5.0, 70.5 - 38.0)));
-	display_edit->box.size = mm2px(Vec(29.5, 68.0));
-	display_edit->module = module;
-	display_edit->moduleWidget = this;
-	addChild(display_edit);
-}
-
-void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
+static bool event_key_pattern(const Widget::SelectKeyEvent &e) {
 	PatternSource	*pattern;
 	PatternNoteRow	*row_note;
 	PatternNote		*line_note;
@@ -219,7 +48,6 @@ void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
 	int				key;
 	int				i;
 
-	e.consume(this);
 	if (e.action == GLFW_PRESS
 	|| e.action == GLFW_REPEAT) {
 		if (g_editor.pattern) {
@@ -234,6 +62,8 @@ void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
 				g_editor.pattern_move_cursor_y(+1);
 			/// EVENT KEYBOARD
 			} else {
+				if ((e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL)
+					return false;
 				pattern = g_editor.pattern;
 				/// KEY ON NOTE
 				if (g_editor.pattern_row < pattern->note_count) {
@@ -495,6 +325,283 @@ void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
 			/// CLAMP CURSOR
 			g_editor.pattern_clamp_cursor();
 		}
+	}
+	return true;
+}
+
+static bool event_key_timeline(const Widget::SelectKeyEvent &e) {
+	TimelineCell	*cell;
+	int				key;
+
+	if (e.action == GLFW_PRESS
+	|| e.action == GLFW_REPEAT) {
+		/// EVENT CURSOR MOVE
+		if (e.key == GLFW_KEY_LEFT) {
+			g_editor.timeline_move_cursor_x(-1);
+		} else if (e.key == GLFW_KEY_RIGHT) {
+			g_editor.timeline_move_cursor_x(+1);
+		} else if (e.key == GLFW_KEY_UP) {
+			g_editor.timeline_move_cursor_y(-1);
+		} else if (e.key == GLFW_KEY_DOWN) {
+			g_editor.timeline_move_cursor_y(+1);
+		/// EVENT KEYBOARD
+		} else {
+			if ((e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL)
+				return false;
+			cell = &(g_timeline.timeline
+			/**/ [g_editor.timeline_column]
+			/**/ [g_editor.timeline_line]);
+			/// CELL PATTERN
+			if (g_editor.timeline_cell == 0) {
+				/// PATTERN DELETE
+				if (e.key == GLFW_KEY_DELETE
+				|| e.key == GLFW_KEY_BACKSPACE) {
+					if (cell->mode == TIMELINE_CELL_NEW)
+						cell->mode = TIMELINE_CELL_KEEP;
+					else if (cell->mode == TIMELINE_CELL_KEEP)
+						cell->mode = TIMELINE_CELL_STOP;
+					else if (cell->mode == TIMELINE_CELL_STOP)
+						cell->mode = TIMELINE_CELL_KEEP;
+				/// PATTERN EDIT
+				} else {
+					key = key_dec(e);
+					if (key >= 0) {
+						if (cell->mode != PATTERN_NOTE_NEW) {
+							cell->mode = PATTERN_NOTE_NEW;
+							cell->beat = 0;
+						}
+						if (g_editor.timeline_char == 0) {
+							cell->pattern =
+							/**/ key * 100
+							/**/ + cell->pattern % 100;
+							g_editor.timeline_char += 1;
+						} else if (g_editor.timeline_char == 1) {
+							cell->pattern =
+							/**/ (cell->pattern / 100) * 100
+							/**/ + key * 10
+							/**/ + (cell->pattern % 10);
+							g_editor.timeline_char += 1;
+						} else {
+							cell->pattern =
+							/**/ cell->pattern / 10
+							/**/ + key;
+							g_editor.timeline_move_cursor_y(1);
+						}
+					}
+				}
+			/// CELL BEAT
+			} else {
+				/// PATTERN DELETE
+				if (e.key == GLFW_KEY_DELETE
+				|| e.key == GLFW_KEY_BACKSPACE) {
+					cell->beat = 0;
+				/// PATTERN EDIT
+				} else {
+					key = key_dec(e);
+					if (key >= 0) {
+						if (g_editor.timeline_char == 0) {
+							cell->beat =
+							/**/ key * 100
+							/**/ + cell->beat % 100;
+							g_editor.timeline_char += 1;
+						} else if (g_editor.timeline_char == 1) {
+							cell->beat =
+							/**/ (cell->beat / 100) * 100
+							/**/ + key * 10
+							/**/ + (cell->beat % 10);
+							g_editor.timeline_char += 1;
+						} else {
+							cell->beat =
+							/**/ cell->beat / 10
+							/**/ + key;
+							g_editor.timeline_move_cursor_y(1);
+						}
+					}
+				}
+			}
+		}
+	}
+	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// PUBLIC FUNCTIONS
+////////////////////////////////////////////////////////////////////////////////
+
+TrackerWidget::TrackerWidget(Tracker* _module) {
+	TrackerDisplay*		display;
+	TrackerInfoDisplay*	display_bpm;
+	TrackerEditDisplay*	display_edit;
+	int					i;
+
+	//
+	// BUTTONS:
+	// - TL1105
+	//
+	// KNOBS:
+	// - RoundBlackKnob
+	// - RoundKnob
+	// - Round(Big / Huge / Large / Small)BlackKnob
+	// - Trimpot (very small)
+	// - Rogan(1 / 2 / 3 / 5 / 6)(P / PS)(Blue / Green / Red / White / Gray)
+	// - Befaco(Big / Tiny)Knob
+	// - Davies1900h(Large)(Black / Red / White)Knob
+	//
+	// INPUTS:
+	// - PJ301MPort
+	//
+	// OUTPUTS:
+	// - PJ301MPort
+	//
+	// LIGHTS:
+	// - LargeLight<YellowLight>
+	// - SmallLight<YellowLight>
+	//
+
+	module = _module;
+	setModule(module);
+	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker.svg")));
+
+	/// [1] ADD PARAMS
+	//// PLAY BUTTONS
+	addParam(
+	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0, 6.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_PLAY_SONG));
+	addParam(
+	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0 + 8.0 * 1, 6.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_PLAY_PATTERN));
+	addParam(
+	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0 + 8.0 * 2, 6.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_PLAY));
+	addParam(
+	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0 + 8.0 * 3, 6.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_STOP));
+
+	//// MODE BUTTON
+	//// VIEW LIGHT SWITCHES
+	for (i = 0; i < 3; ++i) {
+		addParam(
+		/**/ createParamCentered<LEDButton>(mm2px(Vec(55.0 + 8.0 * i, 123.7)),
+		/**/ module,
+		/**/ Tracker::PARAM_MODE + i));
+		addChild(
+		/**/ createLightCentered<LargeLight<YellowLight>>(mm2px(Vec(55.0 + 8.0 * i, 123.7)),
+		/**/ module,
+		/**/ Tracker::LIGHT_MODE + i));
+	}
+
+	//// BPM / SYNTH / PATTERN KNOBS
+	addParam(
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0, 24.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_BPM));
+	addParam(
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0 + 11, 24.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_SYNTH));
+	addParam(
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0 + 22, 24.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_PATTERN));
+
+	//// EDIT KNOBS
+	for (i = 0; i < 9; ++i) {
+		addParam(
+		///**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 8.75 * i - 37.5)),
+		/**/ createParamCentered<KnobSmall>(mm2px(Vec(40.0, 73.0 + 7.80 * i - 37.5)),
+		/**/ module,
+		/**/ Tracker::PARAM_EDIT + i));
+	}
+	//// EDIT BUTTON
+	addParam(
+	/**/ createParamCentered<VCVButton>(mm2px(Vec(20.5, 106.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_EDIT_SAVE));
+
+	//// JUMP BUTTONS
+	addParam(
+	/**/ createParamCentered<TL1105>(mm2px(Vec(41.0, 12.5 + 10.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_JUMP_UP));
+	addParam(
+	/**/ createParamCentered<TL1105>(mm2px(Vec(41.0, 17.5 + 10.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_JUMP_DOWN));
+	//// OCTAVE BUTTONS
+	addParam(
+	/**/ createParamCentered<TL1105>(mm2px(Vec(47.0, 12.5 + 10.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_OCTAVE_UP));
+	addParam(
+	/**/ createParamCentered<TL1105>(mm2px(Vec(47.0, 17.5 + 10.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_OCTAVE_DOWN));
+
+	//// VIEW LIGHT SWITCHES
+	for (i = 0; i < 5; ++i) {
+		addParam(
+		/**/ createParamCentered<LEDButton>(mm2px(Vec(90.0 + 8.0 * i, 123.7)),
+		/**/ module,
+		/**/ Tracker::PARAM_VIEW + i));
+		addChild(
+		/**/ createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(90.0 + 8.0 * i, 123.7)),
+		/**/ module,
+		/**/ Tracker::LIGHT_VIEW + i));
+	}
+
+	/// [2] ADD OUTPUT
+	addOutput(
+	/**/ createOutputCentered<Outlet>(mm2px(Vec(237.0, 123.00)),
+	/**/ module,
+	/**/ Tracker::OUTPUT_CLOCK));
+
+	/// [3] ADD LIGHTS
+	addChild(
+	/**/ createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(241.25, 3.0)),
+	/**/ module,
+	/**/ Tracker::LIGHT_FOCUS));
+	addChild(
+	/**/ createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(241.25, 7.5)),
+	/**/ module,
+	/**/ Tracker::LIGHT_PLAY));
+
+	/// [4] ADD DISPLAYS
+	//// MAIN LED DISPLAY
+	display = createWidget<TrackerDisplay>(mm2px(Vec(65.50 - 14.0, 5.0)));
+	//display->box.size = mm2px(Vec(173.5 + 14.0, 94.5 + 15.0));
+	display->box.size = Vec(CHAR_W * (CHAR_COUNT_X + 3) + 4, CHAR_H * CHAR_COUNT_Y + 5.5);
+	display->module = module;
+	display->moduleWidget = this;
+	addChild(display);
+	//// BPM LED DISPLAY
+	display_bpm = createWidget<TrackerInfoDisplay>(mm2px(Vec(5.0, 13.0)));
+	display_bpm->box.size = mm2px(Vec(1.0, 1.0));
+	display_bpm->module = module;
+	display_bpm->moduleWidget = this;
+	addChild(display_bpm);
+	//// EDIT LED DISPLAY
+	// MODE FULL SCREEN
+	//display_edit = createWidget<TrackerEditDisplay>(mm2px(Vec(16.0, 5.0)));
+	//display_edit->box.size = Vec(CHAR_W * 16 + 4, CHAR_H * CHAR_COUNT_Y + 5.5);
+	// MODE SIDE SCREEN
+	display_edit = createWidget<TrackerEditDisplay>(mm2px(Vec(5.0, 70.5 - 38.0)));
+	display_edit->box.size = mm2px(Vec(29.5, 68.0));
+	display_edit->module = module;
+	display_edit->moduleWidget = this;
+	addChild(display_edit);
+}
+
+void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
+	if (g_editor.mode == EDITOR_MODE_PATTERN) {
+		if (event_key_pattern(e))
+			e.consume(this);
+	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+		if (event_key_timeline(e))
+			e.consume(this);
 	}
 }
 
