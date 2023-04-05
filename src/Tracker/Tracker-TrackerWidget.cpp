@@ -383,7 +383,7 @@ static bool event_key_timeline(const Widget::SelectKeyEvent &e) {
 							g_editor.timeline_char += 1;
 						} else {
 							cell->pattern =
-							/**/ cell->pattern / 10
+							/**/ (cell->pattern / 10) * 10
 							/**/ + key;
 							g_editor.timeline_move_cursor_y(1);
 						}
@@ -412,7 +412,7 @@ static bool event_key_timeline(const Widget::SelectKeyEvent &e) {
 							g_editor.timeline_char += 1;
 						} else {
 							cell->beat =
-							/**/ cell->beat / 10
+							/**/ (cell->beat / 10) * 10
 							/**/ + key;
 							g_editor.timeline_move_cursor_y(1);
 						}

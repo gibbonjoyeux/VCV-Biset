@@ -79,6 +79,8 @@ struct Clock {
 /// PatternSource stores its length (beat, line, note, cv).
 /// PatternSource stores its notes and cvs as extended 1D arrays. An array being
 ///  a row containing the lines (and thus notes or cv).
+/// PatternSource also stores the current playing line set by a corresponding
+///  PatternInstance.
 //////////////////////////////////////////////////
 
 struct PatternEffect {
@@ -132,6 +134,7 @@ struct PatternSource {
 	ArrayExt<PatternCVRow>		cvs;		// Row X CV lines
 	ArrayExt<PatternNoteRow>	notes;		// Row X Note lines
 	u8							lpb;		// Lines per beat
+	u16							line_play;	// Playing line
 	//u8							color;
 	//i16							index;
 

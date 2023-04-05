@@ -186,10 +186,10 @@ static bool compute_save_file(void) {
 	if (g_editor.pattern_jump > 16 || g_editor.pattern_octave > 9)
 		return false;
 	/// [3] GET TIMELINE
-	count = read_u16();
+	count = read_u16();									// Beat count
 	if (count == 0 || count > 9999)
 		return false;
-	g_timeline.resize(count);							// Beat count
+	g_timeline.resize(count);
 	count = read_u16();									// Set lines count
 	for (i = 0; i < count; ++i) {
 		column = read_u8();								// Column number
@@ -272,6 +272,7 @@ static bool compute_save_file(void) {
 	/// [6] SET ACTIVE SYNTH & PATTERN
 	g_editor.set_synth(synth_id, true);
 	g_editor.set_pattern(pattern_id, true);
+	g_editor.set_song_length(g_timeline.beat_count, true);
 	return true;
 }
 
@@ -318,6 +319,7 @@ static void load_template(void) {
 
 	g_editor.set_synth(0, true);
 	g_editor.set_pattern(0, true);
+	g_editor.set_song_length(g_timeline.beat_count, true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -86,15 +86,11 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 	/// [1] LAYER 1 (MARKERS + NOTES + CURVES)
 
 	/// DRAW BEAT CURSOR
-	// TODO: clean and not use g_timeline.debug
-	// but a pattern internal variable that is set to the line that
-	// is being read (last updated if multiple instance of same pattern)
-	// Only if play is on
 	nvgBeginPath(args.vg);
 	nvgFillColor(args.vg, colors[15]);
 	nvgRect(args.vg,
 	/**/ p.x,
-	/**/ p.y + 3.5 + CHAR_H * (g_timeline.debug - g_editor.pattern_cam_y),
+	/**/ p.y + 3.5 + CHAR_H * (pattern->line_play - g_editor.pattern_cam_y),
 	/**/ rect.getWidth() + 0.5, CHAR_H);
 	nvgFill(args.vg);
 
@@ -339,14 +335,14 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 
 	/// [1] LAYER 1 (MARKERS + NOTES + CURVES)
 
-	///// DRAW BEAT CURSOR
-	//nvgBeginPath(args.vg);
-	//nvgFillColor(args.vg, colors[15]);
-	//nvgRect(args.vg,
-	///**/ p.x,
-	///**/ p.y + 3.5 + CHAR_H * (g_timeline.debug - g_editor.pattern_cam_y),
-	///**/ rect.getWidth() + 0.5, CHAR_H);
-	//nvgFill(args.vg);
+	/// DRAW BEAT CURSOR
+	nvgBeginPath(args.vg);
+	nvgFillColor(args.vg, colors[15]);
+	nvgRect(args.vg,
+	/**/ p.x,
+	/**/ p.y + 3.5 + CHAR_H * (g_timeline.clock.beat - g_editor.pattern_cam_y),
+	/**/ rect.getWidth() + 0.5, CHAR_H);
+	nvgFill(args.vg);
 
 	/// DRAW TIMELINE CURSOR LINE
 	nvgBeginPath(args.vg);

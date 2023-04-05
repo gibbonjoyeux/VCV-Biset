@@ -38,6 +38,10 @@
 			- [x] Layer tracker (text only)
 			- [ ] Layer user (cursor + beat cursor)
 		- [ ] Screen Parameters
+			- [ ] Base pitch (default: 440)
+			- [ ] Temperaments (can be used as scale)
+			- [ ] Temperament preset (equal, just, ...)
+			- [ ] Temperament scale preset (major, minor, modes, ...)
 		- [ ] Screen Edition
 	- [x] SAVE
 		- [x] Save data
@@ -115,5 +119,5 @@
 [ ] cxx	Chance stop				(xx: chance)
 		Stop previous running note even if chance does not occur
 [ ] Rxx	Ratchet / Retrigger		(xx: retrigger interval) ? (x: amp fade y: interval)
-		x<8 : decrease | x>8 : increase | x=8 : static
+		x<5 : decrease | x>5 : increase | x=5 : static
 		y represents the interval between retriggers

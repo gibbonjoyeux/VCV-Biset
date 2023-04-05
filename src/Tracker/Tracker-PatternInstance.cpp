@@ -43,6 +43,7 @@ void PatternInstance::process(
 	line = clock.beat * pattern->lpb + clock.phase * pattern->lpb;
 	phase = clock.phase * pattern->lpb;
 	phase -= (int)phase;
+	pattern->line_play = line;
 
 	*debug = line;
 	*debug_2 = 0;
