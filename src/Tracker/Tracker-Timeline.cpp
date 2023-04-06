@@ -56,6 +56,8 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	this->clock.process(dt_beat);
 	if (this->clock.beat >= this->beat_count)
 		this->clock.beat = 0;
+
+	//// TRUNCATE FRAMERATE
 	if (frame % 64 != 0)
 		return;
 
@@ -111,9 +113,9 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 			}
 		}
 	}
-	/// [4] UPDATE SYNTHS
+	/// [4] UPDATE SYNTHS (WITH TRUNCATED FRAMERATE)
 	for (i = 0; i < 64; ++i)
-		synths[i].process(dt_sec, dt_beat);
+		synths[i].process(dt_sec * 64.0, dt_beat * 64.0);
 
 	/// [5] CLEAR THREAD FLAG
 	g_timeline.thread_flag.clear();

@@ -1,6 +1,9 @@
 
 # BUGS
 
+- [ ] Reduced frame rate on main process cause effects to be ultra slow
+		-> Reduce main computation but keep SynthVoice
+
 - [x] Crash: Cursor on CV column, change CV column count to 0.
 - [ ] Crash: On start / On add with template (due to template ?)
 - [ ] Crash: once on pattern change (via knob)
