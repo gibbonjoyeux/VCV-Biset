@@ -142,6 +142,7 @@ void Editor::save_edition(void) {
 	if (g_timeline.beat_count != beat_count) {
 		g_timeline.resize(beat_count);
 		this->set_song_length(beat_count, true);
+		this->timeline_clamp_cursor();
 	}
 	/// SYNTH CHANNELS
 	channels = g_editor.module->params[Tracker::PARAM_EDIT + 1].getValue();
@@ -157,7 +158,8 @@ void Editor::save_edition(void) {
 	|| lpb != g_editor.pattern->lpb
 	|| note_count != g_editor.pattern->note_count
 	|| cv_count != g_editor.pattern->cv_count) {
-		g_editor.pattern->resize(note_count, cv_count, beat_count, lpb);
+		this->pattern->resize(note_count, cv_count, beat_count, lpb);
+		this->pattern_clamp_cursor();
 	}
 	/// ROW
 	//// AS NOTE
@@ -264,11 +266,7 @@ void Editor::set_pattern(int index, bool mode) {
 	/// UPDATE PATTERN
 	this->pattern_id = index;
 	this->pattern = &(g_timeline.patterns[index]);
-	this->pattern_row = 0;
-	this->pattern_line = 0;
-	this->pattern_cell = 0;
-	this->pattern_cam_x = 0;
-	this->pattern_cam_y = 0;
+	this->pattern_reset_cursor();
 	/// UPDATE PATTERN PARAMS
 	//// PATTERN LENGTH
 	value = this->pattern->beat_count;
@@ -389,13 +387,13 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 					x += 4;
 				break;
 			}
-			x += (2 + 2 + 2 + 1);
+			x += (3 + 2 + 2 + 1);
 		}
 		i += 1;
 	}
 	//// OFFSET CAMERA
-	if (this->pattern_cam_x < x - (CHAR_COUNT_X - 2))
-		this->pattern_cam_x = x - (CHAR_COUNT_X - 2);
+	if (this->pattern_cam_x < x - (CHAR_COUNT_X - 3))
+		this->pattern_cam_x = x - (CHAR_COUNT_X - 3);
 	if (this->pattern_cam_x > x)
 		this->pattern_cam_x = x;
 }
@@ -427,6 +425,12 @@ void Editor::pattern_clamp_cursor(void) {
 	/// HANDLE LINE OVERFLOW
 	if (this->pattern_line >= pattern->line_count)
 		this->pattern_line = pattern->line_count - 1;
+	/// HANDLE COLUMN OVERFLOW
+	if (this->pattern_row >= pattern->note_count + pattern->cv_count) {
+		this->pattern_row = pattern->note_count + pattern->cv_count - 1;
+		this->pattern_cell = 0;
+		this->pattern_char = 0;
+	}
 	/// HANDLE CELL UNDERFLOW
 	if (this->pattern_cell < 0) {
 		this->pattern_row -= 1;
@@ -509,6 +513,15 @@ void Editor::pattern_clamp_cursor(void) {
 	}
 }
 
+void Editor::pattern_reset_cursor(void) {
+	this->pattern_row = 0;
+	this->pattern_line = 0;
+	this->pattern_cell = 0;
+	this->pattern_char = 0;
+	this->pattern_cam_x = 0;
+	this->pattern_cam_y = 0;
+}
+
 void Editor::timeline_move_cursor_x(int delta_x) {
 	/// [1] MOVE CURSOR
 	//// MOVE RIGHT
@@ -550,6 +563,21 @@ void Editor::timeline_move_cursor_y(int delta_y) {
 		this->timeline_cam_y = this->timeline_line - (CHAR_COUNT_Y - 1);
 	else if (this->timeline_cam_y > this->timeline_line)
 		this->timeline_cam_y = this->timeline_line;
+}
+
+void Editor::timeline_clamp_cursor(void) {
+	if (this->timeline_line < 0)
+		this->timeline_line = 0;
+	if (this->timeline_line >= g_timeline.beat_count)
+		this->timeline_line = g_timeline.beat_count - 1;
+}
+
+void Editor::timeline_reset_cursor(void) {
+	this->timeline_column = 0;
+	this->timeline_line = 0;
+	this->timeline_cell = 0;
+	this->timeline_char = 0;
+	this->timeline_cam_y = 0;
 }
 
 //////////////////////////////////////////////////

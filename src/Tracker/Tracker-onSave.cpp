@@ -4,6 +4,8 @@
 #include <fcntl.h>
 #include "Tracker.hpp"
 
+#define SAVE_MODE_RECORD	0
+#define SAVE_MODE_WRITE		1
 /*
 
 TRACKER BINARY SAVE FORMAT:
@@ -83,192 +85,68 @@ TRACKER BINARY SAVE FORMAT:
 ////////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////
-/// INIT BUFFER
-//////////////////////////////////////////////////
-
-static void init_save_buffer() {
-	PatternSource	*pattern;
-	PatternNoteRow	*note_col;
-	PatternNote		*note;
-	PatternCVRow	*cv_col;
-	u8				*buffer;
-	u32				size;
-	int				i, j, k;
-
-	/// [1] COMPUTE BUFFER SIZE
-	//// BASICS
-	size = sizeof(u8)		// Saving endian
-	/**/ + sizeof(u32)		// File size
-	/**/ + sizeof(u8)		// Active synth
-	/**/ + sizeof(u16)		// Active pattern
-	/**/ + sizeof(u8)		// Used jump
-	/**/ + sizeof(u8)		// Used octave
-	/**/ + sizeof(u8)		// View velocity
-	/**/ + sizeof(u8)		// View panning
-	/**/ + sizeof(u8)		// View delay
-	/**/ + sizeof(u8)		// View glide
-	/**/ + sizeof(u8);		// View effects
-	//// TIMELINE
-	size += sizeof(u16)		// Beat count
-	/**/ + sizeof(u16);		// Set lines count
-	for (i = 0; i < 12; ++i) {
-		for (j = 0; j < g_timeline.beat_count; ++j) {
-			if (g_timeline.timeline[i][j].mode == TIMELINE_CELL_NEW) {
-				size += sizeof(u8)		// Line (beat) column
-				/**/ + sizeof(u16)		// Line (beat) number
-				/**/ + sizeof(u8)		// Cell mode
-				/**/ + sizeof(u16)		// Cell pattern
-				/**/ + sizeof(u16);		// Cell beat
-			} else if (g_timeline.timeline[i][j].mode == TIMELINE_CELL_STOP) {
-				size += sizeof(u8)		// Line (beat) column
-				/**/ + sizeof(u16)		// Line (beat) number
-				/**/ + sizeof(u8);		// Cell mode
-			}
-		}
-	}
-	//// PATTERNS
-	for (i = 0; i < 256; ++i) {
-		pattern = &(g_timeline.patterns[i]);
-		size += sizeof(u16)				// Beat count
-		/**/ + sizeof(u8)				// Note count
-		/**/ + sizeof(u8)				// CV count
-		/**/ + sizeof(u8);				// lpb (lines per beat)
-		/// PATTERN NOTE COLUMNS
-		for (j = 0; j < pattern->note_count; ++j) {
-			note_col = pattern->notes[j];
-			size += sizeof(u8)			// Column mode (gate / trigger / drum)
-			/**/ + sizeof(u8)			// Effect count
-			/**/ + sizeof(u16);			// Set line count
-			for (k = 0; k < pattern->line_count; ++k) {
-				note = &(note_col->lines[k]);
-				if (note->mode == PATTERN_NOTE_NEW) {
-					size += sizeof(u16)	// Line number
-					/**/ + sizeof(u8)	// Note mode
-					/**/ + sizeof(u8)	// Note pitch
-					/**/ + sizeof(u8)	// Note velocity
-					/**/ + sizeof(u8)	// Note panning
-					/**/ + sizeof(u8)	// Note synth
-					/**/ + sizeof(u8)	// Note delay
-					/**/ + sizeof(u8)	// Note glide
-					/**/ + (sizeof(u8)	// Effect type
-					/**/ + sizeof(u8))	// Effect value
-					/**/ * note_col->effect_count;
-				} else if (note->mode == PATTERN_NOTE_STOP) {
-					size += sizeof(u16)	// Line number
-					/**/ + sizeof(u8)	// Note mode
-					/**/ + sizeof(u8);	// Note delay
-				} else if (note->mode == PATTERN_NOTE_CHANGE) {
-					size += sizeof(u16)	// Line number
-					/**/ + sizeof(u8)	// Note mode
-					/**/ + sizeof(u8)	// Note velocity
-					/**/ + sizeof(u8)	// Note panning
-					/**/ + sizeof(u8);	// Note delay
-				} else if (note->mode == PATTERN_NOTE_GLIDE) {
-					size += sizeof(u16)	// Line number
-					/**/ + sizeof(u8)	// Note mode
-					/**/ + sizeof(u8)	// Note pitch
-					/**/ + sizeof(u8);	// Note glide
-				}
-			}
-		}
-		/// PATTERN CV COLUMNS
-		for (j = 0; j < pattern->cv_count; ++j) {
-			cv_col = pattern->cvs[j];
-			size += sizeof(u8)			// Column mode (cv / bpm)
-			/**/ + sizeof(u8)			// Column synth
-			/**/ + sizeof(u8)			// Column channel
-			/**/ + sizeof(u16);			// Set lines count
-			for (k = 0; k < pattern->line_count; ++k) {
-				if (cv_col->lines[k].mode == PATTERN_CV_SET) {
-					size += sizeof(u16)	// Line number
-					/**/ + sizeof(u8)	// CV mode
-					/**/ + sizeof(u16)	// CV value
-					/**/ + sizeof(u8)	// CV delay
-					/**/ + sizeof(u8);	// CV curve
-				}
-			}
-		}
-	}
-	//// SYNTHS
-	size += sizeof(u8) * 64;			// Synth channel count
-
-	/// [2] ALLOC BUFFER
-	//// NEW BUFFER
-	if (g_timeline.save_buffer == NULL) {
-		buffer = (u8*)malloc(size);
-	//// RESIZE BUFFER
-	} else if (size != g_timeline.save_length) {
-		buffer = (u8*)realloc(g_timeline.save_buffer, size);
-		if (buffer == NULL) {
-			free(g_timeline.save_buffer);
-			g_timeline.save_buffer = NULL;
-		}
-	//// KEEP BUFFER
-	} else {
-		buffer = g_timeline.save_buffer;
-	}
-	g_timeline.save_buffer = buffer;
-	g_timeline.save_length = size;
-}
-
-//////////////////////////////////////////////////
 /// FILL BUFFER
 //////////////////////////////////////////////////
 
 static void fill_u8(u8 number) {
-	if (g_timeline.save_cursor + 1 > g_timeline.save_length) {
-		strcpy(g_timeline.debug_str, "FILL OVERFLOW");
-		return;
-	}
-	g_timeline.save_buffer[g_timeline.save_cursor] = number;
+	/// MODE WRITE
+	if (g_timeline.save_mode == true)
+		g_timeline.save_buffer[g_timeline.save_cursor] = number;
+	/// MODE RECORD & WRITE
 	g_timeline.save_cursor += 1;
 }
 
 static void fill_u16(u16 number) {
 	u8		*bytes;
 
-	if (g_timeline.save_cursor + 2 > g_timeline.save_length) {
-		strcpy(g_timeline.debug_str, "FILL OVERFLOW");
-		return;
+	/// MODE WRITE
+	if (g_timeline.save_mode == true) {
+		bytes = (u8*)&number;
+		g_timeline.save_buffer[g_timeline.save_cursor] = bytes[0];
+		g_timeline.save_buffer[g_timeline.save_cursor + 1] = bytes[1];
 	}
-	bytes = (u8*)&number;
-	g_timeline.save_buffer[g_timeline.save_cursor] = bytes[0];
-	g_timeline.save_buffer[g_timeline.save_cursor + 1] = bytes[1];
+	/// MODE RECORD & WRITE
 	g_timeline.save_cursor += 2;
 }
 
 static void fill_u32(u32 number) {
 	u8		*bytes;
 
-	if (g_timeline.save_cursor + 4 > g_timeline.save_length) {
-		strcpy(g_timeline.debug_str, "FILL OVERFLOW");
-		return;
+	/// MODE WRITE
+	if (g_timeline.save_mode == true) {
+		bytes = (u8*)&number;
+		g_timeline.save_buffer[g_timeline.save_cursor] = bytes[0];
+		g_timeline.save_buffer[g_timeline.save_cursor + 1] = bytes[1];
+		g_timeline.save_buffer[g_timeline.save_cursor + 2] = bytes[2];
+		g_timeline.save_buffer[g_timeline.save_cursor + 3] = bytes[3];
 	}
-	bytes = (u8*)&number;
-	g_timeline.save_buffer[g_timeline.save_cursor] = bytes[0];
-	g_timeline.save_buffer[g_timeline.save_cursor + 1] = bytes[1];
-	g_timeline.save_buffer[g_timeline.save_cursor + 2] = bytes[2];
-	g_timeline.save_buffer[g_timeline.save_cursor + 3] = bytes[3];
+	/// MODE RECORD & WRITE
 	g_timeline.save_cursor += 4;
 }
 
 static void fill_cursor_save(u8 size) {
-	g_timeline.save_cursor_save = g_timeline.save_cursor;
+	/// MODE WRITE
+	if (g_timeline.save_mode == true)
+		g_timeline.save_cursor_save = g_timeline.save_cursor;
+	/// MODE RECORD & WRITE
 	g_timeline.save_cursor += size;
 }
 
 static void fill_cursor_count(u8 size, u32 count) {
 	u32		cursor;
 
-	cursor = g_timeline.save_cursor;
-	g_timeline.save_cursor = g_timeline.save_cursor_save;
-	if (size == 1)
-		fill_u8(count);
-	else if (size == 2)
-		fill_u16(count);
-	else
-		fill_u32(count);
-	g_timeline.save_cursor = cursor;
+	/// MODE WRITE
+	if (g_timeline.save_mode == true) {
+		cursor = g_timeline.save_cursor;
+		g_timeline.save_cursor = g_timeline.save_cursor_save;
+		if (size == 1)
+			fill_u8(count);
+		else if (size == 2)
+			fill_u16(count);
+		else
+			fill_u32(count);
+		g_timeline.save_cursor = cursor;
+	}
 }
 
 static void fill_save_buffer() {
@@ -281,12 +159,10 @@ static void fill_save_buffer() {
 	int				i, j, k, l;
 	u16				count;
 
-	if (g_timeline.save_buffer == NULL)
+	if (g_timeline.save_mode == SAVE_MODE_WRITE
+	&& g_timeline.save_buffer == NULL)
 		return;
 	/// [1] ADD BASICS
-
-	strcpy(g_timeline.debug_str, "FILLING BUFFER !"); // ! ! ! ! !
-
 	g_timeline.save_cursor = 0;
 	fill_u8(endian_native());				// Saving endian
 	fill_u32(g_timeline.save_length);		// File size
@@ -399,6 +275,39 @@ static void fill_save_buffer() {
 	/// [4] SYNTHS
 	for (i = 0; i < 64; ++i)
 		fill_u8(g_timeline.synths[i].channel_count);	// Channel count
+}
+
+//////////////////////////////////////////////////
+/// INIT BUFFER
+//////////////////////////////////////////////////
+
+static void init_save_buffer() {
+	u8				*buffer;
+	u32				size;
+
+	/// [1] COMPUTE BUFFER SIZE
+	g_timeline.save_mode = SAVE_MODE_RECORD;
+	fill_save_buffer();
+	size = g_timeline.save_cursor;
+	g_timeline.save_mode = SAVE_MODE_WRITE;
+
+	/// [2] ALLOC BUFFER
+	//// NEW BUFFER
+	if (g_timeline.save_buffer == NULL) {
+		buffer = (u8*)malloc(size);
+	//// RESIZE BUFFER
+	} else if (size != g_timeline.save_length) {
+		buffer = (u8*)realloc(g_timeline.save_buffer, size);
+		if (buffer == NULL) {
+			free(g_timeline.save_buffer);
+			g_timeline.save_buffer = NULL;
+		}
+	//// KEEP BUFFER
+	} else {
+		buffer = g_timeline.save_buffer;
+	}
+	g_timeline.save_buffer = buffer;
+	g_timeline.save_length = size;
 }
 
 //////////////////////////////////////////////////

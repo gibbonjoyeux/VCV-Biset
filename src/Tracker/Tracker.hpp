@@ -96,7 +96,7 @@ struct PatternEffect {
 
 struct PatternCV {
 	i8							mode;		// PATTERN_CV_xxx
-	u8							value;
+	u16							value;
 	u8							delay;
 	u8							glide;
 
@@ -279,6 +279,7 @@ struct Timeline {
 	u32							save_cursor;
 	u32							save_cursor_save;
 	bool						save_endian_reverse;
+	bool						save_mode;
 
 	Timeline();
 
@@ -356,8 +357,11 @@ struct Editor {
 	void pattern_clamp_cursor(void);
 	void pattern_move_cursor_x(int x);
 	void pattern_move_cursor_y(int y);
+	void pattern_reset_cursor(void);
 	void timeline_move_cursor_x(int x);
 	void timeline_move_cursor_y(int y);
+	void timeline_clamp_cursor(void);
+	void timeline_reset_cursor(void);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

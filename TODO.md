@@ -1,9 +1,9 @@
 
 # BUGS
 
-- Crash: Cursor on CV column, change CV column count to 0.
-- Crash: On start / On add with template (due to template ?)
-- Crash: once on pattern change (via knob)
+- [x] Crash: Cursor on CV column, change CV column count to 0.
+- [ ] Crash: On start / On add with template (due to template ?)
+- [ ] Crash: once on pattern change (via knob)
 	-> Might be due to cursor position that gets out of bound on pattern change
 	to a smaller pattern (both line and column)
 	-> Check on empty pattern !
@@ -30,9 +30,11 @@
 				- [x] Note stop		(stop active note)
 				- [x] Note glide	(glide active note to new pitch)
 			- [ ] CV
-				- [ ] Mode CV
-				- [ ] Mode BPM
+				- [x] Mode CV
+				- [x] Mode BPM
 				- [ ] CV set		(set cv point)
+					- [x] CV value
+					- [ ] CV curve
 				- [x] CV keep		(continue interpolation)
 	- [ ] FRONTEND
 		- [ ] Screen mode (Tracker + Timeline + Parameters)
@@ -45,11 +47,22 @@
 			- [x] Layer tracker (text only)
 			- [ ] Layer user (cursor + beat cursor)
 		- [ ] Screen Parameters
+			- [ ] Frame rate (audio, audio / 2, audio / 4, ...)
 			- [ ] Base pitch (default: 440)
 			- [ ] Temperaments (can be used as scale)
 			- [ ] Temperament preset (equal, just, ...)
 			- [ ] Temperament scale preset (major, minor, modes, ...)
-		- [x] Screen Edition
+		- [ ] Screen Edition
+			- [x] Song
+			- [x] Synth
+			- [x] Pattern
+			- [x] Column
+				- [x] Note
+				- [ ] CV
+					- [x] Mode
+					- [ ] Synth
+					- [ ] Index
+					- [ ] Range (or editable from TrackerOut ?)
 	- [x] SAVE
 		- [x] Save data
 		- [x] Load data

@@ -30,6 +30,8 @@ static void ptext(const Widget::DrawArgs& args, Vec p, float x, float y,
 			nvgRect(args.vg, sx, sy - CHAR_H + 1.0, CHAR_W, CHAR_H);
 		else if (str[2] == 0)
 			nvgRect(args.vg, sx, sy - CHAR_H + 1.0, 2.0 * CHAR_W, CHAR_H);
+		else if (str[3] == 0)
+			nvgRect(args.vg, sx, sy - CHAR_H + 1.0, 3.0 * CHAR_W, CHAR_H);
 		nvgFill(args.vg);
 	}
 	/// [4] DRAW TEXT
@@ -287,12 +289,13 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			if (cv->mode == PATTERN_CV_KEEP) {
 				str[0] = '.';
 				str[1] = '.';
-				str[2] = 0;
+				str[2] = '.';
+				str[3] = 0;
 			} else {
-				itoaw(str, cv->value, 2);
+				itoaw(str, cv->value, 3);
 			}
 			ptext(args, p, tx_row, j, str, 3, focus);
-			tx_row += 2;
+			tx_row += 3;
 			/// GLIDE
 			focus = focus_line & (g_editor.pattern_cell == 1);
 			nvgFillColor(args.vg, colors[5]);
@@ -318,7 +321,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			ptext(args, p, tx_row, j, str, 10, focus);
 			tx_row += 2;
 		}
-		tx += (2 + 2 + 2 + 1);
+		tx += (3 + 2 + 2 + 1);
 	}
 }
 

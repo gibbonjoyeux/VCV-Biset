@@ -31,6 +31,7 @@ void PatternInstance::process(
 	char					*debug_str) {
 	int						line, row;
 	Synth					*synth;
+	PatternCVRow			*col_cv;
 	PatternCV				*cv_line, *cv_from, *cv_to;
 	PatternNoteRow			*row_note;
 	PatternNote				*note;
@@ -92,8 +93,9 @@ void PatternInstance::process(
 	}
 	/// [2] COMPUTE PATTERN CV ROWS
 	for (row = 0; row < pattern->cv_count; ++row) {
+		col_cv = pattern->cvs[row];
 		/// [A] COMPUTE KEY CV INTERPOLATION LINES
-		cv_line = &(pattern->cvs[row]->lines[line]);
+		cv_line = &(col_cv->lines[line]);
 		cv_from = NULL;
 		cv_to = NULL;
 		line_from = 0;
@@ -148,18 +150,33 @@ void PatternInstance::process(
 			/**/ * cv_phase;
 		//// WITHOUT BOTH INTERPOLATION LINES
 		} else {
-			if (cv_from)
+			if (cv_from) {
 				cv_value = cv_from->value;
-			else if (cv_to)
+			} else if (cv_to) {
 				cv_value = cv_to->value;
-			else
-				cv_value = 50.0;
+			} else {
+				if (col_cv->mode == PATTERN_CV_MODE_CV)
+					cv_value = 500.0;
+				else if (col_cv->mode == PATTERN_CV_MODE_BPM)
+					cv_value = 120.0;
+			}
 		}
-		/// REMAP CV FROM [0:99] TO [0:10]
-		cv_value /= 10.0;
 		/// [D] OUTPUT CV
-		synth = &(synths[pattern->cvs[row]->synth]);
-		synth->out_cv[pattern->cvs[row]->channel] = cv_value;
+		if (col_cv->mode == PATTERN_CV_MODE_CV) {
+			/// REMAP CV FROM [0:999] TO [0:10]
+			cv_value /= 100.0;
+			/// OUTPUT CV
+			synth = &(synths[pattern->cvs[row]->synth]);
+			synth->out_cv[pattern->cvs[row]->channel] = cv_value;
+		} else if (col_cv->mode == PATTERN_CV_MODE_BPM) {
+			/// CLAMP CV ON [30:300]
+			if (cv_value < 30)
+				cv_value = 30;
+			if (cv_value > 300)
+				cv_value = 300;
+			/// OUTPUT CV
+			g_editor.module->params[Tracker::PARAM_BPM].setValue(cv_value);
+		}
 	}
 }
 

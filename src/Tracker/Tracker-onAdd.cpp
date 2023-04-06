@@ -263,12 +263,8 @@ static bool compute_save_file(void) {
 		}
 	}
 	/// [5] GET SYNTHS
-	for (i = 0; i < 64; ++i) {
-		count = read_u8();								// Synth channel count
-		if (count == 0 || count > 16)
-			return false;
-		g_timeline.synths[i].channel_count = count;
-	}
+	for (i = 0; i < 64; ++i)
+		g_timeline.synths[i].channel_count = read_u8();	// Synth channel count
 	/// [6] SET ACTIVE SYNTH & PATTERN
 	g_editor.set_synth(synth_id, true);
 	g_editor.set_pattern(pattern_id, true);

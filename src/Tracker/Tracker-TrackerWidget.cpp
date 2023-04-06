@@ -273,14 +273,20 @@ static bool event_key_pattern(const Widget::SelectKeyEvent &e) {
 										line_cv->mode = PATTERN_CV_SET;
 									if (g_editor.pattern_char == 0) {
 										line_cv->value =
-										/**/ line_cv->value % 10
-										/**/ + key * 10;
+										/**/ key * 100
+										/**/ + line_cv->value % 100;
+										g_editor.pattern_char += 1;
+									} else if (g_editor.pattern_char == 1) {
+										line_cv->value =
+										/**/ (line_cv->value / 100) * 100
+										/**/ + key * 10
+										/**/ + (line_cv->value % 10);
 										g_editor.pattern_char += 1;
 									} else {
 										line_cv->value =
 										/**/ (line_cv->value / 10) * 10
 										/**/ + key;
-										g_editor.pattern_char = 0;
+										g_editor.pattern_move_cursor_y(1);
 									}
 								}
 							}
