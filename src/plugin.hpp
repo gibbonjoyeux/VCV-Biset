@@ -10,6 +10,7 @@ using				std::unique_ptr;
 #include "types.hpp"
 #include "components.hpp"
 #include "Tracker/Tracker.hpp"
+#include "TrackerOut/TrackerOut.hpp"
 //#include "TrackerOut.hpp"
 
 // Declare the Plugin, defined in plugin.cpp
