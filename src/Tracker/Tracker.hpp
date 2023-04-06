@@ -266,10 +266,10 @@ struct Timeline {
 	Clock						clock;
 	u16							beat_count;
 	Array2D<TimelineCell>		timeline;
-	PatternSource*				pattern_source[32];
-	TimelineCell*				pattern_cell[32];
-	u32							pattern_start[32];
-	PatternInstance				pattern_instance[32];
+	PatternSource*				pattern_source[12];
+	TimelineCell*				pattern_cell[12];
+	u32							pattern_start[12];
+	PatternInstance				pattern_instance[12];
 
 	PatternSource				patterns[256];
 	Synth						synths[64];
@@ -283,7 +283,7 @@ struct Timeline {
 
 	Timeline();
 
-	void process(float dt_sec, float dt_beat);
+	void process(i64 frame, float dt_sec, float dt_beat);
 	void resize(int beat_count);
 };
 
@@ -348,7 +348,7 @@ struct Editor {
 
 	Editor();
 
-	void process(void);
+	void process(i64 frame);
 	void save_edition(void);
 	void set_row(int index);
 	void set_song_length(int length, bool mode);

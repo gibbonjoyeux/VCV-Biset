@@ -49,10 +49,13 @@ Editor::Editor() {
 	this->synth_id = 0;
 }
 
-void Editor::process(void) {
+void Editor::process(i64 frame) {
 	Module			*module;
 	int				value;
 	int				i;
+
+	if (frame % 256 != 0)
+		return;
 
 	module = g_editor.module;
 	// TODO: check change in g_editor.pattern_row

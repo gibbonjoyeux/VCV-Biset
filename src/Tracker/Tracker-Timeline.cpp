@@ -23,7 +23,7 @@ Timeline::Timeline() {
 
 	this->thread_flag.clear();
 	/// [1] INIT ROWS
-	for (i = 0; i < 32; ++i) {
+	for (i = 0; i < 12; ++i) {
 		this->pattern_source[i] = NULL;
 		this->pattern_cell[i] = NULL;
 		this->pattern_start[i] = 0;
@@ -46,7 +46,7 @@ Timeline::Timeline() {
 	debug_str[0] = 0;
 }
 
-void Timeline::process(float dt_sec, float dt_beat) {
+void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	Clock					clock_relative;
 	PatternSource*			pattern;
 	TimelineCell*			cell;
@@ -56,13 +56,15 @@ void Timeline::process(float dt_sec, float dt_beat) {
 	this->clock.process(dt_beat);
 	if (this->clock.beat >= this->beat_count)
 		this->clock.beat = 0;
+	if (frame % 64 != 0)
+		return;
 
 	/// [2] CHECK THREAD FLAG
 	if (g_timeline.thread_flag.test_and_set())
 		return;
 
 	/// [3] UPDATE TIMELINE ROWS
-	for (i = 0; i < 32; ++i) {
+	for (i = 0; i < 12; ++i) {
 		cell = &(this->timeline[i][clock.beat]);
 		/// PATTERN CHANGE
 		if (cell->mode == TIMELINE_CELL_NEW
@@ -120,5 +122,5 @@ void Timeline::process(float dt_sec, float dt_beat) {
 void Timeline::resize(int beat_count) {
 	/// [1] RESIZE TIMELINE
 	this->beat_count = beat_count;
-	this->timeline.allocate(32, this->beat_count);
+	this->timeline.allocate(12, this->beat_count);
 }

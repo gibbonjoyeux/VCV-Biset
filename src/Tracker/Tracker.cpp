@@ -110,8 +110,7 @@ void Tracker::process(const ProcessArgs& args) {
 	float	bpm;
 
 	/// PROCESS EDITOR
-	if (args.frame % 256 == 0)
-		g_editor.process();
+	g_editor.process(args.frame);
 
 	/// COMPUTE CLOCK
 	bpm = params[PARAM_BPM].getValue();
@@ -129,7 +128,7 @@ void Tracker::process(const ProcessArgs& args) {
 		outputs[OUTPUT_CLOCK].setVoltage(0.0f);
 
 	/// PROCESS TIMELINE
-	g_timeline.process(dt_sec, dt_beat);
+	g_timeline.process(args.frame, dt_sec, dt_beat);
 
 
 	/// USE / MODIFY EXPANDERS

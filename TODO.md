@@ -29,6 +29,8 @@
 				- [ ] Note change	(change active note vel or pan)
 				- [x] Note stop		(stop active note)
 				- [x] Note glide	(glide active note to new pitch)
+				- [ ] Extra temperament table
+				- [ ] Extra base pitch (440)
 			- [ ] CV
 				- [x] Mode CV
 				- [x] Mode BPM
@@ -42,10 +44,11 @@
 			- [x] View modes (amp + pan + ...)
 			- [x] Layer tracker (text only)
 			- [ ] Layer visual (delay + curve representation)
-			- [ ] Layer user (cursor + beat cursor)
-		- [ ] Screen Timeline
+			- [x] Layer user (cursor + beat cursor)
+		- [x] Screen Timeline
 			- [x] Layer tracker (text only)
-			- [ ] Layer user (cursor + beat cursor)
+			- [ ] Layer visual
+			- [x] Layer user (cursor + beat cursor)
 		- [ ] Screen Parameters
 			- [ ] Frame rate (audio, audio / 2, audio / 4, ...)
 			- [ ] Base pitch (default: 440)
