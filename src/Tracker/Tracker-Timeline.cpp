@@ -31,7 +31,7 @@ Timeline::Timeline() {
 	}
 	/// [2] INIT SYNTHS
 	for (i = 0; i < 64; ++i) {
-		this->synths[i].init(i, 6);
+		this->synths[i].init(i, 1);
 	}
 	/// [3] INIT CLOCK
 	this->clock.reset();
@@ -54,12 +54,23 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 
 	/// [1] UPDATE CLOCK
 	this->clock.process(dt_beat);
-	if (this->clock.beat >= this->beat_count)
+	if (this->clock.beat >= this->beat_count) {
 		this->clock.beat = 0;
+		/// SWITCH OFF RUNNING PATTERNS
+		for (i = 0; i < 12; ++i) {
+			if (this->pattern_source[i] != NULL) {
+				this->pattern_instance[i].stop();
+				this->pattern_source[i] = NULL;
+				this->pattern_source[i] = NULL;
+				this->pattern_cell[i] = NULL;
+				this->pattern_start[i] = 0;
+			}
+		}
+	}
 
 	//// TRUNCATE FRAMERATE
-	if (frame % 64 != 0)
-		return;
+	//if (frame % 64 != 0)
+	//	return;
 
 	/// [2] CHECK THREAD FLAG
 	if (g_timeline.thread_flag.test_and_set())
@@ -113,9 +124,17 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 			}
 		}
 	}
+
+	// -> ! ! ! BOTTLENECK ! ! !
+	// -> Truncate framerate to run only every 32 / 64 frames
+	// -> Use boolean that defines if a Synth is used or not
+	//    (does a TrackerOut / TrackerDrumOut uses it, event on change / add /
+	//    remove / ...)
 	/// [4] UPDATE SYNTHS (WITH TRUNCATED FRAMERATE)
+	//for (i = 0; i < 64; ++i)
+	//	synths[i].process(dt_sec * 64.0, dt_beat * 64.0);
 	for (i = 0; i < 64; ++i)
-		synths[i].process(dt_sec * 64.0, dt_beat * 64.0);
+		synths[i].process(dt_sec, dt_beat);
 
 	/// [5] CLEAR THREAD FLAG
 	g_timeline.thread_flag.clear();

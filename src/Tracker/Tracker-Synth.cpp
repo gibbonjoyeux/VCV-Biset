@@ -10,16 +10,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 Synth::Synth() {
-	this->active = false;
 	this->index = 0;
 	this->channel_cur = 0;
-	this->channel_count = 6;
+	this->channel_count = 1;
 }
 
 void Synth::init(int synth_index, int channel_count) {
 	int			i, j;
 
-	this->active = true;
 	/// INIT VOICES
 	this->index = synth_index;
 	for (i = 0; i < 16; ++i) {
@@ -38,10 +36,10 @@ void Synth::init(int synth_index, int channel_count) {
 void Synth::process(float dt_sec, float dt_beat) {
 	int			i;
 
-	if (this->active == false)
-		return;
+	// -> ! ! ! BOTTLENECK ! ! !
+	// -> Call only if active ? On de-activation -> set output to 0
 	/// COMPUTE VOICES
-	for (i = 0; i < 16; ++i)
+	for (i = 0; i < this->channel_count; ++i)
 		this->voices[i].process(dt_sec, dt_beat, this->out_synth);
 }
 

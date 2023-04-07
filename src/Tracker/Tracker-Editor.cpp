@@ -136,6 +136,7 @@ void Editor::save_edition(void) {
 	int				channels;
 	int				note_mode, note_effect;
 	int				cv_mode, cv_synth, cv_channel;
+	int				i;
 
 	/// WAIT FOR THREAD FLAG
 	while (g_timeline.thread_flag.test_and_set()) {}
@@ -151,6 +152,8 @@ void Editor::save_edition(void) {
 	channels = g_editor.module->params[Tracker::PARAM_EDIT + 1].getValue();
 	if (g_timeline.synths[g_editor.synth_id].channel_count != channels) {
 		g_timeline.synths[g_editor.synth_id].channel_count = channels;
+		for (i = channels; i < 16; ++i)
+			g_timeline.synths[g_editor.synth_id].voices[i].stop(NULL, 0);
 	}
 	/// PATTERN
 	beat_count = g_editor.module->params[Tracker::PARAM_EDIT + 2].getValue();

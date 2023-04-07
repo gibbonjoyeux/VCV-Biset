@@ -22,6 +22,8 @@ void SynthVoice::process(
 	float					panning;
 	float					vibrato, tremolo;
 
+	// -> ! ! ! BOTTLENECK ! ! !
+
 	/// ON NOTE PLAY
 	if (this->active && this->delay <= 0 && this->delay_gate <= 0) {
 		/// COMPUTE CV

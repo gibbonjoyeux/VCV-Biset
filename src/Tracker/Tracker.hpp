@@ -200,7 +200,6 @@ struct SynthVoice {
 };
 
 struct Synth {
-	bool						active;
 	u8							index;
 	u8							channel_cur;
 	u8							channel_count;
