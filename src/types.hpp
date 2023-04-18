@@ -108,8 +108,9 @@ template<typename T> struct ArrayExt {
 		size_t	i;
 
 		/// DEFINE ARRAY SIZE
-		total_size = (size * sizeof(void*))
-		/**/ + ((sizeof(T) + extension_slot) * size);
+		total_size =
+		/**/ (size * sizeof(void*))						// Pointer zone
+		/**/ + (size * (sizeof(T) + extension_slot));	// Memory zone
 		/// ALLOC ARRAY
 		array_ptr = (void**)malloc(total_size);
 		if (array_ptr == NULL)

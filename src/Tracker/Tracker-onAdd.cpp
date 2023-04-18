@@ -69,10 +69,9 @@ TRACKER BINARY SAVE FORMAT:
 			- ? Mode CHANGE
 				- Note velocity					u8
 				- Note panning					u8
-				- Note synth
 				- Note delay					u8
 			- ? Mode GLIDE
-				- Note pitch
+				- Note pitch					u8
 				- Note glide					u8
 	- CV columns											x N
 		- Column mode							u8
@@ -82,7 +81,7 @@ TRACKER BINARY SAVE FORMAT:
 		- Lines (only set lines)
 			- Line number						u16
 			- CV mode							u8
-			- CV value							u8 / u16
+			- CV value							u16
 			- CV delay							u8
 			- CV curve							u8
 - Synths													x 64
@@ -173,8 +172,6 @@ static bool compute_save_file(void) {
 	/// [1] GET ACTIVE SYNTH & PATTERN
 	synth_id = read_u8();								// Active synth
 	pattern_id = read_u16();							// Active pattern
-	if (synth_id > 63 || pattern_id > 255)
-		return false;
 	/// [2] GET EDITOR BASICS
 	g_editor.pattern_jump = read_u8();					// Used jump
 	g_editor.pattern_octave = read_u8();				// Used octave
@@ -183,12 +180,8 @@ static bool compute_save_file(void) {
 	g_editor.switch_view[2].state = read_u8();			// View delay
 	g_editor.switch_view[3].state = read_u8();			// View glide
 	g_editor.switch_view[4].state = read_u8();			// View effects
-	if (g_editor.pattern_jump > 16 || g_editor.pattern_octave > 9)
-		return false;
 	/// [3] GET TIMELINE
 	count = read_u16();									// Beat count
-	if (count == 0 || count > 9999)
-		return false;
 	g_timeline.resize(count);
 	count = read_u16();									// Set lines count
 	for (i = 0; i < count; ++i) {
@@ -209,10 +202,6 @@ static bool compute_save_file(void) {
 		note_count = read_u8();							// Note count
 		cv_count = read_u8();							// CV count
 		lpb = read_u8();								// lpb
-		if (beat_count == 0 || beat_count > 999
-		|| note_count > 32 || cv_count > 32
-		|| lpb == 0 || lpb > 32)
-			return false;
 		pattern->resize(note_count, cv_count, beat_count, lpb);
 		/// PATTERN NOTES
 		for (j = 0; j < note_count; ++j) {
@@ -275,43 +264,35 @@ static bool compute_save_file(void) {
 static void load_template(void) {
 	PatternSource	*pattern;
 
-	g_timeline.resize(16);
+	g_timeline.resize(8);
 	g_timeline.timeline[0][0].mode = TIMELINE_CELL_NEW;
 	g_timeline.timeline[0][0].pattern = 0;
 	g_timeline.timeline[0][0].beat = 0;
 
 	pattern = &(g_timeline.patterns[0]);
-	pattern->resize(2, 0, 16, 4);
+	pattern->resize(2, 0, 8, 4);
 
 	/// FILL PATTERN SOURCE NOTES
 	pattern->notes[0]->lines[0].mode = PATTERN_NOTE_NEW;
 	pattern->notes[0]->lines[0].synth = 0;
 	pattern->notes[0]->lines[0].pitch = 63;
 	pattern->notes[0]->lines[0].velocity = 99;
+	pattern->notes[0]->lines[0].panning = 50;
 	pattern->notes[0]->lines[8].mode = PATTERN_NOTE_NEW;
 	pattern->notes[0]->lines[8].synth = 0;
 	pattern->notes[0]->lines[8].pitch = 61;
 	pattern->notes[0]->lines[8].velocity = 99;
+	pattern->notes[0]->lines[8].panning = 50;
 	pattern->notes[0]->lines[16].mode = PATTERN_NOTE_NEW;
 	pattern->notes[0]->lines[16].synth = 0;
 	pattern->notes[0]->lines[16].pitch = 66;
 	pattern->notes[0]->lines[16].velocity = 99;
+	pattern->notes[0]->lines[16].panning = 50;
 	pattern->notes[0]->lines[24].mode = PATTERN_NOTE_NEW;
 	pattern->notes[0]->lines[24].synth = 0;
 	pattern->notes[0]->lines[24].pitch = 70;
 	pattern->notes[0]->lines[24].velocity = 99;
-	pattern->notes[0]->lines[32].mode = PATTERN_NOTE_NEW;
-	pattern->notes[0]->lines[32].synth = 0;
-	pattern->notes[0]->lines[32].pitch = 68;
-	pattern->notes[0]->lines[32].velocity = 99;
-	pattern->notes[0]->lines[40].mode = PATTERN_NOTE_NEW;
-	pattern->notes[0]->lines[40].synth = 0;
-	pattern->notes[0]->lines[40].pitch = 63;
-	pattern->notes[0]->lines[40].velocity = 99;
-	pattern->notes[0]->lines[48].mode = PATTERN_NOTE_NEW;
-	pattern->notes[0]->lines[48].synth = 0;
-	pattern->notes[0]->lines[48].pitch = 70;
-	pattern->notes[0]->lines[48].velocity = 99;
+	pattern->notes[0]->lines[24].panning = 50;
 
 	g_editor.set_synth(0, true);
 	g_editor.set_pattern(0, true);

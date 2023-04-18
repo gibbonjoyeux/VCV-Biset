@@ -69,8 +69,8 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	}
 
 	//// TRUNCATE FRAMERATE
-	//if (frame % 64 != 0)
-	//	return;
+	if (frame % 64 != 0)
+		return;
 
 	/// [2] CHECK THREAD FLAG
 	if (g_timeline.thread_flag.test_and_set())
@@ -128,13 +128,13 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	// -> ! ! ! BOTTLENECK ! ! !
 	// -> Truncate framerate to run only every 32 / 64 frames
 	// -> Use boolean that defines if a Synth is used or not
-	//    (does a TrackerOut / TrackerDrumOut uses it, event on change / add /
-	//    remove / ...)
+	//    (TrackerOut / TrackerDrumOut set the boolean when they pull from the
+	//    corresponding synth
 	/// [4] UPDATE SYNTHS (WITH TRUNCATED FRAMERATE)
-	//for (i = 0; i < 64; ++i)
-	//	synths[i].process(dt_sec * 64.0, dt_beat * 64.0);
 	for (i = 0; i < 64; ++i)
-		synths[i].process(dt_sec, dt_beat);
+		synths[i].process(dt_sec * 64.0, dt_beat * 64.0);
+	//for (i = 0; i < 64; ++i)
+	//	synths[i].process(dt_sec, dt_beat);
 
 	/// [5] CLEAR THREAD FLAG
 	g_timeline.thread_flag.clear();

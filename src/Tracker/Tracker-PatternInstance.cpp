@@ -40,6 +40,7 @@ void PatternInstance::process(
 	float					phase, phase_from, phase_to;
 	float					cv_phase;
 	float					cv_value;
+	float					delay;
 
 	line = clock.beat * pattern->lpb + clock.phase * pattern->lpb;
 	phase = clock.phase * pattern->lpb;
@@ -56,39 +57,46 @@ void PatternInstance::process(
 	for (row = 0; row < pattern->note_count; ++row) {
 		row_note = pattern->notes[row];
 		note = &(row_note->lines[line]);
-		voice = this->voices[row];
 		/// CELL CHANGE
-		// TODO: ! ! ! Dangerous comparision as the PatternSource arrays
-		// might be reallocated on resize ! ! !
 		if (note != this->notes[row]) {
-			/// NOTE CHANGE
-			if (note->mode == PATTERN_NOTE_NEW) {
-				/// CLOSE ACTIVE NOTE
-				if (voice) {
-					voice->stop(note, pattern->lpb);
-					this->voices[row] = NULL;
-				}
-				/// ADD NEW NOTE
-				if (note->synth < 64) {
-					voice = synths[note->synth].add(row_note, note, pattern->lpb);
-					this->voices[row] = voice;
-				}
-			/// NOTE GLIDE
-			} else if (note->mode == PATTERN_NOTE_GLIDE) {
-				if (voice) {
-					voice->glide(note);
-				}
 			/// NOTE KEEP
-			} else if (note->mode == PATTERN_NOTE_GLIDE) {
-			/// NOTE STOP
-			} else if (note->mode == PATTERN_NOTE_STOP) {
-				/// CLOSE ACTIVE NOTE
-				if (voice) {
-					voice->stop(note, pattern->lpb);
-					this->voices[row] = NULL;
+			if (note->mode == PATTERN_NOTE_KEEP) {
+				this->notes[row] = note;
+			/// NOTE ACTION
+			} else {
+				/// HANDLE DELAY
+				delay = (float)note->delay / 100.0f;
+				if (phase > delay) {
+					voice = this->voices[row];
+					/// NOTE CHANGE
+					if (note->mode == PATTERN_NOTE_NEW) {
+						/// CLOSE ACTIVE NOTE
+						if (voice) {
+							voice->stop();
+							this->voices[row] = NULL;
+						}
+						/// ADD NEW NOTE
+						if (note->synth < 64) {
+							voice = synths[note->synth]
+							/**/ .add(row_note, note, pattern->lpb);
+							this->voices[row] = voice;
+						}
+					/// NOTE GLIDE
+					} else if (note->mode == PATTERN_NOTE_GLIDE) {
+						if (voice) {
+							voice->glide(note);
+						}
+					/// NOTE STOP
+					} else if (note->mode == PATTERN_NOTE_STOP) {
+						/// CLOSE ACTIVE NOTE
+						if (voice) {
+							voice->stop();
+							this->voices[row] = NULL;
+						}
+					}
+					this->notes[row] = note;
 				}
 			}
-			this->notes[row] = note;
 		}
 	}
 	/// [2] COMPUTE PATTERN CV ROWS
@@ -185,7 +193,7 @@ void PatternInstance::stop() {
 
 	for (row = 0; row < 32; ++row) {
 		if (this->voices[row])
-			this->voices[row]->stop(NULL, 0);
+			this->voices[row]->stop();
 		this->voices[row] = NULL;
 		this->notes[row] = NULL;
 	}

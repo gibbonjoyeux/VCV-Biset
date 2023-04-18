@@ -3,6 +3,11 @@
 
 - [x] Reduced frame rate on main process cause effects to be ultra slow
 		-> Reduce main computation but keep SynthVoice
+- [ ] Synth gate never comming back to 0
+- [ ] Crash: on start when lot of note are added:
+		-> Issue from onSave()
+		-> File size starts to be wrong after few lines added.
+		-> Seems that the file is completely offseted by one byte.
 - [x] Crash: Cursor on CV column, change CV column count to 0.
 - [ ] Crash: On start / On add with template (due to template ?)
 - [ ] Crash: once on pattern change (via knob)
@@ -124,6 +129,7 @@
 		Multiply base amplitude by noise (noise can only make it lower)
 [x] Pxx	Pan random				(xx: pan amplitude)
 		Add noise to base panning (bipolar noise)
+[ ] Dxx Delay random			(xx: delay amplitude)
 [x] Oxy	Octave random			(x: mode y: amplitude)
 		x = 0 : -+ offset
 		x = 1 : + offset

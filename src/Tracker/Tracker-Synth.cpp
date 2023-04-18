@@ -55,7 +55,7 @@ SynthVoice* Synth::add(PatternNoteRow *row, PatternNote *note, int lpb) {
 	} else {
 		voice = &(this->voices[this->channel_cur]);
 		if (voice->start(row, note, lpb) == true) {
-			this->channel_cur = (this->channel_cur + 1) % channel_count;
+			this->channel_cur = (this->channel_cur + 1) % this->channel_count;
 			return voice;
 		}
 	}

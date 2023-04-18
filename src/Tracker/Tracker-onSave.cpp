@@ -62,7 +62,7 @@ TRACKER BINARY SAVE FORMAT:
 				- Note panning					u8
 				- Note delay					u8
 			- ? Mode GLIDE
-				- Note pitch
+				- Note pitch					u8
 				- Note glide					u8
 	- CV columns											x N
 		- Column mode							u8
@@ -90,7 +90,7 @@ TRACKER BINARY SAVE FORMAT:
 
 static void fill_u8(u8 number) {
 	/// MODE WRITE
-	if (g_timeline.save_mode == true)
+	if (g_timeline.save_mode == SAVE_MODE_WRITE)
 		g_timeline.save_buffer[g_timeline.save_cursor] = number;
 	/// MODE RECORD & WRITE
 	g_timeline.save_cursor += 1;
@@ -100,7 +100,7 @@ static void fill_u16(u16 number) {
 	u8		*bytes;
 
 	/// MODE WRITE
-	if (g_timeline.save_mode == true) {
+	if (g_timeline.save_mode == SAVE_MODE_WRITE) {
 		bytes = (u8*)&number;
 		g_timeline.save_buffer[g_timeline.save_cursor] = bytes[0];
 		g_timeline.save_buffer[g_timeline.save_cursor + 1] = bytes[1];
@@ -113,7 +113,7 @@ static void fill_u32(u32 number) {
 	u8		*bytes;
 
 	/// MODE WRITE
-	if (g_timeline.save_mode == true) {
+	if (g_timeline.save_mode == SAVE_MODE_WRITE) {
 		bytes = (u8*)&number;
 		g_timeline.save_buffer[g_timeline.save_cursor] = bytes[0];
 		g_timeline.save_buffer[g_timeline.save_cursor + 1] = bytes[1];
@@ -126,7 +126,7 @@ static void fill_u32(u32 number) {
 
 static void fill_cursor_save(u8 size) {
 	/// MODE WRITE
-	if (g_timeline.save_mode == true)
+	if (g_timeline.save_mode == SAVE_MODE_WRITE)
 		g_timeline.save_cursor_save = g_timeline.save_cursor;
 	/// MODE RECORD & WRITE
 	g_timeline.save_cursor += size;
@@ -136,7 +136,7 @@ static void fill_cursor_count(u8 size, u32 count) {
 	u32		cursor;
 
 	/// MODE WRITE
-	if (g_timeline.save_mode == true) {
+	if (g_timeline.save_mode == SAVE_MODE_WRITE) {
 		cursor = g_timeline.save_cursor;
 		g_timeline.save_cursor = g_timeline.save_cursor_save;
 		if (size == 1)
@@ -157,7 +157,7 @@ static void fill_save_buffer() {
 	PatternCV		*cv;
 	TimelineCell	*cell;
 	int				i, j, k, l;
-	u16				count;
+	u32				count;
 
 	if (g_timeline.save_mode == SAVE_MODE_WRITE
 	&& g_timeline.save_buffer == NULL)
@@ -298,16 +298,15 @@ static void init_save_buffer() {
 	//// RESIZE BUFFER
 	} else if (size != g_timeline.save_length) {
 		buffer = (u8*)realloc(g_timeline.save_buffer, size);
-		if (buffer == NULL) {
+		if (buffer == NULL)
 			free(g_timeline.save_buffer);
-			g_timeline.save_buffer = NULL;
-		}
 	//// KEEP BUFFER
 	} else {
 		buffer = g_timeline.save_buffer;
 	}
 	g_timeline.save_buffer = buffer;
 	g_timeline.save_length = size;
+	sprintf(g_timeline.debug_str, "%p - %u", g_timeline.save_buffer, g_timeline.save_length);
 }
 
 //////////////////////////////////////////////////

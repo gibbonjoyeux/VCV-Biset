@@ -25,7 +25,7 @@ void SynthVoice::process(
 	// -> ! ! ! BOTTLENECK ! ! !
 
 	/// ON NOTE PLAY
-	if (this->active && this->delay <= 0 && this->delay_gate <= 0) {
+	if (this->active && this->delay_start <= 0 && this->delay_gate <= 0) {
 		/// COMPUTE CV
 		//pitch = (float)(this->pitch - 69) / 12.0f;
 		velocity = (float)this->velocity / 99.0 * 10.0;
@@ -68,7 +68,7 @@ void SynthVoice::process(
 			if (this->delay_stop < 0)
 				this->active = false;
 		}
-		/// SET OUTPUT (PITCH + GATE + VELOCITY)
+		/// SET OUTPUT (PITCH + GATE + VELOCITY + PANNING)
 		output[this->channel * 4 + 0] = pitch;
 		output[this->channel * 4 + 1] = 10.0f;
 		output[this->channel * 4 + 2] = velocity;
@@ -76,8 +76,8 @@ void SynthVoice::process(
 	/// ON NOTE DELAY
 	} else {
 		/// COMPUTE NOTE STARTING DELAY
-		if (this->delay > 0)
-			this->delay -= dt_beat;
+		if (this->delay_start > 0)
+			this->delay_start -= dt_beat;
 		/// COMPUTE INTER NOTES GATE DELAY
 		if (this->delay_gate > 0)
 			this->delay_gate -= dt_sec;
@@ -96,11 +96,9 @@ bool SynthVoice::start(
 	int						int_1, int_2;
 	float					float_1;
 
-	delay = (1.0f / (float)lpb) * ((float)note->delay / 100.0f);
-	/// SET INTER NOTE GATE DELAY
-	this->delay_gate = (this->active) ? 0.001f : 0.0f;
-	/// SET MAIN DELAY
-	this->delay = delay;
+	/// SET DELAY
+	this->delay_gate = 0.001f;
+	this->delay_start = 0.0f;
 	this->delay_stop = 0;
 	if (row->mode == PATTERN_NOTE_MODE_TRIGGER
 	|| row->mode == PATTERN_NOTE_MODE_DRUM)
@@ -134,6 +132,8 @@ bool SynthVoice::start(
 					int_2 = 99;
 				this->panning = int_2;
 				break;
+			//case PATTERN_EFFECT_RAND_DELAY:		// Dxx
+			//	break;
 			case PATTERN_EFFECT_RAND_OCT:		// Oxy
 				x = effect->value / 10;
 				y = effect->value % 10;
@@ -214,19 +214,8 @@ void SynthVoice::glide(
 	}
 }
 
-void SynthVoice::stop(PatternNote *note, int lpb) {
-	if (this->active == false)
-		return;
-	if (note) {
-		if (note->delay > 0) {
-			this->delay_stop =
-			/**/ (1.0f / (float)lpb) * ((float)note->delay / 100.0f);
-		} else {
-			this->active = false;
-		}
-	} else {
-		this->active = false;
-	}
+void SynthVoice::stop(void) {
+	this->active = false;
 }
 
 void SynthVoice::init(int synth, int channel) {
@@ -243,7 +232,7 @@ void SynthVoice::reset() {
 	this->pitch_glide_cur = 0.0;
 	this->pitch_from = 0.0;
 	this->pitch_to = 0.0;
-	this->delay = 0;
+	this->delay_start = 0;
 	this->vibrato_amp = 0;
 	this->vibrato_freq = 0;
 	this->vibrato_phase = 0.0;

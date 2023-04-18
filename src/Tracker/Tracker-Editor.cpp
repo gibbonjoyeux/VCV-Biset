@@ -153,7 +153,7 @@ void Editor::save_edition(void) {
 	if (g_timeline.synths[g_editor.synth_id].channel_count != channels) {
 		g_timeline.synths[g_editor.synth_id].channel_count = channels;
 		for (i = channels; i < 16; ++i)
-			g_timeline.synths[g_editor.synth_id].voices[i].stop(NULL, 0);
+			g_timeline.synths[g_editor.synth_id].voices[i].stop();
 	}
 	/// PATTERN
 	beat_count = g_editor.module->params[Tracker::PARAM_EDIT + 2].getValue();
