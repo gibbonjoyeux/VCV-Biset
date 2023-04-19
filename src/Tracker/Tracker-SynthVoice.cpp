@@ -132,8 +132,10 @@ bool SynthVoice::start(
 					int_2 = 99;
 				this->panning = int_2;
 				break;
-			//case PATTERN_EFFECT_RAND_DELAY:		// Dxx
-			//	break;
+			case PATTERN_EFFECT_RAND_DELAY:		// Dxx
+				float_1 = random::uniform() * (effect->value / 99.0);
+				this->delay_start = float_1 / (float)lpb;
+				break;
 			case PATTERN_EFFECT_RAND_OCT:		// Oxy
 				x = effect->value / 10;
 				y = effect->value % 10;

@@ -15,16 +15,17 @@
 #define PATTERN_EFFECT_NONE			0
 #define PATTERN_EFFECT_RAND_AMP		1	// Axx
 #define PATTERN_EFFECT_RAND_PAN		2	// Pxx
-#define PATTERN_EFFECT_RAND_OCT		3	// Oxy
-#define PATTERN_EFFECT_RAND_PITCH	4	// Mxy
-#define PATTERN_EFFECT_RAND_SCALE	5	// Sxy
-#define PATTERN_EFFECT_VIBRATO		6	// Vxy
-#define PATTERN_EFFECT_TREMOLO		7	// Txy
-#define PATTERN_EFFECT_FADE_IN		8	// Fxx
-#define PATTERN_EFFECT_FADE_OUT		9	// fxx
-#define PATTERN_EFFECT_CHANCE		10	// Cxx
-#define PATTERN_EFFECT_CHANCE_STOP	11	// cxx
-#define PATTERN_EFFECT_RACHET		12	// Rxy
+#define PATTERN_EFFECT_RAND_DELAY	3	// Dxx
+#define PATTERN_EFFECT_RAND_OCT		4	// Oxy
+#define PATTERN_EFFECT_RAND_PITCH	5	// Mxy
+#define PATTERN_EFFECT_RAND_SCALE	6	// Sxy
+#define PATTERN_EFFECT_VIBRATO		7	// Vxy
+#define PATTERN_EFFECT_TREMOLO		8	// Txy
+#define PATTERN_EFFECT_FADE_IN		9	// Fxx
+#define PATTERN_EFFECT_FADE_OUT		10	// fxx
+#define PATTERN_EFFECT_CHANCE		11	// Cxx
+#define PATTERN_EFFECT_CHANCE_STOP	12	// cxx
+#define PATTERN_EFFECT_RACHET		13	// Rxy
 
 #define PATTERN_NOTE_KEEP			0
 #define PATTERN_NOTE_NEW			1
@@ -51,7 +52,7 @@
 
 
 extern char		table_pitch[12][3];
-extern char		table_effect[13];					// 12
+extern char		table_effect[14];					// 12
 extern char		table_hex[17];					// 16
 extern int		table_keyboard[128];
 extern NVGcolor	colors[16];
