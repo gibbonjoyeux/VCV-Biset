@@ -4,10 +4,14 @@
 - [x] Reduced frame rate on main process cause effects to be ultra slow
 		-> Reduce main computation but keep SynthVoice
 - [x] Synth gate never comming back to 0
-- [ ] Crash: on start when lot of note are added:
+- [x] Crash: on start when lot of note are added:
 		-> Issue from onSave()
 		-> File size starts to be wrong after few lines added.
 		-> Seems that the file is completely offseted by one byte.
+		-> One byte (0x0d) is added at 3nd byte position after 1st byte of
+		   u32 file size.
+		-> Buffer stays good even after write() and close() so issue does not
+		   come from buffer filling.
 - [x] Crash: Cursor on CV column, change CV column count to 0.
 - [ ] Crash: On start / On add with template (due to template ?)
 - [ ] Crash: once on pattern change (via knob)

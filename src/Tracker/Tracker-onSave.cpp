@@ -4,8 +4,12 @@
 #include <fcntl.h>
 #include "Tracker.hpp"
 
+#include <iostream>
+#include <fstream>
+
 #define SAVE_MODE_RECORD	0
 #define SAVE_MODE_WRITE		1
+
 /*
 
 TRACKER BINARY SAVE FORMAT:
@@ -306,7 +310,6 @@ static void init_save_buffer() {
 	}
 	g_timeline.save_buffer = buffer;
 	g_timeline.save_length = size;
-	sprintf(g_timeline.debug_str, "%p - %u", g_timeline.save_buffer, g_timeline.save_length);
 }
 
 //////////////////////////////////////////////////
@@ -314,21 +317,43 @@ static void init_save_buffer() {
 //////////////////////////////////////////////////
 
 static void write_save_buffer() {
-	std::string	path;
-	int			fd;
+	//std::string	path;
+	//int			fd;
 
-	if (g_timeline.save_buffer == NULL)
-		return;
-	/// [1] GET PATH
+	//if (g_timeline.save_buffer == NULL)
+	//	return;
+	///// [1] GET PATH
+	//path = system::join(
+	///**/ g_editor.module->createPatchStorageDirectory(),
+	///**/ "save.btr");
+	///// [2] OPEN FILE
+	//fd = open(path.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0666);
+	///// [3] WRITE FILE
+	//if (fd > 0) {
+	//	write(fd, g_timeline.save_buffer, g_timeline.save_length);
+	//	close(fd);
+
+	//	u8	*buffer = g_timeline.save_buffer;
+	//	sprintf(g_timeline.debug_str,
+	//	/**/ "%.2x | %.2x %.2x %.2x %.2x | %.2x %.2x %.2x",
+	//	/**/ buffer[0],
+	//	/**/ buffer[1], buffer[2], buffer[3], buffer[4],
+	//	/**/ buffer[5], buffer[6], buffer[7]);
+	//}
+
+	std::string		path;
+	std::ofstream	file;
+
+	/// COMPUTE PATH
 	path = system::join(
 	/**/ g_editor.module->createPatchStorageDirectory(),
 	/**/ "save.btr");
-	/// [2] OPEN FILE
-	fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	/// [3] WRITE FILE
-	if (fd > 0) {
-		write(fd, g_timeline.save_buffer, g_timeline.save_length);
-		close(fd);
+	/// OPEN FILE
+	file.open(path, std::ios::out | std::ios::binary | std::ios::trunc);
+	/// WRITE FILE
+	if (file.is_open()) {
+		file.write((const char*)g_timeline.save_buffer, g_timeline.save_length);
+		file.close();
 	}
 }
 
