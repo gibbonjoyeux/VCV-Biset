@@ -208,7 +208,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			/// DELAY
 			if (g_editor.switch_view[2].state) {
 				focus = focus_line & (g_editor.pattern_cell == 5);
-				if (note->mode == PATTERN_NOTE_NEW) {
+				if (note->mode != PATTERN_NOTE_KEEP) {
 					itoaw(str, note->delay, 2);
 				} else {
 					str[0] = '.';
