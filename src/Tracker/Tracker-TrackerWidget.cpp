@@ -661,3 +661,169 @@ void TrackerWidget::onDeselect(const DeselectEvent &e) {
 //void TrackerWidget::onDragEnd(const DragEndEvent& e) {
 //	APP->window->cursorUnlock();
 //}
+
+struct MenuSliderQuantity : Quantity {
+	float		*ptr;
+	float		def;
+	float		min;
+	float		max;
+	std::string	label;
+
+	MenuSliderQuantity(float *ptr, std::string label, float def, float min, float max) {
+		*ptr = def;
+		this->ptr = ptr;
+		this->def = def;
+		this->min = min;
+		this->max = max;
+		this->label = label;
+	}
+
+	void setValue(float value) override {
+		if (value < this->min)
+			value = this->min;
+		if (value > this->max)
+			value = this->max;
+		*(this->ptr) = value; 
+	}
+	float getValue(void) override {
+		return *(this->ptr);
+	}
+	float getDisplayValue(void) override {
+		//return (float)(int)*(this->ptr);
+		return *(this->ptr);
+	}
+	float getMinValue() override { return this->min; }
+	float getMaxValue() override { return this->max; }
+	float getDefaultValue() override {return this->def; }
+	std::string getLabel() override { return label; }
+	std::string getUnit() override { return " "; }
+};
+
+struct MenuSlider : ui::Slider {
+
+	MenuSlider(float *value, std::string label, float def, float min, float max) {
+		this->quantity = new MenuSliderQuantity(value, label, def, min, max);
+	}
+
+	~MenuSlider() {
+		delete this->quantity;
+	}
+};
+
+float test_value = 0;
+
+void TrackerWidget::appendContextMenu(Menu *menu) {
+	MenuSeparator	*separator;
+	MenuLabel		*label;
+	MenuSlider		*slider;
+
+	separator = new MenuSeparator();
+	menu->addChild(separator);
+
+	//label = new MenuLabel();
+	//label->text = "Rate";
+	//menu->addChild(label);
+
+	/// [1] BASE PITCH
+	slider = new MenuSlider(&test_value, "Base Pitch", 440, 400, 500);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+
+	/// [2] RATE
+	menu->addChild(rack::createSubmenuItem("Rate", "",
+		[=](Menu *menu) {
+			menu->addChild(createCheckMenuItem("Sample rate / 1", "",
+				[=]() { return g_timeline.rate_divider == 1; },
+				[=]() { g_timeline.rate_divider = 1; }
+			));
+			menu->addChild(createCheckMenuItem("Sample rate / 2", "",
+				[=]() { return g_timeline.rate_divider == 2; },
+				[=]() { g_timeline.rate_divider = 2; }
+			));
+			menu->addChild(createCheckMenuItem("Sample rate / 4", "",
+				[=]() { return g_timeline.rate_divider == 4; },
+				[=]() { g_timeline.rate_divider = 4; }
+			));
+			menu->addChild(createCheckMenuItem("Sample rate / 8", "",
+				[=]() { return g_timeline.rate_divider == 8; },
+				[=]() { g_timeline.rate_divider = 8; }
+			));
+			menu->addChild(createCheckMenuItem("Sample rate / 16", "",
+				[=]() { return g_timeline.rate_divider == 16; },
+				[=]() { g_timeline.rate_divider = 16; }
+			));
+			menu->addChild(createCheckMenuItem("Sample rate / 32", "",
+				[=]() { return g_timeline.rate_divider == 32; },
+				[=]() { g_timeline.rate_divider = 32; }
+			));
+			menu->addChild(createCheckMenuItem("Sample rate / 64", "",
+				[=]() { return g_timeline.rate_divider == 64; },
+				[=]() { g_timeline.rate_divider = 64; }
+			));
+			menu->addChild(createCheckMenuItem("Sample rate / 128", "",
+				[=]() { return g_timeline.rate_divider == 128; },
+				[=]() { g_timeline.rate_divider = 128; }
+			));
+		}
+	));
+
+	/// [3] TEMPERAMENT
+	menu->addChild(rack::createSubmenuItem("Temperament", "",
+		[=](Menu *menu) {
+			MenuSlider *slider;
+			/// PRESETS
+			//// REGULAR PRESETS
+			//// SCALE PRESETS
+			/// MANUAL
+			//// C
+			slider = new MenuSlider(&test_value, "C", 0.0, 0.0, 12.0);
+			slider->box.size.x = 200.f;
+			menu->addChild(slider);
+			//// C#
+			slider = new MenuSlider(&test_value, "C#", 1.0, 0.0, 12.0);
+			slider->box.size.x = 200.f;
+			menu->addChild(slider);
+			//// D
+			slider = new MenuSlider(&test_value, "D", 2.0, 0.0, 12.0);
+			slider->box.size.x = 200.f;
+			menu->addChild(slider);
+			//// D#
+			slider = new MenuSlider(&test_value, "D#", 3.0, 0.0, 12.0);
+			slider->box.size.x = 200.f;
+			menu->addChild(slider);
+			//// E
+			slider = new MenuSlider(&test_value, "E", 4.0, 0.0, 12.0);
+			slider->box.size.x = 200.f;
+			menu->addChild(slider);
+			//// F
+			slider = new MenuSlider(&test_value, "F", 5.0, 0.0, 12.0);
+			slider->box.size.x = 200.f;
+			menu->addChild(slider);
+			//// F#
+			slider = new MenuSlider(&test_value, "F#", 6.0, 0.0, 12.0);
+			slider->box.size.x = 200.f;
+			menu->addChild(slider);
+			//// G
+			slider = new MenuSlider(&test_value, "G", 7.0, 0.0, 12.0);
+			slider->box.size.x = 200.f;
+			menu->addChild(slider);
+			//// G#
+			slider = new MenuSlider(&test_value, "G#", 8.0, 0.0, 12.0);
+			slider->box.size.x = 200.f;
+			menu->addChild(slider);
+			//// A
+			slider = new MenuSlider(&test_value, "A", 9.0, 0.0, 12.0);
+			slider->box.size.x = 200.f;
+			menu->addChild(slider);
+			//// A#
+			slider = new MenuSlider(&test_value, "A#", 10.0, 0.0, 12.0);
+			slider->box.size.x = 200.f;
+			menu->addChild(slider);
+			//// B
+			slider = new MenuSlider(&test_value, "B", 11.0, 0.0, 12.0);
+			slider->box.size.x = 200.f;
+			menu->addChild(slider);
+		}, false
+	));
+
+}

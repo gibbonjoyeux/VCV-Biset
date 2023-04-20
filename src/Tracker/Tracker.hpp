@@ -265,6 +265,7 @@ struct Timeline {
 	std::atomic_flag			thread_flag;
 	Clock						clock;
 	u16							beat_count;
+	u8							rate_divider;
 	Array2D<TimelineCell>		timeline;
 	PatternSource*				pattern_source[12];
 	TimelineCell*				pattern_cell[12];
@@ -463,6 +464,7 @@ struct TrackerWidget : ModuleWidget {
 	void onHoverScroll(const HoverScrollEvent &e) override;
 	void onSelect(const SelectEvent &e) override;
 	void onDeselect(const DeselectEvent &e) override;
+	void appendContextMenu(Menu *menu) override;
 
 	//void onDragStart(const DragStartEvent& e) override;
 	//void onDragMove(const DragMoveEvent& e) override;

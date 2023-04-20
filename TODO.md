@@ -24,7 +24,7 @@
 - [ ] MODULE Tracker
 	- [ ] BACKEND
 		- [ ] PLAY
-			- [x] Play song
+			- [ ] Play song
 			- [ ] Play pattern
 		- [x] TIMELINE
 			- [x] Pattern new		(run new pattern)
@@ -44,6 +44,8 @@
 				- [ ] Extra base pitch (440)
 			- [ ] CV
 				- [x] Mode CV
+				- [ ] Mode Trigger
+				- [ ] Mode Gate
 				- [x] Mode BPM
 				- [ ] CV set		(set cv point)
 					- [x] CV value
@@ -60,22 +62,23 @@
 			- [x] Layer tracker (text only)
 			- [ ] Layer visual
 			- [x] Layer user (cursor + beat cursor)
-		- [ ] Screen Parameters
+		- [ ] Screen Parameters -> Can be accessed via context menu (right click)
 			- [ ] Frame rate (audio, audio / 2, audio / 4, ...)
 			- [ ] Base pitch (default: 440)
 			- [ ] Temperaments (can be used as scale)
-			- [ ] Temperament preset (equal, just, ...)
-			- [ ] Temperament scale preset (major, minor, modes, ...)
+				- [ ] Temperament manual
+				- [ ] Temperament preset (equal, just, ...)
+				- [ ] Temperament scale preset (major, minor, modes, ...)
 		- [ ] Screen Edition
 			- [x] Song
 			- [x] Synth
 			- [x] Pattern
 			- [x] Column
 				- [x] Note
-				- [ ] CV
+				- [x] CV
 					- [x] Mode
-					- [ ] Synth
-					- [ ] Index
+					- [x] Synth
+					- [x] Index
 					- [ ] Range (or editable from TrackerOut ?)
 	- [x] SAVE
 		- [x] Save data

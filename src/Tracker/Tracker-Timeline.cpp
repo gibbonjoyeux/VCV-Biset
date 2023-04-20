@@ -37,6 +37,7 @@ Timeline::Timeline() {
 	this->clock.reset();
 	/// [4] INIT TIMELINE
 	this->resize(16);
+	this->rate_divider = 64;
 	/// [5] INIT SAVE BUFFER
 	this->save_buffer = NULL;
 	this->save_length = 0;
