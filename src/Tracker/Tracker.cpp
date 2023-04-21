@@ -48,6 +48,11 @@ Tracker::Tracker() {
 	configButton(PARAM_JUMP_UP, "Jump +");
 	configButton(PARAM_JUMP_DOWN, "Jump -");
 
+	configParam(PARAM_PITCH_OFFSET, -2.0f, 2.0f, 0.0f, "Pitch offset");
+	configParam(PARAM_RATE, 1, 512, 64, "Rate");
+	for (i = 0; i < 12; ++i)
+		configParam(PARAM_TEMPERAMENT + i, 0.0f, 12.0f, i * 1.0f, table_pitch[i]);
+
 	configLight(LIGHT_FOCUS, "Focus");
 	configLight(LIGHT_PLAY, "Play");
 

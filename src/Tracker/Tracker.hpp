@@ -386,6 +386,9 @@ struct Tracker : Module {
 								ENUMS(PARAM_EDIT, 9),
 								ENUMS(PARAM_MODE, 3),
 								ENUMS(PARAM_VIEW, 5),
+								PARAM_PITCH_OFFSET,
+								PARAM_RATE,
+								ENUMS(PARAM_TEMPERAMENT, 12),
 								PARAM_COUNT
 	};
 	enum InputIds {
@@ -452,6 +455,7 @@ struct TrackerEditDisplay : LedDisplay {
 
 	void draw(const DrawArgs &args) override {};
 	void drawLayer(const DrawArgs& args, int layer) override;
+	void onButton(const ButtonEvent &e) override;
 };
 
 
