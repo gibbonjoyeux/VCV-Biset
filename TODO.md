@@ -1,6 +1,8 @@
 
 # BUGS
 
+- [ ] ! ! ! Sometimes, on multi channels synth, gate / trigger got issue and
+		miss lot of notes.
 - [x] Reduced frame rate on main process cause effects to be ultra slow
 		-> Reduce main computation but keep SynthVoice
 - [x] Synth gate never comming back to 0

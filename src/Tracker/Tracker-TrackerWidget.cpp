@@ -505,8 +505,7 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0, 24.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_BPM));
-	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0 + 11, 24.0)),
+	addParam(createParamCentered<KnobMedium>(mm2px(Vec(9.0 + 11, 24.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_SYNTH));
 	addParam(
@@ -699,6 +698,43 @@ void TrackerWidget::onDeselect(const DeselectEvent &e) {
 //	std::string getUnit() override { return " "; }
 //};
 
+struct MenuTextField : ui::TextField {
+	MenuTextField(void) {
+		this->box.size = Vec(20, 20);	// ?
+		this->multiline = false;
+		this->setText("Cuicui ?");
+	}
+};
+
+struct MenuTextFieldLinked : ui::TextField {
+	MenuTextFieldLinked(Quantity *quantity) {
+		char	str[32];
+
+		this->box.size = Vec(20, 20);	// ?
+		this->multiline = false;
+		sprintf(str, "%.2f", quantity->getValue());
+		this->setText(str);
+	}
+};
+
+struct MenuItemStay : ui::MenuItem {
+	std::function<void()>	action_func;
+
+	MenuItemStay(std::string text_left, std::string text_right,
+	std::function< void()> action) {
+		this->text = text_left;
+		this->rightText = text_right;
+		this->action_func = action;
+	}
+
+	void onButton(const ButtonEvent &e) override {
+		if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+			this->action_func();
+			e.stopPropagating();
+		}
+	}
+};
+
 struct MenuSlider : ui::Slider {
 
 	//MenuSlider(float *value, std::string label, float def, float min, float max) {
@@ -710,6 +746,29 @@ struct MenuSlider : ui::Slider {
 
 	~MenuSlider() {
 		//delete this->quantity;
+	}
+
+	//void onButton(const ButtonEvent &e) override {
+	//	e.stopPropagating();
+	//}
+
+	void onButton(const ButtonEvent &e) override {
+		if (e.button == GLFW_MOUSE_BUTTON_RIGHT) {
+			MenuLabel		*label;
+			Menu			*menu;
+
+			menu = createMenu();
+			menu->box.size.x = 200;
+
+			label = new MenuLabel();
+			label->text = "Edit value";
+			menu->addChild(label);
+
+			//menu->addChild(new MenuTextField());
+			menu->addChild(new MenuTextFieldLinked(this->quantity));
+
+			e.stopPropagating();
+		}
 	}
 };
 
@@ -725,6 +784,10 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 	separator = new MenuSeparator();
 	menu->addChild(separator);
 
+	//MenuItem	*item;
+	//item = new MenuItemStay("test stay", [=](){});
+	//menu->addChild(item);
+
 	//label = new MenuLabel();
 	//label->text = "Rate";
 	//menu->addChild(label);
@@ -733,25 +796,72 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 	menu->addChild(rack::createSubmenuItem("Pitch offset", "",
 		[=](Menu *menu) {
 			MenuSlider		*slider;
+			MenuItem		*item;
+			rack::Widget	*holder;
+
+			/// SLIDER
 			slider = new MenuSlider(g_editor.module->paramQuantities[Tracker::PARAM_PITCH_OFFSET]);
 			slider->box.size.x = 200.f;
 			menu->addChild(slider);
 
-			menu->addChild(createMenuItem("Oct -2", "",
+
+			holder = new rack::Widget();
+			holder->box.size.x = 200.0f;
+			holder->box.size.y = 20.0f;
+
+			item = new MenuItemStay("-2", "",	
 				[=]() { param_pitch->setValue(-2); }
-			));
-			menu->addChild(createMenuItem("Oct -1", "",
+			);
+			item->box.size.x = 30.0f;
+			item->box.size.y = 20.0f;
+			holder->addChild(item);
+			item = new MenuItemStay("-1", "",
 				[=]() { param_pitch->setValue(-1); }
-			));
-			menu->addChild(createMenuItem("Oct 0", "",
+			);
+			item->box.size.x = 30.0f;
+			item->box.size.y = 20.0f;
+			item->box.pos.x = 40.0f;
+			holder->addChild(item);
+			item = new MenuItemStay("0", "",
 				[=]() { param_pitch->setValue(0); }
-			));
-			menu->addChild(createMenuItem("Oct +1", "",
-				[=]() { param_pitch->setValue(1); }
-			));
-			menu->addChild(createMenuItem("Oct +2", "",
-				[=]() { param_pitch->setValue(2); }
-			));
+			);
+			item->box.size.x = 30.0f;
+			item->box.size.y = 20.0f;
+			item->box.pos.x = 80.0f;
+			holder->addChild(item);
+			item = new MenuItemStay("+1", "",
+				[=]() { param_pitch->setValue(+1); }
+			);
+			item->box.size.x = 30.0f;
+			item->box.size.y = 20.0f;
+			item->box.pos.x = 120.0f;
+			holder->addChild(item);
+			item = new MenuItemStay("+2", "",
+				[=]() { param_pitch->setValue(+2); }
+			);
+			item->box.size.x = 30.0f;
+			item->box.size.y = 20.0f;
+			item->box.pos.x = 158.0f;
+			holder->addChild(item);
+
+			menu->addChild(holder);
+
+			/// PRESETS
+			//menu->addChild(createMenuItem("Oct -2", "",
+			//	[=]() { param_pitch->setValue(-2); }
+			//));
+			//menu->addChild(createMenuItem("Oct -1", "",
+			//	[=]() { param_pitch->setValue(-1); }
+			//));
+			//menu->addChild(createMenuItem("Oct 0", "",
+			//	[=]() { param_pitch->setValue(0); }
+			//));
+			//menu->addChild(createMenuItem("Oct +1", "",
+			//	[=]() { param_pitch->setValue(1); }
+			//));
+			//menu->addChild(createMenuItem("Oct +2", "",
+			//	[=]() { param_pitch->setValue(2); }
+			//));
 		}
 	));
 
@@ -803,11 +913,11 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 			//// REGULAR PRESETS
 			menu->addChild(rack::createSubmenuItem("Presets temperament", "",
 				[=](Menu *menu) {
-					menu->addChild(createMenuItem("Equal", "default",
+					menu->addChild(new MenuItemStay("Equal", "default",
 						[=]() {
 						}
 					));
-					menu->addChild(createMenuItem("Just", "",
+					menu->addChild(new MenuItemStay("Just", "",
 						[=]() {
 						}
 					));
@@ -816,15 +926,15 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 			//// SCALE PRESETS
 			menu->addChild(rack::createSubmenuItem("Presets scale", "",
 				[=](Menu *menu) {
-					menu->addChild(createMenuItem("Diatonic", "default",
+					menu->addChild(new MenuItemStay("Diatonic", "default",
 						[=]() {
 						}
 					));
-					menu->addChild(createMenuItem("Major", "",
+					menu->addChild(new MenuItemStay("Major", "",
 						[=]() {
 						}
 					));
-					menu->addChild(createMenuItem("Minor", "",
+					menu->addChild(new MenuItemStay("Minor", "",
 						[=]() {
 						}
 					));
