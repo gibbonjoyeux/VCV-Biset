@@ -714,6 +714,7 @@ struct MenuTextFieldLinked : ui::TextField {
 		this->multiline = false;
 		sprintf(str, "%.2f", quantity->getValue());
 		this->setText(str);
+		this->selectAll();
 	}
 };
 
@@ -747,28 +748,46 @@ struct MenuSlider : ui::Slider {
 	~MenuSlider() {
 		//delete this->quantity;
 	}
+};
 
-	//void onButton(const ButtonEvent &e) override {
-	//	e.stopPropagating();
-	//}
+struct MenuSliderEdit : rack::Widget {
+	MenuItem		*item_button;
+	MenuSlider		*item_slider;
+	Quantity		*quantity;
 
-	void onButton(const ButtonEvent &e) override {
-		if (e.button == GLFW_MOUSE_BUTTON_RIGHT) {
-			MenuLabel		*label;
-			Menu			*menu;
+	MenuSliderEdit(ParamQuantity *quantity) {
+		this->box.size.y = 20.0f;
+		/// INIT QUANTITY
+		this->quantity = quantity;
+		/// INIT BUTTON
+		//// "▸" //// "▴" //// "▾" //// "◆"
+		this->item_button = new MenuItemStay("▾", "",	
+			[=]() {
+				MenuLabel		*label;
+				Menu			*menu;
 
-			menu = createMenu();
-			menu->box.size.x = 200;
+				menu = createMenu();
+				menu->box.size.x = 200;
 
-			label = new MenuLabel();
-			label->text = "Edit value";
-			menu->addChild(label);
+				label = new MenuLabel();
+				label->text = "Edit value";
+				menu->addChild(label);
 
-			//menu->addChild(new MenuTextField());
-			menu->addChild(new MenuTextFieldLinked(this->quantity));
+				menu->addChild(new MenuTextFieldLinked(this->quantity));
+			}
+		);
+		this->item_button->box.size.x = 20.0f;
+		this->item_button->box.size.y = 20.0f;
+		this->addChild(this->item_button);
+		/// INIT SLIDER
+		this->item_slider = new MenuSlider(quantity);
+		this->item_slider->box.size.x = 180.f;
+		this->item_slider->box.size.y = 20.f;
+		this->item_slider->box.pos.x = 20.f;
+		this->addChild(this->item_slider);
+	}
 
-			e.stopPropagating();
-		}
+	~MenuSliderEdit() {
 	}
 };
 
@@ -795,15 +814,14 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 	/// [1] BASE PITCH
 	menu->addChild(rack::createSubmenuItem("Pitch offset", "",
 		[=](Menu *menu) {
-			MenuSlider		*slider;
+			MenuSliderEdit	*slider;
 			MenuItem		*item;
 			rack::Widget	*holder;
 
 			/// SLIDER
-			slider = new MenuSlider(g_editor.module->paramQuantities[Tracker::PARAM_PITCH_OFFSET]);
+			slider = new MenuSliderEdit(g_editor.module->paramQuantities[Tracker::PARAM_PITCH_OFFSET]);
 			slider->box.size.x = 200.f;
 			menu->addChild(slider);
-
 
 			holder = new rack::Widget();
 			holder->box.size.x = 200.0f;
@@ -906,8 +924,8 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 	/// [3] TEMPERAMENT
 	menu->addChild(rack::createSubmenuItem("Temperament", "",
 		[=](Menu *menu) {
-			MenuSlider	*slider;
-			int			i;
+			MenuSliderEdit	*slider;
+			int				i;
 
 			/// PRESETS
 			//// REGULAR PRESETS
@@ -942,7 +960,7 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 			));
 			/// MANUAL
 			for (i = 0; i < 12; ++i) {
-				slider = new MenuSlider(g_editor.module->paramQuantities[Tracker::PARAM_TEMPERAMENT + i]);
+				slider = new MenuSliderEdit(g_editor.module->paramQuantities[Tracker::PARAM_TEMPERAMENT + i]);
 				slider->box.size.x = 200.f;
 				menu->addChild(slider);
 			}
