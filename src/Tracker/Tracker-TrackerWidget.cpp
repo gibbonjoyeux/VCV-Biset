@@ -5,6 +5,16 @@
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
+static void set_scale(float *table) {
+	float	value;
+	int		i;
+
+	for (i = 0; i < 12; ++i) {
+		value = table[i] / 100.0;
+		g_editor.module->params[Tracker::PARAM_TEMPERAMENT + i].setValue(value);
+	}
+}
+
 static int key_midi(const Widget::SelectKeyEvent &e) {
 	int			midi;
 
@@ -80,6 +90,8 @@ static bool event_key_pattern(const Widget::SelectKeyEvent &e) {
 								else if (line_note->mode == PATTERN_NOTE_KEEP)
 									line_note->mode = PATTERN_NOTE_STOP;
 								else if (line_note->mode == PATTERN_NOTE_STOP)
+									line_note->mode = PATTERN_NOTE_KEEP;
+								else if (line_note->mode == PATTERN_NOTE_GLIDE)
 									line_note->mode = PATTERN_NOTE_KEEP;
 							/// NOTE EDIT
 							} else {
@@ -950,12 +962,28 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 			menu->addChild(rack::createSubmenuItem("Presets temperament", "",
 				[=](Menu *menu) {
 					menu->addChild(new MenuItemStay("Equal", "default",
-						[=]() {
-						}
+						[=]() { set_scale(table_temp_equal); }
 					));
 					menu->addChild(new MenuItemStay("Just", "",
-						[=]() {
-						}
+						[=]() { set_scale(table_temp_just); }
+					));
+					menu->addChild(new MenuItemStay("Pythagorean", "",
+						[=]() { set_scale(table_temp_pyth); }
+					));
+					menu->addChild(new MenuItemStay("Wendy Carlos Super Just", "",
+						[=]() { set_scale(table_temp_carlos_super_just); }
+					));
+					menu->addChild(new MenuItemStay("Wendy Carlos Harmonic", "",
+						[=]() { set_scale(table_temp_carlos_harmonic); }
+					));
+					menu->addChild(new MenuItemStay("Kirnberger", "",
+						[=]() { set_scale(table_temp_kirnberger); }
+					));
+					menu->addChild(new MenuItemStay("Vallotti Young", "",
+						[=]() { set_scale(table_temp_vallotti_young); }
+					));
+					menu->addChild(new MenuItemStay("Werckmeister", "",
+						[=]() { set_scale(table_temp_werckmeister); }
 					));
 				}
 			));

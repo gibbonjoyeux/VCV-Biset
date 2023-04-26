@@ -178,7 +178,7 @@ struct SynthVoice {
 
 	u8							synth;
 	u8							channel;
-	u8							pitch;
+	//u8							pitch;
 	u8							velocity;
 	u8							panning;
 
