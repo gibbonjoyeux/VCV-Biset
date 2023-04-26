@@ -37,7 +37,6 @@ Timeline::Timeline() {
 	this->clock.reset();
 	/// [4] INIT TIMELINE
 	this->resize(16);
-	this->rate_divider = 64;
 	/// [5] INIT SAVE BUFFER
 	this->save_buffer = NULL;
 	this->save_length = 0;
@@ -51,6 +50,7 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	Clock					clock_relative;
 	PatternSource*			pattern;
 	TimelineCell*			cell;
+	int						rate_divider;
 	int						i;
 
 	/// [1] UPDATE CLOCK
@@ -70,14 +70,23 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	}
 
 	//// TRUNCATE FRAMERATE
-	if (frame % 64 != 0)
+	rate_divider = g_editor.module->params[Tracker::PARAM_RATE].getValue();
+	if (frame % rate_divider != 0)
 		return;
 
 	/// [2] CHECK THREAD FLAG
 	if (g_timeline.thread_flag.test_and_set())
 		return;
 
-	/// [3] UPDATE TIMELINE ROWS
+	/// [3] COMPUTE TEMPERAMENT
+	//// BASE PITCH OFFSET (FROM 440Hz)
+	this->pitch_base_offset =
+	/**/ log2(g_editor.module->params[Tracker::PARAM_PITCH_BASE].getValue() / 440.0);
+	//// TEMPERAMENT SCALE
+	for (i = 0; i < 12; ++i)
+		this->pitch_scale[i] = g_editor.module->params[Tracker::PARAM_TEMPERAMENT + i].getValue();
+
+	/// [4] UPDATE TIMELINE ROWS
 	for (i = 0; i < 12; ++i) {
 		cell = &(this->timeline[i][clock.beat]);
 		/// PATTERN CHANGE
@@ -131,13 +140,13 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	// -> Use boolean that defines if a Synth is used or not
 	//    (TrackerOut / TrackerDrumOut set the boolean when they pull from the
 	//    corresponding synth
-	/// [4] UPDATE SYNTHS (WITH TRUNCATED FRAMERATE)
+	/// [5] UPDATE SYNTHS (WITH TRUNCATED FRAMERATE)
 	for (i = 0; i < 64; ++i)
-		synths[i].process(dt_sec * 64.0, dt_beat * 64.0);
+		synths[i].process(dt_sec * rate_divider, dt_beat * rate_divider);
 	//for (i = 0; i < 64; ++i)
 	//	synths[i].process(dt_sec, dt_beat);
 
-	/// [5] CLEAR THREAD FLAG
+	/// [6] CLEAR THREAD FLAG
 	g_timeline.thread_flag.clear();
 }
 

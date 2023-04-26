@@ -707,14 +707,35 @@ struct MenuTextField : ui::TextField {
 };
 
 struct MenuTextFieldLinked : ui::TextField {
-	MenuTextFieldLinked(Quantity *quantity) {
+	Quantity	*quantity;
+
+	MenuTextFieldLinked(Quantity *quantity, int precision = 2) {
 		char	str[32];
 
-		this->box.size = Vec(20, 20);	// ?
+		/// INIT STRING
+		sprintf(str, "%.*f", precision, quantity->getValue());
+		/// INIT TEXT FIELD
+		this->box.size.x = 50;
 		this->multiline = false;
-		sprintf(str, "%.2f", quantity->getValue());
 		this->setText(str);
 		this->selectAll();
+		this->quantity = quantity;
+
+		APP->event->setSelectedWidget(this);
+		this->selectAll();
+	}
+
+	void onSelectKey(const SelectKeyEvent &e) override {
+		float	value;
+
+		if (e.action == GLFW_PRESS
+		&& e.key == GLFW_KEY_ENTER) {
+			value = atof((char*)this->getText().c_str());
+			this->quantity->setValue(value);
+			this->parent->requestDelete();
+		} else {
+			ui::TextField::onSelectKey(e);
+		}
 	}
 };
 
@@ -766,13 +787,14 @@ struct MenuSliderEdit : rack::Widget {
 				MenuLabel		*label;
 				Menu			*menu;
 
+				/// CREATE MENU
 				menu = createMenu();
 				menu->box.size.x = 200;
-
+				/// INIT MENU LABEL
 				label = new MenuLabel();
 				label->text = "Edit value";
 				menu->addChild(label);
-
+				/// INIT MENU TEXT FIELD
 				menu->addChild(new MenuTextFieldLinked(this->quantity));
 			}
 		);
@@ -797,7 +819,7 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 	Param			*param_pitch;
 	Param			*param_rate;
 
-	param_pitch = &(g_editor.module->params[Tracker::PARAM_PITCH_OFFSET]);
+	param_pitch = &(g_editor.module->params[Tracker::PARAM_PITCH_BASE]);
 	param_rate = &(g_editor.module->params[Tracker::PARAM_RATE]);
 
 	separator = new MenuSeparator();
@@ -819,20 +841,23 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 			rack::Widget	*holder;
 
 			/// SLIDER
-			slider = new MenuSliderEdit(g_editor.module->paramQuantities[Tracker::PARAM_PITCH_OFFSET]);
+			slider = new MenuSliderEdit(g_editor.module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
 			slider->box.size.x = 200.f;
 			menu->addChild(slider);
 
+			/// PRESETS
+			//// HOLDER
 			holder = new rack::Widget();
 			holder->box.size.x = 200.0f;
 			holder->box.size.y = 20.0f;
-
+			//// OCT -2
 			item = new MenuItemStay("-2", "",	
 				[=]() { param_pitch->setValue(-2); }
 			);
 			item->box.size.x = 30.0f;
 			item->box.size.y = 20.0f;
 			holder->addChild(item);
+			//// OCT -1
 			item = new MenuItemStay("-1", "",
 				[=]() { param_pitch->setValue(-1); }
 			);
@@ -840,6 +865,7 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 			item->box.size.y = 20.0f;
 			item->box.pos.x = 40.0f;
 			holder->addChild(item);
+			//// OCT 0
 			item = new MenuItemStay("0", "",
 				[=]() { param_pitch->setValue(0); }
 			);
@@ -847,6 +873,7 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 			item->box.size.y = 20.0f;
 			item->box.pos.x = 80.0f;
 			holder->addChild(item);
+			//// OCT +1
 			item = new MenuItemStay("+1", "",
 				[=]() { param_pitch->setValue(+1); }
 			);
@@ -854,6 +881,7 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 			item->box.size.y = 20.0f;
 			item->box.pos.x = 120.0f;
 			holder->addChild(item);
+			//// OCT +2
 			item = new MenuItemStay("+2", "",
 				[=]() { param_pitch->setValue(+2); }
 			);
@@ -861,25 +889,7 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 			item->box.size.y = 20.0f;
 			item->box.pos.x = 158.0f;
 			holder->addChild(item);
-
 			menu->addChild(holder);
-
-			/// PRESETS
-			//menu->addChild(createMenuItem("Oct -2", "",
-			//	[=]() { param_pitch->setValue(-2); }
-			//));
-			//menu->addChild(createMenuItem("Oct -1", "",
-			//	[=]() { param_pitch->setValue(-1); }
-			//));
-			//menu->addChild(createMenuItem("Oct 0", "",
-			//	[=]() { param_pitch->setValue(0); }
-			//));
-			//menu->addChild(createMenuItem("Oct +1", "",
-			//	[=]() { param_pitch->setValue(1); }
-			//));
-			//menu->addChild(createMenuItem("Oct +2", "",
-			//	[=]() { param_pitch->setValue(2); }
-			//));
 		}
 	));
 
@@ -917,6 +927,14 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 			menu->addChild(createCheckMenuItem("Sample rate / 128", "",
 				[=]() { return param_rate->getValue() == 128; },
 				[=]() { param_rate->setValue(128); }
+			));
+			menu->addChild(createCheckMenuItem("Sample rate / 256", "",
+				[=]() { return param_rate->getValue() == 256; },
+				[=]() { param_rate->setValue(256); }
+			));
+			menu->addChild(createCheckMenuItem("Sample rate / 512", "",
+				[=]() { return param_rate->getValue() == 512; },
+				[=]() { param_rate->setValue(512); }
 			));
 		}
 	));

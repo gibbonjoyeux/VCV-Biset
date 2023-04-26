@@ -55,6 +55,14 @@ extern char		table_pitch[12][3];
 extern char		table_effect[14];					// 12
 extern char		table_hex[17];					// 16
 extern int		table_keyboard[128];
+extern float	table_temp_equal[12];
+extern float	table_temp_just[12];
+extern float	table_temp_pyth[12];
+extern float	table_temp_carlos_super_just[12];
+extern float	table_temp_carlos_harmonic[12];
+extern float	table_temp_kirnberger[12];
+extern float	table_temp_vallotti_young[12];
+extern float	table_temp_werckmeister[12];
 extern NVGcolor	colors[16];
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -265,12 +273,14 @@ struct Timeline {
 	std::atomic_flag			thread_flag;
 	Clock						clock;
 	u16							beat_count;
-	u8							rate_divider;
 	Array2D<TimelineCell>		timeline;
 	PatternSource*				pattern_source[12];
 	TimelineCell*				pattern_cell[12];
 	u32							pattern_start[12];
 	PatternInstance				pattern_instance[12];
+
+	float						pitch_base_offset;
+	float						pitch_scale[12];
 
 	PatternSource				patterns[256];
 	Synth						synths[64];
@@ -386,7 +396,7 @@ struct Tracker : Module {
 								ENUMS(PARAM_EDIT, 9),
 								ENUMS(PARAM_MODE, 3),
 								ENUMS(PARAM_VIEW, 5),
-								PARAM_PITCH_OFFSET,
+								PARAM_PITCH_BASE,
 								PARAM_RATE,
 								ENUMS(PARAM_TEMPERAMENT, 12),
 								PARAM_COUNT

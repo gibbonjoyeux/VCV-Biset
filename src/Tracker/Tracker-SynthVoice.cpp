@@ -69,8 +69,7 @@ void SynthVoice::process(
 				this->active = false;
 		}
 		/// SET OUTPUT (PITCH + GATE + VELOCITY + PANNING)
-		output[this->channel * 4 + 0] = pitch
-		/**/ + g_editor.module->params[Tracker::PARAM_PITCH_OFFSET].getValue();
+		output[this->channel * 4 + 0] = pitch + g_timeline.pitch_base_offset;
 		output[this->channel * 4 + 1] = 10.0f;
 		output[this->channel * 4 + 2] = velocity;
 		output[this->channel * 4 + 3] = panning;

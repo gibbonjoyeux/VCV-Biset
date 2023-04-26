@@ -65,8 +65,8 @@
 			- [ ] Layer visual
 			- [x] Layer user (cursor + beat cursor)
 		- [ ] Screen Parameters -> Can be accessed via context menu (right click)
-			- [ ] Frame rate (audio, audio / 2, audio / 4, ...)
-			- [ ] Base pitch (default: 440)
+			- [x] Frame rate (audio, audio / 2, audio / 4, ...)
+			- [x] Base pitch (default: 440)
 			- [ ] Temperaments (can be used as scale)
 				- [ ] Temperament manual
 				- [ ] Temperament preset (equal, just, ...)
