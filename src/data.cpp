@@ -116,7 +116,7 @@ float	table_temp_vallotti_young[] = {
 	1000.000,
 	1090.225
 };
-float	table_temp_werckmeister[] = {
+float	table_temp_werckmeister_3[] = {
 	// http://www.microtonal-synthesis.com/scale_werckmeisterIII.html
 	0.0,
 	90.225,

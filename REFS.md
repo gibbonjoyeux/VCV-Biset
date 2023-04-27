@@ -13,3 +13,7 @@
 # CONTEXT MENU SLIDERS
 - https://community.vcvrack.com/t/how-to-implement-context-menu-slider/18110/8
 - https://github.com/knchaffin/Meander/blob/master-V2/src/Meander.cpp (MinMaxMenuSlider & MinMaxQuantity & appendContextMenu())
+
+# TEMPERAMENT & SCALES
+- http://www.microtonal-synthesis.com/scales.html
+- https://www.huygens-fokker.org/docs/scalesdir.txt

@@ -1,6 +1,8 @@
 
 # BUGS
 
+- [ ] On saved and then modified file, if re-open saved filed without saving
+		last changes, theses changes seems to stay with weird behaviour.
 - [ ] ! ! ! Sometimes, on multi channels synth, gate / trigger got issue and
 		miss lot of notes.
 - [x] Reduced frame rate on main process cause effects to be ultra slow
@@ -42,8 +44,8 @@
 				- [ ] Note change	(change active note vel or pan)
 				- [x] Note stop		(stop active note)
 				- [x] Note glide	(glide active note to new pitch)
-				- [ ] Extra temperament table
-				- [ ] Extra base pitch (440)
+				- [x] Pitch temperament scale
+				- [x] Pitch base offset (from 440hz)
 			- [ ] CV
 				- [x] Mode CV
 				- [ ] Mode Trigger
@@ -67,9 +69,9 @@
 		- [ ] Screen Parameters -> Can be accessed via context menu (right click)
 			- [x] Frame rate (audio, audio / 2, audio / 4, ...)
 			- [x] Base pitch (default: 440)
-			- [ ] Temperaments (can be used as scale)
-				- [ ] Temperament manual
-				- [ ] Temperament preset (equal, just, ...)
+			- [x] Temperaments (can be used as scale)
+				- [x] Temperament manual
+				- [x] Temperament preset (equal, just, ...)
 				- [ ] Temperament scale preset (major, minor, modes, ...)
 		- [ ] Screen Edition
 			- [x] Song
@@ -81,7 +83,6 @@
 					- [x] Mode
 					- [x] Synth
 					- [x] Index
-					- [ ] Range (or editable from TrackerOut ?)
 	- [x] SAVE
 		- [x] Save data
 		- [x] Load data
@@ -95,6 +96,11 @@
 		- [ ] ActionSynth			(change synth)
 		- [ ] ActionSynthOut		(change synth output module)
 - [ ] MODULE TrackerOut
+	- [ ] FRONTEND
+	- [ ] BACKEND
+		- [ ] CV
+			- [x] CV mode range (min / max sliders)
+			- [ ] CV mode param map
 - [ ] MODULE TrackerDrumOut
 - [ ] MODULE TrackerClock
 - [ ] MODULE TrackerState

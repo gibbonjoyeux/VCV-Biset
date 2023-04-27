@@ -64,3 +64,30 @@ void TrackerOutWidget::onSelect(const SelectEvent &e) {
 	synth = this->module->params[TrackerOut::PARAM_SYNTH].getValue();
 	g_editor.set_synth(synth, true);
 }
+
+void TrackerOutWidget::appendContextMenu(Menu *menu) {
+	MenuSeparator	*separator;
+	char			str[32];
+	int				i;
+
+	separator = new MenuSeparator();
+	menu->addChild(separator);
+
+	for (i = 0; i < 8; ++i) {
+		sprintf(str, "CV %d", i + 1);
+		menu->addChild(rack::createSubmenuItem(str, "",
+			[=](Menu *menu) {
+				MenuSliderEdit	*slider;
+
+				/// SLIDER MIN
+				slider = new MenuSliderEdit(this->module->paramQuantities[TrackerOut::PARAM_OUT_MIN]);
+				slider->box.size.x = 200.f;
+				menu->addChild(slider);
+				/// SLIDER MAX
+				slider = new MenuSliderEdit(this->module->paramQuantities[TrackerOut::PARAM_OUT_MAX]);
+				slider->box.size.x = 200.f;
+				menu->addChild(slider);
+			}
+		));
+	}
+}

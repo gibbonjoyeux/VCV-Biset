@@ -11,6 +11,8 @@
 struct TrackerOut: Module {
 	enum	ParamIds {
 		PARAM_SYNTH,
+		ENUMS(PARAM_OUT_MIN, 8),
+		ENUMS(PARAM_OUT_MAX, 8),
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -33,10 +35,10 @@ struct TrackerOut: Module {
 };
 
 struct TrackerOutDisplay : LedDisplay {
-	TrackerOut			*module;
-	ModuleWidget		*moduleWidget;
-	std::string			font_path;
-	char				str_synth[4];
+	TrackerOut				*module;
+	ModuleWidget			*moduleWidget;
+	std::string				font_path;
+	char					str_synth[4];
 
 	TrackerOutDisplay();
 	void draw(const DrawArgs &args) override {};
@@ -44,10 +46,11 @@ struct TrackerOutDisplay : LedDisplay {
 };
 
 struct TrackerOutWidget : ModuleWidget {
-	TrackerOut					*module;
+	TrackerOut				*module;
 
 	TrackerOutWidget(TrackerOut* _module);
 	void onSelect(const SelectEvent &e) override;
+	void appendContextMenu(Menu *menu) override;
 };
 
 #endif

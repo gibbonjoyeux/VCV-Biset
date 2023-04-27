@@ -62,7 +62,7 @@ extern float	table_temp_carlos_super_just[12];
 extern float	table_temp_carlos_harmonic[12];
 extern float	table_temp_kirnberger[12];
 extern float	table_temp_vallotti_young[12];
-extern float	table_temp_werckmeister[12];
+extern float	table_temp_werckmeister_3[12];
 extern NVGcolor	colors[16];
 
 ////////////////////////////////////////////////////////////////////////////////

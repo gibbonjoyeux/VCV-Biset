@@ -13,7 +13,13 @@ TrackerOut::TrackerOut() {
 	int			i;
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
+	/// CONFIG PARAMETERS
 	configParam(PARAM_SYNTH, 0, 63, 0, "Synth")->snapEnabled = true;
+	for (i = 0; i < 8; ++i)
+		configParam(PARAM_OUT_MIN + i, -10.0, 10.0, 0.0, "Min");
+	for (i = 0; i < 8; ++i)
+		configParam(PARAM_OUT_MAX + i, -10.0, 10.0, 10.0, "Max");
+	/// CONFIG OUTPUTS
 	configOutput(OUTPUT_PITCH, "Pitch");
 	configOutput(OUTPUT_GATE, "Gate");
 	configOutput(OUTPUT_VELOCITY, "Velocity");
@@ -24,6 +30,8 @@ TrackerOut::TrackerOut() {
 
 void TrackerOut::process(const ProcessArgs& args) {
 	Synth		*synth;
+	float		cv;
+	float		cv_min, cv_max;
 	int			i;
 
 	synth = &(g_timeline.synths[(int)this->params[PARAM_SYNTH].getValue()]);
@@ -39,8 +47,15 @@ void TrackerOut::process(const ProcessArgs& args) {
 		this->outputs[OUTPUT_PANNING].setVoltage(synth->out_synth[i * 4 + 3], i);
 	}
 	/// SET OUTPUT CV
-	for (i = 0; i < 8; ++i)
-		this->outputs[OUTPUT_CV + i].setVoltage(synth->out_cv[i]);
+	for (i = 0; i < 8; ++i) {
+		if (this->outputs[OUTPUT_CV + i].isConnected()) {
+			/// MAP FROM [0:1] TO [MIN:MAX]
+			cv_min = this->params[PARAM_OUT_MIN + i].getValue();
+			cv_max = this->params[PARAM_OUT_MAX + i].getValue();
+			cv = (synth->out_cv[i] * (cv_max - cv_min)) + cv_min;
+			this->outputs[OUTPUT_CV + i].setVoltage(cv);
+		}
+	}
 }
 
 Model* modelTrackerOut = createModel<TrackerOut, TrackerOutWidget>("TrackerOut");

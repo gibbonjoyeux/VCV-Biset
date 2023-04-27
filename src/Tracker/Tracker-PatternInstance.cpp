@@ -171,8 +171,8 @@ void PatternInstance::process(
 		}
 		/// [D] OUTPUT CV
 		if (col_cv->mode == PATTERN_CV_MODE_CV) {
-			/// REMAP CV FROM [0:999] TO [0:10]
-			cv_value /= 100.0;
+			/// REMAP CV FROM [0:999] TO [0:1]
+			cv_value /= 1000.0;
 			/// OUTPUT CV
 			synth = &(synths[pattern->cvs[row]->synth]);
 			synth->out_cv[pattern->cvs[row]->channel] = cv_value;
