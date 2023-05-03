@@ -1,6 +1,8 @@
 
 # BUGS
 
+- [ ] Check if `thread_flag` has a big CPU impact
+
 - [ ] On saved and then modified file, if re-open saved filed without saving
 		last changes, theses changes seems to stay with weird behaviour.
 - [ ] ! ! ! Sometimes, on multi channels synth, gate / trigger got issue and

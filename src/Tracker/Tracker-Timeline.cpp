@@ -70,7 +70,7 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	}
 
 	//// TRUNCATE FRAMERATE
-	rate_divider = g_editor.module->params[Tracker::PARAM_RATE].getValue();
+	rate_divider = g_module->params[Tracker::PARAM_RATE].getValue();
 	if (frame % rate_divider != 0)
 		return;
 
@@ -81,10 +81,10 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	/// [3] COMPUTE TEMPERAMENT
 	//// BASE PITCH OFFSET (FROM 440Hz)
 	this->pitch_base_offset =
-	/**/ log2(g_editor.module->params[Tracker::PARAM_PITCH_BASE].getValue() / 440.0);
+	/**/ log2(g_module->params[Tracker::PARAM_PITCH_BASE].getValue() / 440.0);
 	//// TEMPERAMENT SCALE
 	for (i = 0; i < 12; ++i)
-		this->pitch_scale[i] = g_editor.module->params[Tracker::PARAM_TEMPERAMENT + i].getValue();
+		this->pitch_scale[i] = g_module->params[Tracker::PARAM_TEMPERAMENT + i].getValue();
 
 	/// [4] UPDATE TIMELINE ROWS
 	for (i = 0; i < 12; ++i) {

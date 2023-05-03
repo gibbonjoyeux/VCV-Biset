@@ -157,3 +157,4 @@ NVGcolor	colors[16] = {
 
 Timeline		g_timeline;
 Editor			g_editor;
+Tracker			*g_module;

@@ -67,6 +67,40 @@ TrackerDisplay::TrackerDisplay() {
 	font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
 }
 
+void TrackerDisplay::draw(const DrawArgs &args) {
+	std::shared_ptr<Font>	font;
+	Rect					rect;
+	float					off_x, off_y;
+
+	LedDisplay::draw(args);
+
+	/// GET CANVAS FORMAT
+	rect = box.zeroPos();
+	/// BACKGROUND
+	nvgBeginPath(args.vg);
+	nvgFillColor(args.vg, colors[0]);
+	//nvgRect(args.vg, RECT_ARGS(rect));
+	nvgRect(args.vg, rect.pos.x, rect.pos.y, rect.size.x, rect.size.y + 1.0);
+	nvgFill(args.vg);
+
+	if (module == NULL) {
+
+		/// GET FONT
+		font = APP->window->loadFont(font_path);
+		if (font == NULL)
+			return;
+		/// SET FONT
+		nvgFontSize(args.vg, 80);
+		nvgFontFaceId(args.vg, font->handle);
+		/// DRAW TITLE
+		off_x = (rect.size.x / 2) - 195.0;
+		off_y = (rect.size.y / 2) + 30.0;
+		nvgFillColor(args.vg, colors[15]);
+		nvgText(args.vg, rect.pos.x + off_x, rect.pos.y + off_y,
+		/**/ "TRACKER", NULL);
+	}
+}
+
 void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 	PatternSource			*pattern;
 	PatternNote				*note;
@@ -431,10 +465,10 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 	/// GET CANVAS FORMAT
 	rect = box.zeroPos();
 	/// BACKGROUND
-	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[0]);
-	nvgRect(args.vg, RECT_ARGS(rect));
-	nvgFill(args.vg);
+	//nvgBeginPath(args.vg);
+	//nvgFillColor(args.vg, colors[0]);
+	//nvgRect(args.vg, RECT_ARGS(rect));
+	//nvgFill(args.vg);
 
 	//// TMP DEBUG ! ! !
 	nvgFillColor(args.vg, colors[3]);

@@ -11,7 +11,7 @@ static void set_scale(float *table) {
 
 	for (i = 0; i < 12; ++i) {
 		value = table[i] / 100.0;
-		g_editor.module->params[Tracker::PARAM_TEMPERAMENT + i].setValue(value);
+		g_module->params[Tracker::PARAM_TEMPERAMENT + i].setValue(value);
 	}
 }
 
@@ -447,10 +447,12 @@ static bool event_key_timeline(const Widget::SelectKeyEvent &e) {
 ////////////////////////////////////////////////////////////////////////////////
 
 TrackerWidget::TrackerWidget(Tracker* _module) {
-	TrackerDisplay*		display;
-	TrackerInfoDisplay*	display_bpm;
-	TrackerEditDisplay*	display_edit;
-	int					i;
+	TrackerDisplay*			display;
+	TrackerBPMDisplay*		display_bpm;
+	TrackerSynthDisplay*	display_synth;
+	TrackerPatternDisplay*	display_pattern;
+	TrackerEditDisplay*		display_edit;
+	int						i;
 
 	//
 	// BUTTONS:
@@ -514,30 +516,31 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 
 	//// BPM / SYNTH / PATTERN KNOBS
 	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0, 24.0)),
+	///**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0, 24.0)),
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(20.0, 15.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_BPM));
-	addParam(createParamCentered<KnobMedium>(mm2px(Vec(9.0 + 11, 24.0)),
+	addParam(createParamCentered<KnobMedium>(mm2px(Vec(20.0, 25.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_SYNTH));
 	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0 + 22, 24.0)),
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(20.0, 35.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_PATTERN));
 
-	//// EDIT KNOBS
-	for (i = 0; i < 9; ++i) {
-		addParam(
-		///**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 8.75 * i - 37.5)),
-		/**/ createParamCentered<KnobSmall>(mm2px(Vec(40.0, 73.0 + 7.80 * i - 37.5)),
-		/**/ module,
-		/**/ Tracker::PARAM_EDIT + i));
-	}
-	//// EDIT BUTTON
-	addParam(
-	/**/ createParamCentered<VCVButton>(mm2px(Vec(20.5, 106.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_EDIT_SAVE));
+	////// EDIT KNOBS
+	//for (i = 0; i < 9; ++i) {
+	//	addParam(
+	//	///**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 8.75 * i - 37.5)),
+	//	/**/ createParamCentered<KnobSmall>(mm2px(Vec(40.0, 73.0 + 7.80 * i - 37.5)),
+	//	/**/ module,
+	//	/**/ Tracker::PARAM_EDIT + i));
+	//}
+	////// EDIT BUTTON
+	//addParam(
+	///**/ createParamCentered<VCVButton>(mm2px(Vec(20.5, 106.0)),
+	///**/ module,
+	///**/ Tracker::PARAM_EDIT_SAVE));
 
 	//// JUMP BUTTONS
 	addParam(
@@ -595,21 +598,33 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	display->moduleWidget = this;
 	addChild(display);
 	//// BPM LED DISPLAY
-	display_bpm = createWidget<TrackerInfoDisplay>(mm2px(Vec(5.0, 13.0)));
-	display_bpm->box.size = mm2px(Vec(1.0, 1.0));
+	display_bpm = createWidget<TrackerBPMDisplay>(mm2px(Vec(5.0, 13.0)));
+	display_bpm->box.size = mm2px(Vec(8.25, 3.5));
 	display_bpm->module = module;
 	display_bpm->moduleWidget = this;
 	addChild(display_bpm);
+	//// SYNTH LED DISPLAY
+	display_synth = createWidget<TrackerSynthDisplay>(mm2px(Vec(5.0, 23.0)));
+	display_synth->box.size = mm2px(Vec(8.25, 3.5));
+	display_synth->module = module;
+	display_synth->moduleWidget = this;
+	addChild(display_synth);
+	//// PATTERN LED DISPLAY
+	display_pattern = createWidget<TrackerPatternDisplay>(mm2px(Vec(5.0, 33.0)));
+	display_pattern->box.size = mm2px(Vec(8.25, 3.5));
+	display_pattern->module = module;
+	display_pattern->moduleWidget = this;
+	addChild(display_pattern);
 	//// EDIT LED DISPLAY
 	// MODE FULL SCREEN
 	//display_edit = createWidget<TrackerEditDisplay>(mm2px(Vec(16.0, 5.0)));
 	//display_edit->box.size = Vec(CHAR_W * 16 + 4, CHAR_H * CHAR_COUNT_Y + 5.5);
 	// MODE SIDE SCREEN
-	display_edit = createWidget<TrackerEditDisplay>(mm2px(Vec(5.0, 70.5 - 38.0)));
-	display_edit->box.size = mm2px(Vec(29.5, 68.0));
-	display_edit->module = module;
-	display_edit->moduleWidget = this;
-	addChild(display_edit);
+	//display_edit = createWidget<TrackerEditDisplay>(mm2px(Vec(5.0, 70.5 - 38.0)));
+	//display_edit->box.size = mm2px(Vec(29.5, 68.0));
+	//display_edit->module = module;
+	//display_edit->moduleWidget = this;
+	//addChild(display_edit);
 }
 
 void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
@@ -679,8 +694,8 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 	Param			*param_pitch;
 	Param			*param_rate;
 
-	param_pitch = &(g_editor.module->params[Tracker::PARAM_PITCH_BASE]);
-	param_rate = &(g_editor.module->params[Tracker::PARAM_RATE]);
+	param_pitch = &(g_module->params[Tracker::PARAM_PITCH_BASE]);
+	param_rate = &(g_module->params[Tracker::PARAM_RATE]);
 
 	separator = new MenuSeparator();
 	menu->addChild(separator);
@@ -697,7 +712,7 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 			rack::Widget	*holder;
 
 			/// SLIDER
-			slider = new MenuSliderEdit(g_editor.module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
+			slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
 			slider->box.size.x = 200.f;
 			menu->addChild(slider);
 
@@ -850,7 +865,7 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 			));
 			/// MANUAL
 			for (i = 0; i < 12; ++i) {
-				slider = new MenuSliderEdit(g_editor.module->paramQuantities[Tracker::PARAM_TEMPERAMENT + i]);
+				slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_TEMPERAMENT + i]);
 				slider->box.size.x = 200.f;
 				menu->addChild(slider);
 			}

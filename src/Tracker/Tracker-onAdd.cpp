@@ -119,7 +119,7 @@ static bool load_save_file(void) {
 
 	/// [1] GET PATH
 	path = system::join(
-	/**/ g_editor.module->createPatchStorageDirectory(),
+	/**/ g_module->createPatchStorageDirectory(),
 	/**/ "save.btr");
 	/// [2] OPEN FILE
 	fd = open(path.c_str(), O_RDONLY);

@@ -78,6 +78,8 @@ void TrackerOutWidget::appendContextMenu(Menu *menu) {
 		menu->addChild(rack::createSubmenuItem(str, "",
 			[=](Menu *menu) {
 				MenuSliderEdit	*slider;
+				rack::Widget	*holder;
+				MenuItem		*item;
 
 				/// SLIDER MIN
 				slider = new MenuSliderEdit(this->module->paramQuantities[TrackerOut::PARAM_OUT_MIN]);
@@ -87,6 +89,82 @@ void TrackerOutWidget::appendContextMenu(Menu *menu) {
 				slider = new MenuSliderEdit(this->module->paramQuantities[TrackerOut::PARAM_OUT_MAX]);
 				slider->box.size.x = 200.f;
 				menu->addChild(slider);
+
+				/// PRESETS
+				//// HOLDER
+				holder = new rack::Widget();
+				holder->box.size.x = 200.0f;
+				holder->box.size.y = 20.0f;
+				//// +/-10
+				item = new MenuItemStay("+/-10", "",	
+					[=]() { }
+				);
+				item->box.size.x = 50.0f;
+				item->box.size.y = 20.0f;
+				holder->addChild(item);
+				//// +/-5
+				item = new MenuItemStay("+/-5", "",
+					[=]() { }
+				);
+				item->box.size.x = 50.0f;
+				item->box.size.y = 20.0f;
+				item->box.pos.x = 50.0f;
+				holder->addChild(item);
+				//// +/-2
+				item = new MenuItemStay("+/-2", "",
+					[=]() { }
+				);
+				item->box.size.x = 50.0f;
+				item->box.size.y = 20.0f;
+				item->box.pos.x = 100.0f;
+				holder->addChild(item);
+				//// +/-1
+				item = new MenuItemStay("+/-1", "",
+					[=]() { }
+				);
+				item->box.size.x = 50.0f;
+				item->box.size.y = 20.0f;
+				item->box.pos.x = 150.0f;
+				holder->addChild(item);
+				menu->addChild(holder);
+
+				//// HOLDER
+				holder = new rack::Widget();
+				holder->box.size.x = 200.0f;
+				holder->box.size.y = 20.0f;
+				//// +10
+				item = new MenuItemStay("+10", "",	
+					[=]() { }
+				);
+				item->box.size.x = 50.0f;
+				item->box.size.y = 20.0f;
+				holder->addChild(item);
+				//// +5
+				item = new MenuItemStay("+5", "",
+					[=]() { }
+				);
+				item->box.size.x = 50.0f;
+				item->box.size.y = 20.0f;
+				item->box.pos.x = 50.0f;
+				holder->addChild(item);
+				//// +2
+				item = new MenuItemStay("+2", "",
+					[=]() { }
+				);
+				item->box.size.x = 50.0f;
+				item->box.size.y = 20.0f;
+				item->box.pos.x = 100.0f;
+				holder->addChild(item);
+				//// +1
+				item = new MenuItemStay("+1", "",
+					[=]() { }
+				);
+				item->box.size.x = 50.0f;
+				item->box.size.y = 20.0f;
+				item->box.pos.x = 150.0f;
+				holder->addChild(item);
+
+				menu->addChild(holder);
 			}
 		));
 	}

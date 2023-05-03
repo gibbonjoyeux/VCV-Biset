@@ -394,6 +394,14 @@ struct Tracker : Module {
 								PARAM_OCTAVE_DOWN,
 								PARAM_EDIT_SAVE,
 								ENUMS(PARAM_EDIT, 9),
+
+								PARAM_SONG_LENGTH,
+								PARAM_SYNTH_CHANNEL_COUNT,
+								PARAM_PATTERN_LENGTH,
+								PARAM_PATTERN_LPB,
+								PARAM_PATTERN_NOTE_COUNT,
+								PARAM_PATTERN_CV_COUNT,
+
 								ENUMS(PARAM_MODE, 3),
 								ENUMS(PARAM_VIEW, 5),
 								PARAM_PITCH_BASE,
@@ -437,22 +445,49 @@ struct TrackerDisplay : LedDisplay {
 
 	TrackerDisplay();
 
-	void draw(const DrawArgs &args) override {};
+	void draw(const DrawArgs &args) override;
 	void drawLayer(const DrawArgs& args, int layer) override;
 	void draw_pattern(const DrawArgs& args, Rect rect);
 	void draw_timeline(const DrawArgs& args, Rect rect);
 };
 
-struct TrackerInfoDisplay : LedDisplay {
+struct TrackerBPMDisplay : LedDisplay {
 	Tracker*					module;
 	ModuleWidget*				moduleWidget;
 	std::string					font_path;
-	char						str_bpm[4];
+	char						str[4];
 
-	TrackerInfoDisplay();
+	TrackerBPMDisplay();
 
-	void draw(const DrawArgs &args) override {};
+	void draw(const DrawArgs &args) override;
 	void drawLayer(const DrawArgs& args, int layer) override;
+	void onButton(const ButtonEvent &e) override;
+};
+
+struct TrackerSynthDisplay : LedDisplay {
+	Tracker*					module;
+	ModuleWidget*				moduleWidget;
+	std::string					font_path;
+	char						str[4];
+
+	TrackerSynthDisplay();
+
+	void draw(const DrawArgs &args) override;
+	void drawLayer(const DrawArgs& args, int layer) override;
+	void onButton(const ButtonEvent &e) override;
+};
+
+struct TrackerPatternDisplay : LedDisplay {
+	Tracker*					module;
+	ModuleWidget*				moduleWidget;
+	std::string					font_path;
+	char						str[4];
+
+	TrackerPatternDisplay();
+
+	void draw(const DrawArgs &args) override;
+	void drawLayer(const DrawArgs& args, int layer) override;
+	void onButton(const ButtonEvent &e) override;
 };
 
 struct TrackerEditDisplay : LedDisplay {
@@ -465,7 +500,6 @@ struct TrackerEditDisplay : LedDisplay {
 
 	void draw(const DrawArgs &args) override {};
 	void drawLayer(const DrawArgs& args, int layer) override;
-	void onButton(const ButtonEvent &e) override;
 };
 
 
@@ -498,5 +532,6 @@ bool endian_native(void);
 
 extern Timeline	g_timeline;
 extern Editor	g_editor;
+extern Tracker	*g_module;
 
 #endif

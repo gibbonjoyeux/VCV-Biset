@@ -324,7 +324,7 @@ static void write_save_buffer() {
 	//	return;
 	///// [1] GET PATH
 	//path = system::join(
-	///**/ g_editor.module->createPatchStorageDirectory(),
+	///**/ g_module->createPatchStorageDirectory(),
 	///**/ "save.btr");
 	///// [2] OPEN FILE
 	//fd = open(path.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0666);
@@ -346,7 +346,7 @@ static void write_save_buffer() {
 
 	/// COMPUTE PATH
 	path = system::join(
-	/**/ g_editor.module->createPatchStorageDirectory(),
+	/**/ g_module->createPatchStorageDirectory(),
 	/**/ "save.btr");
 	/// OPEN FILE
 	file.open(path, std::ios::out | std::ios::binary | std::ios::trunc);

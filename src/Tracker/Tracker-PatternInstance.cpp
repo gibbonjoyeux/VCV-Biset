@@ -183,7 +183,7 @@ void PatternInstance::process(
 			if (cv_value > 300)
 				cv_value = 300;
 			/// OUTPUT CV
-			g_editor.module->params[Tracker::PARAM_BPM].setValue(cv_value);
+			g_module->params[Tracker::PARAM_BPM].setValue(cv_value);
 		}
 	}
 }

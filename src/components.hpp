@@ -99,6 +99,7 @@ struct Outlet : app::SvgPort {
 //	std::string getUnit() override { return " "; }
 //};
 
+/// Menu text field
 struct MenuTextField : ui::TextField {
 	MenuTextField(void) {
 		this->box.size = Vec(20, 20);
@@ -107,6 +108,8 @@ struct MenuTextField : ui::TextField {
 	}
 };
 
+/// Menu text field connected to a quantity. Update the quantity when Enter is
+/// pressed
 struct MenuTextFieldLinked : ui::TextField {
 	Quantity	*quantity;
 
@@ -140,6 +143,7 @@ struct MenuTextFieldLinked : ui::TextField {
 	}
 };
 
+/// Menu item that does not quit menu on click
 struct MenuItemStay : ui::MenuItem {
 	std::function<void()>	action_func;
 
@@ -158,6 +162,7 @@ struct MenuItemStay : ui::MenuItem {
 	}
 };
 
+/// Menu slider
 struct MenuSlider : ui::Slider {
 
 	//MenuSlider(float *value, std::string label, float def, float min, float max) {
@@ -172,12 +177,14 @@ struct MenuSlider : ui::Slider {
 	}
 };
 
+/// Menu slider that can open text filed to edit value manually
 struct MenuSliderEdit : rack::Widget {
 	MenuItem		*item_button;
 	MenuSlider		*item_slider;
 	Quantity		*quantity;
 
-	MenuSliderEdit(ParamQuantity *quantity) {
+	MenuSliderEdit(ParamQuantity *quantity, int precision = 2) {
+		this->box.size.x = 200.0f;
 		this->box.size.y = 20.0f;
 		/// INIT QUANTITY
 		this->quantity = quantity;
@@ -196,7 +203,7 @@ struct MenuSliderEdit : rack::Widget {
 				label->text = "Edit value";
 				menu->addChild(label);
 				/// INIT MENU TEXT FIELD
-				menu->addChild(new MenuTextFieldLinked(this->quantity));
+				menu->addChild(new MenuTextFieldLinked(this->quantity, precision));
 			}
 		);
 		this->item_button->box.size.x = 20.0f;

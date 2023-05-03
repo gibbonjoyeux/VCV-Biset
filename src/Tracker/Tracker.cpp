@@ -31,12 +31,12 @@ Tracker::Tracker() {
 
 	for (i = 0; i < 9; ++i)
 		configParam(PARAM_EDIT + i, 0.0f, 1.0f, 0.0f, "Select")->snapEnabled = true;
-	configParam(PARAM_EDIT + 0, 1.0f, 9999.0f, 0.0f, "Song length")->snapEnabled = true;
-	configParam(PARAM_EDIT + 1, 1.0f, 16.0f, 0.0f, "Synth channels")->snapEnabled = true;
-	configParam(PARAM_EDIT + 2, 1.0f, 999.0f, 0.0f, "Pattern length")->snapEnabled = true;
-	configParam(PARAM_EDIT + 3, 1.0f, 32.0f, 0.0f, "Pattern lpb")->snapEnabled = true;
-	configParam(PARAM_EDIT + 4, 0.0f, 32.0f, 0.0f, "Pattern notes")->snapEnabled = true;
-	configParam(PARAM_EDIT + 5, 0.0f, 32.0f, 0.0f, "Pattern cv")->snapEnabled = true;
+	configParam(PARAM_SONG_LENGTH, 1.0f, 9999.0f, 0.0f, "Song length", " beats")->snapEnabled = true;
+	configParam(PARAM_SYNTH_CHANNEL_COUNT, 1.0f, 16.0f, 0.0f, "Synth channels")->snapEnabled = true;
+	configParam(PARAM_PATTERN_LENGTH, 1.0f, 999.0f, 0.0f, "Pattern length", " beats")->snapEnabled = true;
+	configParam(PARAM_PATTERN_LPB, 1.0f, 32.0f, 0.0f, "Pattern lpb", " lines / beat")->snapEnabled = true;
+	configParam(PARAM_PATTERN_NOTE_COUNT, 0.0f, 32.0f, 0.0f, "Pattern notes", " columns")->snapEnabled = true;
+	configParam(PARAM_PATTERN_CV_COUNT, 0.0f, 32.0f, 0.0f, "Pattern cv", " columns")->snapEnabled = true;
 	configButton(PARAM_EDIT_SAVE, "Save");
 
 	configButton(PARAM_MODE + 0, "Mode pattern");
@@ -107,7 +107,7 @@ Tracker::Tracker() {
 	clock_timer.reset();
 
 	/// SET ACTIVE SYNTH & PATTERN
-	g_editor.module = this;
+	g_module = this;
 }
 
 void Tracker::process(const ProcessArgs& args) {
