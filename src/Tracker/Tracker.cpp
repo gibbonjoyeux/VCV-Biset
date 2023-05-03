@@ -37,6 +37,11 @@ Tracker::Tracker() {
 	configParam(PARAM_PATTERN_LPB, 1.0f, 32.0f, 0.0f, "Pattern lpb", " lines / beat")->snapEnabled = true;
 	configParam(PARAM_PATTERN_NOTE_COUNT, 0.0f, 32.0f, 0.0f, "Pattern notes", " columns")->snapEnabled = true;
 	configParam(PARAM_PATTERN_CV_COUNT, 0.0f, 32.0f, 0.0f, "Pattern cv", " columns")->snapEnabled = true;
+	configParam(PARAM_COLUMN_NOTE_MODE, 0.0f, 2.0f, 0.0f, "Column mode", "")->snapEnabled = true;
+	configParam(PARAM_COLUMN_NOTE_EFFECT_COUNT, 0.0f, 16.0f, 0.0f, "Column effects", "")->snapEnabled = true;
+	configParam(PARAM_COLUMN_CV_MODE, 0.0f, 3.0f, 0.0f, "Column mode", "")->snapEnabled = true;
+	configParam(PARAM_COLUMN_CV_SYNTH, 0.0f, 63.0f, 0.0f, "Column synth", "")->snapEnabled = true;
+	configParam(PARAM_COLUMN_CV_CHANNEL, 0.0f, 7.0f, 0.0f, "Column channel", "")->snapEnabled = true;
 	configButton(PARAM_EDIT_SAVE, "Save");
 
 	configButton(PARAM_MODE + 0, "Mode pattern");

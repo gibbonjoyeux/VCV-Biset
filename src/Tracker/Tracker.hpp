@@ -38,7 +38,9 @@
 #define PATTERN_CV_KEEP				0
 #define PATTERN_CV_SET				1
 #define PATTERN_CV_MODE_CV			0
-#define PATTERN_CV_MODE_BPM			1
+#define PATTERN_CV_MODE_GATE		1
+#define PATTERN_CV_MODE_TRIGGER		2
+#define PATTERN_CV_MODE_BPM			3
 
 #define TIMELINE_CELL_KEEP			0
 #define TIMELINE_CELL_NEW			1
@@ -134,7 +136,7 @@ struct PatternCVRow {
 };
 
 struct PatternNoteRow {
-	u8							mode;		// Synth | Drum
+	u8							mode;		// Gate | Trigger | Drum
 	u8							effect_count;
 	PatternNote					lines[0];	// Notes (memory as struct extension)
 };
@@ -401,6 +403,11 @@ struct Tracker : Module {
 								PARAM_PATTERN_LPB,
 								PARAM_PATTERN_NOTE_COUNT,
 								PARAM_PATTERN_CV_COUNT,
+								PARAM_COLUMN_NOTE_MODE,
+								PARAM_COLUMN_NOTE_EFFECT_COUNT,
+								PARAM_COLUMN_CV_MODE,
+								PARAM_COLUMN_CV_SYNTH,
+								PARAM_COLUMN_CV_CHANNEL,
 
 								ENUMS(PARAM_MODE, 3),
 								ENUMS(PARAM_VIEW, 5),

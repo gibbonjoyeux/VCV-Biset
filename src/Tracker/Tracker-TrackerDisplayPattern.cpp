@@ -22,8 +22,7 @@ void TrackerPatternDisplay::draw(const DrawArgs &args) {
 	rect = box.zeroPos();
 	/// BACKGROUND
 	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[0]);
-	//nvgRect(args.vg, RECT_ARGS(rect));
+	nvgFillColor(args.vg, colors[1]);
 	nvgRect(args.vg, rect.pos.x, rect.pos.y, rect.size.x, rect.size.y + 1.0);
 	nvgFill(args.vg);
 
@@ -60,12 +59,16 @@ void TrackerPatternDisplay::drawLayer(const DrawArgs& args, int layer) {
 
 void TrackerPatternDisplay::onButton(const ButtonEvent &e) {
 	PatternSource	*pattern;
+	PatternNoteRow	*col_note;
+	PatternCVRow	*col_cv;
 	Menu			*menu;
 	MenuLabel		*label;
 	ParamQuantity	*quant_length;
 	ParamQuantity	*quant_lpb;
 	ParamQuantity	*quant_note_count;
 	ParamQuantity	*quant_cv_count;
+	ParamQuantity	*quant_effect_count;
+	ParamQuantity	*quant;
 	int				length;
 	int				lpb;
 	int				note_count;
@@ -144,8 +147,71 @@ void TrackerPatternDisplay::onButton(const ButtonEvent &e) {
 
 	/// COLUMN AS NOTE COLUMN
 	if (g_editor.pattern_row < g_editor.pattern->note_count) {
+		col_note = g_editor.pattern->notes[g_editor.pattern_row];
+		/// ADD COLUMN MODE LIST
+		menu->addChild(rack::createSubmenuItem("Mode", "",
+			[=](Menu *menu) {
+				ParamQuantity		*quant_mode;
+
+				quant_mode = g_module->paramQuantities[Tracker::PARAM_COLUMN_NOTE_MODE];
+				quant_mode->setValue(col_note->mode);
+				menu->addChild(new MenuCheckItem("Gate", "",
+					[=]() { return quant_mode->getValue() == PATTERN_NOTE_MODE_GATE; },
+					[=]() { quant_mode->setValue(PATTERN_NOTE_MODE_GATE); }
+				));
+				menu->addChild(new MenuCheckItem("Trigger", "",
+					[=]() { return quant_mode->getValue() == PATTERN_NOTE_MODE_TRIGGER; },
+					[=]() { quant_mode->setValue(PATTERN_NOTE_MODE_TRIGGER); }
+				));
+				menu->addChild(new MenuCheckItem("Drum", "",
+					[=]() { return quant_mode->getValue() == PATTERN_NOTE_MODE_DRUM; },
+					[=]() { quant_mode->setValue(PATTERN_NOTE_MODE_DRUM); }
+				));
+			}
+		));
+		/// ADD COLUMN EFFECT COUNT SLIDER
+		quant_effect_count = g_module->paramQuantities[Tracker::PARAM_COLUMN_NOTE_EFFECT_COUNT];
+		quant_effect_count->setValue(col_note->effect_count);
+		quant_effect_count->defaultValue = col_note->effect_count;
+		menu->addChild(new MenuSliderEdit(quant_effect_count, 0));
 	/// COLUMN AS CV COLUMN
 	} else {
+		col_cv = g_editor.pattern->cvs[g_editor.pattern_row - g_editor.pattern->note_count];
+		/// ADD COLUMN MODE LIST
+		menu->addChild(rack::createSubmenuItem("Mode", "",
+			[=](Menu *menu) {
+				ParamQuantity		*quant_mode;
+
+				quant_mode = g_module->paramQuantities[Tracker::PARAM_COLUMN_CV_MODE];
+				quant_mode->setValue(col_cv->mode);
+				menu->addChild(new MenuCheckItem("CV", "",
+					[=]() { return quant_mode->getValue() == PATTERN_CV_MODE_CV; },
+					[=]() { quant_mode->setValue(PATTERN_CV_MODE_CV); }
+				));
+				menu->addChild(new MenuCheckItem("Gate", "",
+					[=]() { return quant_mode->getValue() == PATTERN_CV_MODE_GATE; },
+					[=]() { quant_mode->setValue(PATTERN_CV_MODE_GATE); }
+				));
+				menu->addChild(new MenuCheckItem("Trigger", "",
+					[=]() { return quant_mode->getValue() == PATTERN_CV_MODE_TRIGGER; },
+					[=]() { quant_mode->setValue(PATTERN_CV_MODE_TRIGGER); }
+				));
+				menu->addChild(new MenuCheckItem("BPM", "",
+					[=]() { return quant_mode->getValue() == PATTERN_CV_MODE_BPM; },
+					[=]() { quant_mode->setValue(PATTERN_CV_MODE_BPM); }
+				));
+			}
+		));
+		/// ADD COLUMN SYNTH SELECT SLIDER
+		quant = g_module->paramQuantities[Tracker::PARAM_COLUMN_CV_SYNTH];
+		quant->setValue(col_cv->synth);
+		quant->defaultValue = col_cv->synth;
+		menu->addChild(new MenuSliderEdit(quant, 0));
+		/// ADD COLUMN SYNTH CHANNEL SELECT SLIDER
+		quant = g_module->paramQuantities[Tracker::PARAM_COLUMN_CV_CHANNEL];
+		quant->setValue(col_cv->channel);
+		quant->defaultValue = col_cv->channel;
+		menu->addChild(new MenuSliderEdit(quant, 0));
 	}
 
 	/// ADD PATTERN COLUMN UPDATE BUTTON

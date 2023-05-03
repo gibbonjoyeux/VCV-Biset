@@ -162,6 +162,39 @@ struct MenuItemStay : ui::MenuItem {
 	}
 };
 
+/// Menu check item that does not quit menu on click
+struct MenuCheckItem : ui::MenuItem {
+	std::string				text_right_prefix;
+	std::function<void()>	func_action;
+	std::function<bool()>	func_checked;
+
+	MenuCheckItem(std::string text_left, std::string text_right,
+	std::function<bool()> func_checked, std::function<void()> func_action) {
+		this->text = text_left;
+		this->text_right_prefix = text_right;
+		//this->rightText = CHECKMARK_STRING;
+		this->func_action = func_action;
+		this->func_checked = func_checked;
+	}
+
+	void step() override {
+		this->rightText = this->text_right_prefix;
+		if (this->func_checked()) {
+			if (this->text_right_prefix.empty() == false)
+				this->rightText += "  ";
+			this->rightText += CHECKMARK_STRING;
+		}
+		ui::MenuItem::step();
+	}
+
+	void onButton(const ButtonEvent &e) override {
+		if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+			this->func_action();
+			e.stopPropagating();
+		}
+	}
+};
+
 /// Menu slider
 struct MenuSlider : ui::Slider {
 

@@ -767,43 +767,43 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 	/// [2] RATE
 	menu->addChild(rack::createSubmenuItem("Rate", "",
 		[=](Menu *menu) {
-			menu->addChild(createCheckMenuItem("Sample rate / 1", "",
+			menu->addChild(new MenuCheckItem("Sample rate / 1", "",
 				[=]() { return param_rate->getValue() == 1; },
 				[=]() { param_rate->setValue(1); }
 			));
-			menu->addChild(createCheckMenuItem("Sample rate / 2", "",
+			menu->addChild(new MenuCheckItem("Sample rate / 2", "",
 				[=]() { return param_rate->getValue() == 2; },
 				[=]() { param_rate->setValue(2); }
 			));
-			menu->addChild(createCheckMenuItem("Sample rate / 4", "",
+			menu->addChild(new MenuCheckItem("Sample rate / 4", "",
 				[=]() { return param_rate->getValue() == 4; },
 				[=]() { param_rate->setValue(4); }
 			));
-			menu->addChild(createCheckMenuItem("Sample rate / 8", "",
+			menu->addChild(new MenuCheckItem("Sample rate / 8", "",
 				[=]() { return param_rate->getValue() == 8; },
 				[=]() { param_rate->setValue(8); }
 			));
-			menu->addChild(createCheckMenuItem("Sample rate / 16", "",
+			menu->addChild(new MenuCheckItem("Sample rate / 16", "",
 				[=]() { return param_rate->getValue() == 16; },
 				[=]() { param_rate->setValue(16); }
 			));
-			menu->addChild(createCheckMenuItem("Sample rate / 32", "",
+			menu->addChild(new MenuCheckItem("Sample rate / 32", "",
 				[=]() { return param_rate->getValue() == 32; },
 				[=]() { param_rate->setValue(32); }
 			));
-			menu->addChild(createCheckMenuItem("Sample rate / 64", "default",
+			menu->addChild(new MenuCheckItem("Sample rate / 64", "default",
 				[=]() { return param_rate->getValue() == 64; },
 				[=]() { param_rate->setValue(64); }
 			));
-			menu->addChild(createCheckMenuItem("Sample rate / 128", "",
+			menu->addChild(new MenuCheckItem("Sample rate / 128", "",
 				[=]() { return param_rate->getValue() == 128; },
 				[=]() { param_rate->setValue(128); }
 			));
-			menu->addChild(createCheckMenuItem("Sample rate / 256", "",
+			menu->addChild(new MenuCheckItem("Sample rate / 256", "",
 				[=]() { return param_rate->getValue() == 256; },
 				[=]() { param_rate->setValue(256); }
 			));
-			menu->addChild(createCheckMenuItem("Sample rate / 512", "",
+			menu->addChild(new MenuCheckItem("Sample rate / 512", "",
 				[=]() { return param_rate->getValue() == 512; },
 				[=]() { param_rate->setValue(512); }
 			));

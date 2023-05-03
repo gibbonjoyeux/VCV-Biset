@@ -22,8 +22,7 @@ void TrackerSynthDisplay::draw(const DrawArgs &args) {
 	rect = box.zeroPos();
 	/// BACKGROUND
 	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[0]);
-	//nvgRect(args.vg, RECT_ARGS(rect));
+	nvgFillColor(args.vg, colors[1]);
 	nvgRect(args.vg, rect.pos.x, rect.pos.y, rect.size.x, rect.size.y + 1.0);
 	nvgFill(args.vg);
 
