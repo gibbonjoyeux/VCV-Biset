@@ -67,7 +67,7 @@ void TrackerSynthDisplay::onButton(const ButtonEvent &e) {
 
 	/// ADD LABEL
 	label = new MenuLabel();
-	label->text = "Edit Synth";
+	label->text = "Edit synth";
 	menu->addChild(label);
 
 	/// ADD SYNTH CHANNEL COUNT SLIDER
@@ -78,7 +78,7 @@ void TrackerSynthDisplay::onButton(const ButtonEvent &e) {
 	menu->addChild(new MenuSliderEdit(quant_channel));
 
 	/// ADD SYNTH UPDATE BUTTON
-	menu->addChild(new MenuItemStay("Update", "",
+	menu->addChild(new MenuItemStay("Update synth", "",
 		[=]() {
 			int	channels;
 			int	i;

@@ -67,7 +67,7 @@ void TrackerBPMDisplay::onButton(const ButtonEvent &e) {
 
 	/// ADD LABEL
 	label = new MenuLabel();
-	label->text = "Edit Song";
+	label->text = "Edit song";
 	menu->addChild(label);
 
 	/// ADD SONG LENGTH SLIDER
@@ -78,7 +78,7 @@ void TrackerBPMDisplay::onButton(const ButtonEvent &e) {
 	menu->addChild(new MenuSliderEdit(quant_length, 0));
 
 	/// ADD SONG UPDATE BUTTON
-	menu->addChild(new MenuItemStay("Update", "",
+	menu->addChild(new MenuItemStay("Update song", "",
 		[=]() {
 			/// WAIT FOR THREAD FLAG
 			while (g_timeline.thread_flag.test_and_set()) {}

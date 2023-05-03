@@ -108,7 +108,7 @@ void TrackerPatternDisplay::onButton(const ButtonEvent &e) {
 	quant_cv_count->defaultValue = cv_count;
 	menu->addChild(new MenuSliderEdit(quant_cv_count, 0));
 	/// ADD PATTERN UPDATE BUTTON
-	menu->addChild(new MenuItemStay("Update Pattern", "",
+	menu->addChild(new MenuItemStay("Update pattern", "",
 		[=]() {
 			int	beat_count;
 			int	lpb;
@@ -174,6 +174,29 @@ void TrackerPatternDisplay::onButton(const ButtonEvent &e) {
 		quant_effect_count->setValue(col_note->effect_count);
 		quant_effect_count->defaultValue = col_note->effect_count;
 		menu->addChild(new MenuSliderEdit(quant_effect_count, 0));
+		/// ADD COLUMN UPDATE BUTTON
+		menu->addChild(new MenuItemStay("Update pattern column", "",
+			[=]() {
+				PatternNoteRow	*col_note;
+				int	note_mode;
+				int	note_effect;
+
+				/// WAIT FOR THREAD FLAG
+				while (g_timeline.thread_flag.test_and_set()) {}
+
+				/// UPDATE PATTERN COLUMNS
+				col_note = g_editor.pattern->notes[g_editor.pattern_row];
+				note_mode = g_module->params[Tracker::PARAM_COLUMN_NOTE_MODE].getValue();
+				note_effect = g_module->params[Tracker::PARAM_COLUMN_NOTE_EFFECT_COUNT].getValue();
+				if (note_mode != col_note->mode)
+					col_note->mode = note_mode;
+				if (note_effect != col_note->effect_count)
+					col_note->effect_count = note_effect;
+
+				/// CLEAR THREAD FLAG
+				g_timeline.thread_flag.clear();
+			}
+		));
 	/// COLUMN AS CV COLUMN
 	} else {
 		col_cv = g_editor.pattern->cvs[g_editor.pattern_row - g_editor.pattern->note_count];
@@ -212,46 +235,32 @@ void TrackerPatternDisplay::onButton(const ButtonEvent &e) {
 		quant->setValue(col_cv->channel);
 		quant->defaultValue = col_cv->channel;
 		menu->addChild(new MenuSliderEdit(quant, 0));
+		/// ADD COLUMN UPDATE BUTTON
+		menu->addChild(new MenuItemStay("Update pattern column", "",
+			[=]() {
+				PatternCVRow	*col_cv;
+				int				cv_mode;
+				int				cv_synth;
+				int				cv_channel;
+
+				/// WAIT FOR THREAD FLAG
+				while (g_timeline.thread_flag.test_and_set()) {}
+
+				/// UPDATE PATTERN COLUMNS
+				col_cv = g_editor.pattern->cvs[g_editor.pattern_row - g_editor.pattern->note_count];
+				cv_mode = g_module->params[Tracker::PARAM_COLUMN_CV_MODE].getValue();
+				cv_synth = g_module->params[Tracker::PARAM_COLUMN_CV_SYNTH].getValue();
+				cv_channel = g_module->params[Tracker::PARAM_COLUMN_CV_CHANNEL].getValue();
+				if (cv_mode != col_cv->mode)
+					col_cv->mode = cv_mode;
+				if (cv_synth != col_cv->synth)
+					col_cv->synth = cv_synth;
+				if (cv_channel != col_cv->channel)
+					col_cv->channel = cv_channel;
+
+				/// CLEAR THREAD FLAG
+				g_timeline.thread_flag.clear();
+			}
+		));
 	}
-
-	/// ADD PATTERN COLUMN UPDATE BUTTON
-	menu->addChild(new MenuItemStay("Update Column", "",
-		[=]() {
-			//int	note_mode;
-			//int	note_effect_count;
-			//int	cv_mode;
-			//int	cv_synth;
-			//int	cv_channel;
-
-			/// WAIT FOR THREAD FLAG
-			while (g_timeline.thread_flag.test_and_set()) {}
-
-			///// UPDATE PATTERN COLUMNS
-			////// AS NOTE
-			//if (g_editor.pattern_row < g_editor.pattern->note_count) {
-			//	col_note = g_editor.pattern->notes[g_editor.pattern_row];
-			//	note_mode = g_module->params[Tracker::PARAM_EDIT + 6].getValue();
-			//	note_effect = g_module->params[Tracker::PARAM_EDIT + 7].getValue();
-			//	if (note_mode != col_note->mode)
-			//		col_note->mode = note_mode;
-			//	if (note_effect != col_note->effect_count)
-			//		col_note->effect_count = note_effect;
-			////// AS CV
-			//} else {
-			//	col_cv = g_editor.pattern->cvs[g_editor.pattern_row - g_editor.pattern->note_count];
-			//	cv_mode = g_module->params[Tracker::PARAM_EDIT + 6].getValue();
-			//	cv_synth = g_module->params[Tracker::PARAM_EDIT + 7].getValue();
-			//	cv_channel = g_module->params[Tracker::PARAM_EDIT + 8].getValue();
-			//	if (cv_mode != col_cv->mode)
-			//		col_cv->mode = cv_mode;
-			//	if (cv_synth != col_cv->synth)
-			//		col_cv->synth = cv_synth;
-			//	if (cv_channel != col_cv->channel)
-			//		col_cv->channel = cv_channel;
-			//}
-
-			/// CLEAR THREAD FLAG
-			g_timeline.thread_flag.clear();
-		}
-	));
 }
