@@ -447,11 +447,13 @@ static bool event_key_timeline(const Widget::SelectKeyEvent &e) {
 ////////////////////////////////////////////////////////////////////////////////
 
 TrackerWidget::TrackerWidget(Tracker* _module) {
-	TrackerDisplay*			display;
-	TrackerBPMDisplay*		display_bpm;
-	TrackerSynthDisplay*	display_synth;
-	TrackerPatternDisplay*	display_pattern;
-	TrackerEditDisplay*		display_edit;
+	TrackerDisplay			*display;
+	TrackerBPMDisplay		*display_bpm;
+	TrackerSynthDisplay		*display_synth;
+	TrackerPatternDisplay	*display_pattern;
+	TrackerEditDisplay		*display_edit;
+	LedDisplayDigit			*display_jump;
+	LedDisplayDigit			*display_octave;
 	int						i;
 
 	//
@@ -615,6 +617,27 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	display_pattern->module = module;
 	display_pattern->moduleWidget = this;
 	addChild(display_pattern);
+
+	//// SELECT JUMP DISPLAY
+	display_jump = createWidget<LedDisplayDigit>(mm2px(Vec(5.0, 43.0)));
+	display_jump->box.size = mm2px(Vec(8.25, 3.5));
+	display_jump->module = module;
+	display_jump->value_link = &(g_editor.pattern_jump);
+	display_jump->value_length = 2;
+	display_jump->color_back = colors[15];
+	display_jump->color_font = colors[4];
+	addChild(display_jump);
+	//// SELECT OCTAVE DISPLAY
+	display_octave = createWidget<LedDisplayDigit>(mm2px(Vec(15.0, 43.0)));
+	display_octave->box.size = mm2px(Vec(8.25, 3.5));
+	display_octave->module = module;
+	display_octave->value_link = &(g_editor.pattern_octave);
+	display_octave->value_length = 2;
+	display_octave->color_back = colors[15];
+	display_octave->color_font = colors[4];
+	addChild(display_octave);
+	
+
 	//// EDIT LED DISPLAY
 	// MODE FULL SCREEN
 	//display_edit = createWidget<TrackerEditDisplay>(mm2px(Vec(16.0, 5.0)));

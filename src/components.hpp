@@ -254,4 +254,78 @@ struct MenuSliderEdit : rack::Widget {
 	}
 };
 
+struct LedDisplayDigit : LedDisplay {
+	Module			*module;
+	std::string		font_path;
+	Quantity		*value_quant;
+	int				*value_link;
+	int				value_length;
+	NVGcolor		color_back;
+	NVGcolor		color_font;
+	char			str[8];
+
+	LedDisplayDigit() {
+		this->font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
+		this->value_quant = NULL;
+		this->value_length = 3;
+		this->color_back = {1, 1, 1, 1};
+		this->color_font = {0, 0, 0, 1};
+	}
+
+	void draw(const DrawArgs &args) override {
+		Rect					rect;
+
+		LedDisplay::draw(args);
+		/// GET CANVAS FORMAT
+		rect = box.zeroPos();
+		/// BACKGROUND
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, this->color_back);
+		nvgRect(args.vg, rect.pos.x, rect.pos.y, rect.size.x, rect.size.y + 1.0);
+		nvgFill(args.vg);
+	}
+
+	void drawLayer(const DrawArgs& args, int layer) override {
+		std::shared_ptr<Font>	font;
+		Rect					rect;
+		Vec						p;
+		int						digit;
+		int						value;
+		int						i;
+
+		if (module == NULL || layer != 1)
+			return;
+		/// GET FONT
+		font = APP->window->loadFont(font_path);
+		if (font == NULL)
+			return;
+		/// SET FONT
+		nvgFontSize(args.vg, 9);
+		nvgFontFaceId(args.vg, font->handle);
+		/// GET CANVAS FORMAT
+		rect = box.zeroPos();
+		p = rect.getTopLeft();
+		p.y -= 1.0;
+		/// GET VALUE
+		if (this->value_quant)
+			value = this->value_quant->getValue();
+		else if (this->value_link)
+			value = *(this->value_link);
+		else
+			value = 0;
+		/// CONVERT VALUE (TO STRING)
+		this->str[this->value_length] = 0;
+		for (i = this->value_length - 1; i >= 0; --i) {
+			digit = value % 10;
+			this->str[i] = '0' + digit;
+			value /= 10;
+		}
+		/// DRAW VALUE (AS STRING)
+		nvgFillColor(args.vg, this->color_font);
+		nvgText(args.vg, p.x + 2.0, p.y + 9.5, this->str, NULL);
+		/// CALL PARENT
+		LedDisplay::drawLayer(args, layer);
+	}
+};
+
 #endif

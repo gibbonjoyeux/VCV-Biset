@@ -400,7 +400,8 @@ struct Tracker : Module {
 								PARAM_OCTAVE_UP,
 								PARAM_OCTAVE_DOWN,
 								PARAM_EDIT_SAVE,
-								ENUMS(PARAM_EDIT, 9),
+
+								ENUMS(PARAM_EDIT, 9), // TODO: remove
 
 								PARAM_SONG_LENGTH,
 								PARAM_SYNTH_CHANNEL_COUNT,
