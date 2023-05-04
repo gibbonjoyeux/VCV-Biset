@@ -46,6 +46,9 @@
 #define TIMELINE_CELL_NEW			1
 #define TIMELINE_CELL_STOP			2
 
+#define TIMELINE_MODE_STOP			0
+#define TIMELINE_MODE_PLAY_SONG		1
+#define TIMELINE_MODE_PLAY_PATTERN	2
 
 #define CHAR_W						6.302522
 #define CHAR_H						8.5
@@ -272,6 +275,7 @@ struct Timeline {
 	int							debug;
 	int							debug_2;
 
+	u8							play;
 	std::atomic_flag			thread_flag;
 	Clock						clock;
 	u16							beat_count;
@@ -297,6 +301,7 @@ struct Timeline {
 	Timeline();
 
 	void process(i64 frame, float dt_sec, float dt_beat);
+	void stop(void);
 	void resize(int beat_count);
 };
 
@@ -454,8 +459,8 @@ struct TrackerDisplay : LedDisplay {
 
 	void draw(const DrawArgs &args) override;
 	void drawLayer(const DrawArgs& args, int layer) override;
-	void draw_pattern(const DrawArgs& args, Rect rect);
-	void draw_timeline(const DrawArgs& args, Rect rect);
+	inline void draw_pattern(const DrawArgs& args, Rect rect);
+	inline void draw_timeline(const DrawArgs& args, Rect rect);
 };
 
 struct TrackerBPMDisplay : LedDisplay {

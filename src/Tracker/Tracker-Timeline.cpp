@@ -36,6 +36,7 @@ Timeline::Timeline() {
 	/// [3] INIT CLOCK
 	this->clock.reset();
 	/// [4] INIT TIMELINE
+	this->play = TIMELINE_MODE_STOP;
 	this->resize(16);
 	/// [5] INIT SAVE BUFFER
 	this->save_buffer = NULL;
@@ -54,31 +55,30 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	int						i;
 
 	/// [1] UPDATE CLOCK
-	this->clock.process(dt_beat);
-	if (this->clock.beat >= this->beat_count) {
-		this->clock.beat = 0;
-		/// SWITCH OFF RUNNING PATTERNS
-		for (i = 0; i < 12; ++i) {
-			if (this->pattern_source[i] != NULL) {
-				this->pattern_instance[i].stop();
-				this->pattern_source[i] = NULL;
-				this->pattern_source[i] = NULL;
-				this->pattern_cell[i] = NULL;
-				this->pattern_start[i] = 0;
-			}
+	if (g_timeline.play != TIMELINE_MODE_STOP)
+		this->clock.process(dt_beat);
+	//// MODE PLAY SONG
+	if (g_timeline.play == TIMELINE_MODE_PLAY_SONG) {
+		if (this->clock.beat >= this->beat_count) {
+			/// RESET CLOCK
+			this->clock.beat = 0;
+			/// RESET RUNNING PATTERNS
+			this->stop();
 		}
+	//// MODE PLAY PATTERN
+	} else if (g_timeline.play == TIMELINE_MODE_PLAY_PATTERN) {
 	}
 
-	//// TRUNCATE FRAMERATE
+	/// [2] TRUNCATE FRAMERATE
 	rate_divider = g_module->params[Tracker::PARAM_RATE].getValue();
 	if (frame % rate_divider != 0)
 		return;
 
-	/// [2] CHECK THREAD FLAG
+	/// [3] CHECK THREAD FLAG
 	if (g_timeline.thread_flag.test_and_set())
 		return;
 
-	/// [3] COMPUTE TEMPERAMENT
+	/// [4] COMPUTE TEMPERAMENT
 	//// BASE PITCH OFFSET (FROM 440Hz)
 	this->pitch_base_offset =
 	/**/ log2(g_module->params[Tracker::PARAM_PITCH_BASE].getValue() / 440.0);
@@ -86,53 +86,59 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	for (i = 0; i < 12; ++i)
 		this->pitch_scale[i] = g_module->params[Tracker::PARAM_TEMPERAMENT + i].getValue();
 
-	/// [4] UPDATE TIMELINE ROWS
-	for (i = 0; i < 12; ++i) {
-		cell = &(this->timeline[i][clock.beat]);
-		/// PATTERN CHANGE
-		if (cell->mode == TIMELINE_CELL_NEW
-		&& this->pattern_cell[i] != cell) {
-			if (cell->pattern < 256) {
-				/// COMPUTE PATTERN CHANGE / TIMING
-				pattern = &(this->patterns[cell->pattern]);
-				/// RESET RELATIVE CLOCK
-				clock_relative.beat = cell->beat % pattern->beat_count;
-				clock_relative.phase = this->clock.phase;
-				/// RESET PATTERN
-				this->pattern_instance[i].stop();
-				this->pattern_start[i] = clock.beat;
-				this->pattern_cell[i] = cell;
-				this->pattern_source[i] = pattern;
-				/// COMPUTE PATTERN PROCESS
-				this->pattern_instance[i].process(this->synths,
-				/**/ this->pattern_source[i], clock_relative,
-				/**/ &debug, &debug_2, debug_str);
-			}
-		/// PATTERN STOP
-		} else if (cell->mode == TIMELINE_CELL_STOP) {
-			/// PATTERN SWITCH OFF
-			if (this->pattern_source[i] != NULL) {
-				this->pattern_instance[i].stop();
-				this->pattern_source[i] = NULL;
-				this->pattern_source[i] = NULL;
-				this->pattern_cell[i] = NULL;
-				this->pattern_start[i] = 0;
-			}
-		/// PATTERN KEEP
-		} else {
-			if (this->pattern_source[i]) {
-				pattern = this->pattern_source[i];
-				/// COMPUTE RELATIVE CLOCK
-				clock_relative.beat =
-				/**/ (this->clock.beat - this->pattern_start[i]
-				/**/ + this->pattern_cell[i]->beat) % pattern->beat_count;
-				clock_relative.phase = this->clock.phase;
-				/// COMPUTE PATTERN PROCESS
-				this->pattern_instance[i].process(this->synths,
-				/**/ this->pattern_source[i], clock_relative,
-				/**/ &debug, &debug_2, debug_str);
+	/// [5] PLAY
+	//// MODE PLAY SONG
+	if (g_timeline.play == TIMELINE_MODE_PLAY_SONG) {
+		/// UPDATE TIMELINE ROWS
+		for (i = 0; i < 12; ++i) {
+			cell = &(this->timeline[i][clock.beat]);
+			/// PATTERN CHANGE
+			if (cell->mode == TIMELINE_CELL_NEW
+			&& this->pattern_cell[i] != cell) {
+				if (cell->pattern < 256) {
+					/// COMPUTE PATTERN CHANGE / TIMING
+					pattern = &(this->patterns[cell->pattern]);
+					/// RESET RELATIVE CLOCK
+					clock_relative.beat = cell->beat % pattern->beat_count;
+					clock_relative.phase = this->clock.phase;
+					/// RESET PATTERN
+					this->pattern_instance[i].stop();
+					this->pattern_start[i] = clock.beat;
+					this->pattern_cell[i] = cell;
+					this->pattern_source[i] = pattern;
+					/// COMPUTE PATTERN PROCESS
+					this->pattern_instance[i].process(this->synths,
+					/**/ this->pattern_source[i], clock_relative,
+					/**/ &debug, &debug_2, debug_str);
+				}
+			/// PATTERN STOP
+			} else if (cell->mode == TIMELINE_CELL_STOP) {
+				/// PATTERN SWITCH OFF
+				if (this->pattern_source[i] != NULL) {
+					this->pattern_instance[i].stop();
+					this->pattern_source[i] = NULL;
+					this->pattern_source[i] = NULL;
+					this->pattern_cell[i] = NULL;
+					this->pattern_start[i] = 0;
+				}
+			/// PATTERN KEEP
+			} else {
+				if (this->pattern_source[i]) {
+					pattern = this->pattern_source[i];
+					/// COMPUTE RELATIVE CLOCK
+					clock_relative.beat =
+					/**/ (this->clock.beat - this->pattern_start[i]
+					/**/ + this->pattern_cell[i]->beat) % pattern->beat_count;
+					clock_relative.phase = this->clock.phase;
+					/// COMPUTE PATTERN PROCESS
+					this->pattern_instance[i].process(this->synths,
+					/**/ this->pattern_source[i], clock_relative,
+					/**/ &debug, &debug_2, debug_str);
+				}
 			}
 		}
+	//// MODE PLAY PATTERN
+	} else if (g_timeline.play == TIMELINE_MODE_PLAY_PATTERN) {
 	}
 
 	// -> ! ! ! BOTTLENECK ! ! !
@@ -140,14 +146,28 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	// -> Use boolean that defines if a Synth is used or not
 	//    (TrackerOut / TrackerDrumOut set the boolean when they pull from the
 	//    corresponding synth
-	/// [5] UPDATE SYNTHS (WITH TRUNCATED FRAMERATE)
+	/// [6] UPDATE SYNTHS (WITH TRUNCATED FRAMERATE)
 	for (i = 0; i < 64; ++i)
 		synths[i].process(dt_sec * rate_divider, dt_beat * rate_divider);
 	//for (i = 0; i < 64; ++i)
 	//	synths[i].process(dt_sec, dt_beat);
 
-	/// [6] CLEAR THREAD FLAG
+	/// [7] CLEAR THREAD FLAG
 	g_timeline.thread_flag.clear();
+}
+
+void Timeline::stop(void) {
+	int		i;
+
+	for (i = 0; i < 12; ++i) {
+		if (this->pattern_source[i] != NULL) {
+			this->pattern_instance[i].stop();
+			this->pattern_source[i] = NULL;
+			this->pattern_source[i] = NULL;
+			this->pattern_cell[i] = NULL;
+			this->pattern_start[i] = 0;
+		}
+	}
 }
 
 void Timeline::resize(int beat_count) {

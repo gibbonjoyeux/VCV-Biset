@@ -662,7 +662,7 @@ void TrackerWidget::onHoverScroll(const HoverScrollEvent &e) {
 
 void TrackerWidget::onSelect(const SelectEvent &e) {
 	g_editor.selected = true;
-	this->module->lights[0].setBrightness(1.0);
+	//this->module->lights[0].setBrightness(1.0);
 }
 
 void TrackerWidget::onDeselect(const DeselectEvent &e) {
@@ -674,7 +674,7 @@ void TrackerWidget::onDeselect(const DeselectEvent &e) {
 	//	return;
 	//}
 	g_editor.selected = false;
-	this->module->lights[0].setBrightness(0.0);
+	//this->module->lights[0].setBrightness(0.0);
 }
 
 //void TrackerWidget::onDragStart(const DragStartEvent& e) {
@@ -690,7 +690,6 @@ void TrackerWidget::onDeselect(const DeselectEvent &e) {
 
 void TrackerWidget::appendContextMenu(Menu *menu) {
 	MenuSeparator	*separator;
-	//MenuLabel		*label;
 	Param			*param_pitch;
 	Param			*param_rate;
 
@@ -699,10 +698,6 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 
 	separator = new MenuSeparator();
 	menu->addChild(separator);
-
-	//label = new MenuLabel();
-	//label->text = "Rate";
-	//menu->addChild(label);
 
 	/// [1] BASE PITCH
 	menu->addChild(rack::createSubmenuItem("Pitch offset", "",

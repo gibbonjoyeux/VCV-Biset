@@ -69,6 +69,15 @@ void Editor::process(i64 frame) {
 			module->lights[Tracker::LIGHT_VIEW + i].setBrightness(0.0);
 	}
 
+	/// [2] HANDLE PLAY LIGHT
+	if (g_editor.selected == true)
+		module->lights[Tracker::LIGHT_FOCUS].setBrightness(1.0);
+	else
+		module->lights[Tracker::LIGHT_FOCUS].setBrightness(0.0);
+	if (g_timeline.play != TIMELINE_MODE_STOP)
+		module->lights[Tracker::LIGHT_PLAY].setBrightness(1.0);
+	else
+		module->lights[Tracker::LIGHT_PLAY].setBrightness(0.0);
 	/// [2] HANDLE EDITOR MODES
 	if (this->button_mode[0].process(module->params[Tracker::PARAM_MODE + 0].getValue()))
 		this->mode = EDITOR_MODE_PATTERN;
@@ -92,6 +101,19 @@ void Editor::process(i64 frame) {
 	}
 
 	/// [3] HANDLE PLAYING BUTTONS
+	/// HANDLE PLAY
+	if (this->button_play[0].process(module->params[Tracker::PARAM_PLAY_SONG].getValue())) {
+		g_timeline.play = TIMELINE_MODE_PLAY_SONG;
+		g_timeline.clock.reset();
+	}
+	if (this->button_play[1].process(module->params[Tracker::PARAM_PLAY_PATTERN].getValue()))
+		g_timeline.play = TIMELINE_MODE_PLAY_PATTERN;
+	if (this->button_play[2].process(module->params[Tracker::PARAM_PLAY].getValue()))
+		g_timeline.play = TIMELINE_MODE_PLAY_SONG;
+	if (this->button_play[3].process(module->params[Tracker::PARAM_STOP].getValue())) {
+		g_timeline.play = TIMELINE_MODE_STOP;
+		g_timeline.stop();
+	}
 	/// HANDLE OCTAVE BUTTONS
 	if (this->button_octave[0].process(module->params[Tracker::PARAM_OCTAVE_UP].getValue()))
 		if (this->pattern_octave < 9)
