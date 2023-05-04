@@ -67,6 +67,12 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 		}
 	//// MODE PLAY PATTERN
 	} else if (g_timeline.play == TIMELINE_MODE_PLAY_PATTERN) {
+		if (this->clock.beat >= g_editor.pattern->beat_count) {
+			/// RESET CLOCK
+			this->clock.beat = 0;
+			/// RESET RUNNING PATTERNS
+			this->stop();
+		}
 	}
 
 	/// [2] TRUNCATE FRAMERATE
@@ -139,6 +145,14 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 		}
 	//// MODE PLAY PATTERN
 	} else if (g_timeline.play == TIMELINE_MODE_PLAY_PATTERN) {
+		pattern = g_editor.pattern;
+		/// UPDATE PATTERN ON END
+		if (this->pattern_source[0] == NULL)
+			this->pattern_source[0] = pattern;
+		/// COMPUTE PATTERN
+		this->pattern_instance[0].process(this->synths,
+		/**/ this->pattern_source[0], this->clock,
+		/**/ &debug, &debug_2, debug_str);
 	}
 
 	// -> ! ! ! BOTTLENECK ! ! !
