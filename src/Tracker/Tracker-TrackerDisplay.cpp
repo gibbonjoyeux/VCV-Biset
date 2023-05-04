@@ -377,7 +377,7 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 	nvgFillColor(args.vg, colors[15]);
 	nvgRect(args.vg,
 	/**/ p.x,
-	/**/ p.y + 3.5 + CHAR_H * (g_timeline.clock.beat - g_editor.pattern_cam_y),
+	/**/ p.y + 3.5 + CHAR_H * (g_timeline.clock.beat - g_editor.timeline_cam_y),
 	/**/ rect.getWidth() + 0.5, CHAR_H);
 	nvgFill(args.vg);
 

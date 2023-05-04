@@ -102,17 +102,32 @@ void Editor::process(i64 frame) {
 
 	/// [3] HANDLE PLAYING BUTTONS
 	/// HANDLE PLAY
+	//// PLAY SONG
 	if (this->button_play[0].process(module->params[Tracker::PARAM_PLAY_SONG].getValue())) {
-		g_timeline.play = TIMELINE_MODE_PLAY_SONG;
-		g_timeline.clock.reset();
-	}
-	if (this->button_play[1].process(module->params[Tracker::PARAM_PLAY_PATTERN].getValue()))
-		g_timeline.play = TIMELINE_MODE_PLAY_PATTERN;
-	if (this->button_play[2].process(module->params[Tracker::PARAM_PLAY].getValue()))
-		g_timeline.play = TIMELINE_MODE_PLAY_SONG;
-	if (this->button_play[3].process(module->params[Tracker::PARAM_STOP].getValue())) {
-		g_timeline.play = TIMELINE_MODE_STOP;
 		g_timeline.stop();
+		g_timeline.clock.reset();
+		g_timeline.play = TIMELINE_MODE_PLAY_SONG;
+	}
+	//// PLAY PATTERN
+	if (this->button_play[1].process(module->params[Tracker::PARAM_PLAY_PATTERN].getValue())) {
+		g_timeline.stop();
+		g_timeline.clock.reset();
+		g_timeline.play = TIMELINE_MODE_PLAY_PATTERN;
+	}
+	//// PLAY
+	if (this->button_play[2].process(module->params[Tracker::PARAM_PLAY].getValue())) {
+		if (g_timeline.play == TIMELINE_MODE_PLAY_PATTERN) {
+			g_timeline.stop();
+			g_timeline.clock.reset();
+		} else if (g_timeline.play == TIMELINE_MODE_STOP) {
+			g_timeline.stop();
+		}
+		g_timeline.play = TIMELINE_MODE_PLAY_SONG;
+	}
+	//// STOP
+	if (this->button_play[3].process(module->params[Tracker::PARAM_STOP].getValue())) {
+		g_timeline.stop();
+		g_timeline.play = TIMELINE_MODE_STOP;
 	}
 	/// HANDLE OCTAVE BUTTONS
 	if (this->button_octave[0].process(module->params[Tracker::PARAM_OCTAVE_UP].getValue()))
