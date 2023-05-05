@@ -333,7 +333,6 @@ struct Editor {
 	PatternSource				*pattern;
 	int							pattern_track;
 	int							pattern_row;
-	int							pattern_row_prev;
 	int							pattern_line;
 	int							pattern_cell;
 	int							pattern_char;
@@ -367,7 +366,6 @@ struct Editor {
 	Editor();
 
 	void process(i64 frame);
-	void save_edition(void);
 	void set_row(int index);
 	void set_song_length(int length, bool mode);
 	void set_synth(int index, bool mode);
@@ -388,38 +386,44 @@ struct Editor {
 
 struct Tracker : Module {
 	enum ParamIds {
+								/// PLAY BUTTONS
 								PARAM_PLAY_SONG,
 								PARAM_PLAY_PATTERN,
 								PARAM_PLAY,
 								PARAM_STOP,
+								/// BPM / SYNTH / PATTERN KNOBS
 								PARAM_BPM,
 								PARAM_SYNTH,
 								PARAM_PATTERN,
+								/// JUMP / OCTAVE BUTTONS
 								PARAM_JUMP_UP,
 								PARAM_JUMP_DOWN,
 								PARAM_OCTAVE_UP,
 								PARAM_OCTAVE_DOWN,
-								PARAM_EDIT_SAVE,
-
-								ENUMS(PARAM_EDIT, 9), // TODO: remove
-
+								/// CONTEXT SONG
 								PARAM_SONG_LENGTH,
+								/// CONTEXT SYNTH
 								PARAM_SYNTH_CHANNEL_COUNT,
+								/// CONTEXT PATTERN
 								PARAM_PATTERN_LENGTH,
 								PARAM_PATTERN_LPB,
 								PARAM_PATTERN_NOTE_COUNT,
 								PARAM_PATTERN_CV_COUNT,
+								/// CONTEXT PATTERN COLUMN
 								PARAM_COLUMN_NOTE_MODE,
 								PARAM_COLUMN_NOTE_EFFECT_COUNT,
 								PARAM_COLUMN_CV_MODE,
 								PARAM_COLUMN_CV_SYNTH,
 								PARAM_COLUMN_CV_CHANNEL,
-
+								/// SCREEN MODE SWITCHES
 								ENUMS(PARAM_MODE, 3),
+								/// VIEW MODE SWITCHES
 								ENUMS(PARAM_VIEW, 5),
+								/// CONTEXT PROJECT
 								PARAM_PITCH_BASE,
 								PARAM_RATE,
 								ENUMS(PARAM_TEMPERAMENT, 12),
+								/// .
 								PARAM_COUNT
 	};
 	enum InputIds {
@@ -464,57 +468,17 @@ struct TrackerDisplay : LedDisplay {
 	inline void draw_timeline(const DrawArgs& args, Rect rect);
 };
 
-struct TrackerBPMDisplay : LedDisplay {
-	Tracker*					module;
-	ModuleWidget*				moduleWidget;
-	std::string					font_path;
-	char						str[4];
-
-	TrackerBPMDisplay();
-
-	void draw(const DrawArgs &args) override;
-	void drawLayer(const DrawArgs& args, int layer) override;
+struct TrackerBPMDisplay : LedDisplayDigit {
 	void onButton(const ButtonEvent &e) override;
 };
 
-struct TrackerSynthDisplay : LedDisplay {
-	Tracker*					module;
-	ModuleWidget*				moduleWidget;
-	std::string					font_path;
-	char						str[4];
-
-	TrackerSynthDisplay();
-
-	void draw(const DrawArgs &args) override;
-	void drawLayer(const DrawArgs& args, int layer) override;
+struct TrackerSynthDisplay : LedDisplayDigit {
 	void onButton(const ButtonEvent &e) override;
 };
 
-struct TrackerPatternDisplay : LedDisplay {
-	Tracker*					module;
-	ModuleWidget*				moduleWidget;
-	std::string					font_path;
-	char						str[4];
-
-	TrackerPatternDisplay();
-
-	void draw(const DrawArgs &args) override;
-	void drawLayer(const DrawArgs& args, int layer) override;
+struct TrackerPatternDisplay : LedDisplayDigit {
 	void onButton(const ButtonEvent &e) override;
 };
-
-struct TrackerEditDisplay : LedDisplay {
-	Tracker*					module;
-	ModuleWidget*				moduleWidget;
-	std::string					font_path;
-	char						string[16];
-
-	TrackerEditDisplay();
-
-	void draw(const DrawArgs &args) override {};
-	void drawLayer(const DrawArgs& args, int layer) override;
-};
-
 
 struct TrackerWidget : ModuleWidget {
 	Tracker						*module;

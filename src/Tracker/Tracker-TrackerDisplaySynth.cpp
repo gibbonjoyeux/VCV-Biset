@@ -9,54 +9,6 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-TrackerSynthDisplay::TrackerSynthDisplay() {
-	font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
-}
-
-void TrackerSynthDisplay::draw(const DrawArgs &args) {
-	Rect					rect;
-
-	LedDisplay::draw(args);
-
-	/// GET CANVAS FORMAT
-	rect = box.zeroPos();
-	/// BACKGROUND
-	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[1]);
-	nvgRect(args.vg, rect.pos.x, rect.pos.y, rect.size.x, rect.size.y + 1.0);
-	nvgFill(args.vg);
-
-}
-
-void TrackerSynthDisplay::drawLayer(const DrawArgs& args, int layer) {
-	std::shared_ptr<Font>	font;
-	Rect					rect;
-	Vec						p;
-	int						synth;
-
-	if (module == NULL || layer != 1)
-		return;
-	/// GET FONT
-	font = APP->window->loadFont(font_path);
-	if (font == NULL)
-		return;
-	/// SET FONT
-	nvgFontSize(args.vg, 9);
-	nvgFontFaceId(args.vg, font->handle);
-	/// GET CANVAS FORMAT
-	rect = box.zeroPos();
-	p = rect.getTopLeft();
-	p.y -= 1.0;
-
-	/// DRAW ACTIVE SYNTH
-	synth = module->params[Tracker::PARAM_SYNTH].getValue();
-	itoaw(this->str, synth, 2);
-	nvgFillColor(args.vg, colors[13]);
-	nvgText(args.vg, p.x + 6.0, p.y + 9.5, this->str, NULL);
-
-	LedDisplay::drawLayer(args, layer);
-}
-
 void TrackerSynthDisplay::onButton(const ButtonEvent &e) {
 	Menu			*menu;
 	MenuLabel		*label;

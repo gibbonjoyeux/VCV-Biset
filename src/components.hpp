@@ -267,6 +267,7 @@ struct LedDisplayDigit : LedDisplay {
 	LedDisplayDigit() {
 		this->font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
 		this->value_quant = NULL;
+		this->value_link = NULL;
 		this->value_length = 3;
 		this->color_back = {1, 1, 1, 1};
 		this->color_font = {0, 0, 0, 1};
@@ -307,9 +308,9 @@ struct LedDisplayDigit : LedDisplay {
 		p = rect.getTopLeft();
 		p.y -= 1.0;
 		/// GET VALUE
-		if (this->value_quant)
+		if (this->value_quant != NULL)
 			value = this->value_quant->getValue();
-		else if (this->value_link)
+		else if (this->value_link != NULL)
 			value = *(this->value_link);
 		else
 			value = 0;

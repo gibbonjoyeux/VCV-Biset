@@ -9,54 +9,6 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-TrackerPatternDisplay::TrackerPatternDisplay() {
-	font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
-}
-
-void TrackerPatternDisplay::draw(const DrawArgs &args) {
-	Rect					rect;
-
-	LedDisplay::draw(args);
-
-	/// GET CANVAS FORMAT
-	rect = box.zeroPos();
-	/// BACKGROUND
-	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[1]);
-	nvgRect(args.vg, rect.pos.x, rect.pos.y, rect.size.x, rect.size.y + 1.0);
-	nvgFill(args.vg);
-
-}
-
-void TrackerPatternDisplay::drawLayer(const DrawArgs& args, int layer) {
-	std::shared_ptr<Font>	font;
-	Rect					rect;
-	Vec						p;
-	int						pattern;
-
-	if (module == NULL || layer != 1)
-		return;
-	/// GET FONT
-	font = APP->window->loadFont(font_path);
-	if (font == NULL)
-		return;
-	/// SET FONT
-	nvgFontSize(args.vg, 9);
-	nvgFontFaceId(args.vg, font->handle);
-	/// GET CANVAS FORMAT
-	rect = box.zeroPos();
-	p = rect.getTopLeft();
-	p.y -= 1.0;
-
-	/// DRAW ACTIVE PATTERN
-	pattern = module->params[Tracker::PARAM_PATTERN].getValue();
-	itoaw(this->str, pattern, 3);
-	nvgFillColor(args.vg, colors[13]);
-	nvgText(args.vg, p.x + 2.0, p.y + 9.5, this->str, NULL);
-
-	LedDisplay::drawLayer(args, layer);
-}
-
 void TrackerPatternDisplay::onButton(const ButtonEvent &e) {
 	PatternSource	*pattern;
 	PatternNoteRow	*col_note;

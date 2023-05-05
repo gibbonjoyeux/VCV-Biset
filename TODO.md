@@ -30,8 +30,8 @@
 - [ ] MODULE Tracker
 	- [ ] BACKEND
 		- [ ] PLAY
-			- [ ] Play song
-			- [ ] Play pattern
+			- [x] Play song
+			- [x] Play pattern
 		- [x] TIMELINE
 			- [x] Pattern new		(run new pattern)
 			- [x] Pattern keep		(keep active pattern)
@@ -58,7 +58,7 @@
 					- [ ] CV curve
 				- [x] CV keep		(continue interpolation)
 	- [ ] FRONTEND
-		- [ ] Screen mode (Tracker + Timeline + Parameters)
+		- [x] Screen mode (Tracker + Timeline)
 		- [ ] Screen Tracker
 			- [x] View modes (amp + pan + ...)
 			- [x] Layer tracker (text only)
@@ -68,7 +68,7 @@
 			- [x] Layer tracker (text only)
 			- [ ] Layer visual
 			- [x] Layer user (cursor + beat cursor)
-		- [ ] Screen Parameters -> Can be accessed via context menu (right click)
+		- [ ] Context menu
 			- [x] Frame rate (audio, audio / 2, audio / 4, ...)
 			- [x] Base pitch (default: 440)
 			- [x] Temperaments (can be used as scale)
@@ -77,10 +77,19 @@
 				- [ ] Temperament scale preset (major, minor, modes, ...)
 		- [ ] Screen Edition
 			- [x] Song
+				- [x] Song length
 			- [x] Synth
+				- [x] Synth channel count
 			- [x] Pattern
+				- [x] Pattern length
+				- [x] Pattern lpb
+				- [x] Pattern note column count
+				- [x] Pattern CV column count
+				- [ ] Pattern color
 			- [x] Column
 				- [x] Note
+					- [x] Mode
+					- [x] Effect count
 				- [x] CV
 					- [x] Mode
 					- [x] Synth
@@ -104,41 +113,11 @@
 			- [x] CV mode range (min / max sliders)
 			- [ ] CV mode param map
 - [ ] MODULE TrackerDrumOut
-- [ ] MODULE TrackerClock
-- [ ] MODULE TrackerState
+- [ ] MODULE TrackerClock (mult & div clock)
+- [ ] MODULE TrackerState (Playing gate & trigger)
+- [ ] MODULE TrackerQuant (quantizer with Tracker pitch & temperament)
 
 
-
-- [x] Tracker play pattern
-- [x] Tracker play pattern (with specified starting beat)
-- [x] Pattern play notes
-- [x] Pattern play notes delay
-- [x] Pattern play velocity
-- [ ] Pattern play effects
-	- [x] Effect vibrato		Vxy (x: freq y: amp)
-	- [x] Effect tremolo		Txy (x: freq y: amp)
-	- [ ] Effect ratchet		Rxx (x: count)
-	- [ ] Effect octave offset	Oxy (x: range y: chance)
-- [x] Pattern play notes glide
-- [x] Pattern play CV interpolation
-- [x] Pattern play CV interpolation with delay
-- [ ] Pattern play CV interpolation with curves
-
-- [x] Chance as effect (Cxx + cxx)
-- [x] Handle delay on note stop / new for running note
-- [x] Define synth row order (PITCH-OCT VELO SYNTH DELAY GLIDE FX FX ...)
-- [x] Line / Beat number on left
-- [x] Scroll Y
-- [x] Scroll X
-- [x] Display modes (show VELO PAN DELAY GLIDE FX)
-- [x] Pattern selecting knob
-- [x] Synth selecting knob (also used in pattern editing)
-- [x] Editing screen
-	- [x] Song editing knob
-	- [x] Synth editing knob(s)
-	- [x] Pattern editing knobs
-	- [x] Pattern Column editing knobs
-	- [x] Update button
 
 # Effects
 

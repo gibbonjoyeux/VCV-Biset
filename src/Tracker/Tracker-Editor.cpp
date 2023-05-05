@@ -21,7 +21,6 @@ Editor::Editor() {
 	this->pattern = &(g_timeline.patterns[0]);
 	this->pattern_track = 0;
 	this->pattern_row = 0;
-	this->pattern_row_prev = -1;
 	this->pattern_line = 0;
 	this->pattern_cell = 0;
 	this->pattern_char = 0;
@@ -155,182 +154,24 @@ void Editor::process(i64 frame) {
 	if (value != this->synth_id)
 		if (value >= 0 && value < 64)
 			this->set_synth(value, false);
-
-	/// [5] HANDLE EDIT SCREEN
-	if (g_editor.pattern_row != g_editor.pattern_row_prev)
-		this->set_row(g_editor.pattern_row);
-	/// HANDLE EDIT SAVE BUTTON
-	if (this->button_save.process(module->params[Tracker::PARAM_EDIT_SAVE].getValue()))
-		this->save_edition();
-}
-
-void Editor::save_edition(void) {
-	PatternNoteRow	*col_note;
-	PatternCVRow	*col_cv;
-	int				beat_count;
-	int				note_count, cv_count;
-	int				lpb;
-	int				channels;
-	int				note_mode, note_effect;
-	int				cv_mode, cv_synth, cv_channel;
-	int				i;
-
-	/// WAIT FOR THREAD FLAG
-	while (g_timeline.thread_flag.test_and_set()) {}
-
-	/// SONG LENGTH
-	beat_count = g_module->params[Tracker::PARAM_EDIT + 0].getValue();
-	if (g_timeline.beat_count != beat_count) {
-		g_timeline.resize(beat_count);
-		this->set_song_length(beat_count, true);
-		this->timeline_clamp_cursor();
-	}
-	/// SYNTH CHANNELS
-	channels = g_module->params[Tracker::PARAM_EDIT + 1].getValue();
-	if (g_timeline.synths[g_editor.synth_id].channel_count != channels) {
-		g_timeline.synths[g_editor.synth_id].channel_count = channels;
-		for (i = channels; i < 16; ++i)
-			g_timeline.synths[g_editor.synth_id].voices[i].stop();
-	}
-	/// PATTERN
-	beat_count = g_module->params[Tracker::PARAM_EDIT + 2].getValue();
-	lpb = g_module->params[Tracker::PARAM_EDIT + 3].getValue();
-	note_count = g_module->params[Tracker::PARAM_EDIT + 4].getValue();
-	cv_count = g_module->params[Tracker::PARAM_EDIT + 5].getValue();
-	if (beat_count != g_editor.pattern->beat_count
-	|| lpb != g_editor.pattern->lpb
-	|| note_count != g_editor.pattern->note_count
-	|| cv_count != g_editor.pattern->cv_count) {
-		this->pattern->resize(note_count, cv_count, beat_count, lpb);
-		this->pattern_clamp_cursor();
-	}
-	/// ROW
-	//// AS NOTE
-	if (g_editor.pattern_row < g_editor.pattern->note_count) {
-		col_note = g_editor.pattern->notes[g_editor.pattern_row];
-		note_mode = g_module->params[Tracker::PARAM_EDIT + 6].getValue();
-		note_effect = g_module->params[Tracker::PARAM_EDIT + 7].getValue();
-		if (note_mode != col_note->mode)
-			col_note->mode = note_mode;
-		if (note_effect != col_note->effect_count)
-			col_note->effect_count = note_effect;
-	//// AS CV
-	} else {
-		col_cv = g_editor.pattern->cvs[g_editor.pattern_row - g_editor.pattern->note_count];
-		cv_mode = g_module->params[Tracker::PARAM_EDIT + 6].getValue();
-		cv_synth = g_module->params[Tracker::PARAM_EDIT + 7].getValue();
-		cv_channel = g_module->params[Tracker::PARAM_EDIT + 8].getValue();
-		if (cv_mode != col_cv->mode)
-			col_cv->mode = cv_mode;
-		if (cv_synth != col_cv->synth)
-			col_cv->synth = cv_synth;
-		if (cv_channel != col_cv->channel)
-			col_cv->channel = cv_channel;
-	}
-
-	/// CLEAR THREAD FLAG
-	g_timeline.thread_flag.clear();
 }
 
 void Editor::set_row(int index) {
-	ParamQuantity	*param;
-	PatternNoteRow	*row_note;
-	PatternCVRow	*row_cv;
-
-	g_editor.pattern_row_prev = g_editor.pattern_row;
-	/// ROW NOTE
-	if (g_editor.pattern_row < g_editor.pattern->note_count) {
-		row_note = g_editor.pattern->notes[g_editor.pattern_row];
-		/// NOTE MODE
-		param = g_module->getParamQuantity(Tracker::PARAM_EDIT + 6);
-		param->defaultValue = row_note->mode;
-		param->minValue = 0;
-		param->maxValue = 2;
-		g_module->params[Tracker::PARAM_EDIT + 6].setValue(row_note->mode);
-		/// NOTE EFFECTS
-		param = g_module->getParamQuantity(Tracker::PARAM_EDIT + 7);
-		param->defaultValue = row_note->effect_count;
-		param->minValue = 0;
-		param->maxValue = 8;
-		g_module->params[Tracker::PARAM_EDIT + 7].setValue(row_note->effect_count);
-	/// ROW CV
-	} else {
-		row_cv = g_editor.pattern->cvs[g_editor.pattern_row - g_editor.pattern->note_count];
-		/// CV MODE
-		param = g_module->getParamQuantity(Tracker::PARAM_EDIT + 6);
-		param->defaultValue = row_cv->mode;
-		param->minValue = 0;
-		param->maxValue = 1;
-		g_module->params[Tracker::PARAM_EDIT + 6].setValue(row_cv->mode);
-		/// CV SYNTH
-		param = g_module->getParamQuantity(Tracker::PARAM_EDIT + 7);
-		param->defaultValue = row_cv->synth;
-		param->minValue = 0;
-		param->maxValue = 63;
-		g_module->params[Tracker::PARAM_EDIT + 7].setValue(row_cv->synth);
-		/// CV CHANNEL
-		param = g_module->getParamQuantity(Tracker::PARAM_EDIT + 8);
-		param->defaultValue = row_cv->channel;
-		param->minValue = 0;
-		param->maxValue = 7;
-		g_module->params[Tracker::PARAM_EDIT + 8].setValue(row_cv->channel);
-	}
 }
 
 void Editor::set_song_length(int length, bool mode) {
-	/// UPDATE SONG LENGTH DEFAULT VALUE
-	g_module->getParamQuantity(Tracker::PARAM_EDIT)->defaultValue = length;
-	g_module->params[Tracker::PARAM_EDIT].setValue(length);
-	/// UPDATE SONG LENGTH REAL VALUE
-	if (mode)
-		g_module->params[Tracker::PARAM_EDIT].setValue(length);
 }
 
 void Editor::set_synth(int index, bool mode) {
-	int		value;
-
-	/// [1] UPDATE EDITOR
 	/// UPDATE SYNTH
 	this->synth_id = index;
-	/// UPDATE SYNTH PARAM
-	value = g_timeline.synths[index].channel_count;
-	g_module->getParamQuantity(Tracker::PARAM_EDIT + 1)->defaultValue = value;
-	g_module->params[Tracker::PARAM_EDIT + 1].setValue(value);
-	/// [2] UPDATE KNOB
-	/// UPDATE SYNTH KNOB
-	if (mode)
-		g_module->params[Tracker::PARAM_SYNTH].setValue(index);
 }
 
 void Editor::set_pattern(int index, bool mode) {
-	int		value;
-
-	/// [1] UPDATE EDITOR
 	/// UPDATE PATTERN
 	this->pattern_id = index;
 	this->pattern = &(g_timeline.patterns[index]);
 	this->pattern_reset_cursor();
-	/// UPDATE PATTERN PARAMS
-	//// PATTERN LENGTH
-	value = this->pattern->beat_count;
-	g_module->getParamQuantity(Tracker::PARAM_EDIT + 2)->defaultValue = value;
-	g_module->params[Tracker::PARAM_EDIT + 2].setValue(value);
-	//// PATTERN LPB
-	value = this->pattern->lpb;
-	g_module->getParamQuantity(Tracker::PARAM_EDIT + 3)->defaultValue = value;
-	g_module->params[Tracker::PARAM_EDIT + 3].setValue(value);
-	//// PATTERN NOTE COUNT
-	value = this->pattern->note_count;
-	g_module->getParamQuantity(Tracker::PARAM_EDIT + 4)->defaultValue = value;
-	g_module->params[Tracker::PARAM_EDIT + 4].setValue(value);
-	//// PATTERN CV COUNT
-	value = this->pattern->cv_count;
-	g_module->getParamQuantity(Tracker::PARAM_EDIT + 5)->defaultValue = value;
-	g_module->params[Tracker::PARAM_EDIT + 5].setValue(value);
-	/// [2] UPDATE KNOB
-	/// UPDATE PATTERN KNOB
-	if (mode)
-		g_module->params[Tracker::PARAM_PATTERN].setValue(index);
 }
 
 void Editor::pattern_move_cursor_x(int delta_x) {

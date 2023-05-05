@@ -29,8 +29,6 @@ Tracker::Tracker() {
 	configSwitch(PARAM_VIEW + 3, 0, 1, 0, "View Glide");
 	configSwitch(PARAM_VIEW + 4, 0, 1, 0, "View Effects");
 
-	for (i = 0; i < 9; ++i)
-		configParam(PARAM_EDIT + i, 0.0f, 1.0f, 0.0f, "Select")->snapEnabled = true;
 	configParam(PARAM_SONG_LENGTH, 1.0f, 9999.0f, 0.0f, "Song length", " beats")->snapEnabled = true;
 	configParam(PARAM_SYNTH_CHANNEL_COUNT, 1.0f, 16.0f, 0.0f, "Synth channels")->snapEnabled = true;
 	configParam(PARAM_PATTERN_LENGTH, 1.0f, 999.0f, 0.0f, "Pattern length", " beats")->snapEnabled = true;
@@ -42,7 +40,6 @@ Tracker::Tracker() {
 	configParam(PARAM_COLUMN_CV_MODE, 0.0f, 3.0f, 0.0f, "Column mode", "")->snapEnabled = true;
 	configParam(PARAM_COLUMN_CV_SYNTH, 0.0f, 63.0f, 0.0f, "Column synth", "")->snapEnabled = true;
 	configParam(PARAM_COLUMN_CV_CHANNEL, 0.0f, 7.0f, 0.0f, "Column channel", "")->snapEnabled = true;
-	configButton(PARAM_EDIT_SAVE, "Save");
 
 	configButton(PARAM_MODE + 0, "Mode pattern");
 	configButton(PARAM_MODE + 1, "Mode timeline");
