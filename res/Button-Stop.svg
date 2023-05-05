@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="5.3999996mm"
+   height="5.3999996mm"
+   viewBox="0 0 8.9999994 8.9999994"
+   version="1.1"
+   id="svg257"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   sodipodi:docname="Button-Stop.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview259"
+     pagecolor="#bebebe"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="true"
+     inkscape:zoom="32"
+     inkscape:cx="5.953125"
+     inkscape:cy="8.734375"
+     inkscape:window-width="2560"
+     inkscape:window-height="1494"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid5491"
+       originx="0"
+       originy="0" />
+  </sodipodi:namedview>
+  <defs
+     id="defs254">
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect1722"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,0,0,1 @ F,0,0,1,0,4.2118359,0,1 @ F,0,0,1,0,4.2118359,0,1 @ F,0,0,1,0,0,0,1"
+       unit="px"
+       method="auto"
+       mode="F"
+       radius="0"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect5543"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,0,0,1 @ F,0,0,1,0,0.98001514,0,1 @ F,0,0,1,0,0.98001514,0,1 @ F,0,1,1,0,0.66311198,0,1 @ F,0,0,1,0,0.66311198,0,1 @ F,0,0,1,0,0,0,1"
+       unit="px"
+       method="auto"
+       mode="F"
+       radius="2"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect5467"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,1,1,0,0.52503253,0,1 @ F,0,1,1,0,0.52503253,0,1 @ F,0,0,1,0,0,0,1"
+       unit="px"
+       method="auto"
+       mode="F"
+       radius="1"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="true"
+       hide_knots="false" />
+    <linearGradient
+       id="linearGradient9580"
+       inkscape:swatch="solid">
+      <stop
+         style="stop-color:#86cdd7;stop-opacity:1;"
+         offset="0"
+         id="stop9578" />
+    </linearGradient>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline">
+    <path
+       style="display:inline;fill:#ecae52;fill-opacity:1;stroke:none;stroke-width:1.1466;stroke-linejoin:bevel"
+       id="rect360"
+       width="9"
+       height="9"
+       x="0"
+       y="0"
+       inkscape:label="BACK"
+       inkscape:path-effect="#path-effect1722"
+       d="M 0,0 H 4.7881641 A 4.2118359,4.2118359 45 0 1 9,4.2118359 V 4.7881641 A 4.2118359,4.2118359 135 0 1 4.7881641,9 H 0 Z"
+       sodipodi:type="rect" />
+    <rect
+       style="display:inline;fill:#252525;stroke-width:0.499791;stroke-linecap:round;stroke-linejoin:round"
+       id="rect1825"
+       width="3.7399952"
+       height="3.7399952"
+       x="2.1890302"
+       y="2.6300023"
+       inkscape:label="STOP" />
+  </g>
+</svg>

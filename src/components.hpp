@@ -16,6 +16,58 @@ extern Plugin	*pluginInstance;
 //////////////////////////////////////////////////
 
 //////////////////////////////
+/// BUTTONS
+//////////////////////////////
+
+struct ButtonPlaySong : app::SvgSwitch {
+	ButtonPlaySong() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Song.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Song.svg")));
+	}
+};
+
+struct ButtonPlayPattern : app::SvgSwitch {
+	ButtonPlayPattern() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Pattern.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Pattern.svg")));
+	}
+};
+
+struct ButtonPlaySimple : app::SvgSwitch {
+	ButtonPlaySimple() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Simple.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Simple.svg")));
+	}
+};
+
+struct ButtonStop : app::SvgSwitch {
+	ButtonStop() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Stop.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Stop.svg")));
+	}
+};
+
+struct ButtonMinus : app::SvgSwitch {
+	ButtonMinus() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Minus.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Minus.svg")));
+	}
+};
+
+struct ButtonPlus : app::SvgSwitch {
+	ButtonPlus() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Plus.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Plus.svg")));
+	}
+};
+
+//////////////////////////////
 /// KNOBS
 //////////////////////////////
 

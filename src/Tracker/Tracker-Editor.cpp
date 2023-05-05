@@ -165,6 +165,9 @@ void Editor::set_song_length(int length, bool mode) {
 void Editor::set_synth(int index, bool mode) {
 	/// UPDATE SYNTH
 	this->synth_id = index;
+	/// UPDATE KNOB
+	if (g_module != NULL && mode == true)
+		g_module->params[Tracker::PARAM_SYNTH].setValue(index);
 }
 
 void Editor::set_pattern(int index, bool mode) {
@@ -172,6 +175,9 @@ void Editor::set_pattern(int index, bool mode) {
 	this->pattern_id = index;
 	this->pattern = &(g_timeline.patterns[index]);
 	this->pattern_reset_cursor();
+	/// UPDATE KNOB
+	if (module != NULL && mode == true)
+		module->params[Tracker::PARAM_PATTERN].setValue(index);
 }
 
 void Editor::pattern_move_cursor_x(int delta_x) {

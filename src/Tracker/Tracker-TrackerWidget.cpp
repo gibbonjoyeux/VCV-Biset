@@ -1,6 +1,17 @@
 
 #include "Tracker.hpp"
 
+#define BTN_PLAY_X			17.25
+#define BTN_PLAY_Y			6.0
+#define BTN_PLAY_STEP		6.0
+#define KNOB_X				10.0
+#define KNOB_Y				18.0
+#define KNOB_STEP			12.0
+#define BTN_JUMP_X			15.50
+#define BTN_JUMP_Y			40.0
+#define BTN_OCTAVE_X		(BTN_JUMP_X + 13.0)
+#define BTN_OCTAVE_Y		BTN_JUMP_Y
+
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
@@ -486,19 +497,19 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	/// [1] ADD PARAMS
 	//// PLAY BUTTONS
 	addParam(
-	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0, 6.0)),
+	/**/ createParamCentered<ButtonPlaySong>(mm2px(Vec(BTN_PLAY_X, BTN_PLAY_Y)),
 	/**/ module,
 	/**/ Tracker::PARAM_PLAY_SONG));
 	addParam(
-	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0 + 8.0 * 1, 6.0)),
+	/**/ createParamCentered<ButtonPlayPattern>(mm2px(Vec(BTN_PLAY_X + BTN_PLAY_STEP, BTN_PLAY_Y)),
 	/**/ module,
 	/**/ Tracker::PARAM_PLAY_PATTERN));
 	addParam(
-	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0 + 8.0 * 2, 6.0)),
+	/**/ createParamCentered<ButtonPlaySimple>(mm2px(Vec(BTN_PLAY_X + BTN_PLAY_STEP * 2, BTN_PLAY_Y)),
 	/**/ module,
 	/**/ Tracker::PARAM_PLAY));
 	addParam(
-	/**/ createParamCentered<VCVButton>(mm2px(Vec(8.0 + 8.0 * 3, 6.0)),
+	/**/ createParamCentered<ButtonStop>(mm2px(Vec(BTN_PLAY_X + BTN_PLAY_STEP * 3, BTN_PLAY_Y)),
 	/**/ module,
 	/**/ Tracker::PARAM_STOP));
 
@@ -514,53 +525,6 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 		/**/ module,
 		/**/ Tracker::LIGHT_MODE + i));
 	}
-
-	//// BPM / SYNTH / PATTERN KNOBS
-	addParam(
-	///**/ createParamCentered<KnobMedium>(mm2px(Vec(9.0, 24.0)),
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(20.0, 15.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_BPM));
-	addParam(createParamCentered<KnobMedium>(mm2px(Vec(20.0, 25.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_SYNTH));
-	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(20.0, 35.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_PATTERN));
-
-	////// EDIT KNOBS
-	//for (i = 0; i < 9; ++i) {
-	//	addParam(
-	//	///**/ createParamCentered<Trimpot>(mm2px(Vec(40.0, 73.0 + 8.75 * i - 37.5)),
-	//	/**/ createParamCentered<KnobSmall>(mm2px(Vec(40.0, 73.0 + 7.80 * i - 37.5)),
-	//	/**/ module,
-	//	/**/ Tracker::PARAM_EDIT + i));
-	//}
-	////// EDIT BUTTON
-	//addParam(
-	///**/ createParamCentered<VCVButton>(mm2px(Vec(20.5, 106.0)),
-	///**/ module,
-	///**/ Tracker::PARAM_EDIT_SAVE));
-
-	//// JUMP BUTTONS
-	addParam(
-	/**/ createParamCentered<TL1105>(mm2px(Vec(41.0, 12.5 + 10.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_JUMP_UP));
-	addParam(
-	/**/ createParamCentered<TL1105>(mm2px(Vec(41.0, 17.5 + 10.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_JUMP_DOWN));
-	//// OCTAVE BUTTONS
-	addParam(
-	/**/ createParamCentered<TL1105>(mm2px(Vec(47.0, 12.5 + 10.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_OCTAVE_UP));
-	addParam(
-	/**/ createParamCentered<TL1105>(mm2px(Vec(47.0, 17.5 + 10.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_OCTAVE_DOWN));
 
 	//// VIEW LIGHT SWITCHES
 	for (i = 0; i < 5; ++i) {
@@ -598,8 +562,11 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	display->module = module;
 	display->moduleWidget = this;
 	addChild(display);
-	//// BPM LED DISPLAY
-	display_bpm = createWidget<TrackerBPMDisplay>(mm2px(Vec(5.0, 13.0)));
+
+	//// BPM / SYNTH / PATTERN KNOBS
+	/// BPM SELECTOR
+	//// DISPLAY
+	display_bpm = createWidget<TrackerBPMDisplay>(mm2px(Vec(KNOB_X, KNOB_Y)));
 	display_bpm->box.size = mm2px(Vec(8.25, 3.5));
 	display_bpm->module = module;
 	if (module)
@@ -608,8 +575,15 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	display_bpm->color_back = colors[15];
 	display_bpm->color_font = colors[4];
 	addChild(display_bpm);
-	//// SYNTH LED DISPLAY
-	display_synth = createWidget<TrackerSynthDisplay>(mm2px(Vec(5.0, 23.0)));
+	//// KNOB
+	addParam(
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(KNOB_X + 4.25, KNOB_Y + 10.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_BPM));
+
+	/// SYNTH SELECTOR
+	//// DISPLAY
+	display_synth = createWidget<TrackerSynthDisplay>(mm2px(Vec(KNOB_X + KNOB_STEP, KNOB_Y)));
 	display_synth->box.size = mm2px(Vec(8.25, 3.5));
 	display_synth->module = module;
 	if (module)
@@ -618,8 +592,14 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	display_synth->color_back = colors[15];
 	display_synth->color_font = colors[4];
 	addChild(display_synth);
-	//// PATTERN LED DISPLAY
-	display_pattern = createWidget<TrackerPatternDisplay>(mm2px(Vec(5.0, 33.0)));
+	//// KNOB
+	addParam(createParamCentered<KnobMedium>(mm2px(Vec(KNOB_X + KNOB_STEP + 4.25, KNOB_Y + 10.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_SYNTH));
+
+	/// PATTERN SELECTOR
+	//// DISPLAY
+	display_pattern = createWidget<TrackerPatternDisplay>(mm2px(Vec(KNOB_X + KNOB_STEP * 2, KNOB_Y)));
 	display_pattern->box.size = mm2px(Vec(8.25, 3.5));
 	display_pattern->module = module;
 	if (module)
@@ -628,9 +608,15 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	display_pattern->color_back = colors[15];
 	display_pattern->color_font = colors[4];
 	addChild(display_pattern);
+	//// KNOB
+	addParam(
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(KNOB_X + KNOB_STEP * 2 + 4.25, KNOB_Y + 10.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_PATTERN));
 
-	//// SELECT JUMP DISPLAY
-	display_jump = createWidget<LedDisplayDigit>(mm2px(Vec(5.0, 43.0)));
+	/// SELECT JUMP
+	//// DISPLAY
+	display_jump = createWidget<LedDisplayDigit>(mm2px(Vec(BTN_JUMP_X, BTN_JUMP_Y)));
 	display_jump->box.size = mm2px(Vec(8.25, 3.5));
 	display_jump->module = module;
 	display_jump->value_link = &(g_editor.pattern_jump);
@@ -638,8 +624,18 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	display_jump->color_back = colors[15];
 	display_jump->color_font = colors[4];
 	addChild(display_jump);
-	//// SELECT OCTAVE DISPLAY
-	display_octave = createWidget<LedDisplayDigit>(mm2px(Vec(5.0, 48.0)));
+	//// BUTTONS
+	addParam(
+	/**/ createParamCentered<ButtonPlus>(mm2px(Vec(BTN_JUMP_X + 4.0, BTN_JUMP_Y + 8.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_JUMP_UP));
+	addParam(
+	/**/ createParamCentered<ButtonMinus>(mm2px(Vec(BTN_JUMP_X + 4.0, BTN_JUMP_Y + 14.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_JUMP_DOWN));
+	/// SELECT OCTAVE
+	//// DISPLAY
+	display_octave = createWidget<LedDisplayDigit>(mm2px(Vec(BTN_OCTAVE_X, BTN_OCTAVE_Y)));
 	display_octave->box.size = mm2px(Vec(8.25, 3.5));
 	display_octave->module = module;
 	display_octave->value_link = &(g_editor.pattern_octave);
@@ -647,6 +643,16 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	display_octave->color_back = colors[15];
 	display_octave->color_font = colors[4];
 	addChild(display_octave);
+	//// BUTTONS
+	addParam(
+	/**/ createParamCentered<ButtonPlus>(mm2px(Vec(BTN_OCTAVE_X + 4.0, BTN_OCTAVE_Y + 8.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_OCTAVE_UP));
+	addParam(
+	/**/ createParamCentered<ButtonMinus>(mm2px(Vec(BTN_OCTAVE_X + 4.0, BTN_OCTAVE_Y + 14.0)),
+	/**/ module,
+	/**/ Tracker::PARAM_OCTAVE_DOWN));
+
 }
 
 void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {

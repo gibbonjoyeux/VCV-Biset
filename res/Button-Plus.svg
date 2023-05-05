@@ -2,20 +2,20 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="9mm"
-   height="9mm"
-   viewBox="0 0 9 9"
+   width="5mm"
+   height="5mm"
+   viewBox="0 0 9.0000001 9.0000001"
    version="1.1"
    id="svg257"
    inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
-   sodipodi:docname="Knob-Medium-bg.svg"
+   sodipodi:docname="Button-plus.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <sodipodi:namedview
      id="namedview259"
-     pagecolor="#dcdcdc"
+     pagecolor="#bebebe"
      bordercolor="#000000"
      borderopacity="0.25"
      inkscape:showpageshadow="2"
@@ -24,9 +24,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="22.627417"
-     inkscape:cx="-1.3479223"
-     inkscape:cy="11.468388"
+     inkscape:zoom="32"
+     inkscape:cx="9.421875"
+     inkscape:cy="10.890625"
      inkscape:window-width="2560"
      inkscape:window-height="1494"
      inkscape:window-x="-11"
@@ -50,17 +50,18 @@
      id="layer1"
      style="display:inline">
     <circle
-       style="opacity:1;fill:#ecae52;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.18;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1"
+       style="display:inline;opacity:1;fill:#ecae52;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.18;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1"
        id="path4886"
        cx="4.5"
        cy="4.5"
        r="4.5" />
-    <ellipse
-       style="display:none;fill:#7b9542;fill-opacity:0;stroke:#000000;stroke-width:0.5;stroke-dasharray:none;stroke-opacity:1"
-       id="path5948"
-       cx="4.5"
-       cy="4.4810596"
-       rx="4.2496853"
-       ry="4.2310596" />
+    <path
+       style="fill:none;stroke:#252525;stroke-width:1.1466;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1"
+       d="M 2.0848022,4.4999999 H 6.9151977"
+       id="path299" />
+    <path
+       style="fill:none;stroke:#252525;stroke-width:1.1466;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1"
+       d="M 4.5,2.0848022 V 6.9151977"
+       id="path2199" />
   </g>
 </svg>
