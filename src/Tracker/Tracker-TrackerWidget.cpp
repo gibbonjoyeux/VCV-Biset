@@ -718,76 +718,18 @@ void TrackerWidget::onDeselect(const DeselectEvent &e) {
 
 void TrackerWidget::appendContextMenu(Menu *menu) {
 	MenuSeparator	*separator;
-	Param			*param_pitch;
+	MenuSliderEdit	*slider;
 	Param			*param_rate;
-
-	param_pitch = &(g_module->params[Tracker::PARAM_PITCH_BASE]);
-	param_rate = &(g_module->params[Tracker::PARAM_RATE]);
 
 	separator = new MenuSeparator();
 	menu->addChild(separator);
 
 	/// [1] BASE PITCH
-	menu->addChild(rack::createSubmenuItem("Pitch offset", "",
-		[=](Menu *menu) {
-			MenuSliderEdit	*slider;
-			MenuItem		*item;
-			rack::Widget	*holder;
-
-			/// SLIDER
-			slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
-			slider->box.size.x = 200.f;
-			menu->addChild(slider);
-
-			/// PRESETS
-			//// HOLDER
-			holder = new rack::Widget();
-			holder->box.size.x = 200.0f;
-			holder->box.size.y = 20.0f;
-			//// OCT -2
-			item = new MenuItemStay("-2", "",	
-				[=]() { param_pitch->setValue(-2); }
-			);
-			item->box.size.x = 30.0f;
-			item->box.size.y = 20.0f;
-			holder->addChild(item);
-			//// OCT -1
-			item = new MenuItemStay("-1", "",
-				[=]() { param_pitch->setValue(-1); }
-			);
-			item->box.size.x = 30.0f;
-			item->box.size.y = 20.0f;
-			item->box.pos.x = 40.0f;
-			holder->addChild(item);
-			//// OCT 0
-			item = new MenuItemStay("0", "",
-				[=]() { param_pitch->setValue(0); }
-			);
-			item->box.size.x = 30.0f;
-			item->box.size.y = 20.0f;
-			item->box.pos.x = 80.0f;
-			holder->addChild(item);
-			//// OCT +1
-			item = new MenuItemStay("+1", "",
-				[=]() { param_pitch->setValue(+1); }
-			);
-			item->box.size.x = 30.0f;
-			item->box.size.y = 20.0f;
-			item->box.pos.x = 120.0f;
-			holder->addChild(item);
-			//// OCT +2
-			item = new MenuItemStay("+2", "",
-				[=]() { param_pitch->setValue(+2); }
-			);
-			item->box.size.x = 30.0f;
-			item->box.size.y = 20.0f;
-			item->box.pos.x = 158.0f;
-			holder->addChild(item);
-			menu->addChild(holder);
-		}
-	));
-
+	slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
 	/// [2] RATE
+	param_rate = &(g_module->params[Tracker::PARAM_RATE]);
 	menu->addChild(rack::createSubmenuItem("Rate", "",
 		[=](Menu *menu) {
 			menu->addChild(new MenuCheckItem("Sample rate / 1", "",

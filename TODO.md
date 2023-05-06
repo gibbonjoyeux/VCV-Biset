@@ -57,6 +57,9 @@
 					- [x] CV value
 					- [ ] CV curve
 				- [x] CV keep		(continue interpolation)
+		- [ ] LIVE
+			- [ ] Mode write
+			- [ ] Mode play (create synth voices from user events)
 	- [ ] FRONTEND
 		- [x] Screen mode (Tracker + Timeline)
 		- [ ] Screen Tracker
@@ -108,10 +111,14 @@
 		- [ ] ActionSynthOut		(change synth output module)
 - [ ] MODULE TrackerOut
 	- [ ] FRONTEND
+		- [ ] Context menu
+			- [x] CV mode range
+			- [ ] CV mode mapping
+			- [ ] Gate mode (Gate | Trigger)
 	- [ ] BACKEND
 		- [ ] CV
 			- [x] CV mode range (min / max sliders)
-			- [ ] CV mode param map
+			- [ ] CV mode mapping
 - [ ] MODULE TrackerDrumOut
 - [ ] MODULE TrackerClock (mult & div clock)
 - [ ] MODULE TrackerState (Playing gate & trigger)

@@ -18,40 +18,40 @@ TrackerOutWidget::TrackerOutWidget(TrackerOut* _module) {
 	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker-Out.svg")));
 
 	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(25.0, 20.5)),
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(25.0 + 2.5, 20.5)),
 	/**/ module,
 	/**/ TrackerOut::PARAM_SYNTH));
 
 	addOutput(
-	/**/ createOutputCentered<Outlet>(mm2px(Vec(10.3, 36.6)),
+	/**/ createOutputCentered<Outlet>(mm2px(Vec(12.85, 36.6)),
 	/**/ module,
 	/**/ TrackerOut::OUTPUT_PITCH));
 	addOutput(
-	/**/ createOutputCentered<Outlet>(mm2px(Vec(10.3 + 10.06, 36.6)),
+	/**/ createOutputCentered<Outlet>(mm2px(Vec(12.85 + 10.06, 36.6)),
 	/**/ module,
 	/**/ TrackerOut::OUTPUT_GATE));
 	addOutput(
-	/**/ createOutputCentered<Outlet>(mm2px(Vec(10.3 + 10.06 * 2.0, 36.6)),
+	/**/ createOutputCentered<Outlet>(mm2px(Vec(12.85 + 10.06 * 2.0, 36.6)),
 	/**/ module,
 	/**/ TrackerOut::OUTPUT_VELOCITY));
 	addOutput(
-	/**/ createOutputCentered<Outlet>(mm2px(Vec(10.3 + 10.06 * 3.0, 36.6)),
+	/**/ createOutputCentered<Outlet>(mm2px(Vec(12.85 + 10.06 * 3.0, 36.6)),
 	/**/ module,
 	/**/ TrackerOut::OUTPUT_PANNING));
 
 	for (i = 0; i < 4; ++i) {
 		addOutput(
-		/**/ createOutputCentered<Outlet>(mm2px(Vec(10.3 + 10.06 * i, 94.75)),
+		/**/ createOutputCentered<Outlet>(mm2px(Vec(12.85 + 10.06 * i, 94.75)),
 		/**/ module,
 		/**/ TrackerOut::OUTPUT_CV + i));
 		addOutput(
-		/**/ createOutputCentered<Outlet>(mm2px(Vec(10.3 + 10.06 * i, 103.75)),
+		/**/ createOutputCentered<Outlet>(mm2px(Vec(12.85 + 10.06 * i, 103.75)),
 		/**/ module,
 		/**/ TrackerOut::OUTPUT_CV + 4 + i));
 	}
 
 	/// MAIN LED DISPLAY
-	display = createWidget<TrackerOutDisplay>(mm2px(Vec(14.5, 4.0)));
+	display = createWidget<TrackerOutDisplay>(mm2px(Vec(14.5 + 2.5, 4.0)));
 	display->box.size = mm2px(Vec(21.25, 9.0));
 	display->module = module;
 	display->moduleWidget = this;

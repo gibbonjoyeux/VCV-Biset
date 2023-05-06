@@ -23,7 +23,7 @@ struct ButtonPlaySong : app::SvgSwitch {
 	ButtonPlaySong() {
 		this->momentary = true;
 		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Song.svg")));
-		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Song.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Song-Press.svg")));
 	}
 };
 
@@ -31,7 +31,7 @@ struct ButtonPlayPattern : app::SvgSwitch {
 	ButtonPlayPattern() {
 		this->momentary = true;
 		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Pattern.svg")));
-		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Pattern.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Pattern-Press.svg")));
 	}
 };
 
@@ -39,7 +39,7 @@ struct ButtonPlaySimple : app::SvgSwitch {
 	ButtonPlaySimple() {
 		this->momentary = true;
 		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Simple.svg")));
-		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Simple.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Play-Simple-Press.svg")));
 	}
 };
 
@@ -47,7 +47,7 @@ struct ButtonStop : app::SvgSwitch {
 	ButtonStop() {
 		this->momentary = true;
 		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Stop.svg")));
-		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Stop.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Stop-Press.svg")));
 	}
 };
 
@@ -55,7 +55,7 @@ struct ButtonMinus : app::SvgSwitch {
 	ButtonMinus() {
 		this->momentary = true;
 		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Minus.svg")));
-		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Minus.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Minus-Press.svg")));
 	}
 };
 
@@ -63,7 +63,7 @@ struct ButtonPlus : app::SvgSwitch {
 	ButtonPlus() {
 		this->momentary = true;
 		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Plus.svg")));
-		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Plus.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Plus-Press.svg")));
 	}
 };
 
