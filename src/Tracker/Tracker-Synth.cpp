@@ -44,17 +44,19 @@ void Synth::process(float dt_sec, float dt_beat) {
 }
 
 SynthVoice* Synth::add(PatternNoteRow *row, PatternNote *note, int lpb) {
-	SynthVoice*				voice;
+	Synth			*synth;
+	SynthVoice		*voice;
 
+	synth = &(g_timeline.synths[note->synth]);
 	/// MODE DRUM
-	if (row->mode == PATTERN_NOTE_MODE_DRUM) {
+	if (synth->mode == SYNTH_MODE_DRUM) {
 		voice = &(this->voices[note->pitch % 12]);
-		if (voice->start(row, note, lpb) == true)
+		if (voice->start(synth, row, note, lpb) == true)
 			return voice;
 	/// MODE GATE + TRIGGER
 	} else {
 		voice = &(this->voices[this->channel_cur]);
-		if (voice->start(row, note, lpb) == true) {
+		if (voice->start(synth, row, note, lpb) == true) {
 			this->channel_cur = (this->channel_cur + 1) % this->channel_count;
 			return voice;
 		}

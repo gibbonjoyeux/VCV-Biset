@@ -86,6 +86,7 @@ void SynthVoice::process(
 }
 
 bool SynthVoice::start(
+	Synth					*synth,
 	PatternNoteRow			*row,
 	PatternNote				*note,
 	int						lpb) {
@@ -102,8 +103,8 @@ bool SynthVoice::start(
 	this->delay_gate = 0.001f;
 	this->delay_start = 0.0f;
 	this->delay_stop = 0;
-	if (row->mode == PATTERN_NOTE_MODE_TRIGGER
-	|| row->mode == PATTERN_NOTE_MODE_DRUM)
+	if (synth->mode == SYNTH_MODE_TRIGGER
+	|| synth->mode == SYNTH_MODE_DRUM)
 		this->delay_stop = 0.001f;
 	/// SET BASICS
 	this->velocity = note->velocity;

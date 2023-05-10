@@ -31,11 +31,11 @@ Tracker::Tracker() {
 
 	configParam(PARAM_SONG_LENGTH, 1.0f, 9999.0f, 0.0f, "Song length", " beats")->snapEnabled = true;
 	configParam(PARAM_SYNTH_CHANNEL_COUNT, 1.0f, 16.0f, 0.0f, "Synth channels")->snapEnabled = true;
+	configParam(PARAM_SYNTH_MODE, 0.0f, 2.0f, 0.0f, "Synth mode")->snapEnabled = true;
 	configParam(PARAM_PATTERN_LENGTH, 1.0f, 999.0f, 0.0f, "Pattern length", " beats")->snapEnabled = true;
 	configParam(PARAM_PATTERN_LPB, 1.0f, 32.0f, 0.0f, "Pattern lpb", " lines / beat")->snapEnabled = true;
 	configParam(PARAM_PATTERN_NOTE_COUNT, 0.0f, 32.0f, 0.0f, "Pattern notes", " columns")->snapEnabled = true;
 	configParam(PARAM_PATTERN_CV_COUNT, 0.0f, 32.0f, 0.0f, "Pattern cv", " columns")->snapEnabled = true;
-	configParam(PARAM_COLUMN_NOTE_MODE, 0.0f, 2.0f, 0.0f, "Column mode", "")->snapEnabled = true;
 	configParam(PARAM_COLUMN_NOTE_EFFECT_COUNT, 0.0f, 16.0f, 0.0f, "Column effects", "")->snapEnabled = true;
 	configParam(PARAM_COLUMN_CV_MODE, 0.0f, 3.0f, 0.0f, "Column mode", "")->snapEnabled = true;
 	configParam(PARAM_COLUMN_CV_SYNTH, 0.0f, 63.0f, 0.0f, "Column synth", "")->snapEnabled = true;

@@ -100,27 +100,6 @@ void TrackerPatternDisplay::onButton(const ButtonEvent &e) {
 	/// COLUMN AS NOTE COLUMN
 	if (g_editor.pattern_row < g_editor.pattern->note_count) {
 		col_note = g_editor.pattern->notes[g_editor.pattern_row];
-		/// ADD COLUMN MODE LIST
-		menu->addChild(rack::createSubmenuItem("Mode", "",
-			[=](Menu *menu) {
-				ParamQuantity		*quant_mode;
-
-				quant_mode = g_module->paramQuantities[Tracker::PARAM_COLUMN_NOTE_MODE];
-				quant_mode->setValue(col_note->mode);
-				menu->addChild(new MenuCheckItem("Gate", "",
-					[=]() { return quant_mode->getValue() == PATTERN_NOTE_MODE_GATE; },
-					[=]() { quant_mode->setValue(PATTERN_NOTE_MODE_GATE); }
-				));
-				menu->addChild(new MenuCheckItem("Trigger", "",
-					[=]() { return quant_mode->getValue() == PATTERN_NOTE_MODE_TRIGGER; },
-					[=]() { quant_mode->setValue(PATTERN_NOTE_MODE_TRIGGER); }
-				));
-				menu->addChild(new MenuCheckItem("Drum", "",
-					[=]() { return quant_mode->getValue() == PATTERN_NOTE_MODE_DRUM; },
-					[=]() { quant_mode->setValue(PATTERN_NOTE_MODE_DRUM); }
-				));
-			}
-		));
 		/// ADD COLUMN EFFECT COUNT SLIDER
 		quant_effect_count = g_module->paramQuantities[Tracker::PARAM_COLUMN_NOTE_EFFECT_COUNT];
 		quant_effect_count->setValue(col_note->effect_count);
@@ -130,7 +109,6 @@ void TrackerPatternDisplay::onButton(const ButtonEvent &e) {
 		menu->addChild(new MenuItemStay("Update pattern column", "",
 			[=]() {
 				PatternNoteRow	*col_note;
-				int	note_mode;
 				int	note_effect;
 
 				/// WAIT FOR THREAD FLAG
@@ -138,10 +116,7 @@ void TrackerPatternDisplay::onButton(const ButtonEvent &e) {
 
 				/// UPDATE PATTERN COLUMNS
 				col_note = g_editor.pattern->notes[g_editor.pattern_row];
-				note_mode = g_module->params[Tracker::PARAM_COLUMN_NOTE_MODE].getValue();
 				note_effect = g_module->params[Tracker::PARAM_COLUMN_NOTE_EFFECT_COUNT].getValue();
-				if (note_mode != col_note->mode)
-					col_note->mode = note_mode;
 				if (note_effect != col_note->effect_count)
 					col_note->effect_count = note_effect;
 

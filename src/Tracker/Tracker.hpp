@@ -32,15 +32,16 @@
 #define PATTERN_NOTE_GLIDE			2
 #define PATTERN_NOTE_CHANGE			3
 #define PATTERN_NOTE_STOP			4
-#define PATTERN_NOTE_MODE_GATE		0
-#define PATTERN_NOTE_MODE_TRIGGER	1
-#define PATTERN_NOTE_MODE_DRUM		2
 #define PATTERN_CV_KEEP				0
 #define PATTERN_CV_SET				1
 #define PATTERN_CV_MODE_CV			0
 #define PATTERN_CV_MODE_GATE		1
 #define PATTERN_CV_MODE_TRIGGER		2
 #define PATTERN_CV_MODE_BPM			3
+
+#define SYNTH_MODE_GATE				0
+#define SYNTH_MODE_TRIGGER			1
+#define SYNTH_MODE_DRUM				2
 
 #define TIMELINE_CELL_KEEP			0
 #define TIMELINE_CELL_NEW			1
@@ -73,6 +74,19 @@ extern NVGcolor	colors[16];
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
+
+struct PatternEffect;
+struct PatternCV;
+struct PatternNote;
+struct PatternCVRow;
+struct PatternNoteRow;
+struct PatternSource;
+struct SynthVoice;
+struct Synth;
+struct PatternInstance;
+struct TimelineCell;
+struct Timeline;
+struct Editor;
 
 //////////////////////////////////////////////////
 /// CLOCK
@@ -139,7 +153,6 @@ struct PatternCVRow {
 };
 
 struct PatternNoteRow {
-	u8							mode;		// Gate | Trigger | Drum
 	u8							effect_count;
 	PatternNote					lines[0];	// Notes (memory as struct extension)
 };
@@ -152,6 +165,7 @@ struct PatternSource {
 	ArrayExt<PatternCVRow>		cvs;		// Row X CV lines
 	ArrayExt<PatternNoteRow>	notes;		// Row X Note lines
 	u8							lpb;		// Lines per beat
+	u8							color;		// Pattern display color
 	u16							line_play;	// Playing line
 	//u8							color;
 	//i16							index;
@@ -206,7 +220,7 @@ struct SynthVoice {
 	SynthVoice();
 
 	void process(float dt_sec, float dt_beat, float *output);
-	bool start(PatternNoteRow *row, PatternNote *note, int lpb);
+	bool start(Synth *synth, PatternNoteRow *row, PatternNote *note, int lpb);
 	void stop(void);
 	void init(int synth, int channel);
 	void reset();
@@ -217,6 +231,7 @@ struct Synth {
 	u8							index;
 	u8							channel_cur;
 	u8							channel_count;
+	i8							mode;				// Gate | Trig | Drum
 	SynthVoice					voices[16];
 	float						out_synth[16 * 4];	// Out synth (pitch, gate...)
 	float						out_cv[8];			// Out CV
@@ -404,13 +419,14 @@ struct Tracker : Module {
 								PARAM_SONG_LENGTH,
 								/// CONTEXT SYNTH
 								PARAM_SYNTH_CHANNEL_COUNT,
+								PARAM_SYNTH_MODE,
 								/// CONTEXT PATTERN
 								PARAM_PATTERN_LENGTH,
 								PARAM_PATTERN_LPB,
 								PARAM_PATTERN_NOTE_COUNT,
 								PARAM_PATTERN_CV_COUNT,
+								PARAM_PATTERN_COLOR,
 								/// CONTEXT PATTERN COLUMN
-								PARAM_COLUMN_NOTE_MODE,
 								PARAM_COLUMN_NOTE_EFFECT_COUNT,
 								PARAM_COLUMN_CV_MODE,
 								PARAM_COLUMN_CV_SYNTH,

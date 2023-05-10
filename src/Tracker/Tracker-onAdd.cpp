@@ -48,7 +48,6 @@ TRACKER BINARY SAVE FORMAT:
 	- CV count									u8
 	- lpb (lines per beat)						u8
 	- Note columns											x N
-		- Column mode (Gate / Trigger / Drum)	u8
 		- Column effect count					u8
 		- Column set lines count				u16
 		- Lines (only set lines)
@@ -85,6 +84,7 @@ TRACKER BINARY SAVE FORMAT:
 			- CV delay							u8
 			- CV curve							u8
 - Synths													x 64
+	- Synth mode								u8
 	- Synth channel count						u8
 
 */
@@ -206,7 +206,6 @@ static bool compute_save_file(void) {
 		/// PATTERN NOTES
 		for (j = 0; j < note_count; ++j) {
 			note_col = pattern->notes[j];
-			note_col->mode = read_u8();					// Column mode
 			note_col->effect_count = read_u8();			// Column effect count
 			count = read_u16();							// Set lines count
 			for (k = 0; k < count; ++k) {
@@ -252,8 +251,10 @@ static bool compute_save_file(void) {
 		}
 	}
 	/// [5] GET SYNTHS
-	for (i = 0; i < 64; ++i)
+	for (i = 0; i < 64; ++i) {
+		g_timeline.synths[i].mode = read_u8();			// Synth mode
 		g_timeline.synths[i].channel_count = read_u8();	// Synth channel count
+	}
 	/// [6] SET ACTIVE SYNTH & PATTERN
 	g_editor.set_synth(synth_id, true);
 	g_editor.set_pattern(pattern_id, true);

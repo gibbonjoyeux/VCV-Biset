@@ -71,18 +71,19 @@
 			- [x] Layer tracker (text only)
 			- [ ] Layer visual
 			- [x] Layer user (cursor + beat cursor)
-		- [ ] Context menu
+		- [ ] Context menu general
 			- [x] Frame rate (audio, audio / 2, audio / 4, ...)
 			- [x] Base pitch (default: 440)
 			- [x] Temperaments (can be used as scale)
 				- [x] Temperament manual
 				- [x] Temperament preset (equal, just, ...)
 				- [ ] Temperament scale preset (major, minor, modes, ...)
-		- [ ] Screen Edition
+		- [ ] Context menu specific
 			- [x] Song
 				- [x] Song length
 			- [x] Synth
 				- [x] Synth channel count
+				- [x] Synth mode (gate | trigger | drum)
 			- [x] Pattern
 				- [x] Pattern length
 				- [x] Pattern lpb
@@ -91,7 +92,6 @@
 				- [ ] Pattern color
 			- [x] Column
 				- [x] Note
-					- [x] Mode
 					- [x] Effect count
 				- [x] CV
 					- [x] Mode
@@ -114,7 +114,6 @@
 		- [ ] Context menu
 			- [x] CV mode range
 			- [ ] CV mode mapping
-			- [ ] Gate mode (Gate | Trigger)
 	- [ ] BACKEND
 		- [ ] CV
 			- [x] CV mode range (min / max sliders)
