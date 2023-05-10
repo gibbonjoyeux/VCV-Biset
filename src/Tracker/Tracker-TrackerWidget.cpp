@@ -459,9 +459,9 @@ static bool event_key_timeline(const Widget::SelectKeyEvent &e) {
 
 TrackerWidget::TrackerWidget(Tracker* _module) {
 	TrackerDisplay			*display;
-	TrackerBPMDisplay		*display_bpm;
-	TrackerSynthDisplay		*display_synth;
-	TrackerPatternDisplay	*display_pattern;
+	TrackerDisplayBPM		*display_bpm;
+	TrackerDisplaySynth		*display_synth;
+	TrackerDisplayPattern	*display_pattern;
 	LedDisplayDigit			*display_jump;
 	LedDisplayDigit			*display_octave;
 	int						i;
@@ -566,7 +566,7 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	//// BPM / SYNTH / PATTERN KNOBS
 	/// BPM SELECTOR
 	//// DISPLAY
-	display_bpm = createWidget<TrackerBPMDisplay>(mm2px(Vec(KNOB_X, KNOB_Y)));
+	display_bpm = createWidget<TrackerDisplayBPM>(mm2px(Vec(KNOB_X, KNOB_Y)));
 	display_bpm->box.size = mm2px(Vec(8.25, 3.5));
 	display_bpm->module = module;
 	if (module)
@@ -583,7 +583,7 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 
 	/// SYNTH SELECTOR
 	//// DISPLAY
-	display_synth = createWidget<TrackerSynthDisplay>(mm2px(Vec(KNOB_X + KNOB_STEP, KNOB_Y)));
+	display_synth = createWidget<TrackerDisplaySynth>(mm2px(Vec(KNOB_X + KNOB_STEP, KNOB_Y)));
 	display_synth->box.size = mm2px(Vec(8.25, 3.5));
 	display_synth->module = module;
 	if (module)
@@ -599,7 +599,7 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 
 	/// PATTERN SELECTOR
 	//// DISPLAY
-	display_pattern = createWidget<TrackerPatternDisplay>(mm2px(Vec(KNOB_X + KNOB_STEP * 2, KNOB_Y)));
+	display_pattern = createWidget<TrackerDisplayPattern>(mm2px(Vec(KNOB_X + KNOB_STEP * 2, KNOB_Y)));
 	display_pattern->box.size = mm2px(Vec(8.25, 3.5));
 	display_pattern->module = module;
 	if (module)

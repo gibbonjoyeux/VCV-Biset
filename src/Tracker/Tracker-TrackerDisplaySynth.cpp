@@ -9,7 +9,7 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-void TrackerSynthDisplay::onButton(const ButtonEvent &e) {
+void TrackerDisplaySynth::onButton(const ButtonEvent &e) {
 	Menu			*menu;
 	MenuLabel		*label;
 	Synth			*synth;

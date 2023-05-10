@@ -17,13 +17,13 @@
 		"slug": "Tracker",
 		"name": "Tracker",
 		"description": "Advanced pattern based tracker sequencer",
-		"tags": ["Digital", "Sequencer"]
+		"tags": ["Digital", "Sequencer", "Polyphonic"]
 	},
 	{
-		"slug": "TrackerOut",
-		"name": "TrackerOut",
+		"slug": "TrackerSynth",
+		"name": "TrackerSynth",
 		"description": "Tracker synth output",
-		"tags": ["Digital", "Sequencer"]
+		"tags": ["Digital", "Sequencer", "Polyphonic"]
 	}
   ]
 }

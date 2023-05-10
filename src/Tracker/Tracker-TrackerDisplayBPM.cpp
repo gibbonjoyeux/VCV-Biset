@@ -9,7 +9,7 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-void TrackerBPMDisplay::onButton(const ButtonEvent &e) {
+void TrackerDisplayBPM::onButton(const ButtonEvent &e) {
 	Menu			*menu;
 	MenuLabel		*label;
 	ParamQuantity	*quant_length;

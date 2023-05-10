@@ -9,7 +9,7 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-void TrackerPatternDisplay::onButton(const ButtonEvent &e) {
+void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 	PatternSource	*pattern;
 	PatternNoteRow	*col_note;
 	PatternCVRow	*col_cv;

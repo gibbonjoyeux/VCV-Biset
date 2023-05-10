@@ -6,7 +6,7 @@ void init(Plugin* p) {
 	pluginInstance = p;
 
 	p->addModel(modelTracker);
-	p->addModel(modelTrackerOut);
-	//p->addModel(modelTrackerOutDrum);
+	p->addModel(modelTrackerSynth);
+	//p->addModel(modelTrackerDrum);
 	//p->addModel(modelTrackerClock);
 }

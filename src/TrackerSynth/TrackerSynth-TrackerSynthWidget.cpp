@@ -1,5 +1,5 @@
 
-#include "TrackerOut.hpp"
+#include "TrackerSynth.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -9,8 +9,8 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-TrackerOutWidget::TrackerOutWidget(TrackerOut* _module) {
-	TrackerOutDisplay		*display;
+TrackerSynthWidget::TrackerSynthWidget(TrackerSynth* _module) {
+	TrackerSynthDisplay		*display;
 	int						i;
 
 	module = _module;
@@ -20,52 +20,52 @@ TrackerOutWidget::TrackerOutWidget(TrackerOut* _module) {
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(25.0 + 2.5, 20.5)),
 	/**/ module,
-	/**/ TrackerOut::PARAM_SYNTH));
+	/**/ TrackerSynth::PARAM_SYNTH));
 
 	addOutput(
 	/**/ createOutputCentered<Outlet>(mm2px(Vec(12.85, 36.6)),
 	/**/ module,
-	/**/ TrackerOut::OUTPUT_PITCH));
+	/**/ TrackerSynth::OUTPUT_PITCH));
 	addOutput(
 	/**/ createOutputCentered<Outlet>(mm2px(Vec(12.85 + 10.06, 36.6)),
 	/**/ module,
-	/**/ TrackerOut::OUTPUT_GATE));
+	/**/ TrackerSynth::OUTPUT_GATE));
 	addOutput(
 	/**/ createOutputCentered<Outlet>(mm2px(Vec(12.85 + 10.06 * 2.0, 36.6)),
 	/**/ module,
-	/**/ TrackerOut::OUTPUT_VELOCITY));
+	/**/ TrackerSynth::OUTPUT_VELOCITY));
 	addOutput(
 	/**/ createOutputCentered<Outlet>(mm2px(Vec(12.85 + 10.06 * 3.0, 36.6)),
 	/**/ module,
-	/**/ TrackerOut::OUTPUT_PANNING));
+	/**/ TrackerSynth::OUTPUT_PANNING));
 
 	for (i = 0; i < 4; ++i) {
 		addOutput(
 		/**/ createOutputCentered<Outlet>(mm2px(Vec(12.85 + 10.06 * i, 94.75)),
 		/**/ module,
-		/**/ TrackerOut::OUTPUT_CV + i));
+		/**/ TrackerSynth::OUTPUT_CV + i));
 		addOutput(
 		/**/ createOutputCentered<Outlet>(mm2px(Vec(12.85 + 10.06 * i, 103.75)),
 		/**/ module,
-		/**/ TrackerOut::OUTPUT_CV + 4 + i));
+		/**/ TrackerSynth::OUTPUT_CV + 4 + i));
 	}
 
 	/// MAIN LED DISPLAY
-	display = createWidget<TrackerOutDisplay>(mm2px(Vec(14.5 + 2.5, 4.0)));
+	display = createWidget<TrackerSynthDisplay>(mm2px(Vec(14.5 + 2.5, 4.0)));
 	display->box.size = mm2px(Vec(21.25, 9.0));
 	display->module = module;
 	display->moduleWidget = this;
 	addChild(display);
 }
 
-void TrackerOutWidget::onSelect(const SelectEvent &e) {
+void TrackerSynthWidget::onSelect(const SelectEvent &e) {
 	int		synth;
 
-	synth = this->module->params[TrackerOut::PARAM_SYNTH].getValue();
+	synth = this->module->params[TrackerSynth::PARAM_SYNTH].getValue();
 	g_editor.set_synth(synth, true);
 }
 
-void TrackerOutWidget::appendContextMenu(Menu *menu) {
+void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 	MenuSeparator	*separator;
 	char			str[32];
 	int				i;
@@ -82,11 +82,11 @@ void TrackerOutWidget::appendContextMenu(Menu *menu) {
 				MenuItem		*item;
 
 				/// SLIDER MIN
-				slider = new MenuSliderEdit(this->module->paramQuantities[TrackerOut::PARAM_OUT_MIN]);
+				slider = new MenuSliderEdit(this->module->paramQuantities[TrackerSynth::PARAM_OUT_MIN]);
 				slider->box.size.x = 200.f;
 				menu->addChild(slider);
 				/// SLIDER MAX
-				slider = new MenuSliderEdit(this->module->paramQuantities[TrackerOut::PARAM_OUT_MAX]);
+				slider = new MenuSliderEdit(this->module->paramQuantities[TrackerSynth::PARAM_OUT_MAX]);
 				slider->box.size.x = 200.f;
 				menu->addChild(slider);
 

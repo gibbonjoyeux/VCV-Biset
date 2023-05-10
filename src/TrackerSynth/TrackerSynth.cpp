@@ -1,5 +1,5 @@
 
-#include "TrackerOut.hpp"
+#include "TrackerSynth.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -9,7 +9,7 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-TrackerOut::TrackerOut() {
+TrackerSynth::TrackerSynth() {
 	int			i;
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
@@ -28,7 +28,7 @@ TrackerOut::TrackerOut() {
 		configOutput(OUTPUT_CV + i, string::f("CV %d", i + 1));
 }
 
-void TrackerOut::process(const ProcessArgs& args) {
+void TrackerSynth::process(const ProcessArgs& args) {
 	Synth		*synth;
 	float		cv;
 	float		cv_min, cv_max;
@@ -58,4 +58,4 @@ void TrackerOut::process(const ProcessArgs& args) {
 	}
 }
 
-Model* modelTrackerOut = createModel<TrackerOut, TrackerOutWidget>("TrackerOut");
+Model* modelTrackerSynth = createModel<TrackerSynth, TrackerSynthWidget>("TrackerSynth");

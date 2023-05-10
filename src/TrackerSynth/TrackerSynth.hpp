@@ -1,6 +1,6 @@
 
-#ifndef TRACKEROUT_HPP
-#define TRACKEROUT_HPP
+#ifndef TRACKERSYNTH_HPP
+#define TRACKERSYNTH_HPP
 
 #include "../plugin.hpp"
 
@@ -8,7 +8,7 @@
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
 
-struct TrackerOut: Module {
+struct TrackerSynth: Module {
 	enum	ParamIds {
 		PARAM_SYNTH,
 		ENUMS(PARAM_OUT_MIN, 8),
@@ -30,25 +30,25 @@ struct TrackerOut: Module {
 		LIGHT_COUNT
 	};
 
-	TrackerOut();
+	TrackerSynth();
 	void	process(const ProcessArgs& args) override;
 };
 
-struct TrackerOutDisplay : LedDisplay {
-	TrackerOut				*module;
+struct TrackerSynthDisplay : LedDisplay {
+	TrackerSynth			*module;
 	ModuleWidget			*moduleWidget;
 	std::string				font_path;
 	char					str_synth[4];
 
-	TrackerOutDisplay();
+	TrackerSynthDisplay();
 	void draw(const DrawArgs &args) override {};
 	void drawLayer(const DrawArgs &args, int layer) override;
 };
 
-struct TrackerOutWidget : ModuleWidget {
-	TrackerOut				*module;
+struct TrackerSynthWidget : ModuleWidget {
+	TrackerSynth			*module;
 
-	TrackerOutWidget(TrackerOut* _module);
+	TrackerSynthWidget(TrackerSynth* _module);
 	void onSelect(const SelectEvent &e) override;
 	void appendContextMenu(Menu *menu) override;
 };

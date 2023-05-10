@@ -1,5 +1,5 @@
 
-#include "TrackerOut.hpp"
+#include "TrackerSynth.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -9,11 +9,11 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-TrackerOutDisplay::TrackerOutDisplay() {
+TrackerSynthDisplay::TrackerSynthDisplay() {
 	font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
 }
 
-void TrackerOutDisplay::drawLayer(const DrawArgs& args, int layer) {
+void TrackerSynthDisplay::drawLayer(const DrawArgs& args, int layer) {
 	std::shared_ptr<Font>	font;
 	Rect				rect;
 	Vec					p;
@@ -27,7 +27,7 @@ void TrackerOutDisplay::drawLayer(const DrawArgs& args, int layer) {
 		p = rect.getTopLeft();
 
 		/// GET SYNTH
-		synth = module->params[TrackerOut::PARAM_SYNTH].getValue();
+		synth = module->params[TrackerSynth::PARAM_SYNTH].getValue();
 		if (g_module)
 			synth_selected = g_module->params[Tracker::PARAM_SYNTH].getValue();
 		else

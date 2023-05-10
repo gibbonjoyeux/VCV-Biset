@@ -189,7 +189,7 @@ struct PatternSource {
 ///  accessed from anywere.
 /// Synth stores 32 SynthVoice to process (play) a voice.
 /// Synth stores its outputs (notes and cv) that can be accessed by the
-///  TrackerOut module.
+///  TrackerSynth & TrackerDrum modules.
 //////////////////////////////////////////////////
 
 struct SynthVoice {
@@ -484,15 +484,15 @@ struct TrackerDisplay : LedDisplay {
 	inline void draw_timeline(const DrawArgs& args, Rect rect);
 };
 
-struct TrackerBPMDisplay : LedDisplayDigit {
+struct TrackerDisplayBPM : LedDisplayDigit {
 	void onButton(const ButtonEvent &e) override;
 };
 
-struct TrackerSynthDisplay : LedDisplayDigit {
+struct TrackerDisplaySynth : LedDisplayDigit {
 	void onButton(const ButtonEvent &e) override;
 };
 
-struct TrackerPatternDisplay : LedDisplayDigit {
+struct TrackerDisplayPattern : LedDisplayDigit {
 	void onButton(const ButtonEvent &e) override;
 };
 
