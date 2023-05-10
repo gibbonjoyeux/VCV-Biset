@@ -11,6 +11,7 @@ using				std::unique_ptr;
 #include "components.hpp"
 #include "Tracker/Tracker.hpp"
 #include "TrackerSynth/TrackerSynth.hpp"
+#include "TrackerDrum/TrackerDrum.hpp"
 
 // Declare the Plugin, defined in plugin.cpp
 extern Plugin*		pluginInstance;
@@ -18,5 +19,5 @@ extern Plugin*		pluginInstance;
 // Declare each Model, defined in each module source file
 extern Model*		modelTracker;
 extern Model*		modelTrackerSynth;
-//extern Model*		modelTrackerOutDrum;
+extern Model*		modelTrackerDrum;
 //extern Model*		modelTrackerClock;

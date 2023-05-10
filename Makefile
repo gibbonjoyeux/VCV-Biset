@@ -14,6 +14,7 @@ LDFLAGS +=
 SOURCES += $(wildcard src/*.cpp)
 SOURCES += $(wildcard src/Tracker/*.cpp)
 SOURCES += $(wildcard src/TrackerSynth/*.cpp)
+SOURCES += $(wildcard src/TrackerDrum/*.cpp)
 
 # Add files to the ZIP package when running `make dist`
 # The compiled plugin and "plugin.json" are automatically added.

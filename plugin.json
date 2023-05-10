@@ -9,7 +9,7 @@
   "authorUrl": "",
   "pluginUrl": "",
   "manualUrl": "",
-  "sourceUrl": "",
+  "sourceUrl": "https://github.com/gibbonjoyeux/VCV-Biset",
   "donateUrl": "",
   "changelogUrl": "",
   "modules": [
@@ -21,8 +21,14 @@
 	},
 	{
 		"slug": "TrackerSynth",
-		"name": "TrackerSynth",
-		"description": "Tracker synth output",
+		"name": "Tracker Synth",
+		"description": "Tracker synth",
+		"tags": ["Digital", "Sequencer", "Polyphonic"]
+	},
+	{
+		"slug": "TrackerDrum",
+		"name": "Tracker Drum",
+		"description": "Tracker drum",
 		"tags": ["Digital", "Sequencer", "Polyphonic"]
 	}
   ]
