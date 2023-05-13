@@ -67,7 +67,8 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 		}
 	//// MODE PLAY PATTERN
 	} else if (g_timeline.play == TIMELINE_MODE_PLAY_PATTERN) {
-		if (this->clock.beat >= g_editor.pattern->beat_count) {
+		if (this->pattern_source[0]
+		&& this->clock.beat >= this->pattern_source[0]->beat_count) {
 			/// RESET CLOCK
 			this->clock.beat = 0;
 			/// RESET RUNNING PATTERNS
