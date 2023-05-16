@@ -449,6 +449,91 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 	}
 }
 
+void TrackerDisplay::draw_timeline_new(const DrawArgs &args, Rect rect) {
+	TimelineCell	*cell;
+	Vec				p;
+	float			x, y;
+	char			str[32];
+	int				i, j, k;
+	int				length;
+	int				color;
+
+	p = rect.getTopLeft();
+	///// DRAW TIMELINE BACKGROUND
+	//for (i = 0; i < 85; i += 4) {
+	//	x = p.x + 2.0 + CHAR_W * (i + 2);
+	//	nvgBeginPath(args.vg);
+	//	if (i % 8 == 0)
+	//		nvgFillColor(args.vg, colors[13]);
+	//	else
+	//		nvgFillColor(args.vg, colors[14]);
+	//	nvgRect(args.vg, x, rect.pos.y, CHAR_W * 4, rect.size.y);
+	//	nvgFill(args.vg);
+	//}
+	/// DRAW BEAT / BAR COUNT
+	y = p.y + 11.0;
+	for (i = 0; i < 85; ++i) {
+		x = p.x + 2.0 + CHAR_W * (i + 2);
+		if (i % 4 == 0) {
+			nvgFillColor(args.vg, colors[13]);
+			itoaw(str, i / 4, 3);
+		} else {
+			nvgFillColor(args.vg, colors[15]);
+			itoaw(str, i % 4, 3);
+		}
+		nvgTextBox(args.vg, x, y, CHAR_W * 1.5, str, NULL);
+	}
+	/// DRAW ROWS BACKGROUND & COUNT
+	for (i = 0; i < 12; ++i) {
+		/// ROW COUNT
+		x = p.x + 2.0;
+		y = p.y + 11.0 + CHAR_H * ((i * 3) + 3 + 1);
+		if (i % 2 == 0)
+			nvgFillColor(args.vg, colors[14]);
+		else
+			nvgFillColor(args.vg, colors[13]);
+		itoaw(str, i, 2);
+		nvgText(args.vg, x, y, str, NULL);
+	}
+	/// DRAW BAR MARKERS
+	for (i = 0; i < 85; i += 4) {
+		x = p.x + 2.0 + CHAR_W * (i + 2);
+		y = p.y + 13.0 + CHAR_H * 2;
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, colors[15]);
+		nvgRect(args.vg, x, y, 1, CHAR_H * 12 * 3);
+		nvgFill(args.vg);
+	}
+
+	/// DRAW PATTERNS
+	for (i = 0; i < 12; ++i) {
+		y = p.y + 13.0 + CHAR_H * (i * 3 + 2);
+		for (j = 0; j < 85; ++j) {
+			cell = &(g_timeline.timeline[i][j]);
+			if (cell->mode == TIMELINE_CELL_NEW) {
+				k = 1;
+				while (k < 85 && g_timeline.timeline[i][j + k].mode == TIMELINE_CELL_KEEP)
+					k += 1;
+				x = p.x + 2.0 + CHAR_W * (j + 2);
+				/// FILL
+				nvgBeginPath(args.vg);
+				nvgFillColor(args.vg, colors[2]);
+				nvgRoundedRect(args.vg, x + 1, y + 2, CHAR_W * k - 1, CHAR_H * 3 - 4, 5);
+				nvgFill(args.vg);
+				/// STROKE
+				//nvgBeginPath(args.vg);
+				//nvgStrokeColor(args.vg, colors[12]);
+				//nvgStrokeWidth(args.vg, 0.5);
+				//nvgRoundedRect(args.vg, x + 1, y + 2, CHAR_W * k - 1, CHAR_H * 3 - 4, 5);
+				//nvgStroke(args.vg);
+				/// TEXT
+				nvgFillColor(args.vg, colors[12]);
+				nvgText(args.vg, x + 3.0, y + CHAR_H * 2 - 2.0, "Name", NULL);
+			}
+		}
+	}
+}
+
 void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 	std::shared_ptr<Font>	font;
 	Rect					rect;
@@ -493,6 +578,7 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
 		this->draw_timeline(args, rect);
 	} else if (g_editor.mode == EDITOR_MODE_PARAMETERS) {
+		this->draw_timeline_new(args, rect);
 	}
 
 	nvgResetScissor(args.vg);

@@ -482,6 +482,7 @@ struct TrackerDisplay : LedDisplay {
 	void drawLayer(const DrawArgs& args, int layer) override;
 	inline void draw_pattern(const DrawArgs& args, Rect rect);
 	inline void draw_timeline(const DrawArgs& args, Rect rect);
+	inline void draw_timeline_new(const DrawArgs& args, Rect rect);
 };
 
 struct TrackerDisplayBPM : LedDisplayDigit {

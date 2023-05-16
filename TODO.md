@@ -3,6 +3,8 @@
 
 - [ ] Check if `thread_flag` has a big CPU impact
 
+- [ ] If clone Tracker module accidentaly, the last module takes previous one
+		place in `g_module`. If the new one is removed, issue.
 - [ ] On saved and then modified file, if re-open saved filed without saving
 		last changes, theses changes seems to stay with weird behaviour.
 - [ ] ! ! ! Sometimes, on multi channels synth, gate / trigger got issue and
