@@ -29,11 +29,11 @@ void PatternInstance::process(
 	int						*debug,
 	int						*debug_2,
 	char					*debug_str) {
-	int						line, row;
+	int						line, col;
 	Synth					*synth;
-	PatternCVRow			*col_cv;
+	PatternCVCol			*col_cv;
 	PatternCV				*cv_line, *cv_from, *cv_to;
-	PatternNoteRow			*row_note;
+	PatternNoteCol			*col_note;
 	PatternNote				*note;
 	SynthVoice				*voice;
 	int						line_from, line_to;
@@ -53,33 +53,33 @@ void PatternInstance::process(
 	///**/ note->mode, note->synth,
 	///**/ voice->channel, module->outputs[1].getChannels());
 
-	/// [1] COMPUTE PATTERN NOTE ROWS
-	for (row = 0; row < pattern->note_count; ++row) {
-		row_note = pattern->notes[row];
-		note = &(row_note->lines[line]);
+	/// [1] COMPUTE PATTERN NOTE COLS
+	for (col = 0; col < pattern->note_count; ++col) {
+		col_note = pattern->notes[col];
+		note = &(col_note->lines[line]);
 		/// CELL CHANGE
-		if (note != this->notes[row]) {
+		if (note != this->notes[col]) {
 			/// NOTE KEEP
 			if (note->mode == PATTERN_NOTE_KEEP) {
-				this->notes[row] = note;
+				this->notes[col] = note;
 			/// NOTE ACTION
 			} else {
 				/// HANDLE DELAY
 				delay = (float)note->delay / 100.0f;
 				if (phase > delay) {
-					voice = this->voices[row];
+					voice = this->voices[col];
 					/// NOTE CHANGE
 					if (note->mode == PATTERN_NOTE_NEW) {
 						/// CLOSE ACTIVE NOTE
 						if (voice) {
 							voice->stop();
-							this->voices[row] = NULL;
+							this->voices[col] = NULL;
 						}
 						/// ADD NEW NOTE
 						if (note->synth < 64) {
 							voice = synths[note->synth]
-							/**/ .add(row_note, note, pattern->lpb);
-							this->voices[row] = voice;
+							/**/ .add(col_note, note, pattern->lpb);
+							this->voices[col] = voice;
 						}
 					/// NOTE GLIDE
 					} else if (note->mode == PATTERN_NOTE_GLIDE) {
@@ -91,17 +91,17 @@ void PatternInstance::process(
 						/// CLOSE ACTIVE NOTE
 						if (voice) {
 							voice->stop();
-							this->voices[row] = NULL;
+							this->voices[col] = NULL;
 						}
 					}
-					this->notes[row] = note;
+					this->notes[col] = note;
 				}
 			}
 		}
 	}
-	/// [2] COMPUTE PATTERN CV ROWS
-	for (row = 0; row < pattern->cv_count; ++row) {
-		col_cv = pattern->cvs[row];
+	/// [2] COMPUTE PATTERN CV COLS
+	for (col = 0; col < pattern->cv_count; ++col) {
+		col_cv = pattern->cvs[col];
 		/// [A] COMPUTE KEY CV INTERPOLATION LINES
 		cv_line = &(col_cv->lines[line]);
 		cv_from = NULL;
@@ -126,19 +126,19 @@ void PatternInstance::process(
 		if (cv_from == NULL) {
 			line_from = line - 1;
 			while (line_from >= 0
-			&& pattern->cvs[row]->lines[line_from].mode != PATTERN_CV_SET)
+			&& pattern->cvs[col]->lines[line_from].mode != PATTERN_CV_SET)
 				line_from -= 1;
 			if (line_from >= 0)
-				cv_from = &(pattern->cvs[row]->lines[line_from]);
+				cv_from = &(pattern->cvs[col]->lines[line_from]);
 		}
 		//// FIND LINE TO
 		if (cv_to == NULL) {
 			line_to = line + 1;
 			while (line_to < pattern->line_count
-			&& pattern->cvs[row]->lines[line_to].mode != PATTERN_CV_SET)
+			&& pattern->cvs[col]->lines[line_to].mode != PATTERN_CV_SET)
 				line_to += 1;
 			if (line_to < pattern->line_count)
-				cv_to = &(pattern->cvs[row]->lines[line_to]);
+				cv_to = &(pattern->cvs[col]->lines[line_to]);
 		}
 		/// [B] COMPUTE CV
 		//// WITH BOTH INTERPOLATION LINES
@@ -174,8 +174,8 @@ void PatternInstance::process(
 			/// REMAP CV FROM [0:999] TO [0:1]
 			cv_value /= 1000.0;
 			/// OUTPUT CV
-			synth = &(synths[pattern->cvs[row]->synth]);
-			synth->out_cv[pattern->cvs[row]->channel] = cv_value;
+			synth = &(synths[pattern->cvs[col]->synth]);
+			synth->out_cv[pattern->cvs[col]->channel] = cv_value;
 		} else if (col_cv->mode == PATTERN_CV_MODE_BPM) {
 			/// CLAMP CV ON [30:300]
 			if (cv_value < 30)
@@ -189,12 +189,12 @@ void PatternInstance::process(
 }
 
 void PatternInstance::stop() {
-	int						row;
+	int						col;
 
-	for (row = 0; row < 32; ++row) {
-		if (this->voices[row])
-			this->voices[row]->stop();
-		this->voices[row] = NULL;
-		this->notes[row] = NULL;
+	for (col = 0; col < 32; ++col) {
+		if (this->voices[col])
+			this->voices[col]->stop();
+		this->voices[col] = NULL;
+		this->notes[col] = NULL;
 	}
 }

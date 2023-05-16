@@ -87,7 +87,7 @@ void SynthVoice::process(
 
 bool SynthVoice::start(
 	Synth					*synth,
-	PatternNoteRow			*row,
+	PatternNoteCol			*col,
 	PatternNote				*note,
 	int						lpb) {
 	PatternEffect			*effect;
@@ -112,7 +112,7 @@ bool SynthVoice::start(
 	/// SET EFFECTS
 	this->vibrato_amp = 0;
 	this->tremolo_amp = 0;
-	for (i = 0; i < row->effect_count; ++i) {
+	for (i = 0; i < col->effect_count; ++i) {
 		effect = &(note->effects[i]);
 		switch(effect->type) {
 			case PATTERN_EFFECT_NONE:

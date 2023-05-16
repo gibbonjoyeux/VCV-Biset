@@ -20,7 +20,7 @@ Editor::Editor() {
 	this->pattern_id = 0;
 	this->pattern = &(g_timeline.patterns[0]);
 	this->pattern_track = 0;
-	this->pattern_row = 0;
+	this->pattern_col = 0;
 	this->pattern_line = 0;
 	this->pattern_cell = 0;
 	this->pattern_char = 0;
@@ -57,7 +57,7 @@ void Editor::process(i64 frame) {
 		return;
 
 	module = g_module;
-	// TODO: check change in g_editor.pattern_row
+	// TODO: check change in g_editor.pattern_col
 	// -> On change update edit knobs (Note or CV)
 
 	/// [1] HANDLE VIEW SWITCHES
@@ -156,7 +156,7 @@ void Editor::process(i64 frame) {
 			this->set_synth(value, false);
 }
 
-void Editor::set_row(int index) {
+void Editor::set_col(int index) {
 }
 
 void Editor::set_song_length(int length, bool mode) {
@@ -181,7 +181,7 @@ void Editor::set_pattern(int index, bool mode) {
 }
 
 void Editor::pattern_move_cursor_x(int delta_x) {
-	PatternNoteRow	*note_row;
+	PatternNoteCol	*note_col;
 	int				x;
 	int				i;
 
@@ -189,8 +189,8 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 	this->pattern_cell += delta_x;
 	this->pattern_char = 0;
 	/// [2] HANDLE ON/OFF VIEW MODES
-	if (this->pattern_row < pattern->note_count) {
-		note_row = pattern->notes[this->pattern_row];
+	if (this->pattern_col < pattern->note_count) {
+		note_col = pattern->notes[this->pattern_col];
 		/// TO RIGHT
 		if (delta_x > 0) {
 			//// VELOCITY
@@ -207,7 +207,7 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 				this->pattern_cell += 1;
 			//// EFFECT
 			if (this->pattern_cell > 6 && !g_editor.switch_view[4].state)
-				this->pattern_cell = 7 + 2 * note_row ->effect_count;
+				this->pattern_cell = 7 + 2 * note_col ->effect_count;
 		/// TO LEFT
 		} else if (delta_x < 0) {
 			//// EFFECT
@@ -236,8 +236,8 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 	while (i < this->pattern->note_count + this->pattern->cv_count) {
 		/// ON NOTE
 		if (i < this->pattern->note_count) {
-			note_row = this->pattern->notes[i];
-			if (i == this->pattern_row) {
+			note_col = this->pattern->notes[i];
+			if (i == this->pattern_col) {
 				if (this->pattern_cell > 0)
 					x += 2;
 				if (this->pattern_cell > 1)
@@ -264,11 +264,11 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 			/**/ + 2
 			/**/ + g_editor.switch_view[2].state * 2
 			/**/ + g_editor.switch_view[3].state * 2
-			/**/ + g_editor.switch_view[4].state * 3 * note_row->effect_count
+			/**/ + g_editor.switch_view[4].state * 3 * note_col->effect_count
 			/**/ + 1);
 		/// ON CV
 		} else {
-			if (i == this->pattern_row) {
+			if (i == this->pattern_col) {
 				if (this->pattern_cell == 0)
 					;
 				else if (this->pattern_cell == 1)
@@ -303,7 +303,7 @@ void Editor::pattern_move_cursor_y(int delta_y) {
 
 void Editor::pattern_clamp_cursor(void) {
 	PatternSource	*pattern;
-	PatternNoteRow	*row_note;
+	PatternNoteCol	*col_note;
 
 	pattern = g_editor.pattern;
 	if (pattern == NULL)
@@ -316,24 +316,24 @@ void Editor::pattern_clamp_cursor(void) {
 	if (this->pattern_line >= pattern->line_count)
 		this->pattern_line = pattern->line_count - 1;
 	/// HANDLE COLUMN OVERFLOW
-	if (this->pattern_row >= pattern->note_count + pattern->cv_count) {
-		this->pattern_row = pattern->note_count + pattern->cv_count - 1;
+	if (this->pattern_col >= pattern->note_count + pattern->cv_count) {
+		this->pattern_col = pattern->note_count + pattern->cv_count - 1;
 		this->pattern_cell = 0;
 		this->pattern_char = 0;
 	}
 	/// HANDLE CELL UNDERFLOW
 	if (this->pattern_cell < 0) {
-		this->pattern_row -= 1;
-		/// HANDLE ROW UNDERFLOW
-		if (this->pattern_row < 0) {
-			this->pattern_row = 0;
+		this->pattern_col -= 1;
+		/// HANDLE COL UNDERFLOW
+		if (this->pattern_col < 0) {
+			this->pattern_col = 0;
 			this->pattern_cell = 0;
-		/// HANDLE ROW OFFSET
+		/// HANDLE COL OFFSET
 		} else {
-			/// FALL ON NOTE ROW
-			if (this->pattern_row < pattern->note_count) {
-				row_note = pattern->notes[this->pattern_row];
-				this->pattern_cell = 7 + 2 * row_note->effect_count - 1;
+			/// FALL ON NOTE COL
+			if (this->pattern_col < pattern->note_count) {
+				col_note = pattern->notes[this->pattern_col];
+				this->pattern_cell = 7 + 2 * col_note->effect_count - 1;
 				/// CHECK ON/OFF VIEW MODES
 				//// EFFECT
 				if (g_editor.switch_view[4].state == false)
@@ -346,23 +346,23 @@ void Editor::pattern_clamp_cursor(void) {
 				if (this->pattern_cell == 5
 				&& g_editor.switch_view[2].state == false)
 					this->pattern_cell -= 1;
-			/// FALL ON CV ROW
+			/// FALL ON CV COL
 			} else {
 				this->pattern_cell = 2;
 			}
 		}
 	}
 	/// HANDLE CELL OVERFLOW
-	/// ON NOTE ROW
-	if (this->pattern_row < pattern->note_count) {
-		row_note = pattern->notes[this->pattern_row];
-		/// HANDLE ROW NOTE OVERFLOW
-		if (this->pattern_cell >= 7 + 2 * row_note->effect_count) {
+	/// ON NOTE COL
+	if (this->pattern_col < pattern->note_count) {
+		col_note = pattern->notes[this->pattern_col];
+		/// HANDLE COL NOTE OVERFLOW
+		if (this->pattern_cell >= 7 + 2 * col_note->effect_count) {
 			/// FROM NOTE TO CV
-			if (this->pattern_row == pattern->note_count - 1) {
+			if (this->pattern_col == pattern->note_count - 1) {
 				/// GOT NO CV
 				if (pattern->cv_count == 0) {
-					this->pattern_cell = 7 + 2 * row_note->effect_count - 1;
+					this->pattern_cell = 7 + 2 * col_note->effect_count - 1;
 					/// CHECK ON/OFF VIEW MODES
 					//// EFFECT
 					if (g_editor.switch_view[4].state == false)
@@ -377,26 +377,26 @@ void Editor::pattern_clamp_cursor(void) {
 						this->pattern_cell -= 1;
 				/// GOT CV
 				} else {
-					this->pattern_row += 1;
+					this->pattern_col += 1;
 					this->pattern_cell = 0;
 				}
 			/// FROM NOTE TO NOTE
 			} else {
-				this->pattern_row += 1;
+				this->pattern_col += 1;
 				this->pattern_cell = 0;
 			}
 		}
-	/// ON CV ROW
+	/// ON CV COL
 	} else {
-		/// HANDLE ROW CV OVERFLOW
+		/// HANDLE COL CV OVERFLOW
 		if (this->pattern_cell > 2) {
 			/// GOT NO NEXT
-			if (this->pattern_row >=
+			if (this->pattern_col >=
 			pattern->note_count + pattern->cv_count - 1) {
 				this->pattern_cell = 2;
 			/// GOT NEXT
 			} else {
-				this->pattern_row += 1;
+				this->pattern_col += 1;
 				this->pattern_cell = 0;
 			}
 		}
@@ -404,7 +404,7 @@ void Editor::pattern_clamp_cursor(void) {
 }
 
 void Editor::pattern_reset_cursor(void) {
-	this->pattern_row = 0;
+	this->pattern_col = 0;
 	this->pattern_line = 0;
 	this->pattern_cell = 0;
 	this->pattern_char = 0;

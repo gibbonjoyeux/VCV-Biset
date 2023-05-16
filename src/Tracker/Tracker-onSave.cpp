@@ -155,9 +155,9 @@ static void fill_cursor_count(u8 size, u32 count) {
 
 static void fill_save_buffer() {
 	PatternSource	*pattern;
-	PatternNoteRow	*note_col;
+	PatternNoteCol	*note_col;
 	PatternNote		*note;
-	PatternCVRow	*cv_col;
+	PatternCVCol	*cv_col;
 	PatternCV		*cv;
 	TimelineCell	*cell;
 	int				i, j, k, l;

@@ -156,9 +156,9 @@ static bool load_save_file(void) {
 static bool compute_save_file(void) {
 	TimelineCell	*cell;
 	PatternSource	*pattern;
-	PatternNoteRow	*note_col;
+	PatternNoteCol	*note_col;
 	PatternNote		*note;
-	PatternCVRow	*cv_col;
+	PatternCVCol	*cv_col;
 	PatternCV		*cv;
 	int				synth_id, pattern_id;
 	int				beat_count;

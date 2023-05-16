@@ -11,18 +11,18 @@
 
 // Timeline stores every PatternSource & Synth.
 // Timeline stores the main clock;
-// Timeline stores a PatternInstance array (one per track / row)
+// Timeline stores a PatternInstance array (one per track / col)
 // Timeline stores the timeline cells array (2D).
 //  1D: Track / Row
 //  2D: Cell (TimelineCell)
-// There are 32 tracks / rows and their length is based on the beat count.
+// There are 32 tracks / cols and their length is based on the beat count.
 // Each cell / line of the tracks represent one beat.
 
 Timeline::Timeline() {
 	int						i;
 
 	this->thread_flag.clear();
-	/// [1] INIT ROWS
+	/// [1] INIT COLS
 	for (i = 0; i < 12; ++i) {
 		this->pattern_source[i] = NULL;
 		this->pattern_cell[i] = NULL;
@@ -96,7 +96,7 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	/// [5] PLAY
 	//// MODE PLAY SONG
 	if (g_timeline.play == TIMELINE_MODE_PLAY_SONG) {
-		/// UPDATE TIMELINE ROWS
+		/// UPDATE TIMELINE COLS
 		for (i = 0; i < 12; ++i) {
 			cell = &(this->timeline[i][clock.beat]);
 			/// PATTERN CHANGE

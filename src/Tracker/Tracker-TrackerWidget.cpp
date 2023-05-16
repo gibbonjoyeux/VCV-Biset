@@ -60,10 +60,10 @@ static int key_alpha(const Widget::SelectKeyEvent &e) {
 
 static bool event_key_pattern(const Widget::SelectKeyEvent &e) {
 	PatternSource	*pattern;
-	PatternNoteRow	*row_note;
+	PatternNoteCol	*col_note;
 	PatternNote		*line_note;
 	PatternEffect	*effect;
-	PatternCVRow	*row_cv;
+	PatternCVCol	*col_cv;
 	PatternCV		*line_cv;
 	int				fx_1, fx_2;
 	int				key;
@@ -87,9 +87,9 @@ static bool event_key_pattern(const Widget::SelectKeyEvent &e) {
 					return false;
 				pattern = g_editor.pattern;
 				/// KEY ON NOTE
-				if (g_editor.pattern_row < pattern->note_count) {
-					row_note = pattern->notes[g_editor.pattern_row];
-					line_note = &(row_note->lines[g_editor.pattern_line]);
+				if (g_editor.pattern_col < pattern->note_count) {
+					col_note = pattern->notes[g_editor.pattern_col];
+					line_note = &(col_note->lines[g_editor.pattern_line]);
 					switch (g_editor.pattern_cell) {
 						/// PITCH
 						case 0:
@@ -279,8 +279,8 @@ static bool event_key_pattern(const Widget::SelectKeyEvent &e) {
 					}
 				/// KEY ON CV
 				} else {
-					row_cv = pattern->cvs[g_editor.pattern_row - pattern->note_count];
-					line_cv = &(row_cv->lines[g_editor.pattern_line]);
+					col_cv = pattern->cvs[g_editor.pattern_col - pattern->note_count];
+					line_cv = &(col_cv->lines[g_editor.pattern_line]);
 					switch (g_editor.pattern_cell) {
 						/// VALUE
 						case 0:

@@ -78,8 +78,8 @@ extern NVGcolor	colors[16];
 struct PatternEffect;
 struct PatternCV;
 struct PatternNote;
-struct PatternCVRow;
-struct PatternNoteRow;
+struct PatternCVCol;
+struct PatternNoteCol;
 struct PatternSource;
 struct SynthVoice;
 struct Synth;
@@ -145,14 +145,14 @@ struct PatternNote {
 	PatternNote();
 };
 
-struct PatternCVRow {
+struct PatternCVCol {
 	u8							mode;		// CV | BPM
 	u8							synth;		// CV synth output
 	u8							channel;	// CV synth channel output
 	PatternCV					lines[0];	// CVs (memory as struct extension)
 };
 
-struct PatternNoteRow {
+struct PatternNoteCol {
 	u8							effect_count;
 	PatternNote					lines[0];	// Notes (memory as struct extension)
 };
@@ -162,8 +162,8 @@ struct PatternSource {
 	u16							line_count;	// Lines per row
 	u16							note_count;	// Note rows
 	u16							cv_count;	// CV rows
-	ArrayExt<PatternCVRow>		cvs;		// Row X CV lines
-	ArrayExt<PatternNoteRow>	notes;		// Row X Note lines
+	ArrayExt<PatternCVCol>		cvs;		// Col X CV lines
+	ArrayExt<PatternNoteCol>	notes;		// Col X Note lines
 	u8							lpb;		// Lines per beat
 	u8							color;		// Pattern display color
 	u16							line_play;	// Playing line
@@ -220,7 +220,7 @@ struct SynthVoice {
 	SynthVoice();
 
 	void process(float dt_sec, float dt_beat, float *output);
-	bool start(Synth *synth, PatternNoteRow *row, PatternNote *note, int lpb);
+	bool start(Synth *synth, PatternNoteCol *row, PatternNote *note, int lpb);
 	void stop(void);
 	void init(int synth, int channel);
 	void reset();
@@ -240,7 +240,7 @@ struct Synth {
 
 	void process(float dt_sec, float dt_beat);
 	void init(int synth_index, int channel_count);
-	SynthVoice* add(PatternNoteRow *row, PatternNote *note, int lpb);
+	SynthVoice* add(PatternNoteCol *row, PatternNote *note, int lpb);
 };
 
 //////////////////////////////////////////////////
@@ -347,7 +347,7 @@ struct Editor {
 	int							pattern_id;
 	PatternSource				*pattern;
 	int							pattern_track;
-	int							pattern_row;
+	int							pattern_col;
 	int							pattern_line;
 	int							pattern_cell;
 	int							pattern_char;
@@ -381,7 +381,7 @@ struct Editor {
 	Editor();
 
 	void process(i64 frame);
-	void set_row(int index);
+	void set_col(int index);
 	void set_song_length(int length, bool mode);
 	void set_synth(int index, bool mode);
 	void set_pattern(int index, bool mode);

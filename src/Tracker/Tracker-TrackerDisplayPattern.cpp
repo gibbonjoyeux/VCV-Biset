@@ -11,8 +11,8 @@
 
 void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 	PatternSource	*pattern;
-	PatternNoteRow	*col_note;
-	PatternCVRow	*col_cv;
+	PatternNoteCol	*col_note;
+	PatternCVCol	*col_cv;
 	Menu			*menu;
 	MenuLabel		*label;
 	ParamQuantity	*quant_length;
@@ -98,8 +98,8 @@ void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 	menu->addChild(label);
 
 	/// COLUMN AS NOTE COLUMN
-	if (g_editor.pattern_row < g_editor.pattern->note_count) {
-		col_note = g_editor.pattern->notes[g_editor.pattern_row];
+	if (g_editor.pattern_col < g_editor.pattern->note_count) {
+		col_note = g_editor.pattern->notes[g_editor.pattern_col];
 		/// ADD COLUMN EFFECT COUNT SLIDER
 		quant_effect_count = g_module->paramQuantities[Tracker::PARAM_COLUMN_NOTE_EFFECT_COUNT];
 		quant_effect_count->setValue(col_note->effect_count);
@@ -108,14 +108,14 @@ void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 		/// ADD COLUMN UPDATE BUTTON
 		menu->addChild(new MenuItemStay("Update pattern column", "",
 			[=]() {
-				PatternNoteRow	*col_note;
+				PatternNoteCol	*col_note;
 				int	note_effect;
 
 				/// WAIT FOR THREAD FLAG
 				while (g_timeline.thread_flag.test_and_set()) {}
 
 				/// UPDATE PATTERN COLUMNS
-				col_note = g_editor.pattern->notes[g_editor.pattern_row];
+				col_note = g_editor.pattern->notes[g_editor.pattern_col];
 				note_effect = g_module->params[Tracker::PARAM_COLUMN_NOTE_EFFECT_COUNT].getValue();
 				if (note_effect != col_note->effect_count)
 					col_note->effect_count = note_effect;
@@ -126,7 +126,7 @@ void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 		));
 	/// COLUMN AS CV COLUMN
 	} else {
-		col_cv = g_editor.pattern->cvs[g_editor.pattern_row - g_editor.pattern->note_count];
+		col_cv = g_editor.pattern->cvs[g_editor.pattern_col - g_editor.pattern->note_count];
 		/// ADD COLUMN MODE LIST
 		menu->addChild(rack::createSubmenuItem("Mode", "",
 			[=](Menu *menu) {
@@ -165,7 +165,7 @@ void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 		/// ADD COLUMN UPDATE BUTTON
 		menu->addChild(new MenuItemStay("Update pattern column", "",
 			[=]() {
-				PatternCVRow	*col_cv;
+				PatternCVCol	*col_cv;
 				int				cv_mode;
 				int				cv_synth;
 				int				cv_channel;
@@ -174,7 +174,7 @@ void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 				while (g_timeline.thread_flag.test_and_set()) {}
 
 				/// UPDATE PATTERN COLUMNS
-				col_cv = g_editor.pattern->cvs[g_editor.pattern_row - g_editor.pattern->note_count];
+				col_cv = g_editor.pattern->cvs[g_editor.pattern_col - g_editor.pattern->note_count];
 				cv_mode = g_module->params[Tracker::PARAM_COLUMN_CV_MODE].getValue();
 				cv_synth = g_module->params[Tracker::PARAM_COLUMN_CV_SYNTH].getValue();
 				cv_channel = g_module->params[Tracker::PARAM_COLUMN_CV_CHANNEL].getValue();
