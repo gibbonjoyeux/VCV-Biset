@@ -27,20 +27,35 @@ PatternNote::PatternNote() {
 	this->pitch = 0;
 	this->velocity = 255;
 	this->delay = 0;
-	//this->chance = 255;
 }
 
 PatternSource::PatternSource() {
-	this->note_count = 1;
+	//this->note_count = 1;
+	//this->cv_count = 0;
+	//this->beat_count = 1;
+	//this->lpb = 1;
+	//this->line_count = this->beat_count * this->lpb;
+	//this->notes.allocate(this->note_count,
+	///**/ this->line_count * sizeof(PatternNote));
+	//this->cvs.allocate(this->cv_count,
+	///**/ this->line_count * sizeof(PatternCV));
+}
+
+void PatternSource::init(void) {
+	/// NAME
+	strcpy(this->name, "Pattern");
+	/// COLOR
+	this->color = 0;
+	/// TIME
+	this->beat_count = 0;
+	this->line_count = 0;
+	this->lpb = 0;
+	this->line_play = 0;
+	/// COLUMNS
+	this->note_count = 0;
 	this->cv_count = 0;
-	this->beat_count = 1;
-	this->lpb = 1;
-	this->line_count = this->beat_count * this->lpb;
-	this->notes.allocate(this->note_count,
-	/**/ this->line_count * sizeof(PatternNote));
-	this->cvs.allocate(this->cv_count,
-	/**/ this->line_count * sizeof(PatternCV));
-	//this->color = 0;
+	/// INIT COLUMNS CELLS
+	this->resize(1, 0, 8, 4);
 }
 
 void PatternSource::resize(int note_count, int cv_count, int beat_count,
@@ -74,4 +89,8 @@ void PatternSource::resize(int note_count, int cv_count, int beat_count,
 		this->cvs.allocate(this->cv_count,
 		/**/ this->line_count * sizeof(PatternCV));
 	}
+}
+
+void PatternSource::rename(char *name) {
+	strcpy(this->name, name);
 }

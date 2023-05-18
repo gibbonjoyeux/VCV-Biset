@@ -17,8 +17,11 @@ Editor::Editor() {
 	this->mode = EDITOR_MODE_PATTERN;
 
 	this->selected = false;
-	this->pattern_id = 0;
-	this->pattern = &(g_timeline.patterns[0]);
+
+	// TODO: Check pattern cannot be used when no pattern
+	this->pattern_id = -1;
+	this->pattern = NULL;
+
 	this->pattern_track = 0;
 	this->pattern_col = 0;
 	this->pattern_line = 0;
@@ -45,7 +48,9 @@ Editor::Editor() {
 	this->timeline_cam_x = 0;
 	this->timeline_cam_y = 0;
 
-	this->synth_id = 0;
+	/// TODO: check synth cannot be used when no synth
+	this->synth_id = -1;
+	this->synth = NULL;
 }
 
 void Editor::process(i64 frame) {
@@ -143,17 +148,17 @@ void Editor::process(i64 frame) {
 		if (this->pattern_jump > 0)
 			this->pattern_jump -= 1;
 
-	/// [4] HANDLE INFO SCREEN
-	/// HANDLE PATTERN SELECTION
-	value = module->params[Tracker::PARAM_PATTERN].getValue();
-	if (value != this->pattern_id)
-		if (value >= 0 && value < 256)
-			this->set_pattern(value, false);
-	/// HANDLE SYNTH SELECTION
-	value = module->params[Tracker::PARAM_SYNTH].getValue();
-	if (value != this->synth_id)
-		if (value >= 0 && value < 64)
-			this->set_synth(value, false);
+	///// [4] HANDLE INFO SCREEN
+	///// HANDLE PATTERN SELECTION
+	//value = module->params[Tracker::PARAM_PATTERN].getValue();
+	//if (value != this->pattern_id)
+	//	if (value >= 0 && value < 256)
+	//		this->set_pattern(value, false);
+	///// HANDLE SYNTH SELECTION
+	//value = module->params[Tracker::PARAM_SYNTH].getValue();
+	//if (value != this->synth_id)
+	//	if (value >= 0 && value < 64)
+	//		this->set_synth(value, false);
 }
 
 void Editor::set_col(int index) {

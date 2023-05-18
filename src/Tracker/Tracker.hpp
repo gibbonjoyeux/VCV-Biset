@@ -83,8 +83,8 @@ struct PatternNoteCol;
 struct PatternSource;
 struct SynthVoice;
 struct Synth;
-struct PatternInstance;
-struct TimelineCell;
+struct PatternReader;
+//struct TimelineCell;
 struct Timeline;
 struct Editor;
 
@@ -107,12 +107,12 @@ struct Clock {
 //////////////////////////////////////////////////
 /// PatternSource is the object that stores a pattern content (notes, cv...).
 ///  It does not process anything, it only stores origin pattern data while
-///  PatternInstance does the process.
+///  PatternReader does the process.
 /// PatternSource stores its length (beat, line, note, cv).
 /// PatternSource stores its notes and cvs as extended 1D arrays. An array being
 ///  a row containing the lines (and thus notes or cv).
 /// PatternSource also stores the current playing line set by a corresponding
-///  PatternInstance.
+///  PatternReader.
 //////////////////////////////////////////////////
 
 struct PatternEffect {
@@ -158,21 +158,31 @@ struct PatternNoteCol {
 };
 
 struct PatternSource {
+	char						name[256];	// Name / ID
+	u8							color;		// Timelime Color
 	u16							beat_count;	// Beat per pattern
 	u16							line_count;	// Lines per row
 	u16							note_count;	// Note rows
 	u16							cv_count;	// CV rows
-	ArrayExt<PatternCVCol>		cvs;		// Col X CV lines
 	ArrayExt<PatternNoteCol>	notes;		// Col X Note lines
+	ArrayExt<PatternCVCol>		cvs;		// Col X CV lines
 	u8							lpb;		// Lines per beat
-	u8							color;		// Pattern display color
 	u16							line_play;	// Playing line
-	//u8							color;
-	//i16							index;
 
 	PatternSource();
 
+	void init(void);
 	void resize(int note_count, int cv_count, int beat_count, int lpb);
+	void rename(char *name);
+};
+
+struct PatternInstance {
+	PatternSource				*source;
+	u16							beat;
+	u16							beat_start;
+	u16							beat_length;
+
+	PatternInstance(PatternSource *source, int beat);
 };
 
 //////////////////////////////////////////////////
@@ -246,11 +256,10 @@ struct Synth {
 //////////////////////////////////////////////////
 /// TIMELINE
 //////////////////////////////////////////////////
-/// TODO: Rename to TimelineInstance
-/// PatternInstance represent the playing part of a PatternSource. It does not
+/// PatternReader represent the playing part of a PatternSource. It does not
 ///  store the origin pattern data, it only process.
-/// PatternInstance process (play) a given pattern from the timeline.
-/// There are 32 PatternInstance stored in the timeline. One PatternInstance
+/// PatternReader process (play) a given pattern from the timeline.
+/// There are 32 PatternReader stored in the timeline. One PatternReader
 ///  per timeline row. This allows to have multiple patterns playing at the same
 ///  time (up to 32), even if they are from the same PatternSource.
 //////////////////////////////////////////////////
@@ -260,16 +269,16 @@ struct Synth {
 ///  line / beat).
 //////////////////////////////////////////////////
 /// Timeline is the struct that stores the whole track (timeline, patterns...).
-/// It stores the main clock and a PatternInstance per timeline row (32).
+/// It stores the main clock and a PatternReader per timeline row (32).
 /// There are 32 tracks / rows and their length is based on the beat count.
 /// Each cell / line of the tracks represent one beat.
 //////////////////////////////////////////////////
 
-struct PatternInstance {
+struct PatternReader {
 	SynthVoice*					voices[32];	// Synth voices (1 voice : 1 row)
 	PatternNote*				notes[32];
 
-	PatternInstance();
+	PatternReader();
 
 	void process(Synth *synths, PatternSource* pattern, Clock clock,
 		int *debug, int *debug_2, char *debug_str);
@@ -277,13 +286,13 @@ struct PatternInstance {
 	void stop(void);
 };
 
-struct TimelineCell {
-	i8							mode;		// TIMELINE_CELL_xxx
-	u16							pattern;	// Pattern index
-	u16							beat;		// Pattern starting beat
-
-	TimelineCell();
-};
+//struct TimelineCell {
+//	i8							mode;		// TIMELINE_CELL_xxx
+//	u16							pattern;	// Pattern index
+//	u16							beat;		// Pattern starting beat
+//
+//	TimelineCell();
+//};
 
 struct Timeline {
 	char						debug_str[4096];
@@ -294,17 +303,20 @@ struct Timeline {
 	std::atomic_flag			thread_flag;
 	Clock						clock;
 	u16							beat_count;
-	Array2D<TimelineCell>		timeline;
+	//Array2D<TimelineCell>		timeline;
 	PatternSource*				pattern_source[12];
-	TimelineCell*				pattern_cell[12];
+	//TimelineCell*				pattern_cell[12];
 	u32							pattern_start[12];
-	PatternInstance				pattern_instance[12];
+	PatternReader				pattern_reader[12];
 
 	float						pitch_base_offset;
 	float						pitch_scale[12];
 
-	PatternSource				patterns[256];
-	Synth						synths[64];
+	//PatternSource				patterns[256];
+	//Synth						synths[64];
+	list<PatternInstance>		timeline[12];
+	vector<PatternSource>		patterns;
+	vector<Synth>				synths;
 
 	u8							*save_buffer;
 	u32							save_length;
@@ -315,9 +327,14 @@ struct Timeline {
 
 	Timeline();
 
-	void process(i64 frame, float dt_sec, float dt_beat);
-	void stop(void);
-	void resize(int beat_count);
+	void			process(i64 frame, float dt_sec, float dt_beat);
+	void			stop(void);
+	PatternSource	*pattern_new(void);
+	void			pattern_del(PatternSource *source);
+	void			pattern_swap(PatternSource *source_a, PatternSource *source_b);
+	Synth			*synth_new(void);
+	void			synth_del(Synth *synth);
+	void			synth_swap(Synth *synth_a, Synth *synth_b);
 };
 
 //////////////////////////////////////////////////
@@ -344,8 +361,11 @@ struct Editor {
 
 	int							mode;			// Pattern / Timeline / Param
 	bool						selected;
-	int							pattern_id;
+	int							pattern_id;		// Active pattern
 	PatternSource				*pattern;
+	int							synth_id;		// Active synth
+	Synth						*synth;
+
 	int							pattern_track;
 	int							pattern_col;
 	int							pattern_line;
@@ -369,7 +389,11 @@ struct Editor {
 	int							timeline_cam_x;
 	int							timeline_cam_y;
 
-	int							synth_id;
+	int							side_synth_cam_y;
+	int							side_pattern_cam_y;
+	Vec							side_mouse_pos;
+	int							side_mouse_button;
+	int							side_mouse_action;
 
 	EditorSwitch				switch_view[5];
 	EditorTrigger				button_mode[3];
@@ -483,6 +507,21 @@ struct TrackerDisplay : LedDisplay {
 	inline void draw_pattern(const DrawArgs& args, Rect rect);
 	inline void draw_timeline(const DrawArgs& args, Rect rect);
 	inline void draw_timeline_new(const DrawArgs& args, Rect rect);
+};
+
+struct TrackerDisplaySide : LedDisplay {
+	Tracker*					module;
+	ModuleWidget*				moduleWidget;
+	std::string					font_path;
+
+	TrackerDisplaySide();
+
+	void draw(const DrawArgs &args) override;
+	void drawLayer(const DrawArgs& args, int layer) override;
+	void onHover(const HoverEvent &e) override;
+	void onButton(const ButtonEvent &e) override;
+	inline void draw_synths(const DrawArgs& args, Rect rect);
+	inline void draw_patterns(const DrawArgs& args, Rect rect);
 };
 
 struct TrackerDisplayBPM : LedDisplayDigit {

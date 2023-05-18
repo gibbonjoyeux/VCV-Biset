@@ -3,6 +3,8 @@
 
 - [ ] Check if `thread_flag` has a big CPU impact
 
+- [ ] Drum synth should always have 12 "channels" (on process, the synth
+		should process the 12 channels).
 - [ ] If clone Tracker module accidentaly, the last module takes previous one
 		place in `g_module`. If the new one is removed, issue.
 - [ ] On saved and then modified file, if re-open saved filed without saving
@@ -28,6 +30,24 @@
 	-> Check on empty pattern !
 
 # TODO
+
+- [ ] NEW VERSION
+	- [ ] Screen Side
+		- [ ] SCreen Side Synths (Tracker)
+			- [ ] Draw synths
+			- [ ] Select synth
+			- [ ] Edit Synth (name + color?)
+			- [ ] Add synth
+			- [ ] Del synth
+			- [ ] Move synth
+		- [ ] SCreen Side Patterns (Timeline)
+			- [ ] Draw patterns
+			- [ ] Select pattern
+			- [ ] Double click : open pattern tracker
+			- [ ] Edit Synth (name + color)
+			- [ ] Add pattern
+			- [ ] Del pattern
+			- [ ] Move pattern
 
 - [ ] MODULE Tracker
 	- [ ] BACKEND

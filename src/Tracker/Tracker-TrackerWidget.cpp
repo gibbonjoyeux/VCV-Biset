@@ -359,98 +359,99 @@ static bool event_key_pattern(const Widget::SelectKeyEvent &e) {
 }
 
 static bool event_key_timeline(const Widget::SelectKeyEvent &e) {
-	TimelineCell	*cell;
-	int				key;
-
-	if (e.action == GLFW_PRESS
-	|| e.action == GLFW_REPEAT) {
-		/// EVENT CURSOR MOVE
-		if (e.key == GLFW_KEY_LEFT) {
-			g_editor.timeline_move_cursor_x(-1);
-		} else if (e.key == GLFW_KEY_RIGHT) {
-			g_editor.timeline_move_cursor_x(+1);
-		} else if (e.key == GLFW_KEY_UP) {
-			g_editor.timeline_move_cursor_y(-1);
-		} else if (e.key == GLFW_KEY_DOWN) {
-			g_editor.timeline_move_cursor_y(+1);
-		/// EVENT KEYBOARD
-		} else {
-			if ((e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL)
-				return false;
-			cell = &(g_timeline.timeline
-			/**/ [g_editor.timeline_column]
-			/**/ [g_editor.timeline_line]);
-			/// CELL PATTERN
-			if (g_editor.timeline_cell == 0) {
-				/// PATTERN DELETE
-				if (e.key == GLFW_KEY_DELETE
-				|| e.key == GLFW_KEY_BACKSPACE) {
-					if (cell->mode == TIMELINE_CELL_NEW)
-						cell->mode = TIMELINE_CELL_KEEP;
-					else if (cell->mode == TIMELINE_CELL_KEEP)
-						cell->mode = TIMELINE_CELL_STOP;
-					else if (cell->mode == TIMELINE_CELL_STOP)
-						cell->mode = TIMELINE_CELL_KEEP;
-				/// PATTERN EDIT
-				} else {
-					key = key_dec(e);
-					if (key >= 0) {
-						if (cell->mode != PATTERN_NOTE_NEW) {
-							cell->mode = PATTERN_NOTE_NEW;
-							cell->beat = 0;
-						}
-						if (g_editor.timeline_char == 0) {
-							cell->pattern =
-							/**/ key * 100
-							/**/ + cell->pattern % 100;
-							g_editor.timeline_char += 1;
-						} else if (g_editor.timeline_char == 1) {
-							cell->pattern =
-							/**/ (cell->pattern / 100) * 100
-							/**/ + key * 10
-							/**/ + (cell->pattern % 10);
-							g_editor.timeline_char += 1;
-						} else {
-							cell->pattern =
-							/**/ (cell->pattern / 10) * 10
-							/**/ + key;
-							g_editor.timeline_move_cursor_y(1);
-						}
-					}
-				}
-			/// CELL BEAT
-			} else {
-				/// PATTERN DELETE
-				if (e.key == GLFW_KEY_DELETE
-				|| e.key == GLFW_KEY_BACKSPACE) {
-					cell->beat = 0;
-				/// PATTERN EDIT
-				} else {
-					key = key_dec(e);
-					if (key >= 0) {
-						if (g_editor.timeline_char == 0) {
-							cell->beat =
-							/**/ key * 100
-							/**/ + cell->beat % 100;
-							g_editor.timeline_char += 1;
-						} else if (g_editor.timeline_char == 1) {
-							cell->beat =
-							/**/ (cell->beat / 100) * 100
-							/**/ + key * 10
-							/**/ + (cell->beat % 10);
-							g_editor.timeline_char += 1;
-						} else {
-							cell->beat =
-							/**/ (cell->beat / 10) * 10
-							/**/ + key;
-							g_editor.timeline_move_cursor_y(1);
-						}
-					}
-				}
-			}
-		}
-	}
 	return true;
+	//TimelineCell	*cell;
+	//int				key;
+
+	//if (e.action == GLFW_PRESS
+	//|| e.action == GLFW_REPEAT) {
+	//	/// EVENT CURSOR MOVE
+	//	if (e.key == GLFW_KEY_LEFT) {
+	//		g_editor.timeline_move_cursor_x(-1);
+	//	} else if (e.key == GLFW_KEY_RIGHT) {
+	//		g_editor.timeline_move_cursor_x(+1);
+	//	} else if (e.key == GLFW_KEY_UP) {
+	//		g_editor.timeline_move_cursor_y(-1);
+	//	} else if (e.key == GLFW_KEY_DOWN) {
+	//		g_editor.timeline_move_cursor_y(+1);
+	//	/// EVENT KEYBOARD
+	//	} else {
+	//		if ((e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL)
+	//			return false;
+	//		cell = &(g_timeline.timeline
+	//		/**/ [g_editor.timeline_column]
+	//		/**/ [g_editor.timeline_line]);
+	//		/// CELL PATTERN
+	//		if (g_editor.timeline_cell == 0) {
+	//			/// PATTERN DELETE
+	//			if (e.key == GLFW_KEY_DELETE
+	//			|| e.key == GLFW_KEY_BACKSPACE) {
+	//				if (cell->mode == TIMELINE_CELL_NEW)
+	//					cell->mode = TIMELINE_CELL_KEEP;
+	//				else if (cell->mode == TIMELINE_CELL_KEEP)
+	//					cell->mode = TIMELINE_CELL_STOP;
+	//				else if (cell->mode == TIMELINE_CELL_STOP)
+	//					cell->mode = TIMELINE_CELL_KEEP;
+	//			/// PATTERN EDIT
+	//			} else {
+	//				key = key_dec(e);
+	//				if (key >= 0) {
+	//					if (cell->mode != PATTERN_NOTE_NEW) {
+	//						cell->mode = PATTERN_NOTE_NEW;
+	//						cell->beat = 0;
+	//					}
+	//					if (g_editor.timeline_char == 0) {
+	//						cell->pattern =
+	//						/**/ key * 100
+	//						/**/ + cell->pattern % 100;
+	//						g_editor.timeline_char += 1;
+	//					} else if (g_editor.timeline_char == 1) {
+	//						cell->pattern =
+	//						/**/ (cell->pattern / 100) * 100
+	//						/**/ + key * 10
+	//						/**/ + (cell->pattern % 10);
+	//						g_editor.timeline_char += 1;
+	//					} else {
+	//						cell->pattern =
+	//						/**/ (cell->pattern / 10) * 10
+	//						/**/ + key;
+	//						g_editor.timeline_move_cursor_y(1);
+	//					}
+	//				}
+	//			}
+	//		/// CELL BEAT
+	//		} else {
+	//			/// PATTERN DELETE
+	//			if (e.key == GLFW_KEY_DELETE
+	//			|| e.key == GLFW_KEY_BACKSPACE) {
+	//				cell->beat = 0;
+	//			/// PATTERN EDIT
+	//			} else {
+	//				key = key_dec(e);
+	//				if (key >= 0) {
+	//					if (g_editor.timeline_char == 0) {
+	//						cell->beat =
+	//						/**/ key * 100
+	//						/**/ + cell->beat % 100;
+	//						g_editor.timeline_char += 1;
+	//					} else if (g_editor.timeline_char == 1) {
+	//						cell->beat =
+	//						/**/ (cell->beat / 100) * 100
+	//						/**/ + key * 10
+	//						/**/ + (cell->beat % 10);
+	//						g_editor.timeline_char += 1;
+	//					} else {
+	//						cell->beat =
+	//						/**/ (cell->beat / 10) * 10
+	//						/**/ + key;
+	//						g_editor.timeline_move_cursor_y(1);
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+	//return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -459,6 +460,7 @@ static bool event_key_timeline(const Widget::SelectKeyEvent &e) {
 
 TrackerWidget::TrackerWidget(Tracker* _module) {
 	TrackerDisplay			*display;
+	TrackerDisplaySide		*display_side;
 	TrackerDisplayBPM		*display_bpm;
 	TrackerDisplaySynth		*display_synth;
 	TrackerDisplayPattern	*display_pattern;
@@ -556,25 +558,32 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 
 	/// [4] ADD DISPLAYS
 	//// MAIN LED DISPLAY
-	display = createWidget<TrackerDisplay>(mm2px(Vec(65.50 - 14.0, 5.0)));
+	display = createWidget<TrackerDisplay>(mm2px(Vec(51.50, 5.0)));
 	//display->box.size = mm2px(Vec(173.5 + 14.0, 94.5 + 15.0));
 	display->box.size = Vec(CHAR_W * (CHAR_COUNT_X + 3) + 4, CHAR_H * CHAR_COUNT_Y + 5.5);
 	display->module = module;
 	display->moduleWidget = this;
 	addChild(display);
 
+	//// SIDE LED DISPLAY
+	display_side = createWidget<TrackerDisplaySide>(mm2px(Vec(244.0, 5.0)));
+	display_side->box.size = Vec(CHAR_W * 26, CHAR_H * CHAR_COUNT_Y + 5.5);
+	display_side->module = module;
+	display_side->moduleWidget = this;
+	addChild(display_side);
+
 	//// BPM / SYNTH / PATTERN KNOBS
 	/// BPM SELECTOR
 	//// DISPLAY
-	display_bpm = createWidget<TrackerDisplayBPM>(mm2px(Vec(KNOB_X, KNOB_Y)));
-	display_bpm->box.size = mm2px(Vec(8.25, 3.5));
-	display_bpm->module = module;
-	if (module)
-		display_bpm->value_quant = module->paramQuantities[Tracker::PARAM_BPM];
-	display_bpm->value_length = 3;
-	display_bpm->color_back = colors[15];
-	display_bpm->color_font = colors[4];
-	addChild(display_bpm);
+	//display_bpm = createWidget<TrackerDisplayBPM>(mm2px(Vec(KNOB_X, KNOB_Y)));
+	//display_bpm->box.size = mm2px(Vec(8.25, 3.5));
+	//display_bpm->module = module;
+	//if (module)
+	//	display_bpm->value_quant = module->paramQuantities[Tracker::PARAM_BPM];
+	//display_bpm->value_length = 3;
+	//display_bpm->color_back = colors[15];
+	//display_bpm->color_font = colors[4];
+	//addChild(display_bpm);
 	//// KNOB
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(KNOB_X + 4.25, KNOB_Y + 10.0)),
@@ -583,15 +592,15 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 
 	/// SYNTH SELECTOR
 	//// DISPLAY
-	display_synth = createWidget<TrackerDisplaySynth>(mm2px(Vec(KNOB_X + KNOB_STEP, KNOB_Y)));
-	display_synth->box.size = mm2px(Vec(8.25, 3.5));
-	display_synth->module = module;
-	if (module)
-		display_synth->value_quant = module->paramQuantities[Tracker::PARAM_SYNTH];
-	display_synth->value_length = 2;
-	display_synth->color_back = colors[15];
-	display_synth->color_font = colors[4];
-	addChild(display_synth);
+	//display_synth = createWidget<TrackerDisplaySynth>(mm2px(Vec(KNOB_X + KNOB_STEP, KNOB_Y)));
+	//display_synth->box.size = mm2px(Vec(8.25, 3.5));
+	//display_synth->module = module;
+	//if (module)
+	//	display_synth->value_quant = module->paramQuantities[Tracker::PARAM_SYNTH];
+	//display_synth->value_length = 2;
+	//display_synth->color_back = colors[15];
+	//display_synth->color_font = colors[4];
+	//addChild(display_synth);
 	//// KNOB
 	addParam(createParamCentered<KnobMedium>(mm2px(Vec(KNOB_X + KNOB_STEP + 4.25, KNOB_Y + 10.0)),
 	/**/ module,
@@ -599,15 +608,15 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 
 	/// PATTERN SELECTOR
 	//// DISPLAY
-	display_pattern = createWidget<TrackerDisplayPattern>(mm2px(Vec(KNOB_X + KNOB_STEP * 2, KNOB_Y)));
-	display_pattern->box.size = mm2px(Vec(8.25, 3.5));
-	display_pattern->module = module;
-	if (module)
-		display_pattern->value_quant = module->paramQuantities[Tracker::PARAM_PATTERN];
-	display_pattern->value_length = 3;
-	display_pattern->color_back = colors[15];
-	display_pattern->color_font = colors[4];
-	addChild(display_pattern);
+	//display_pattern = createWidget<TrackerDisplayPattern>(mm2px(Vec(KNOB_X + KNOB_STEP * 2, KNOB_Y)));
+	//display_pattern->box.size = mm2px(Vec(8.25, 3.5));
+	//display_pattern->module = module;
+	//if (module)
+	//	display_pattern->value_quant = module->paramQuantities[Tracker::PARAM_PATTERN];
+	//display_pattern->value_length = 3;
+	//display_pattern->color_back = colors[15];
+	//display_pattern->color_font = colors[4];
+	//addChild(display_pattern);
 	//// KNOB
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(KNOB_X + KNOB_STEP * 2 + 4.25, KNOB_Y + 10.0)),
@@ -616,14 +625,14 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 
 	/// SELECT JUMP
 	//// DISPLAY
-	display_jump = createWidget<LedDisplayDigit>(mm2px(Vec(BTN_JUMP_X, BTN_JUMP_Y)));
-	display_jump->box.size = mm2px(Vec(8.25, 3.5));
-	display_jump->module = module;
-	display_jump->value_link = &(g_editor.pattern_jump);
-	display_jump->value_length = 2;
-	display_jump->color_back = colors[15];
-	display_jump->color_font = colors[4];
-	addChild(display_jump);
+	//display_jump = createWidget<LedDisplayDigit>(mm2px(Vec(BTN_JUMP_X, BTN_JUMP_Y)));
+	//display_jump->box.size = mm2px(Vec(8.25, 3.5));
+	//display_jump->module = module;
+	//display_jump->value_link = &(g_editor.pattern_jump);
+	//display_jump->value_length = 2;
+	//display_jump->color_back = colors[15];
+	//display_jump->color_font = colors[4];
+	//addChild(display_jump);
 	//// BUTTONS
 	addParam(
 	/**/ createParamCentered<ButtonPlus>(mm2px(Vec(BTN_JUMP_X + 4.0, BTN_JUMP_Y + 8.0)),
@@ -635,14 +644,14 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	/**/ Tracker::PARAM_JUMP_DOWN));
 	/// SELECT OCTAVE
 	//// DISPLAY
-	display_octave = createWidget<LedDisplayDigit>(mm2px(Vec(BTN_OCTAVE_X, BTN_OCTAVE_Y)));
-	display_octave->box.size = mm2px(Vec(8.25, 3.5));
-	display_octave->module = module;
-	display_octave->value_link = &(g_editor.pattern_octave);
-	display_octave->value_length = 2;
-	display_octave->color_back = colors[15];
-	display_octave->color_font = colors[4];
-	addChild(display_octave);
+	//display_octave = createWidget<LedDisplayDigit>(mm2px(Vec(BTN_OCTAVE_X, BTN_OCTAVE_Y)));
+	//display_octave->box.size = mm2px(Vec(8.25, 3.5));
+	//display_octave->module = module;
+	//display_octave->value_link = &(g_editor.pattern_octave);
+	//display_octave->value_length = 2;
+	//display_octave->color_back = colors[15];
+	//display_octave->color_font = colors[4];
+	//addChild(display_octave);
 	//// BUTTONS
 	addParam(
 	/**/ createParamCentered<ButtonPlus>(mm2px(Vec(BTN_OCTAVE_X + 4.0, BTN_OCTAVE_Y + 8.0)),
@@ -717,124 +726,123 @@ void TrackerWidget::onDeselect(const DeselectEvent &e) {
 //}
 
 void TrackerWidget::appendContextMenu(Menu *menu) {
-	MenuSeparator	*separator;
-	MenuSliderEdit	*slider;
-	Param			*param_rate;
+	//MenuSeparator	*separator;
+	//MenuSliderEdit	*slider;
+	//Param			*param_rate;
 
-	separator = new MenuSeparator();
-	menu->addChild(separator);
+	//separator = new MenuSeparator();
+	//menu->addChild(separator);
 
-	/// [1] BASE PITCH
-	slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
-	slider->box.size.x = 200.f;
-	menu->addChild(slider);
-	/// [2] RATE
-	param_rate = &(g_module->params[Tracker::PARAM_RATE]);
-	menu->addChild(rack::createSubmenuItem("Rate", "",
-		[=](Menu *menu) {
-			menu->addChild(new MenuCheckItem("Sample rate / 1", "",
-				[=]() { return param_rate->getValue() == 1; },
-				[=]() { param_rate->setValue(1); }
-			));
-			menu->addChild(new MenuCheckItem("Sample rate / 2", "",
-				[=]() { return param_rate->getValue() == 2; },
-				[=]() { param_rate->setValue(2); }
-			));
-			menu->addChild(new MenuCheckItem("Sample rate / 4", "",
-				[=]() { return param_rate->getValue() == 4; },
-				[=]() { param_rate->setValue(4); }
-			));
-			menu->addChild(new MenuCheckItem("Sample rate / 8", "",
-				[=]() { return param_rate->getValue() == 8; },
-				[=]() { param_rate->setValue(8); }
-			));
-			menu->addChild(new MenuCheckItem("Sample rate / 16", "",
-				[=]() { return param_rate->getValue() == 16; },
-				[=]() { param_rate->setValue(16); }
-			));
-			menu->addChild(new MenuCheckItem("Sample rate / 32", "",
-				[=]() { return param_rate->getValue() == 32; },
-				[=]() { param_rate->setValue(32); }
-			));
-			menu->addChild(new MenuCheckItem("Sample rate / 64", "default",
-				[=]() { return param_rate->getValue() == 64; },
-				[=]() { param_rate->setValue(64); }
-			));
-			menu->addChild(new MenuCheckItem("Sample rate / 128", "",
-				[=]() { return param_rate->getValue() == 128; },
-				[=]() { param_rate->setValue(128); }
-			));
-			menu->addChild(new MenuCheckItem("Sample rate / 256", "",
-				[=]() { return param_rate->getValue() == 256; },
-				[=]() { param_rate->setValue(256); }
-			));
-			menu->addChild(new MenuCheckItem("Sample rate / 512", "",
-				[=]() { return param_rate->getValue() == 512; },
-				[=]() { param_rate->setValue(512); }
-			));
-		}
-	));
+	///// [1] BASE PITCH
+	//slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
+	//slider->box.size.x = 200.f;
+	//menu->addChild(slider);
+	///// [2] RATE
+	//param_rate = &(g_module->params[Tracker::PARAM_RATE]);
+	//menu->addChild(rack::createSubmenuItem("Rate", "",
+	//	[=](Menu *menu) {
+	//		menu->addChild(new MenuCheckItem("Sample rate / 1", "",
+	//			[=]() { return param_rate->getValue() == 1; },
+	//			[=]() { param_rate->setValue(1); }
+	//		));
+	//		menu->addChild(new MenuCheckItem("Sample rate / 2", "",
+	//			[=]() { return param_rate->getValue() == 2; },
+	//			[=]() { param_rate->setValue(2); }
+	//		));
+	//		menu->addChild(new MenuCheckItem("Sample rate / 4", "",
+	//			[=]() { return param_rate->getValue() == 4; },
+	//			[=]() { param_rate->setValue(4); }
+	//		));
+	//		menu->addChild(new MenuCheckItem("Sample rate / 8", "",
+	//			[=]() { return param_rate->getValue() == 8; },
+	//			[=]() { param_rate->setValue(8); }
+	//		));
+	//		menu->addChild(new MenuCheckItem("Sample rate / 16", "",
+	//			[=]() { return param_rate->getValue() == 16; },
+	//			[=]() { param_rate->setValue(16); }
+	//		));
+	//		menu->addChild(new MenuCheckItem("Sample rate / 32", "",
+	//			[=]() { return param_rate->getValue() == 32; },
+	//			[=]() { param_rate->setValue(32); }
+	//		));
+	//		menu->addChild(new MenuCheckItem("Sample rate / 64", "default",
+	//			[=]() { return param_rate->getValue() == 64; },
+	//			[=]() { param_rate->setValue(64); }
+	//		));
+	//		menu->addChild(new MenuCheckItem("Sample rate / 128", "",
+	//			[=]() { return param_rate->getValue() == 128; },
+	//			[=]() { param_rate->setValue(128); }
+	//		));
+	//		menu->addChild(new MenuCheckItem("Sample rate / 256", "",
+	//			[=]() { return param_rate->getValue() == 256; },
+	//			[=]() { param_rate->setValue(256); }
+	//		));
+	//		menu->addChild(new MenuCheckItem("Sample rate / 512", "",
+	//			[=]() { return param_rate->getValue() == 512; },
+	//			[=]() { param_rate->setValue(512); }
+	//		));
+	//	}
+	//));
 
-	/// [3] TEMPERAMENT
-	menu->addChild(rack::createSubmenuItem("Temperament", "",
-		[=](Menu *menu) {
-			MenuSliderEdit	*slider;
-			int				i;
+	///// [3] TEMPERAMENT
+	//menu->addChild(rack::createSubmenuItem("Temperament", "",
+	//	[=](Menu *menu) {
+	//		MenuSliderEdit	*slider;
+	//		int				i;
 
-			/// PRESETS
-			//// REGULAR PRESETS
-			menu->addChild(rack::createSubmenuItem("Presets temperament", "",
-				[=](Menu *menu) {
-					menu->addChild(new MenuItemStay("Equal", "default",
-						[=]() { set_scale(table_temp_equal); }
-					));
-					menu->addChild(new MenuItemStay("Just", "",
-						[=]() { set_scale(table_temp_just); }
-					));
-					menu->addChild(new MenuItemStay("Pythagorean", "",
-						[=]() { set_scale(table_temp_pyth); }
-					));
-					menu->addChild(new MenuItemStay("Wendy Carlos Super Just", "",
-						[=]() { set_scale(table_temp_carlos_super_just); }
-					));
-					menu->addChild(new MenuItemStay("Wendy Carlos Harmonic", "",
-						[=]() { set_scale(table_temp_carlos_harmonic); }
-					));
-					menu->addChild(new MenuItemStay("Kirnberger", "",
-						[=]() { set_scale(table_temp_kirnberger); }
-					));
-					menu->addChild(new MenuItemStay("Vallotti Young", "",
-						[=]() { set_scale(table_temp_vallotti_young); }
-					));
-					menu->addChild(new MenuItemStay("Werckmeister III", "",
-						[=]() { set_scale(table_temp_werckmeister_3); }
-					));
-				}
-			));
-			//// SCALE PRESETS
-			menu->addChild(rack::createSubmenuItem("Presets scale", "",
-				[=](Menu *menu) {
-					menu->addChild(new MenuItemStay("Diatonic", "default",
-						[=]() {
-						}
-					));
-					menu->addChild(new MenuItemStay("Major", "",
-						[=]() {
-						}
-					));
-					menu->addChild(new MenuItemStay("Minor", "",
-						[=]() {
-						}
-					));
-				}
-			));
-			/// MANUAL
-			for (i = 0; i < 12; ++i) {
-				slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_TEMPERAMENT + i]);
-				slider->box.size.x = 200.f;
-				menu->addChild(slider);
-			}
-		}
-	));
-
+	//		/// PRESETS
+	//		//// REGULAR PRESETS
+	//		menu->addChild(rack::createSubmenuItem("Presets temperament", "",
+	//			[=](Menu *menu) {
+	//				menu->addChild(new MenuItemStay("Equal", "default",
+	//					[=]() { set_scale(table_temp_equal); }
+	//				));
+	//				menu->addChild(new MenuItemStay("Just", "",
+	//					[=]() { set_scale(table_temp_just); }
+	//				));
+	//				menu->addChild(new MenuItemStay("Pythagorean", "",
+	//					[=]() { set_scale(table_temp_pyth); }
+	//				));
+	//				menu->addChild(new MenuItemStay("Wendy Carlos Super Just", "",
+	//					[=]() { set_scale(table_temp_carlos_super_just); }
+	//				));
+	//				menu->addChild(new MenuItemStay("Wendy Carlos Harmonic", "",
+	//					[=]() { set_scale(table_temp_carlos_harmonic); }
+	//				));
+	//				menu->addChild(new MenuItemStay("Kirnberger", "",
+	//					[=]() { set_scale(table_temp_kirnberger); }
+	//				));
+	//				menu->addChild(new MenuItemStay("Vallotti Young", "",
+	//					[=]() { set_scale(table_temp_vallotti_young); }
+	//				));
+	//				menu->addChild(new MenuItemStay("Werckmeister III", "",
+	//					[=]() { set_scale(table_temp_werckmeister_3); }
+	//				));
+	//			}
+	//		));
+	//		//// SCALE PRESETS
+	//		menu->addChild(rack::createSubmenuItem("Presets scale", "",
+	//			[=](Menu *menu) {
+	//				menu->addChild(new MenuItemStay("Diatonic", "default",
+	//					[=]() {
+	//					}
+	//				));
+	//				menu->addChild(new MenuItemStay("Major", "",
+	//					[=]() {
+	//					}
+	//				));
+	//				menu->addChild(new MenuItemStay("Minor", "",
+	//					[=]() {
+	//					}
+	//				));
+	//			}
+	//		));
+	//		/// MANUAL
+	//		for (i = 0; i < 12; ++i) {
+	//			slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_TEMPERAMENT + i]);
+	//			slider->box.size.x = 200.f;
+	//			menu->addChild(slider);
+	//		}
+	//	}
+	//));
 }

@@ -134,8 +134,8 @@ void Tracker::process(const ProcessArgs& args) {
 	else
 		outputs[OUTPUT_CLOCK].setVoltage(0.0f);
 
-	/// PROCESS TIMELINE
-	g_timeline.process(args.frame, dt_sec, dt_beat);
+	///// PROCESS TIMELINE
+	//g_timeline.process(args.frame, dt_sec, dt_beat);
 
 
 	/// USE / MODIFY EXPANDERS
