@@ -21,8 +21,16 @@
 Timeline::Timeline() {
 	//int						i;
 
+	// TODO: Think about Synth and SynthVoice initialization
+	// Do synth need to know its index ?
+	// Do voices need to know synth index (as data is passed) ?
+
+	/// [1] INIT PATTERNS
+	this->pattern_count = 0;
+	this->synth_count = 0;
+
 	//this->thread_flag.clear();
-	///// [1] INIT COLS
+	/// [1] INIT COLS
 	//for (i = 0; i < 12; ++i) {
 	//	this->pattern_source[i] = NULL;
 	//	//this->pattern_cell[i] = NULL;
@@ -44,6 +52,12 @@ Timeline::Timeline() {
 	debug = 0;
 	debug_2 = 0;
 	debug_str[0] = 0;
+
+	//int	i;
+	//for (i = 0; i < 5; ++i)
+	//	this->pattern_new();
+	//for (i = 0; i < 5; ++i)
+	//	this->patterns[i].resize(1, 0, 8, 4);
 }
 
 void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
@@ -183,21 +197,41 @@ void Timeline::stop(void) {
 }
 
 PatternSource *Timeline::pattern_new(void) {
-	/// INSERT NEW PATTERN
-	this->patterns.emplace_back();
+	PatternSource	*pattern;
+
+	if (this->pattern_count >= 999)
+		return NULL;
+
+	/// GET NEW PATTERN
+	pattern = &(this->patterns[this->pattern_count]);
+	pattern->init();
+	this->pattern_count += 1;
+	/// SELECT NEW PATTERN
+	g_editor.pattern_id = this->pattern_count - 1;
+	g_editor.pattern = pattern;
 	/// RETURN NEW PATTERN
-	return &(this->patterns.back());
+	return pattern;
 }
 
 void Timeline::pattern_del(PatternSource *pattern) {
+	bool	found;
 	int		index;
+	int		i;
 
 	/// TODO: REMOVE TIMELINE PATTERN INSTANCES
 	// ...
-	/// COMPUTE PATTERN INDEX
-	index = (pattern - this->patterns.data()) / sizeof(PatternSource);
-	/// REMOVE PATTERN
-	this->patterns.erase(this->patterns.begin() + index);
+	found = false;
+	for (i = 0; i < this->pattern_count; ++i) {
+		// PATTERN FOUND
+		if (&(this->patterns[i]) == pattern) {
+			this->patterns[i].destroy();
+			this->pattern_count -= 1;
+			found = true;
+		}
+		/// PATTERN OFFSET
+		if (found == true)
+			this->patterns[i] = this->patterns[i + 1];
+	}
 }
 
 void Timeline::pattern_swap(PatternSource *pat_a, PatternSource *pat_b) {
@@ -209,29 +243,55 @@ void Timeline::pattern_swap(PatternSource *pat_a, PatternSource *pat_b) {
 }
 
 Synth *Timeline::synth_new(void) {
-	/// INSERT NEW SYNTH
-	this->synths.emplace_back();
+	Synth		*synth;
+
+	if (this->synth_count >= 99)
+		return NULL;
+
+	/// GET NEW SYNTH
+	synth = &(this->synths[this->synth_count]);
+	synth->init(this->synth_count, 1);
+	this->synth_count += 1;
+	/// SELECT NEW SYNTH
+	g_editor.synth_id = this->synth_count - 1;
+	g_editor.synth = synth;
 	/// RETURN NEW SYNTH
-	return &(this->synths.back());
+	return synth;
 }
 
 void Timeline::synth_del(Synth *synth) {
+	bool	found;
 	int		index;
+	int		i;
 
 	/// TODO: SET PATTERNS CELL USING SYNTH TO 0
 	// ...
-	/// COMPUTE SYNTH INDEX
-	index = (synth - this->synths.data()) / sizeof(PatternSource);
-	/// REMOVE SYNTH
-	this->synths.erase(this->synths.begin() + index);
+	found = false;
+	for (i = 0; i < this->synth_count; ++i) {
+		// PATTERN FOUND
+		if (&(this->synths[i]) == synth) {
+			this->synth_count -= 1;
+			found = true;
+		}
+		/// PATTERN OFFSET
+		if (found == true) {
+			this->synths[i] = this->synths[i + 1];
+			this->synths[i].index = i;
+		}
+	}
 }
 
 void Timeline::synth_swap(Synth *synth_a, Synth *synth_b) {
 	Synth			synth_tmp;
+	int				index_tmp;
 
 	/// TODO: SWAP SYNTH IN PATTERNS CELLS
 	// ...
 	synth_tmp = *synth_a;
 	*synth_a = *synth_b;
 	*synth_b = synth_tmp;
+
+	index_tmp = synth_a->index;
+	synth_a->index = synth_b->index;
+	synth_b->index = index_tmp;
 }

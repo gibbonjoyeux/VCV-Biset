@@ -70,6 +70,7 @@ extern float	table_temp_kirnberger[12];
 extern float	table_temp_vallotti_young[12];
 extern float	table_temp_werckmeister_3[12];
 extern NVGcolor	colors[16];
+extern NVGcolor	colors_user[8];
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -158,7 +159,7 @@ struct PatternNoteCol {
 };
 
 struct PatternSource {
-	char						name[256];	// Name / ID
+	char						name[256];	// Name
 	u8							color;		// Timelime Color
 	u16							beat_count;	// Beat per pattern
 	u16							line_count;	// Lines per row
@@ -172,6 +173,7 @@ struct PatternSource {
 	PatternSource();
 
 	void init(void);
+	void destroy(void);
 	void resize(int note_count, int cv_count, int beat_count, int lpb);
 	void rename(char *name);
 };
@@ -238,6 +240,8 @@ struct SynthVoice {
 };
 
 struct Synth {
+	char						name[256 + 4];		// Name (with index)
+	int							color;
 	u8							index;
 	u8							channel_cur;
 	u8							channel_count;
@@ -312,11 +316,11 @@ struct Timeline {
 	float						pitch_base_offset;
 	float						pitch_scale[12];
 
-	//PatternSource				patterns[256];
-	//Synth						synths[64];
 	list<PatternInstance>		timeline[12];
-	vector<PatternSource>		patterns;
-	vector<Synth>				synths;
+	PatternSource				patterns[999];
+	int							pattern_count;
+	Synth						synths[99];
+	int							synth_count;
 
 	u8							*save_buffer;
 	u32							save_length;
@@ -520,8 +524,9 @@ struct TrackerDisplaySide : LedDisplay {
 	void drawLayer(const DrawArgs& args, int layer) override;
 	void onHover(const HoverEvent &e) override;
 	void onButton(const ButtonEvent &e) override;
-	inline void draw_synths(const DrawArgs& args, Rect rect);
-	inline void draw_patterns(const DrawArgs& args, Rect rect);
+	void onLeave(const LeaveEvent &e) override;
+	void draw_list(const DrawArgs &args, Rect rect,
+			int cam_y, std::function<bool(int,char**,int*,bool*)>);
 };
 
 struct TrackerDisplayBPM : LedDisplayDigit {

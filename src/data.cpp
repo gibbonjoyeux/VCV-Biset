@@ -151,6 +151,17 @@ NVGcolor	colors[16] = {
 	{0x33 / 255.0, 0x3C / 255.0, 0x57 / 255.0, 0xFF / 255.0}
 };
 
+NVGcolor	colors_user[8] = {
+	colors[1],		// Purple
+	colors[2],		// Red
+	colors[3],		// Orange
+	colors[4],		// Yellow
+	colors[6],		// Light green
+	colors[7],		// Dark green
+	colors[10],		// Light blue
+	colors[9]		// Dark blue
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 /// GLOBAL STRUCTURES
 ////////////////////////////////////////////////////////////////////////////////

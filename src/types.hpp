@@ -82,7 +82,7 @@ template<typename T> struct Array2D {
 // Allocate 1D array of specific type (usually struct or class) and extend
 // each element with an additional memory slot.
 //  Can be used to extend struct with an array of size 0 placed at the end of
-// the struct.
+// the struct. This array, once extended, could be used.
 template<typename T> struct ArrayExt {
 	T**			ptr;
 	size_t		size;
@@ -142,6 +142,14 @@ template<typename T> struct ArrayExt {
 		this->size = size;
 		this->extension_slot = extension_slot;
 		return true;
+	}
+
+	void delocate(void) {
+		if (this->ptr)
+			free(this->ptr);
+		this->ptr = NULL;
+		this->size = 0;
+		this->extension_slot = 0;
 	}
 
 	T* operator[](int i) {

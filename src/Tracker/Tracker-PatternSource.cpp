@@ -30,15 +30,6 @@ PatternNote::PatternNote() {
 }
 
 PatternSource::PatternSource() {
-	//this->note_count = 1;
-	//this->cv_count = 0;
-	//this->beat_count = 1;
-	//this->lpb = 1;
-	//this->line_count = this->beat_count * this->lpb;
-	//this->notes.allocate(this->note_count,
-	///**/ this->line_count * sizeof(PatternNote));
-	//this->cvs.allocate(this->cv_count,
-	///**/ this->line_count * sizeof(PatternCV));
 }
 
 void PatternSource::init(void) {
@@ -56,6 +47,11 @@ void PatternSource::init(void) {
 	this->cv_count = 0;
 	/// INIT COLUMNS CELLS
 	this->resize(1, 0, 8, 4);
+}
+
+void PatternSource::destroy(void) {
+	this->notes.delocate();
+	this->cvs.delocate();
 }
 
 void PatternSource::resize(int note_count, int cv_count, int beat_count,

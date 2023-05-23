@@ -10,6 +10,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 Synth::Synth() {
+	strcpy(this->name, "synth");
+	this->color = 1;
 	this->index = 0;
 	this->channel_cur = 0;
 	this->channel_count = 1;
@@ -18,6 +20,11 @@ Synth::Synth() {
 void Synth::init(int synth_index, int channel_count) {
 	int			i, j;
 
+	/// TODO: INIT NAME & COLOR ?
+	/// INIT NAME
+	strcpy(this->name, "synth");
+	/// INIT COLOR
+	this->color = 1;
 	/// INIT VOICES
 	this->index = synth_index;
 	for (i = 0; i < 16; ++i) {

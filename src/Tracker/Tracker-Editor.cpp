@@ -19,8 +19,11 @@ Editor::Editor() {
 	this->selected = false;
 
 	// TODO: Check pattern cannot be used when no pattern
+	/// TODO: check synth cannot be used when no synth
 	this->pattern_id = -1;
 	this->pattern = NULL;
+	this->synth_id = -1;
+	this->synth = NULL;
 
 	this->pattern_track = 0;
 	this->pattern_col = 0;
@@ -48,9 +51,6 @@ Editor::Editor() {
 	this->timeline_cam_x = 0;
 	this->timeline_cam_y = 0;
 
-	/// TODO: check synth cannot be used when no synth
-	this->synth_id = -1;
-	this->synth = NULL;
 }
 
 void Editor::process(i64 frame) {

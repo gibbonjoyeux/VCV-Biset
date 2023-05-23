@@ -153,10 +153,34 @@ struct Outlet : app::SvgPort {
 
 /// Menu text field
 struct MenuTextField : ui::TextField {
-	MenuTextField(void) {
+	std::function<void(char*)>	func;
+	bool						close;
+
+	MenuTextField(char *str, bool close = false) {
 		this->box.size = Vec(20, 20);
 		this->multiline = false;
-		this->setText("Cuicui ?");
+		this->setText(str);
+		this->func = NULL;
+		this->close = close;
+	}
+
+	MenuTextField(char *str, std::function<void(char*)> func, bool close = false) {
+		this->box.size = Vec(20, 20);
+		this->multiline = false;
+		this->setText(str);
+		this->func = func;
+		this->close = close;
+	}
+
+	void onSelectKey(const SelectKeyEvent &e) override {
+		if (e.action == GLFW_PRESS
+		&& e.key == GLFW_KEY_ENTER) {
+			this->func((char*)this->getText().c_str());
+			if (this->close == true)
+				this->parent->requestDelete();
+		} else {
+			ui::TextField::onSelectKey(e);
+		}
 	}
 };
 

@@ -461,9 +461,9 @@ static bool event_key_timeline(const Widget::SelectKeyEvent &e) {
 TrackerWidget::TrackerWidget(Tracker* _module) {
 	TrackerDisplay			*display;
 	TrackerDisplaySide		*display_side;
-	TrackerDisplayBPM		*display_bpm;
-	TrackerDisplaySynth		*display_synth;
-	TrackerDisplayPattern	*display_pattern;
+	//TrackerDisplayBPM		*display_bpm;
+	//TrackerDisplaySynth		*display_synth;
+	//TrackerDisplayPattern	*display_pattern;
 	LedDisplayDigit			*display_jump;
 	LedDisplayDigit			*display_octave;
 	int						i;
@@ -665,13 +665,13 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 }
 
 void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
-	if (g_editor.mode == EDITOR_MODE_PATTERN) {
-		if (event_key_pattern(e))
-			e.consume(this);
-	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
-		if (event_key_timeline(e))
-			e.consume(this);
-	}
+	//if (g_editor.mode == EDITOR_MODE_PATTERN) {
+	//	if (event_key_pattern(e))
+	//		e.consume(this);
+	//} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+	//	if (event_key_timeline(e))
+	//		e.consume(this);
+	//}
 }
 
 void TrackerWidget::onHoverScroll(const HoverScrollEvent &e) {

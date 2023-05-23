@@ -36,10 +36,11 @@
 		- [ ] SCreen Side Synths (Tracker)
 			- [ ] Draw synths
 			- [ ] Select synth
-			- [ ] Edit Synth (name + color?)
+			- [ ] Edit Synth (name + color)
 			- [ ] Add synth
 			- [ ] Del synth
 			- [ ] Move synth
+			- [ ] Scroll
 		- [ ] SCreen Side Patterns (Timeline)
 			- [ ] Draw patterns
 			- [ ] Select pattern
@@ -48,6 +49,7 @@
 			- [ ] Add pattern
 			- [ ] Del pattern
 			- [ ] Move pattern
+			- [ ] Scroll
 
 - [ ] MODULE Tracker
 	- [ ] BACKEND
