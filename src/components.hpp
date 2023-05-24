@@ -198,11 +198,7 @@ struct MenuTextFieldLinked : ui::TextField {
 		this->box.size.x = 50;
 		this->multiline = false;
 		this->setText(str);
-		this->selectAll();
 		this->quantity = quantity;
-
-		APP->event->setSelectedWidget(this);
-		this->selectAll();
 	}
 
 	void onSelectKey(const SelectKeyEvent &e) override {
@@ -301,8 +297,9 @@ struct MenuSliderEdit : rack::Widget {
 		//// "▸" //// "▴" //// "▾" //// "◆"
 		this->item_button = new MenuItemStay("▾", "",	
 			[=]() {
-				MenuLabel		*label;
-				Menu			*menu;
+				MenuTextFieldLinked	*text_field;
+				MenuLabel			*label;
+				Menu				*menu;
 
 				/// CREATE MENU
 				menu = createMenu();
@@ -312,7 +309,11 @@ struct MenuSliderEdit : rack::Widget {
 				label->text = "Edit value";
 				menu->addChild(label);
 				/// INIT MENU TEXT FIELD
-				menu->addChild(new MenuTextFieldLinked(this->quantity, precision));
+				text_field = new MenuTextFieldLinked(this->quantity, precision);
+				menu->addChild(text_field);
+				/// SELECT MENU TEXT FIELD
+				APP->event->setSelectedWidget(text_field);
+				text_field->selectAll();
 			}
 		);
 		this->item_button->box.size.x = 20.0f;

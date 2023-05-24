@@ -34,22 +34,22 @@
 - [ ] NEW VERSION
 	- [ ] Screen Side
 		- [ ] SCreen Side Synths (Tracker)
-			- [ ] Draw synths
-			- [ ] Select synth
-			- [ ] Edit Synth (name + color)
-			- [ ] Add synth
-			- [ ] Del synth
+			- [x] Draw synths
+			- [x] Select synth
+			- [x] Edit Synth (name + color)
+			- [x] Add synth
+			- [x] Del synth
 			- [ ] Move synth
-			- [ ] Scroll
+			- [x] Scroll
 		- [ ] SCreen Side Patterns (Timeline)
-			- [ ] Draw patterns
-			- [ ] Select pattern
+			- [x] Draw patterns
+			- [x] Select pattern
 			- [ ] Double click : open pattern tracker
-			- [ ] Edit Synth (name + color)
-			- [ ] Add pattern
-			- [ ] Del pattern
+			- [x] Edit Synth (name + color)
+			- [x] Add pattern
+			- [x] Del pattern
 			- [ ] Move pattern
-			- [ ] Scroll
+			- [x] Scroll
 
 - [ ] MODULE Tracker
 	- [ ] BACKEND

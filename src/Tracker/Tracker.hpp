@@ -508,6 +508,7 @@ struct TrackerDisplay : LedDisplay {
 
 	void draw(const DrawArgs &args) override;
 	void drawLayer(const DrawArgs& args, int layer) override;
+	void onButton(const ButtonEvent &e) override;
 	inline void draw_pattern(const DrawArgs& args, Rect rect);
 	inline void draw_timeline(const DrawArgs& args, Rect rect);
 	inline void draw_timeline_new(const DrawArgs& args, Rect rect);
@@ -525,6 +526,7 @@ struct TrackerDisplaySide : LedDisplay {
 	void onHover(const HoverEvent &e) override;
 	void onButton(const ButtonEvent &e) override;
 	void onLeave(const LeaveEvent &e) override;
+	void onHoverScroll(const HoverScrollEvent &e) override;
 	void draw_list(const DrawArgs &args, Rect rect,
 			int cam_y, std::function<bool(int,char**,int*,bool*)>);
 };

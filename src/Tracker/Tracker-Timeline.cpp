@@ -227,6 +227,10 @@ void Timeline::pattern_del(PatternSource *pattern) {
 			this->patterns[i].destroy();
 			this->pattern_count -= 1;
 			found = true;
+			if (g_editor.pattern == pattern) {
+				g_editor.pattern_id = -1;
+				g_editor.pattern = NULL;
+			}
 		}
 		/// PATTERN OFFSET
 		if (found == true)
@@ -272,6 +276,10 @@ void Timeline::synth_del(Synth *synth) {
 		if (&(this->synths[i]) == synth) {
 			this->synth_count -= 1;
 			found = true;
+			if (g_editor.synth == synth) {
+				g_editor.synth_id = -1;
+				g_editor.synth = NULL;
+			}
 		}
 		/// PATTERN OFFSET
 		if (found == true) {

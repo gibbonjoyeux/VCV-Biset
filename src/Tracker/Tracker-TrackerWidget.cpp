@@ -110,7 +110,10 @@ static bool event_key_pattern(const Widget::SelectKeyEvent &e) {
 								/// NOTE NEW
 								if (key >= 0) {
 									line_note->pitch = key;
-									line_note->synth = g_editor.synth_id;
+									if (g_editor.synth_id >= 0)
+										line_note->synth = g_editor.synth_id;
+									else
+										line_note->synth = 0;
 									if (line_note->mode == PATTERN_NOTE_KEEP
 									|| line_note->mode == PATTERN_NOTE_STOP) {
 										line_note->mode = PATTERN_NOTE_NEW;
@@ -665,16 +668,17 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 }
 
 void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
-	//if (g_editor.mode == EDITOR_MODE_PATTERN) {
-	//	if (event_key_pattern(e))
-	//		e.consume(this);
-	//} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
-	//	if (event_key_timeline(e))
-	//		e.consume(this);
-	//}
+	if (g_editor.mode == EDITOR_MODE_PATTERN) {
+		if (event_key_pattern(e))
+			e.consume(this);
+	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+		if (event_key_timeline(e))
+			e.consume(this);
+	}
 }
 
 void TrackerWidget::onHoverScroll(const HoverScrollEvent &e) {
+	ModuleWidget::onHoverScroll(e);
 	//if (g_editor.selected == false)
 	//	return;
 	//if (g_editor.pattern) {
@@ -726,123 +730,123 @@ void TrackerWidget::onDeselect(const DeselectEvent &e) {
 //}
 
 void TrackerWidget::appendContextMenu(Menu *menu) {
-	//MenuSeparator	*separator;
-	//MenuSliderEdit	*slider;
-	//Param			*param_rate;
+	MenuSeparator	*separator;
+	MenuSliderEdit	*slider;
+	Param			*param_rate;
 
-	//separator = new MenuSeparator();
-	//menu->addChild(separator);
+	separator = new MenuSeparator();
+	menu->addChild(separator);
 
-	///// [1] BASE PITCH
-	//slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
-	//slider->box.size.x = 200.f;
-	//menu->addChild(slider);
-	///// [2] RATE
-	//param_rate = &(g_module->params[Tracker::PARAM_RATE]);
-	//menu->addChild(rack::createSubmenuItem("Rate", "",
-	//	[=](Menu *menu) {
-	//		menu->addChild(new MenuCheckItem("Sample rate / 1", "",
-	//			[=]() { return param_rate->getValue() == 1; },
-	//			[=]() { param_rate->setValue(1); }
-	//		));
-	//		menu->addChild(new MenuCheckItem("Sample rate / 2", "",
-	//			[=]() { return param_rate->getValue() == 2; },
-	//			[=]() { param_rate->setValue(2); }
-	//		));
-	//		menu->addChild(new MenuCheckItem("Sample rate / 4", "",
-	//			[=]() { return param_rate->getValue() == 4; },
-	//			[=]() { param_rate->setValue(4); }
-	//		));
-	//		menu->addChild(new MenuCheckItem("Sample rate / 8", "",
-	//			[=]() { return param_rate->getValue() == 8; },
-	//			[=]() { param_rate->setValue(8); }
-	//		));
-	//		menu->addChild(new MenuCheckItem("Sample rate / 16", "",
-	//			[=]() { return param_rate->getValue() == 16; },
-	//			[=]() { param_rate->setValue(16); }
-	//		));
-	//		menu->addChild(new MenuCheckItem("Sample rate / 32", "",
-	//			[=]() { return param_rate->getValue() == 32; },
-	//			[=]() { param_rate->setValue(32); }
-	//		));
-	//		menu->addChild(new MenuCheckItem("Sample rate / 64", "default",
-	//			[=]() { return param_rate->getValue() == 64; },
-	//			[=]() { param_rate->setValue(64); }
-	//		));
-	//		menu->addChild(new MenuCheckItem("Sample rate / 128", "",
-	//			[=]() { return param_rate->getValue() == 128; },
-	//			[=]() { param_rate->setValue(128); }
-	//		));
-	//		menu->addChild(new MenuCheckItem("Sample rate / 256", "",
-	//			[=]() { return param_rate->getValue() == 256; },
-	//			[=]() { param_rate->setValue(256); }
-	//		));
-	//		menu->addChild(new MenuCheckItem("Sample rate / 512", "",
-	//			[=]() { return param_rate->getValue() == 512; },
-	//			[=]() { param_rate->setValue(512); }
-	//		));
-	//	}
-	//));
+	/// [1] BASE PITCH
+	slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+	/// [2] RATE
+	param_rate = &(g_module->params[Tracker::PARAM_RATE]);
+	menu->addChild(rack::createSubmenuItem("Rate", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuCheckItem("Sample rate / 1", "",
+				[=]() { return param_rate->getValue() == 1; },
+				[=]() { param_rate->setValue(1); }
+			));
+			menu->addChild(new MenuCheckItem("Sample rate / 2", "",
+				[=]() { return param_rate->getValue() == 2; },
+				[=]() { param_rate->setValue(2); }
+			));
+			menu->addChild(new MenuCheckItem("Sample rate / 4", "",
+				[=]() { return param_rate->getValue() == 4; },
+				[=]() { param_rate->setValue(4); }
+			));
+			menu->addChild(new MenuCheckItem("Sample rate / 8", "",
+				[=]() { return param_rate->getValue() == 8; },
+				[=]() { param_rate->setValue(8); }
+			));
+			menu->addChild(new MenuCheckItem("Sample rate / 16", "",
+				[=]() { return param_rate->getValue() == 16; },
+				[=]() { param_rate->setValue(16); }
+			));
+			menu->addChild(new MenuCheckItem("Sample rate / 32", "",
+				[=]() { return param_rate->getValue() == 32; },
+				[=]() { param_rate->setValue(32); }
+			));
+			menu->addChild(new MenuCheckItem("Sample rate / 64", "default",
+				[=]() { return param_rate->getValue() == 64; },
+				[=]() { param_rate->setValue(64); }
+			));
+			menu->addChild(new MenuCheckItem("Sample rate / 128", "",
+				[=]() { return param_rate->getValue() == 128; },
+				[=]() { param_rate->setValue(128); }
+			));
+			menu->addChild(new MenuCheckItem("Sample rate / 256", "",
+				[=]() { return param_rate->getValue() == 256; },
+				[=]() { param_rate->setValue(256); }
+			));
+			menu->addChild(new MenuCheckItem("Sample rate / 512", "",
+				[=]() { return param_rate->getValue() == 512; },
+				[=]() { param_rate->setValue(512); }
+			));
+		}
+	));
 
-	///// [3] TEMPERAMENT
-	//menu->addChild(rack::createSubmenuItem("Temperament", "",
-	//	[=](Menu *menu) {
-	//		MenuSliderEdit	*slider;
-	//		int				i;
+	/// [3] TEMPERAMENT
+	menu->addChild(rack::createSubmenuItem("Temperament", "",
+		[=](Menu *menu) {
+			MenuSliderEdit	*slider;
+			int				i;
 
-	//		/// PRESETS
-	//		//// REGULAR PRESETS
-	//		menu->addChild(rack::createSubmenuItem("Presets temperament", "",
-	//			[=](Menu *menu) {
-	//				menu->addChild(new MenuItemStay("Equal", "default",
-	//					[=]() { set_scale(table_temp_equal); }
-	//				));
-	//				menu->addChild(new MenuItemStay("Just", "",
-	//					[=]() { set_scale(table_temp_just); }
-	//				));
-	//				menu->addChild(new MenuItemStay("Pythagorean", "",
-	//					[=]() { set_scale(table_temp_pyth); }
-	//				));
-	//				menu->addChild(new MenuItemStay("Wendy Carlos Super Just", "",
-	//					[=]() { set_scale(table_temp_carlos_super_just); }
-	//				));
-	//				menu->addChild(new MenuItemStay("Wendy Carlos Harmonic", "",
-	//					[=]() { set_scale(table_temp_carlos_harmonic); }
-	//				));
-	//				menu->addChild(new MenuItemStay("Kirnberger", "",
-	//					[=]() { set_scale(table_temp_kirnberger); }
-	//				));
-	//				menu->addChild(new MenuItemStay("Vallotti Young", "",
-	//					[=]() { set_scale(table_temp_vallotti_young); }
-	//				));
-	//				menu->addChild(new MenuItemStay("Werckmeister III", "",
-	//					[=]() { set_scale(table_temp_werckmeister_3); }
-	//				));
-	//			}
-	//		));
-	//		//// SCALE PRESETS
-	//		menu->addChild(rack::createSubmenuItem("Presets scale", "",
-	//			[=](Menu *menu) {
-	//				menu->addChild(new MenuItemStay("Diatonic", "default",
-	//					[=]() {
-	//					}
-	//				));
-	//				menu->addChild(new MenuItemStay("Major", "",
-	//					[=]() {
-	//					}
-	//				));
-	//				menu->addChild(new MenuItemStay("Minor", "",
-	//					[=]() {
-	//					}
-	//				));
-	//			}
-	//		));
-	//		/// MANUAL
-	//		for (i = 0; i < 12; ++i) {
-	//			slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_TEMPERAMENT + i]);
-	//			slider->box.size.x = 200.f;
-	//			menu->addChild(slider);
-	//		}
-	//	}
-	//));
+			/// PRESETS
+			//// REGULAR PRESETS
+			menu->addChild(rack::createSubmenuItem("Presets temperament", "",
+				[=](Menu *menu) {
+					menu->addChild(new MenuItemStay("Equal", "default",
+						[=]() { set_scale(table_temp_equal); }
+					));
+					menu->addChild(new MenuItemStay("Just", "",
+						[=]() { set_scale(table_temp_just); }
+					));
+					menu->addChild(new MenuItemStay("Pythagorean", "",
+						[=]() { set_scale(table_temp_pyth); }
+					));
+					menu->addChild(new MenuItemStay("Wendy Carlos Super Just", "",
+						[=]() { set_scale(table_temp_carlos_super_just); }
+					));
+					menu->addChild(new MenuItemStay("Wendy Carlos Harmonic", "",
+						[=]() { set_scale(table_temp_carlos_harmonic); }
+					));
+					menu->addChild(new MenuItemStay("Kirnberger", "",
+						[=]() { set_scale(table_temp_kirnberger); }
+					));
+					menu->addChild(new MenuItemStay("Vallotti Young", "",
+						[=]() { set_scale(table_temp_vallotti_young); }
+					));
+					menu->addChild(new MenuItemStay("Werckmeister III", "",
+						[=]() { set_scale(table_temp_werckmeister_3); }
+					));
+				}
+			));
+			//// SCALE PRESETS
+			menu->addChild(rack::createSubmenuItem("Presets scale", "",
+				[=](Menu *menu) {
+					menu->addChild(new MenuItemStay("Diatonic", "default",
+						[=]() {
+						}
+					));
+					menu->addChild(new MenuItemStay("Major", "",
+						[=]() {
+						}
+					));
+					menu->addChild(new MenuItemStay("Minor", "",
+						[=]() {
+						}
+					));
+				}
+			));
+			/// MANUAL
+			for (i = 0; i < 12; ++i) {
+				slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_TEMPERAMENT + i]);
+				slider->box.size.x = 200.f;
+				menu->addChild(slider);
+			}
+		}
+	));
 }

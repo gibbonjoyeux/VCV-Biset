@@ -286,7 +286,7 @@ void TrackerDisplaySide::draw_list(const DrawArgs &args, Rect rect,
 				nvgFillColor(args.vg, colors[13]);
 			else
 				nvgFillColor(args.vg, colors[14]);
-			nvgRoundedRect(args.vg, x, y, w, h, 5);
+			nvgRoundedRect(args.vg, x, y, w - 10, h, 5);
 			nvgFill(args.vg);
 			//// COLORED ROUND RECT
 			nvgBeginPath(args.vg);
@@ -309,9 +309,9 @@ void TrackerDisplaySide::draw_list(const DrawArgs &args, Rect rect,
 			/// FILL
 			nvgBeginPath(args.vg);
 			if (g_editor.side_mouse_pos.y > y && g_editor.side_mouse_pos.y < y + h)
-				nvgFillColor(args.vg, colors[14]);
+				nvgFillColor(args.vg, colors[3]);
 			else
-				nvgFillColor(args.vg, colors[13]);
+				nvgFillColor(args.vg, colors[2]);
 			nvgRoundedRect(args.vg, x, y, w, h, 5);
 			nvgFill(args.vg);
 			/// TEXT
@@ -380,8 +380,11 @@ void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 			}
 		/// CLICK ON ADD SYNTH
 		} else if (index == (int)g_timeline.synth_count) {
-			if (e.button == GLFW_MOUSE_BUTTON_LEFT)
+			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+				if (g_editor.side_synth_cam_y == g_timeline.synth_count - 12)
+					g_editor.side_synth_cam_y += 1;
 				g_timeline.synth_new();
+			}
 		/// CLICK NOTHING
 		} else {
 			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -404,8 +407,11 @@ void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 		/// CLICK ON ADD PATTERN
 		} else if (index == (int)g_timeline.pattern_count) {
 			/// CLICK LEFT
-			if (e.button == GLFW_MOUSE_BUTTON_LEFT)
+			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+				if (g_editor.side_pattern_cam_y == g_timeline.pattern_count - 12)
+					g_editor.side_pattern_cam_y += 1;
 				g_timeline.pattern_new();
+			}
 		/// CLICK NOTHING
 		} else {
 			/// CLICK LEFT
@@ -419,4 +425,26 @@ void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 
 void TrackerDisplaySide::onLeave(const LeaveEvent &e) {
 	g_editor.side_mouse_pos = {0, 0};
+}
+
+void TrackerDisplaySide::onHoverScroll(const HoverScrollEvent &e) {
+	int		*count;
+	int		*scroll;
+
+	/// CONSUME EVENT
+	e.consume(this);
+	/// POINT CORRESPONDING SCROLL
+	if (g_editor.mode == EDITOR_MODE_PATTERN) {
+		count = &(g_timeline.synth_count);
+		scroll = &(g_editor.side_synth_cam_y);
+	} else {
+		count = &(g_timeline.pattern_count);
+		scroll = &(g_editor.side_pattern_cam_y);
+	}
+	/// UPDATE CORRESPONDING SCROLL
+	*scroll += (e.scrollDelta.y > 0) ? -1 : +1;
+	if (*scroll > *count - 12)
+		*scroll = *count - 12;
+	if (*scroll < 0)
+		*scroll = 0;
 }
