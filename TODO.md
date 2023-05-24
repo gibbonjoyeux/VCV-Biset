@@ -44,7 +44,7 @@
 		- [ ] SCreen Side Patterns (Timeline)
 			- [x] Draw patterns
 			- [x] Select pattern
-			- [ ] Double click : open pattern tracker
+			- [x] Double click : open pattern tracker
 			- [x] Edit Synth (name + color)
 			- [x] Add pattern
 			- [x] Del pattern

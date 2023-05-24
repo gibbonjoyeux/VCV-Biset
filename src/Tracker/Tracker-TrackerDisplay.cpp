@@ -362,150 +362,52 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 }
 
 void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
-	//TimelineCell			*cell;
-	//Vec						p;
-	//int						line;
-	//int						i, j;
-	//float					x, y;
-	//bool					focus_col, focus_line, focus_cell;
-	//char					str[32];
-
-	//p = rect.getTopLeft();
-
-	///// [1] LAYER 1 (MARKERS + NOTES + CURVES)
-
-	///// DRAW BEAT CURSOR
-	//nvgBeginPath(args.vg);
-	//nvgFillColor(args.vg, colors[15]);
-	//nvgRect(args.vg,
-	///**/ p.x,
-	///**/ p.y + 3.5 + CHAR_H * (g_timeline.clock.beat - g_editor.timeline_cam_y),
-	///**/ rect.getWidth() + 0.5, CHAR_H);
-	//nvgFill(args.vg);
-
-	///// DRAW TIMELINE CURSOR LINE
-	//nvgBeginPath(args.vg);
-	//nvgFillColor(args.vg, colors[15]);
-	//nvgRect(args.vg,
-	///**/ p.x,
-	///**/ p.y + 3.5 + CHAR_H * (g_editor.timeline_line - g_editor.timeline_cam_y),
-	///**/ rect.getWidth() + 0.5, CHAR_H);
-	//nvgFill(args.vg);
-
-	///// DRAW LINE / BEAT COUNT
-	//x = p.x + 2;
-	//for (i = 0; i < CHAR_COUNT_Y; ++i) {
-	//	line = g_editor.timeline_cam_y + i;
-	//	y = p.y + 11.0 + i * CHAR_H;
-	//	itoaw(str, line, 3);
-	//	if (line % 2 == 0)
-	//		nvgFillColor(args.vg, colors[13]);
-	//	else
-	//		nvgFillColor(args.vg, colors[14]);
-	//	nvgText(args.vg, x, y, str, NULL);
-	//}
-	///// [2] LAYER 2 (TIMELINE)
-	///// FOR EACH COLUMN
-	//for (i = 0; i < 12; ++i) {
-	//	focus_col = (g_editor.timeline_column == i);
-	//	/// FOR EACH LINE
-	//	for (j = 0; j < CHAR_COUNT_Y; ++j) {
-	//		line = g_editor.timeline_cam_y + j;
-	//		if (line >= g_timeline.beat_count)
-	//			break;
-	//		cell = &(g_timeline.timeline[i][line]);
-	//		focus_line = focus_col && (g_editor.timeline_line == line);
-	//		/// DRAW PATTERN INDEX
-	//		focus_cell = focus_line && (g_editor.timeline_cell == 0);
-	//		if (cell->mode == TIMELINE_CELL_NEW) {
-	//			itoaw(str, cell->pattern, 3);
-	//		} else if (cell->mode == TIMELINE_CELL_KEEP) {
-	//			str[0] = '.';
-	//			str[1] = '.';
-	//			str[2] = '.';
-	//			str[3] = 0;
-	//		} else {
-	//			str[0] = '-';
-	//			str[1] = '-';
-	//			str[2] = '-';
-	//			str[3] = 0;
-	//		}
-	//		ttext(args, p, i * 7, j, str, 2, focus_cell);
-	//		/// DRAW PATTERN START
-	//		focus_cell = focus_line && (g_editor.timeline_cell == 1);
-	//		if (cell->mode == TIMELINE_CELL_NEW) {
-	//			itoaw(str, cell->beat, 3);
-	//		} else if (cell->mode == TIMELINE_CELL_KEEP) {
-	//			str[0] = '.';
-	//			str[1] = '.';
-	//			str[2] = '.';
-	//			str[3] = 0;
-	//		} else {
-	//			str[0] = '-';
-	//			str[1] = '-';
-	//			str[2] = '-';
-	//			str[3] = 0;
-	//		}
-	//		ttext(args, p, i * 7 + 3, j, str, 3, focus_cell);
-	//	}
-	//}
-}
-
-void TrackerDisplay::draw_timeline_new(const DrawArgs &args, Rect rect) {
 	//TimelineCell	*cell;
-	//Vec				p;
-	//float			x, y;
-	//char			str[32];
-	//int				i, j, k;
-	//int				length;
-	//int				color;
+	Vec				p;
+	float			x, y;
+	char			str[32];
+	int				i, j, k;
+	int				index;
+	int				length;
+	int				color;
 
-	//p = rect.getTopLeft();
-	/////// DRAW TIMELINE BACKGROUND
-	////for (i = 0; i < 85; i += 4) {
-	////	x = p.x + 2.0 + CHAR_W * (i + 2);
-	////	nvgBeginPath(args.vg);
-	////	if (i % 8 == 0)
-	////		nvgFillColor(args.vg, colors[13]);
-	////	else
-	////		nvgFillColor(args.vg, colors[14]);
-	////	nvgRect(args.vg, x, rect.pos.y, CHAR_W * 4, rect.size.y);
-	////	nvgFill(args.vg);
-	////}
-	///// DRAW BEAT / BAR COUNT
-	//y = p.y + 11.0;
-	//for (i = 0; i < 85; ++i) {
-	//	x = p.x + 2.0 + CHAR_W * (i + 2);
-	//	if (i % 4 == 0) {
-	//		nvgFillColor(args.vg, colors[13]);
-	//		itoaw(str, i / 4, 3);
-	//	} else {
-	//		nvgFillColor(args.vg, colors[15]);
-	//		itoaw(str, i % 4, 3);
-	//	}
-	//	nvgTextBox(args.vg, x, y, CHAR_W * 1.5, str, NULL);
-	//}
-	///// DRAW ROWS COUNT
-	//for (i = 0; i < 12; ++i) {
-	//	/// COL COUNT
-	//	x = p.x + 2.0;
-	//	y = p.y + 11.0 + CHAR_H * ((i * 3) + 3 + 1);
-	//	if (i % 2 == 0)
-	//		nvgFillColor(args.vg, colors[14]);
-	//	else
-	//		nvgFillColor(args.vg, colors[13]);
-	//	itoaw(str, i, 2);
-	//	nvgText(args.vg, x, y, str, NULL);
-	//}
-	///// DRAW BAR MARKERS
-	//for (i = 0; i < 85; i += 4) {
-	//	x = p.x + 2.0 + CHAR_W * (i + 2);
-	//	y = p.y + 13.0 + CHAR_H * 2;
-	//	nvgBeginPath(args.vg);
-	//	nvgFillColor(args.vg, colors[15]);
-	//	nvgRect(args.vg, x, y, 1, CHAR_H * 12 * 3);
-	//	nvgFill(args.vg);
-	//}
+	p = rect.getTopLeft();
+	/// DRAW BEAT / BAR COUNT
+	y = p.y + 11.0;
+	for (i = 0; i < 85; ++i) {
+		index = i + g_editor.timeline_cam_x;
+		x = p.x + 2.0 + CHAR_W * (i + 2);
+		if (index % 4 == 0) {
+			nvgFillColor(args.vg, colors[13]);
+			itoaw(str, index / 4, 3);
+		} else {
+			nvgFillColor(args.vg, colors[15]);
+			itoaw(str, index % 4, 3);
+		}
+		nvgTextBox(args.vg, x, y, CHAR_W * 1.5, str, NULL);
+	}
+	/// DRAW ROWS COUNT
+	for (i = 0; i < 12; ++i) {
+		index = i + g_editor.timeline_cam_y;
+		/// COL COUNT
+		x = p.x + 2.0;
+		y = p.y + 11.0 + CHAR_H * ((i * 3) + 3 + 1);
+		if (index % 2 == 0)
+			nvgFillColor(args.vg, colors[14]);
+		else
+			nvgFillColor(args.vg, colors[13]);
+		itoaw(str, index, 2);
+		nvgText(args.vg, x, y, str, NULL);
+	}
+	/// DRAW BAR MARKERS
+	for (i = 4 - (int)g_editor.timeline_cam_x % 4; i < 85; i += 4) {
+		x = p.x + 2.0 + CHAR_W * (i + 2);
+		y = p.y + 13.0 + CHAR_H * 2;
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, colors[15]);
+		nvgRect(args.vg, x, y, 1, CHAR_H * 12 * 3);
+		nvgFill(args.vg);
+	}
 
 	///// DRAW PATTERNS
 	//for (i = 0; i < 12; ++i) {
@@ -534,6 +436,7 @@ void TrackerDisplay::draw_timeline_new(const DrawArgs &args, Rect rect) {
 	//		}
 	//	}
 	//}
+
 }
 
 void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
@@ -579,8 +482,6 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 		this->draw_pattern(args, rect);
 	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
 		this->draw_timeline(args, rect);
-	} else if (g_editor.mode == EDITOR_MODE_PARAMETERS) {
-		this->draw_timeline_new(args, rect);
 	}
 
 	nvgResetScissor(args.vg);
@@ -772,5 +673,24 @@ void TrackerDisplay::onButton(const ButtonEvent &e) {
 				g_timeline.thread_flag.clear();
 			}
 		));
+	}
+}
+
+void TrackerDisplay::onHoverScroll(const HoverScrollEvent &e) {
+	/// CONSUME EVENT
+	e.consume(this);
+	/// POINT CORRESPONDING SCROLL
+	if (g_editor.mode == EDITOR_MODE_PATTERN) {
+	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+		/// SCROLL X
+		g_editor.timeline_cam_x -= e.scrollDelta.x / CHAR_W;
+		if (g_editor.timeline_cam_x < 0)
+			g_editor.timeline_cam_x = 0;
+		/// SCROLL Y
+		g_editor.timeline_cam_y -= e.scrollDelta.y / (CHAR_H * 3.0);
+		if (g_editor.timeline_cam_y < 0)
+			g_editor.timeline_cam_y = 0;
+		if (g_editor.timeline_cam_y > 32 - 12)
+			g_editor.timeline_cam_y = 32 - 12;
 	}
 }

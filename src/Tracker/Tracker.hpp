@@ -390,11 +390,11 @@ struct Editor {
 	int							timeline_line;
 	int							timeline_cell;
 	int							timeline_char;
-	int							timeline_cam_x;
-	int							timeline_cam_y;
+	float						timeline_cam_x;
+	float						timeline_cam_y;
 
-	int							side_synth_cam_y;
-	int							side_pattern_cam_y;
+	float						side_synth_cam_y;
+	float						side_pattern_cam_y;
 	Vec							side_mouse_pos;
 	int							side_mouse_button;
 	int							side_mouse_action;
@@ -509,9 +509,9 @@ struct TrackerDisplay : LedDisplay {
 	void draw(const DrawArgs &args) override;
 	void drawLayer(const DrawArgs& args, int layer) override;
 	void onButton(const ButtonEvent &e) override;
+	void onHoverScroll(const HoverScrollEvent &e) override;
 	inline void draw_pattern(const DrawArgs& args, Rect rect);
 	inline void draw_timeline(const DrawArgs& args, Rect rect);
-	inline void draw_timeline_new(const DrawArgs& args, Rect rect);
 };
 
 struct TrackerDisplaySide : LedDisplay {
@@ -525,6 +525,7 @@ struct TrackerDisplaySide : LedDisplay {
 	void drawLayer(const DrawArgs& args, int layer) override;
 	void onHover(const HoverEvent &e) override;
 	void onButton(const ButtonEvent &e) override;
+	void onDoubleClick(const DoubleClickEvent &e) override;
 	void onLeave(const LeaveEvent &e) override;
 	void onHoverScroll(const HoverScrollEvent &e) override;
 	void draw_list(const DrawArgs &args, Rect rect,

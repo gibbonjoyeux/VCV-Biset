@@ -362,10 +362,12 @@ void TrackerDisplaySide::onHover(const HoverEvent &e) {
 void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 	int		index;
 
+	g_editor.side_mouse_pos = e.pos;
 	g_editor.side_mouse_button = e.button;
 	g_editor.side_mouse_action = e.action;
 	if (e.action != GLFW_PRESS)
 		return;
+	e.consume(this);
 	if (g_editor.mode == EDITOR_MODE_PATTERN) {
 		index = (e.pos.y - 6) / (CHAR_H * 3) + g_editor.side_synth_cam_y;
 		/// CLICK ON SYNTH
@@ -374,22 +376,14 @@ void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 			g_editor.synth_id = index;
 			g_editor.synth = &(g_timeline.synths[index]);
 			/// CLICK RIGHT
-			if (e.button == GLFW_MOUSE_BUTTON_RIGHT) {
-				e.consume(this);
+			if (e.button == GLFW_MOUSE_BUTTON_RIGHT)
 				menu_synth(&(g_timeline.synths[index]));
-			}
 		/// CLICK ON ADD SYNTH
 		} else if (index == (int)g_timeline.synth_count) {
 			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
 				if (g_editor.side_synth_cam_y == g_timeline.synth_count - 12)
 					g_editor.side_synth_cam_y += 1;
 				g_timeline.synth_new();
-			}
-		/// CLICK NOTHING
-		} else {
-			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
-				g_editor.synth_id = -1;
-				g_editor.synth = NULL;
 			}
 		}
 	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
@@ -400,10 +394,8 @@ void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 			g_editor.pattern_id = index;
 			g_editor.pattern = &(g_timeline.patterns[index]);
 			/// CLICK RIGHT
-			if (e.button == GLFW_MOUSE_BUTTON_RIGHT) {
-				e.consume(this);
+			if (e.button == GLFW_MOUSE_BUTTON_RIGHT)
 				menu_pattern(&(g_timeline.patterns[index]));
-			}
 		/// CLICK ON ADD PATTERN
 		} else if (index == (int)g_timeline.pattern_count) {
 			/// CLICK LEFT
@@ -412,13 +404,25 @@ void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 					g_editor.side_pattern_cam_y += 1;
 				g_timeline.pattern_new();
 			}
-		/// CLICK NOTHING
-		} else {
-			/// CLICK LEFT
-			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
-				g_editor.pattern_id = -1;
-				g_editor.pattern = NULL;
-			}
+		}
+	}
+}
+
+void TrackerDisplaySide::onDoubleClick(const DoubleClickEvent &e) {
+	int		index;
+
+	if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+		index = (g_editor.side_mouse_pos.y - 6) / (CHAR_H * 3)
+		/**/ + g_editor.side_pattern_cam_y;
+		/// CLICK ON PATTERN
+		if (index < (int)g_timeline.pattern_count) {
+			/// SELECT PATTERN
+			g_editor.pattern_id = index;
+			g_editor.pattern = &(g_timeline.patterns[index]);
+			/// OPEN PATTERN
+			g_module->params[Tracker::PARAM_MODE + 0].setValue(1);
+			g_module->params[Tracker::PARAM_MODE + 1].setValue(0);
+			g_editor.mode = EDITOR_MODE_PATTERN;
 		}
 	}
 }
@@ -429,7 +433,7 @@ void TrackerDisplaySide::onLeave(const LeaveEvent &e) {
 
 void TrackerDisplaySide::onHoverScroll(const HoverScrollEvent &e) {
 	int		*count;
-	int		*scroll;
+	float	*scroll;
 
 	/// CONSUME EVENT
 	e.consume(this);
@@ -442,7 +446,7 @@ void TrackerDisplaySide::onHoverScroll(const HoverScrollEvent &e) {
 		scroll = &(g_editor.side_pattern_cam_y);
 	}
 	/// UPDATE CORRESPONDING SCROLL
-	*scroll += (e.scrollDelta.y > 0) ? -1 : +1;
+	*scroll -= e.scrollDelta.y / (CHAR_H * 3.0);
 	if (*scroll > *count - 12)
 		*scroll = *count - 12;
 	if (*scroll < 0)
