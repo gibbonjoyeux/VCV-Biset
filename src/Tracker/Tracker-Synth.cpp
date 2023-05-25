@@ -22,7 +22,7 @@ void Synth::init(int synth_index, int channel_count) {
 
 	/// TODO: INIT NAME & COLOR ?
 	/// INIT NAME
-	strcpy(this->name, "synth");
+	this->rename((char*)"synth");
 	/// INIT COLOR
 	this->color = 1;
 	/// INIT VOICES
@@ -48,6 +48,25 @@ void Synth::process(float dt_sec, float dt_beat) {
 	/// COMPUTE VOICES
 	for (i = 0; i < this->channel_count; ++i)
 		this->voices[i].process(dt_sec, dt_beat, this->out_synth);
+}
+
+void Synth::rename(void) {
+	int		index;
+
+	/// UPDATE SYNTH INDEX
+	index = ((intptr_t)this - (intptr_t)g_timeline.synths) / sizeof(Synth);
+	itoaw(this->name, index, 2);
+	this->name[2] = ' ';
+}
+
+void Synth::rename(char *name) {
+	int		index;
+
+	/// UPDATE SYNTH INDEX
+	index = ((intptr_t)this - (intptr_t)g_timeline.synths) / sizeof(Synth);
+	itoaw(this->name, index, 2);
+	strcpy(this->name + 2, " - ");
+	strncpy(this->name + 5, name, 255);
 }
 
 SynthVoice* Synth::add(PatternNoteCol *col, PatternNote *note, int lpb) {

@@ -93,7 +93,7 @@ static void menu_pattern(PatternSource *pattern) {
 			text_field = new MenuTextField(pattern->name,
 				[=](char *name) {
 					if (name[0] != 0)
-						strcpy(pattern->name, name);
+						strncpy(pattern->name, name, 255);
 				}, true
 			);
 			menu->addChild(text_field);
@@ -106,7 +106,7 @@ static void menu_pattern(PatternSource *pattern) {
 
 					name = text_field->getText();
 					if (name.length() > 0)
-						strcpy(pattern->name, name.c_str());
+						strncpy(pattern->name, name.c_str(), 255);
 				}
 			));
 
@@ -192,10 +192,10 @@ static void menu_synth(Synth *synth) {
 			label->text = "Rename synth";
 			menu->addChild(label);
 			/// ADD TEXT FIELD
-			text_field = new MenuTextField(synth->name,
+			text_field = new MenuTextField(synth->name + 5,
 				[=](char *name) {
 					if (name[0] != 0)
-						strcpy(synth->name, name);
+						synth->rename(name);
 				}, true
 			);
 			menu->addChild(text_field);
@@ -208,7 +208,7 @@ static void menu_synth(Synth *synth) {
 
 					name = text_field->getText();
 					if (name.length() > 0)
-						strcpy(synth->name, name.c_str());
+						synth->rename((char*)name.c_str());
 				}
 			));
 

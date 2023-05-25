@@ -240,7 +240,7 @@ struct SynthVoice {
 };
 
 struct Synth {
-	char						name[256 + 4];		// Name (with index)
+	char						name[256 + 5];		// Name (with index)
 	int							color;
 	u8							index;
 	u8							channel_cur;
@@ -254,6 +254,8 @@ struct Synth {
 
 	void process(float dt_sec, float dt_beat);
 	void init(int synth_index, int channel_count);
+	void rename(void);
+	void rename(char *name);
 	SynthVoice* add(PatternNoteCol *row, PatternNote *note, int lpb);
 };
 

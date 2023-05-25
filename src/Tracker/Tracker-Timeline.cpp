@@ -272,7 +272,7 @@ void Timeline::synth_del(Synth *synth) {
 	// ...
 	found = false;
 	for (i = 0; i < this->synth_count; ++i) {
-		// PATTERN FOUND
+		// SYNTH FOUND
 		if (&(this->synths[i]) == synth) {
 			this->synth_count -= 1;
 			found = true;
@@ -281,10 +281,11 @@ void Timeline::synth_del(Synth *synth) {
 				g_editor.synth = NULL;
 			}
 		}
-		/// PATTERN OFFSET
+		/// SYNTH OFFSET
 		if (found == true) {
 			this->synths[i] = this->synths[i + 1];
 			this->synths[i].index = i;
+			this->synths[i].rename();
 		}
 	}
 }
