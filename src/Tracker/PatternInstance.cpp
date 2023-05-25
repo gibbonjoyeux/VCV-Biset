@@ -14,4 +14,5 @@ PatternInstance::PatternInstance(PatternSource *source, int beat) {
 	this->beat = beat;
 	this->beat_start = 0;
 	this->beat_length = source->beat_count;
+	this->muted = false;
 }

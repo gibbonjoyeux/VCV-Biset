@@ -183,6 +183,7 @@ struct PatternInstance {
 	u16							beat;
 	u16							beat_start;
 	u16							beat_length;
+	bool						muted;
 
 	PatternInstance(PatternSource *source, int beat);
 };
@@ -292,14 +293,6 @@ struct PatternReader {
 	void stop(void);
 };
 
-//struct TimelineCell {
-//	i8							mode;		// TIMELINE_CELL_xxx
-//	u16							pattern;	// Pattern index
-//	u16							beat;		// Pattern starting beat
-//
-//	TimelineCell();
-//};
-
 struct Timeline {
 	char						debug_str[4096];
 	int							debug;
@@ -318,7 +311,7 @@ struct Timeline {
 	float						pitch_base_offset;
 	float						pitch_scale[12];
 
-	list<PatternInstance>		timeline[12];
+	list<PatternInstance>		timeline[32];
 	PatternSource				patterns[999];
 	int							pattern_count;
 	Synth						synths[99];
@@ -341,6 +334,10 @@ struct Timeline {
 	Synth			*synth_new(void);
 	void			synth_del(Synth *synth);
 	void			synth_swap(Synth *synth_a, Synth *synth_b);
+	PatternInstance	*instance_new(PatternSource *source, int row, int beat);
+	void			instance_del(PatternInstance *instance);
+	void			instance_move(PatternInstance *instance, int row, int beat);
+	PatternInstance	*instance_find(int row, int beat);
 };
 
 //////////////////////////////////////////////////
@@ -512,8 +509,10 @@ struct TrackerDisplay : LedDisplay {
 	void drawLayer(const DrawArgs& args, int layer) override;
 	void onButton(const ButtonEvent &e) override;
 	void onHoverScroll(const HoverScrollEvent &e) override;
-	inline void draw_pattern(const DrawArgs& args, Rect rect);
-	inline void draw_timeline(const DrawArgs& args, Rect rect);
+	void on_button_pattern(const ButtonEvent &e);
+	void on_button_timeline(const ButtonEvent &e);
+	void draw_pattern(const DrawArgs& args, Rect rect);
+	void draw_timeline(const DrawArgs& args, Rect rect);
 };
 
 struct TrackerDisplaySide : LedDisplay {

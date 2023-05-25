@@ -55,7 +55,6 @@ Editor::Editor() {
 
 void Editor::process(i64 frame) {
 	Module			*module;
-	int				value;
 	int				i;
 
 	if (frame % 256 != 0)
