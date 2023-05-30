@@ -24,6 +24,7 @@ Editor::Editor() {
 	this->pattern = NULL;
 	this->synth_id = -1;
 	this->synth = NULL;
+	this->instance = NULL;
 
 	this->pattern_track = 0;
 	this->pattern_col = 0;

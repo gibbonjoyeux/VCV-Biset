@@ -102,6 +102,44 @@ void TrackerDisplay::onButton(const ButtonEvent &e) {
 		this->on_button_timeline(e);
 }
 
+void TrackerDisplay::onHover(const HoverEvent &e) {
+	g_editor.mouse_pos = e.pos;
+}
+
+void TrackerDisplay::onDragStart(const DragStartEvent& e) {
+	/// CURSOR LOCK
+	//APP->window->cursorLock();
+	/// RECORD DRAG
+	g_editor.mouse_button = e.button;
+	g_editor.mouse_pos_drag = g_editor.mouse_pos;
+	/// CALL EVENT
+	if (g_editor.mode == EDITOR_MODE_PATTERN)
+		;
+	else if (g_editor.mode == EDITOR_MODE_TIMELINE)
+		this->on_drag_start_timeline(e);
+}
+
+void TrackerDisplay::onDragMove(const DragMoveEvent& e) {
+	/// NOT CALLED = NOT MOVED
+	//Widget::onDragMove(e);
+	g_editor.mouse_pos.x += e.mouseDelta.x;
+	g_editor.mouse_pos.y += e.mouseDelta.y;
+	/// CALL EVENT
+	if (g_editor.mode == EDITOR_MODE_PATTERN)
+		;
+	else if (g_editor.mode == EDITOR_MODE_TIMELINE)
+		this->on_drag_move_timeline(e);
+}
+void TrackerDisplay::onDragEnd(const DragEndEvent& e) {
+	/// CURSOR UNLOCK
+	//APP->window->cursorUnlock();
+	/// CALL EVENT
+	if (g_editor.mode == EDITOR_MODE_PATTERN)
+		;
+	else if (g_editor.mode == EDITOR_MODE_TIMELINE)
+		this->on_drag_end_timeline(e);
+}
+
 void TrackerDisplay::onHoverScroll(const HoverScrollEvent &e) {
 	Vec		delta;
 

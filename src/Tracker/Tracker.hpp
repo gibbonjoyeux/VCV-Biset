@@ -180,12 +180,13 @@ struct PatternSource {
 
 struct PatternInstance {
 	PatternSource				*source;
+	u8							row;
 	u16							beat;
 	u16							beat_start;
 	u16							beat_length;
 	bool						muted;
 
-	PatternInstance(PatternSource *source, int beat);
+	PatternInstance(PatternSource *source, int row, int beat);
 };
 
 //////////////////////////////////////////////////
@@ -368,6 +369,9 @@ struct Editor {
 	PatternSource				*pattern;
 	int							synth_id;		// Active synth
 	Synth						*synth;
+	PatternInstance				*instance;		// Active instance
+	int							instance_row;
+	int							instance_beat;
 
 	int							pattern_track;
 	int							pattern_col;
@@ -391,6 +395,10 @@ struct Editor {
 	int							timeline_char;
 	float						timeline_cam_x;
 	float						timeline_cam_y;
+
+	Vec							mouse_pos;
+	Vec							mouse_pos_drag;
+	int							mouse_button;
 
 	float						side_synth_cam_y;
 	float						side_pattern_cam_y;
@@ -508,11 +516,18 @@ struct TrackerDisplay : LedDisplay {
 	void draw(const DrawArgs &args) override;
 	void drawLayer(const DrawArgs& args, int layer) override;
 	void onButton(const ButtonEvent &e) override;
+	void onHover(const HoverEvent &e) override;
+	void onDragStart(const DragStartEvent &e) override;
+	void onDragMove(const DragMoveEvent &e) override;
+	void onDragEnd(const DragEndEvent &e) override;
 	void onHoverScroll(const HoverScrollEvent &e) override;
 	void on_button_pattern(const ButtonEvent &e);
 	void on_button_timeline(const ButtonEvent &e);
 	void draw_pattern(const DrawArgs& args, Rect rect);
 	void draw_timeline(const DrawArgs& args, Rect rect);
+	void on_drag_start_timeline(const DragStartEvent &e);
+	void on_drag_move_timeline(const DragMoveEvent &e);
+	void on_drag_end_timeline(const DragEndEvent &e);
 };
 
 struct TrackerDisplaySide : LedDisplay {

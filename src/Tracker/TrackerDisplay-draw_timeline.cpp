@@ -16,10 +16,8 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 	Vec								p;
 	float							x, y;
 	char							str[32];
-	int								i, j, k;
+	int								i;
 	int								index;
-	int								length;
-	int								color;
 
 	p = rect.getTopLeft();
 	/// DRAW BEAT / BAR COUNT
@@ -88,12 +86,20 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 				x = p.x + 2.0 + CHAR_W * (inst_x + 2);
 				/// FILL
 				nvgBeginPath(args.vg);
-				nvgFillColor(args.vg, colors[2]);
+				nvgFillColor(args.vg, colors_user[it->source->color]);
 				nvgRoundedRect(args.vg, x + 1, y + 2, CHAR_W * inst_w - 1, CHAR_H * 3 - 4, 5);
 				nvgFill(args.vg);
+				/// STROKE (ON SELECT)
+				if (&(*it) == g_editor.instance) {
+					nvgBeginPath(args.vg);
+					nvgStrokeColor(args.vg, colors[12]);
+					nvgStrokeWidth(args.vg, 1);
+					nvgRoundedRect(args.vg, x + 2, y + 3, CHAR_W * inst_w - 3, CHAR_H * 3 - 6, 5);
+					nvgStroke(args.vg);
+				}
 				/// TEXT
 				nvgFillColor(args.vg, colors[12]);
-				nvgText(args.vg, x + 3.0, y + CHAR_H * 2 - 2.0, "Name", NULL);
+				nvgText(args.vg, x + 3.0, y + CHAR_H * 2 - 2.0, it->source->name, NULL);
 			}
 			/// NEXT INSTANCE
 			it = std::next(it);

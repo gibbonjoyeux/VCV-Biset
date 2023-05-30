@@ -9,8 +9,9 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-PatternInstance::PatternInstance(PatternSource *source, int beat) {
+PatternInstance::PatternInstance(PatternSource *source, int row, int beat) {
 	this->source = source;
+	this->row = row;
 	this->beat = beat;
 	this->beat_start = 0;
 	this->beat_length = source->beat_count;
