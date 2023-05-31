@@ -59,11 +59,15 @@ void Timeline::synth_swap(Synth *synth_a, Synth *synth_b) {
 
 	/// TODO: SWAP SYNTH IN PATTERNS CELLS
 	// ...
+	/// SWAP SYNTHS
 	synth_tmp = *synth_a;
 	*synth_a = *synth_b;
 	*synth_b = synth_tmp;
-
+	/// RE-SWAP SYNTHS INDEX
 	index_tmp = synth_a->index;
 	synth_a->index = synth_b->index;
 	synth_b->index = index_tmp;
+	/// RENAME SYNTHS
+	synth_a->rename();
+	synth_b->rename();
 }

@@ -515,12 +515,17 @@ struct TrackerDisplay : LedDisplay {
 
 	void draw(const DrawArgs &args) override;
 	void drawLayer(const DrawArgs& args, int layer) override;
+
 	void onButton(const ButtonEvent &e) override;
 	void onHover(const HoverEvent &e) override;
+	void onSelectKey(const SelectKeyEvent &e) override;
 	void onDragStart(const DragStartEvent &e) override;
 	void onDragMove(const DragMoveEvent &e) override;
 	void onDragEnd(const DragEndEvent &e) override;
 	void onHoverScroll(const HoverScrollEvent &e) override;
+
+	void on_key_pattern(const SelectKeyEvent &e);
+	void on_key_timeline(const SelectKeyEvent &e);
 	void on_button_pattern(const ButtonEvent &e);
 	void on_button_timeline(const ButtonEvent &e);
 	void draw_pattern(const DrawArgs& args, Rect rect);
@@ -544,6 +549,7 @@ struct TrackerDisplaySide : LedDisplay {
 	void onDoubleClick(const DoubleClickEvent &e) override;
 	void onLeave(const LeaveEvent &e) override;
 	void onHoverScroll(const HoverScrollEvent &e) override;
+	void onSelectKey(const SelectKeyEvent &e) override;
 	void draw_list(const DrawArgs &args, Rect rect,
 			int cam_y, std::function<bool(int,char**,int*,bool*)>);
 };
@@ -562,13 +568,15 @@ struct TrackerDisplayPattern : LedDisplayDigit {
 
 struct TrackerWidget : ModuleWidget {
 	Tracker						*module;
+	TrackerDisplay				*display;
+	TrackerDisplaySide			*display_side;
 
 	TrackerWidget(Tracker* _module);
 
 	void onSelectKey(const SelectKeyEvent &e) override;
 	void onHoverScroll(const HoverScrollEvent &e) override;
-	void onSelect(const SelectEvent &e) override;
-	void onDeselect(const DeselectEvent &e) override;
+	//void onSelect(const SelectEvent &e) override;
+	//void onDeselect(const DeselectEvent &e) override;
 	void appendContextMenu(Menu *menu) override;
 
 	//void onDragStart(const DragStartEvent& e) override;

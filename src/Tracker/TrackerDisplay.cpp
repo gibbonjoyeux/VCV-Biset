@@ -95,6 +95,16 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 	LedDisplay::drawLayer(args, layer);
 }
 
+void TrackerDisplay::onSelectKey(const SelectKeyEvent &e) {
+	if ((e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL)
+		return;
+	if (g_editor.mode == EDITOR_MODE_PATTERN) {
+		this->on_key_pattern(e);
+	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+		this->on_key_timeline(e);
+	}
+}
+
 void TrackerDisplay::onButton(const ButtonEvent &e) {
 	if (g_editor.mode == EDITOR_MODE_PATTERN)
 		this->on_button_pattern(e);

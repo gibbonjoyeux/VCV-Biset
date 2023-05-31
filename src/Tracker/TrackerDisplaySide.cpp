@@ -452,3 +452,37 @@ void TrackerDisplaySide::onHoverScroll(const HoverScrollEvent &e) {
 	if (*scroll < 0)
 		*scroll = 0;
 }
+
+void TrackerDisplaySide::onSelectKey(const SelectKeyEvent &e) {
+	Synth	*synth_a;
+	Synth	*synth_b;
+
+	if ((e.action == GLFW_PRESS || e.action == GLFW_REPEAT)
+	&& (e.key == GLFW_KEY_UP || e.key == GLFW_KEY_DOWN)) {
+		e.consume(this);
+		/// MOVE SYNTH
+		if (g_editor.mode == EDITOR_MODE_PATTERN) {
+			if (g_editor.synth) {
+				synth_a = g_editor.synth;
+				/// MOVE UP
+				if (e.key == GLFW_KEY_UP) {
+					if (g_editor.synth_id <= 0)
+						return;
+					synth_b = &(g_timeline.synths[g_editor.synth_id - 1]);
+					g_editor.synth_id -= 1;
+				/// MOVE DOWN
+				} else {
+					if (g_editor.synth_id >= g_timeline.synth_count - 1)
+						return;
+					synth_b = &(g_timeline.synths[g_editor.synth_id + 1]);
+					g_editor.synth_id += 1;
+				}
+				g_timeline.synth_swap(synth_a, synth_b);
+				/// RE-SELECT MOVED SYNTH
+				g_editor.synth = synth_b;
+			}
+		/// MOVE PATTERN
+		} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+		}
+	}
+}
