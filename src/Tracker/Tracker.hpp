@@ -374,8 +374,8 @@ struct Editor {
 	int							instance_beat;
 
 	int							pattern_track;
-	int							pattern_col;
 	int							pattern_line;
+	int							pattern_col;
 	int							pattern_cell;
 	int							pattern_char;
 	int							pattern_cam_x;

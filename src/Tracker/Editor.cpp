@@ -323,7 +323,14 @@ void Editor::pattern_clamp_cursor(void) {
 	/// HANDLE COLUMN OVERFLOW
 	if (this->pattern_col >= pattern->note_count + pattern->cv_count) {
 		this->pattern_col = pattern->note_count + pattern->cv_count - 1;
-		this->pattern_cell = 0;
+		/// NOTE COL
+		if (this->pattern_col < pattern->note_count) {
+			col_note = pattern->notes[this->pattern_col];
+			this->pattern_cell = 7 + 2 * col_note->effect_count - 1;
+		/// CV COL
+		} else { 
+			this->pattern_cell = 2;
+		}
 		this->pattern_char = 0;
 	}
 	/// HANDLE CELL UNDERFLOW

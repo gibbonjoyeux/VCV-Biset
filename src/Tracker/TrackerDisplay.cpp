@@ -155,16 +155,32 @@ void TrackerDisplay::onHoverScroll(const HoverScrollEvent &e) {
 
 	/// CONSUME EVENT
 	e.consume(this);
-	/// HANDLE ORIENTION
-	if (APP->window->getMods() & GLFW_MOD_SHIFT) {
-		delta.x = e.scrollDelta.y;
-		delta.y = e.scrollDelta.x;
-	} else {
-		delta = e.scrollDelta;
-	}
-	/// POINT CORRESPONDING SCROLL
+	/// SCROLL PATTERN
 	if (g_editor.mode == EDITOR_MODE_PATTERN) {
+		/// SCROLL X
+		if (APP->window->getMods() & GLFW_MOD_SHIFT) {
+			/// MOVE CURSOR
+			if (e.scrollDelta.y > 0)
+				g_editor.pattern_move_cursor_x(-1);
+			else if (e.scrollDelta.y < 0)
+				g_editor.pattern_move_cursor_x(+1);
+		/// SCROLL Y
+		} else {
+			/// MOVE CURSOR
+			if (e.scrollDelta.y > 0)
+				g_editor.pattern_move_cursor_y(-1);
+			else if (e.scrollDelta.y < 0)
+				g_editor.pattern_move_cursor_y(+1);
+		}
+	/// SCROLL TIMELINE
 	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+		/// HANDLE ORIENTION
+		if (APP->window->getMods() & GLFW_MOD_SHIFT) {
+			delta.x = e.scrollDelta.y;
+			delta.y = e.scrollDelta.x;
+		} else {
+			delta = e.scrollDelta;
+		}
 		/// SCROLL X
 		g_editor.timeline_cam_x -= delta.x / CHAR_W;
 		if (g_editor.timeline_cam_x < 0)

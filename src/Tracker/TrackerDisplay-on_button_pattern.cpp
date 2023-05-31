@@ -6,6 +6,117 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 static void on_button_left(const rack::Widget::ButtonEvent &e) {
+	PatternSource	*pattern;
+	PatternNoteCol	*col_note;
+	int				row, col, cell;
+	int				x, x_aim;
+	int				i;
+
+	if (g_editor.pattern == NULL)
+		return;
+	pattern = g_editor.pattern;
+	/// [1] COMPUTE ROW
+	row = (int)((e.pos.y - 3.0) / CHAR_H) - g_editor.pattern_cam_y;
+	/// [2] COMPUTE COLUMN
+	cell = 0;
+	col = 0;
+	x = 0;
+	x_aim = (int)((e.pos.x - 2.0) / CHAR_W) - 2 + g_editor.pattern_cam_x;
+	//// FOR EACH NOTE COLUMN
+	for (i = 0; i < pattern->note_count; ++i) {
+		col_note = pattern->notes[i];
+		/// PITCH
+		x += 2;
+		if (x >= x_aim) {
+			cell = 0;
+			break;
+		}
+		/// PITCH OCTAVE
+		x += 1;
+		if (x >= x_aim) {
+			cell = 1;
+			break;
+		}
+		/// VELOCITY
+		if (g_editor.switch_view[0].state) {
+			x += 2;
+			if (x >= x_aim) {
+				cell = 2;
+				break;
+			}
+		}
+		/// PANNING
+		if (g_editor.switch_view[1].state) {
+			x += 2;
+			if (x >= x_aim) {
+				cell = 3;
+				break;
+			}
+		}
+		/// SYNTH
+		x += 2;
+		if (x >= x_aim) {
+			cell = 4;
+			break;
+		}
+		/// DELAY
+		if (g_editor.switch_view[2].state) {
+			x += 2;
+			if (x >= x_aim) {
+				cell = 5;
+				break;
+			}
+		}
+		/// GLIDE
+		if (g_editor.switch_view[3].state) {
+			x += 2;
+			if (x >= x_aim) {
+				cell = 6;
+				break;
+			}
+		}
+		/// EFFECTS
+		if (g_editor.switch_view[4].state) {
+			x += 3 * col_note->effect_count;
+			if (x >= x_aim) {
+				cell = 7;
+				break;
+			}
+		}
+		x += 1;
+		col += 1;
+	}
+	//// FOR EACH CV COLUMN
+	if (x < x_aim) {
+		for (i = 0; i < pattern->cv_count; ++i) {
+			/// VALUE
+			x += 3;
+			if (x >= x_aim) {
+				cell = 0;
+				break;
+			}
+			/// GLIDE
+			x += 2;
+			if (x >= x_aim) {
+				cell = 1;
+				break;
+			}
+			/// DELAY
+			x += 2;
+			if (x >= x_aim) {
+				cell = 2;
+				break;
+			}
+			x += 1;
+			col += 1;
+		}
+	}
+	/// [3] MOVE CURSOR
+	g_editor.pattern_line = row;
+	g_editor.pattern_col = col;
+	g_editor.pattern_cell = cell;
+	/// [4] CLAMP CURSOR
+	g_editor.pattern_clamp_cursor();
 }
 
 static void on_button_right(const rack::Widget::ButtonEvent &e) {
