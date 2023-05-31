@@ -5,15 +5,16 @@
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-static void on_button_left(const rack::Widget::ButtonEvent &e) {
+static void get_cell(
+	const	rack::Widget::ButtonEvent &e,
+	int		&row,
+	int		&col,
+	int		&cell) {
 	PatternSource	*pattern;
 	PatternNoteCol	*col_note;
-	int				row, col, cell;
-	int				x, x_aim;
-	int				i;
+	int		x, x_aim;
+	int		i, j;
 
-	if (g_editor.pattern == NULL)
-		return;
 	pattern = g_editor.pattern;
 	/// [1] COMPUTE ROW
 	row = (int)((e.pos.y - 3.0) / CHAR_H) - g_editor.pattern_cam_y;
@@ -29,20 +30,20 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 		x += 2;
 		if (x >= x_aim) {
 			cell = 0;
-			break;
+			return;
 		}
 		/// PITCH OCTAVE
 		x += 1;
 		if (x >= x_aim) {
 			cell = 1;
-			break;
+			return;
 		}
 		/// VELOCITY
 		if (g_editor.switch_view[0].state) {
 			x += 2;
 			if (x >= x_aim) {
 				cell = 2;
-				break;
+				return;
 			}
 		}
 		/// PANNING
@@ -50,21 +51,21 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 			x += 2;
 			if (x >= x_aim) {
 				cell = 3;
-				break;
+				return;
 			}
 		}
 		/// SYNTH
 		x += 2;
 		if (x >= x_aim) {
 			cell = 4;
-			break;
+			return;
 		}
 		/// DELAY
 		if (g_editor.switch_view[2].state) {
 			x += 2;
 			if (x >= x_aim) {
 				cell = 5;
-				break;
+				return;
 			}
 		}
 		/// GLIDE
@@ -72,15 +73,25 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 			x += 2;
 			if (x >= x_aim) {
 				cell = 6;
-				break;
+				return;
 			}
 		}
 		/// EFFECTS
 		if (g_editor.switch_view[4].state) {
-			x += 3 * col_note->effect_count;
-			if (x >= x_aim) {
-				cell = 7;
-				break;
+			cell = 7;
+			for (j = 0; j < col_note->effect_count; ++j) {
+				/// TYPE
+				x += 1;
+				if (x >= x_aim) {
+					cell = 7 + j * 2;
+					return;
+				}
+				/// VALUE
+				x += 2;
+				if (x >= x_aim) {
+					cell = 7 + j * 2 + 1;
+					return;
+				}
 			}
 		}
 		x += 1;
@@ -93,24 +104,33 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 			x += 3;
 			if (x >= x_aim) {
 				cell = 0;
-				break;
+				return;
 			}
 			/// GLIDE
 			x += 2;
 			if (x >= x_aim) {
 				cell = 1;
-				break;
+				return;
 			}
 			/// DELAY
 			x += 2;
 			if (x >= x_aim) {
 				cell = 2;
-				break;
+				return;
 			}
 			x += 1;
 			col += 1;
 		}
 	}
+}
+
+static void on_button_left(const rack::Widget::ButtonEvent &e) {
+	int				row, col, cell;
+	int				x, x_aim;
+	int				i, j;
+
+	/// [1] COMPUTE ROW
+	get_cell(e, row, col, cell);
 	/// [3] MOVE CURSOR
 	g_editor.pattern_line = row;
 	g_editor.pattern_col = col;
@@ -135,6 +155,9 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 	int				lpb;
 	int				note_count;
 	int				cv_count;
+
+	/// SELECT CLICKED COLUMN
+	on_button_left(e);
 
 	pattern = g_editor.pattern;
 	menu = createMenu();

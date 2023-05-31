@@ -33,9 +33,9 @@
 
 - [ ] NEW VERSION
 	- [ ] Display
-		- [ ] Tracker
-			- [ ] Left click (Move cursor)
-			- [ ] Right click (Edit pattern + column)
+		- [x] Tracker
+			- [x] Left click (Move cursor)
+			- [x] Right click (Edit pattern + column)
 		- [ ] Timeline
 			- [x] Add instance
 			- [x] Del instance
