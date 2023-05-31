@@ -32,24 +32,35 @@
 # TODO
 
 - [ ] NEW VERSION
-	- [ ] Screen Side
-		- [ ] SCreen Side Synths (Tracker)
+	- [ ] Display
+		- [ ] Tracker
+			- [ ] Left click (Move cursor)
+			- [ ] Right click (Edit pattern + column)
+		- [ ] Timeline
+			- [x] Add instance
+			- [x] Del instance
+			- [x] Select instance
+			- [x] Move instance
+			- [ ] Resize instance
+	- [ ] Display Side
+		- [x] SCreen Side Synths (Tracker)
 			- [x] Draw synths
 			- [x] Select synth
 			- [x] Edit Synth (name + color)
 			- [x] Add synth
 			- [x] Del synth
-			- [ ] Move synth
+			- [x] Move synth
 			- [x] Scroll
-		- [ ] SCreen Side Patterns (Timeline)
+		- [x] SCreen Side Patterns (Timeline)
 			- [x] Draw patterns
 			- [x] Select pattern
 			- [x] Double click : open pattern tracker
 			- [x] Edit Synth (name + color)
 			- [x] Add pattern
 			- [x] Del pattern
-			- [ ] Move pattern
+			- [x] Move pattern
 			- [x] Scroll
+	- [ ] Save new version
 
 - [ ] MODULE Tracker
 	- [ ] BACKEND

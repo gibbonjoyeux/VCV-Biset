@@ -68,12 +68,12 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 			/// CHECK VISIBILITY
 			//// PATTERN BEFORE
 			if (it->beat < g_editor.timeline_cam_x) {
-				if (it->beat + it->beat_length >= g_editor.timeline_cam_x)
+				if (it->beat + it->beat_length >= (int)g_editor.timeline_cam_x)
 					visible = true;
 				else
 					visible = false;
 			//// PATTERN INSIDE
-			} else if (it->beat < g_editor.timeline_cam_x + 85) {
+			} else if (it->beat < (int)g_editor.timeline_cam_x + 85) {
 				visible = true;
 			//// PATTERN AFTER
 			} else {
@@ -81,7 +81,7 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 			}
 			/// DRAW IF VISIBLE
 			if (visible == true) {
-				inst_x = it->beat - g_editor.timeline_cam_x;
+				inst_x = it->beat - (int)g_editor.timeline_cam_x;
 				inst_w = it->beat_length;
 				x = p.x + 2.0 + CHAR_W * (inst_x + 2);
 				/// FILL

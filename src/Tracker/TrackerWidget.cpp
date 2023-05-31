@@ -589,6 +589,22 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 }
 
 void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
+	/// CHANGE VIEW
+	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_SHIFT)
+	&& (e.key == GLFW_KEY_LEFT || e.key == GLFW_KEY_RIGHT)) {
+		if (g_editor.mode == EDITOR_MODE_PATTERN) {
+			g_module->params[Tracker::PARAM_MODE + 0].setValue(0);
+			g_module->params[Tracker::PARAM_MODE + 1].setValue(1);
+			g_editor.mode = EDITOR_MODE_TIMELINE;
+		} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+			g_module->params[Tracker::PARAM_MODE + 0].setValue(1);
+			g_module->params[Tracker::PARAM_MODE + 1].setValue(0);
+			g_editor.mode = EDITOR_MODE_PATTERN;
+		}
+		e.consume(this);
+		return;
+	}
+	/// EDIT PATTERN & TIMELINE
 	if (g_editor.mode == EDITOR_MODE_PATTERN) {
 		this->display->on_key_pattern(e);
 	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {

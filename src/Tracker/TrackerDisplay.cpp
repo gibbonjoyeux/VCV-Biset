@@ -69,7 +69,7 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 
 	//// TMP DEBUG ! ! !
 	nvgFillColor(args.vg, colors[3]);
-	nvgText(args.vg, rect.pos.x + 100, rect.pos.y + 21.0, g_timeline.debug_str, NULL);
+	nvgText(args.vg, rect.pos.x + 100, rect.pos.y + 42.0, g_timeline.debug_str, NULL);
 	// TMP DEBUG ! ! !
 	//char text[1024];
 	//int test = 0x49;
