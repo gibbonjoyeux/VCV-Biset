@@ -20,6 +20,7 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 	int								index;
 	int								corner;
 	int								beat;
+	char							*name_end;
 
 	p = rect.getTopLeft();
 	/// DRAW BEAT / BAR COUNT
@@ -136,7 +137,11 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 				}
 				/// TEXT
 				nvgFillColor(args.vg, colors[12]);
-				nvgText(args.vg, x + 3.0, y + CHAR_H * 2 - 2.0, it->source->name, NULL);
+				j = 0;
+				while (j < it->beat_length - 1 && it->source->name[j] != 0)
+					++j;
+				nvgText(args.vg, x + 3.0, y + CHAR_H * 2 - 2.0,
+				/**/ it->source->name, it->source->name + j);
 			}
 			/// NEXT INSTANCE
 			it = std::next(it);
