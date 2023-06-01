@@ -14,18 +14,26 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 		return;
 	if (e.action == GLFW_PRESS) {
 		/// COMPUTE POSITION
-		row = ((e.pos.y - 3.0) / (CHAR_H * 3)) + g_editor.timeline_cam_y - 1;
-		beat = ((e.pos.x - 2.0) / CHAR_W - 2) + g_editor.timeline_cam_x;
+		row = (int)((e.pos.y - 3) / (CHAR_H * 3)) + g_editor.timeline_cam_y - 1;
+		beat = (int)((e.pos.x - 2) / CHAR_W - 2) + g_editor.timeline_cam_x;
 		instance = g_timeline.instance_find(row, beat);
 		/// CREATE INSTANCE
 		if (instance == NULL) {
 			g_timeline.instance_new(g_editor.pattern, row, beat);
+			g_editor.instance_handle = INSTANCE_HANDLE_MIDDLE;
 		/// EDIT INSTANCE
 		} else {
 			/// SELECT INSTANCE
 			g_editor.instance = instance;
 			g_editor.instance_row = row;
 			g_editor.instance_beat = instance->beat;
+			/// SELECT INSTANCE MODE
+			if (beat >= instance->beat + instance->beat_length - 1)
+				g_editor.instance_handle = INSTANCE_HANDLE_RIGHT;
+			else if (beat <= instance->beat)
+				g_editor.instance_handle = INSTANCE_HANDLE_LEFT;
+			else
+				g_editor.instance_handle = INSTANCE_HANDLE_MIDDLE;
 			/// SELECT INSTANCE PATTERN
 			g_editor.pattern = instance->source;
 			g_editor.pattern_id = ((intptr_t)instance->source
@@ -59,34 +67,59 @@ void TrackerDisplay::on_drag_move_timeline(const DragMoveEvent& e) {
 	Vec		delta;
 	int		row;
 	int		beat;
+	int		start;
+	int		length;
 
 	if (g_editor.instance == NULL)
 		return;
-	/// [1] COMPUTE INSTANCE POSITION
-	//// COMPUTE BASE POSITION
-	delta.x = g_editor.mouse_pos.x - g_editor.mouse_pos_drag.x;
-	delta.y = g_editor.mouse_pos.y - g_editor.mouse_pos_drag.y;
-	row = ((g_editor.mouse_pos.y - 3.0) / (CHAR_H * 3)) + g_editor.timeline_cam_y - 1;
-	beat = g_editor.instance_beat + (delta.x / CHAR_W);
-	//// LOCK AXIS
-	if (APP->window->getMods() & GLFW_MOD_SHIFT) {
-		/// ONLY X (BEAT)
-		if (std::abs(delta.x) > std::abs(delta.y))
-			row = g_editor.instance_row;
-		/// ONLY Y (ROW)
-		else
-			beat = g_editor.instance_beat;
+	/// MOVE INSTANCE
+	if (g_editor.instance_handle == INSTANCE_HANDLE_MIDDLE) {
+		/// COMPUTE BASE POSITION
+		delta.x = g_editor.mouse_pos.x - g_editor.mouse_pos_drag.x;
+		delta.y = g_editor.mouse_pos.y - g_editor.mouse_pos_drag.y;
+		row = (int)((g_editor.mouse_pos.y - 3.0) / (CHAR_H * 3)) + g_editor.timeline_cam_y - 1;
+		beat = g_editor.instance_beat + (delta.x / CHAR_W);
+		/// LOCK AXIS
+		if (APP->window->getMods() & GLFW_MOD_SHIFT) {
+			/// ONLY X (BEAT)
+			if (std::abs(delta.x) > std::abs(delta.y))
+				row = g_editor.instance_row;
+			/// ONLY Y (ROW)
+			else
+				beat = g_editor.instance_beat;
+		}
+		/// BOUND MOVEMENT
+		if (row < 0)
+			row = 0;
+		if (row > 31)
+			row = 31;
+		if (beat < 0)
+			beat = 0;
+		/// MOVE INSTANCE
+		if (g_editor.instance->row != row || g_editor.instance->beat != beat)
+			g_timeline.instance_move(g_editor.instance, row, beat);
+	/// RESIZE INSTANCE (RIGHT)
+	} else if (g_editor.instance_handle == INSTANCE_HANDLE_RIGHT) {
+		beat = (int)((g_editor.mouse_pos.x - 2.0) / CHAR_W - 2) + g_editor.timeline_cam_x;
+		length = beat - g_editor.instance->beat + 1;
+		if (length < 1)
+			length = 1;
+		g_editor.instance->beat_length = length;
+	/// RESIZE INSTANCE (LEFT)
+	} else if (g_editor.instance_handle == INSTANCE_HANDLE_LEFT) {
+		beat = (int)((g_editor.mouse_pos.x - 2.0) / CHAR_W - 2) + g_editor.timeline_cam_x;
+		if (beat < 0)
+			beat = 0;
+		if (beat > g_editor.instance->beat + g_editor.instance->beat_length - 1)
+			beat = g_editor.instance->beat + g_editor.instance->beat_length - 1;
+		length = g_editor.instance->beat_length - (beat - g_editor.instance->beat);
+		if (length < 1)
+			length = 1;
+		start = g_editor.instance->beat_start + (beat - g_editor.instance->beat);
+		g_timeline.instance_move(g_editor.instance, g_editor.instance_row, beat);
+		g_editor.instance->beat_start = start;
+		g_editor.instance->beat_length = length;
 	}
-	//// BOUND MOVEMENT
-	if (row < 0)
-		row = 0;
-	if (row > 31)
-		row = 31;
-	if (beat < 0)
-		beat = 0;
-	/// [2] MOVE INSTANCE
-	if (g_editor.instance->row != row || g_editor.instance->beat != beat)
-		g_timeline.instance_move(g_editor.instance, row, beat);
 }
 
 void TrackerDisplay::on_drag_end_timeline(const DragEndEvent& e) {

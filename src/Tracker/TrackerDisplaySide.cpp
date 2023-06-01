@@ -77,6 +77,20 @@ static void menu_pattern(PatternSource *pattern) {
 			));
 		}
 	));
+	/// ADD DUPLICATE BUTTON
+	menu->addChild(rack::createMenuItem("Duplicate", "",
+		[=](void) {
+			PatternSource	*pattern_new;
+
+			/// CREATE NEW PATTERN
+			pattern_new = g_timeline.pattern_new();
+			pattern_new->init(pattern->note_count, pattern->cv_count,
+			/**/ pattern->beat_count, pattern->lpb);
+			pattern_new->rename(pattern->name);
+			pattern_new->color = pattern->color;
+			/// COPY TO NEW PATTERN
+		}
+	));
 	/// ADD RENAME BUTTON
 	menu->addChild(rack::createMenuItem("Rename", "",
 		[=](void) {
@@ -246,7 +260,6 @@ TrackerDisplaySide::TrackerDisplaySide() {
 void TrackerDisplaySide::draw(const DrawArgs &args) {
 	std::shared_ptr<Font>	font;
 	Rect					rect;
-	float					off_x, off_y;
 
 	LedDisplay::draw(args);
 
@@ -454,8 +467,10 @@ void TrackerDisplaySide::onHoverScroll(const HoverScrollEvent &e) {
 }
 
 void TrackerDisplaySide::onSelectKey(const SelectKeyEvent &e) {
-	Synth	*synth_a;
-	Synth	*synth_b;
+	Synth			*synth_a;
+	Synth			*synth_b;
+	PatternSource	*pattern_a;
+	PatternSource	*pattern_b;
 
 	if ((e.action == GLFW_PRESS || e.action == GLFW_REPEAT)
 	&& (e.key == GLFW_KEY_UP || e.key == GLFW_KEY_DOWN)) {
@@ -483,6 +498,25 @@ void TrackerDisplaySide::onSelectKey(const SelectKeyEvent &e) {
 			}
 		/// MOVE PATTERN
 		} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+			if (g_editor.pattern) {
+				pattern_a = g_editor.pattern;
+				/// MOVE UP
+				if (e.key == GLFW_KEY_UP) {
+					if (g_editor.pattern_id <= 0)
+						return;
+					pattern_b = &(g_timeline.patterns[g_editor.pattern_id - 1]);
+					g_editor.pattern_id -= 1;
+				/// MOVE DOWN
+				} else {
+					if (g_editor.pattern_id >= g_timeline.pattern_count - 1)
+						return;
+					pattern_b = &(g_timeline.patterns[g_editor.pattern_id + 1]);
+					g_editor.pattern_id += 1;
+				}
+				g_timeline.pattern_swap(pattern_a, pattern_b);
+				/// RE-SELECT MOVED SYNTH
+				g_editor.pattern = pattern_b;
+			}
 		}
 	}
 }

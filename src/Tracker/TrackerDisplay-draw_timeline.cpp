@@ -14,10 +14,12 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 	bool							visible;
 	int								inst_x, inst_w;
 	Vec								p;
-	float							x, y;
+	float							x, y, h, w;
 	char							str[32];
-	int								i;
+	int								i, j;
 	int								index;
+	int								corner;
+	int								beat;
 
 	p = rect.getTopLeft();
 	/// DRAW BEAT / BAR COUNT
@@ -59,6 +61,7 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 
 	/// DRAW PATTERNS
 	//// FOR EACH ROW
+	h = CHAR_H * 3 - 4;
 	for (i = 0; i < 12; ++i) {
 		index = i + g_editor.timeline_cam_y;
 		y = p.y + 13.0 + CHAR_H * (i * 3 + 2);
@@ -84,17 +87,51 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 				inst_x = it->beat - (int)g_editor.timeline_cam_x;
 				inst_w = it->beat_length;
 				x = p.x + 2.0 + CHAR_W * (inst_x + 2);
+				w = CHAR_W * inst_w - 1;
+				corner = (it->beat_length > 1) ? 5 : 3;
 				/// FILL
 				nvgBeginPath(args.vg);
 				nvgFillColor(args.vg, colors_user[it->source->color]);
-				nvgRoundedRect(args.vg, x + 1, y + 2, CHAR_W * inst_w - 1, CHAR_H * 3 - 4, 5);
+				nvgRoundedRect(args.vg, x + 1, y + 2, w, h, corner);
 				nvgFill(args.vg);
+				/// HANDLES
+				if (it->beat_length > 2) {
+					/// HANDLE RIGHT
+					nvgBeginPath(args.vg);
+					nvgStrokeColor(args.vg, colors[0]);
+					nvgStrokeWidth(args.vg, 1);
+					nvgRect(args.vg, x + 1 + w - CHAR_W, y + 2, 0, h);
+					nvgStroke(args.vg);
+					/// HANDLE LEFT
+					nvgBeginPath(args.vg);
+					nvgStrokeColor(args.vg, colors[0]);
+					nvgStrokeWidth(args.vg, 1);
+					nvgRect(args.vg, x + 1 + CHAR_W, y + 2, 0, h);
+					nvgStroke(args.vg);
+				}
+				/// LOOP TIME MARKERS
+				for (j = 0; j < it->beat_length; ++j) {
+					beat = (it->beat_start + j) % it->source->beat_count;
+					if (beat == 0 && j > 1 && j < it->beat_length - 1) {
+						nvgStrokeColor(args.vg, colors[0]);
+						nvgStrokeWidth(args.vg, 1);
+						nvgBeginPath(args.vg);
+						nvgMoveTo(args.vg, x + 1 + CHAR_W * j, y + 2);
+						nvgLineTo(args.vg, x + 1 + CHAR_W * j, y + 2 + h / 5);
+						nvgMoveTo(args.vg, x + 1 + CHAR_W * j, y + 2 + (h / 5) * 2);
+						nvgLineTo(args.vg, x + 1 + CHAR_W * j, y + 2 + (h / 5) * 3);
+						nvgMoveTo(args.vg, x + 1 + CHAR_W * j, y + 2 + (h / 5) * 4);
+						nvgLineTo(args.vg, x + 1 + CHAR_W * j, y + 2 + (h / 5) * 5);
+						nvgStroke(args.vg);
+						nvgClosePath(args.vg);
+					}
+				}
 				/// STROKE (ON SELECT)
 				if (&(*it) == g_editor.instance) {
 					nvgBeginPath(args.vg);
 					nvgStrokeColor(args.vg, colors[12]);
 					nvgStrokeWidth(args.vg, 1);
-					nvgRoundedRect(args.vg, x + 2, y + 3, CHAR_W * inst_w - 3, CHAR_H * 3 - 6, 5);
+					nvgRoundedRect(args.vg, x + 1, y + 2, w, h, corner);
 					nvgStroke(args.vg);
 				}
 				/// TEXT

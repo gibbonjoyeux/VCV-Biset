@@ -125,9 +125,7 @@ static void get_cell(
 }
 
 static void on_button_left(const rack::Widget::ButtonEvent &e) {
-	int				row, col, cell;
-	int				x, x_aim;
-	int				i, j;
+	int		row, col, cell;
 
 	/// [1] COMPUTE ROW
 	get_cell(e, row, col, cell);

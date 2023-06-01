@@ -51,6 +51,10 @@
 #define TIMELINE_MODE_PLAY_SONG		1
 #define TIMELINE_MODE_PLAY_PATTERN	2
 
+#define INSTANCE_HANDLE_LEFT		0
+#define INSTANCE_HANDLE_MIDDLE		1
+#define INSTANCE_HANDLE_RIGHT		2
+
 #define CHAR_W						6.302522
 #define CHAR_H						8.5
 #define CHAR_COUNT_X				84
@@ -173,6 +177,7 @@ struct PatternSource {
 	PatternSource();
 
 	void init(void);
+	void init(int note_count, int cv_count, int beat_count, int lpb);
 	void destroy(void);
 	void resize(int note_count, int cv_count, int beat_count, int lpb);
 	void rename(char *name);
@@ -372,6 +377,7 @@ struct Editor {
 	PatternInstance				*instance;		// Active instance
 	int							instance_row;
 	int							instance_beat;
+	int							instance_handle;
 
 	int							pattern_track;
 	int							pattern_line;

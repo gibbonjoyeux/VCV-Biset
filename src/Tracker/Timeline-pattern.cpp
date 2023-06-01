@@ -28,7 +28,6 @@ PatternSource *Timeline::pattern_new(void) {
 
 void Timeline::pattern_del(PatternSource *pattern) {
 	bool	found;
-	int		index;
 	int		i;
 
 	/// TODO: REMOVE TIMELINE PATTERN INSTANCES
@@ -52,9 +51,12 @@ void Timeline::pattern_del(PatternSource *pattern) {
 }
 
 void Timeline::pattern_swap(PatternSource *pat_a, PatternSource *pat_b) {
-	PatternSource	pat_tmp;
+	u8				buffer[sizeof(PatternSource)];
 
-	pat_tmp = *pat_a;
-	*pat_a = *pat_b;
-	*pat_b = pat_tmp;
+	// TODO: Swap patterns in instances
+	/// SWAP PATTERNS
+	// -> Use buffer to avoid PatternSource members destroy (ArrayExt)
+	memcpy((void*)buffer, (void*)pat_a, sizeof(PatternSource));
+	memcpy((void*)pat_a, (void*)pat_b, sizeof(PatternSource));
+	memcpy((void*)pat_b, (void*)buffer, sizeof(PatternSource));
 }

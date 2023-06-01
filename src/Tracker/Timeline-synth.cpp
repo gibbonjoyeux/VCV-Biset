@@ -28,7 +28,6 @@ Synth *Timeline::synth_new(void) {
 
 void Timeline::synth_del(Synth *synth) {
 	bool	found;
-	int		index;
 	int		i;
 
 	/// TODO: SET PATTERNS CELL USING SYNTH TO 0

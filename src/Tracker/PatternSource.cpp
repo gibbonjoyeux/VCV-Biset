@@ -49,6 +49,24 @@ void PatternSource::init(void) {
 	this->resize(1, 0, 8, 4);
 }
 
+void PatternSource::init(int note_count, int cv_count, int beat_count,
+		int lpb) {
+	/// NAME
+	strcpy(this->name, "Pattern");
+	/// COLOR
+	this->color = 0;
+	/// TIME
+	this->beat_count = 0;
+	this->line_count = 0;
+	this->lpb = 0;
+	this->line_play = 0;
+	/// COLUMNS
+	this->note_count = 0;
+	this->cv_count = 0;
+	/// INIT COLUMNS CELLS
+	this->resize(note_count, cv_count, beat_count, lpb);
+}
+
 void PatternSource::destroy(void) {
 	this->notes.delocate();
 	this->cvs.delocate();

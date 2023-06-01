@@ -130,10 +130,12 @@ void TrackerDisplay::onDragStart(const DragStartEvent& e) {
 }
 
 void TrackerDisplay::onDragMove(const DragMoveEvent& e) {
-	/// NOT CALLED = NOT MOVED
-	//Widget::onDragMove(e);
-	g_editor.mouse_pos.x += e.mouseDelta.x;
-	g_editor.mouse_pos.y += e.mouseDelta.y;
+	float		zoom;
+
+	/// COMPUTE DELTA WITH ZOOM
+	zoom = APP->scene->rackScroll->getZoom();
+	g_editor.mouse_pos.x += e.mouseDelta.x / zoom;
+	g_editor.mouse_pos.y += e.mouseDelta.y / zoom;
 	/// CALL EVENT
 	if (g_editor.mode == EDITOR_MODE_PATTERN)
 		;
