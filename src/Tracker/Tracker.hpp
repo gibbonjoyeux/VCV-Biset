@@ -144,7 +144,6 @@ struct PatternNote {
 	u8							velocity;
 	u8							panning;
 	u8							delay;
-	//u8							chance;
 	PatternEffect				effects[8];
 
 	PatternNote();
@@ -159,6 +158,13 @@ struct PatternCVCol {
 
 struct PatternNoteCol {
 	u8							effect_count;
+	float						effect_velocity;
+	float						effect_panning;
+	float						effect_delay;
+	float						effect_chance;
+	float						effect_octave_mode;
+	float						effect_octave;
+	float						effect_pitch;
 	PatternNote					lines[0];	// Notes (memory as struct extension)
 };
 
@@ -214,9 +220,7 @@ struct PatternInstance {
 struct SynthVoice {
 	bool						active;
 
-	u8							synth;
 	u8							channel;
-	//u8							pitch;
 	u8							velocity;
 	u8							panning;
 
@@ -241,7 +245,7 @@ struct SynthVoice {
 	void process(float dt_sec, float dt_beat, float *output);
 	bool start(Synth *synth, PatternNoteCol *row, PatternNote *note, int lpb);
 	void stop(void);
-	void init(int synth, int channel);
+	void init(int channel);
 	void reset();
 	void glide(PatternNote *note);
 };
@@ -260,7 +264,7 @@ struct Synth {
 	Synth();
 
 	void process(float dt_sec, float dt_beat);
-	void init(int synth_index, int channel_count);
+	void init(void);
 	void rename(void);
 	void rename(char *name);
 	SynthVoice* add(PatternNoteCol *row, PatternNote *note, int lpb);
@@ -293,8 +297,7 @@ struct PatternReader {
 
 	PatternReader();
 
-	void process(Synth *synths, PatternSource* pattern, Clock clock,
-		int *debug, int *debug_2, char *debug_str);
+	void process(Synth *synths, PatternSource* pattern, Clock clock);
 	void reset(void);
 	void stop(void);
 };
@@ -307,20 +310,25 @@ struct Timeline {
 	u8							play;
 	std::atomic_flag			thread_flag;
 	Clock						clock;
-	u16							beat_count;
+	//u16							beat_count;
 	//Array2D<TimelineCell>		timeline;
-	PatternSource*				pattern_source[12];
+	//PatternSource*				pattern_source[12];
 	//TimelineCell*				pattern_cell[12];
-	u32							pattern_start[12];
-	PatternReader				pattern_reader[12];
+	//u32							pattern_start[12];
+	//PatternReader				pattern_reader[12];
+
+	list<PatternInstance>::iterator	pattern_it[32];
+	list<PatternInstance>::iterator	pattern_it_end[32];
+	PatternReader					pattern_reader[32];
+	bool							pattern_state[32];
 
 	float						pitch_base_offset;
 	float						pitch_scale[12];
 
 	list<PatternInstance>		timeline[32];
-	PatternSource				patterns[999];
+	PatternSource				patterns[1000];	// [0:999]
 	int							pattern_count;
-	Synth						synths[99];
+	Synth						synths[100];	// [0:99]
 	int							synth_count;
 
 	u8							*save_buffer;
@@ -430,10 +438,6 @@ struct Editor {
 	void pattern_move_cursor_x(int x);
 	void pattern_move_cursor_y(int y);
 	void pattern_reset_cursor(void);
-	void timeline_move_cursor_x(int x);
-	void timeline_move_cursor_y(int y);
-	void timeline_clamp_cursor(void);
-	void timeline_reset_cursor(void);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -472,6 +476,14 @@ struct Tracker : Module {
 								PARAM_COLUMN_CV_MODE,
 								PARAM_COLUMN_CV_SYNTH,
 								PARAM_COLUMN_CV_CHANNEL,
+								/// CONTEXT PATTERN COLUMN EFFECTS
+								PARAM_COLUMN_FX_VELOCITY,
+								PARAM_COLUMN_FX_PANNING,
+								PARAM_COLUMN_FX_OCTAVE,
+								PARAM_COLUMN_FX_OCTAVE_MODE,
+								PARAM_COLUMN_FX_PITCH,
+								PARAM_COLUMN_FX_DELAY,
+								PARAM_COLUMN_FX_CHANCE,
 								/// SCREEN MODE SWITCHES
 								ENUMS(PARAM_MODE, 3),
 								/// VIEW MODE SWITCHES

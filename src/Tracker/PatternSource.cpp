@@ -103,6 +103,8 @@ void PatternSource::resize(int note_count, int cv_count, int beat_count,
 		this->cvs.allocate(this->cv_count,
 		/**/ this->line_count * sizeof(PatternCV));
 	}
+	/// [4] INIT NOTE COLUMNS
+	// TODO: init note columns effects
 }
 
 void PatternSource::rename(char *name) {

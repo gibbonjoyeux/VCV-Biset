@@ -222,9 +222,8 @@ void SynthVoice::stop(void) {
 	this->active = false;
 }
 
-void SynthVoice::init(int synth, int channel) {
+void SynthVoice::init(int channel) {
 	this->reset();
-	this->synth = synth;
 	this->channel = channel;
 }
 

@@ -17,19 +17,21 @@ Synth::Synth() {
 	this->channel_count = 1;
 }
 
-void Synth::init(int synth_index, int channel_count) {
+void Synth::init(void) {
+	int			index;
 	int			i, j;
 
 	/// TODO: INIT NAME & COLOR ?
+	/// INIT INDEX
+	index = ((intptr_t)this - (intptr_t)g_timeline.synths) / sizeof(Synth);
+	this->index = index;
 	/// INIT NAME
 	this->rename((char*)"synth");
 	/// INIT COLOR
 	this->color = 1;
 	/// INIT VOICES
-	this->index = synth_index;
-	for (i = 0; i < 16; ++i) {
-		this->voices[i].init(this->index, i);
-	}
+	for (i = 0; i < 16; ++i)
+		this->voices[i].init(i);
 	/// INIT OUTPUTS
 	for (i = 0; i < 16; ++i)
 		for (j = 0; j < 4; ++j)
@@ -37,7 +39,7 @@ void Synth::init(int synth_index, int channel_count) {
 	for (i = 0; i < 8; ++i)
 			this->out_cv[i] = 0.0;
 	/// SET CHANNEL COUNT
-	this->channel_count = channel_count;
+	this->channel_count = 1;
 }
 
 void Synth::process(float dt_sec, float dt_beat) {

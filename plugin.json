@@ -18,6 +18,12 @@
 		"name": "Tracker",
 		"description": "Advanced pattern based tracker sequencer",
 		"tags": ["Digital", "Sequencer", "Polyphonic"]
+	},
+	{
+		"slug": "TrackerSynth",
+		"name": "Tracker Synth",
+		"description": "Tracker synth output",
+		"tags": ["Digital", "Sequencer", "Polyphonic"]
 	}
   ]
 }

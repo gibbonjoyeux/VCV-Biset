@@ -20,9 +20,18 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 	int								index;
 	int								corner;
 	int								beat;
-	char							*name_end;
 
 	p = rect.getTopLeft();
+	/// [1] DRAW PAGE
+	/// DRAW ACTIVE BEAT MARKER
+	if (g_timeline.play == TIMELINE_MODE_PLAY_SONG) {
+		x = p.x + 2.0 + CHAR_W * (g_timeline.clock.beat + 2 - g_editor.timeline_cam_x);
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, colors[15]);
+		nvgRect(args.vg, x, rect.pos.y, CHAR_W, rect.size.y);
+		nvgFill(args.vg);
+		sprintf(g_timeline.debug_str, "%d", g_timeline.clock.beat);
+	}
 	/// DRAW BEAT / BAR COUNT
 	y = p.y + 11.0;
 	for (i = 0; i < 85; ++i) {
@@ -60,7 +69,7 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 		nvgFill(args.vg);
 	}
 
-	/// DRAW PATTERNS
+	/// [2] DRAW PATTERN INSTANCES
 	//// FOR EACH ROW
 	h = CHAR_H * 3 - 4;
 	for (i = 0; i < 12; ++i) {

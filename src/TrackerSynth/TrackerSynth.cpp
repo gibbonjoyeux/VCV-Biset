@@ -14,7 +14,7 @@ TrackerSynth::TrackerSynth() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 	/// CONFIG PARAMETERS
-	configParam(PARAM_SYNTH, 0, 63, 0, "Synth")->snapEnabled = true;
+	configParam(PARAM_SYNTH, 0, 99, 0, "Synth")->snapEnabled = true;
 	for (i = 0; i < 8; ++i)
 		configParam(PARAM_OUT_MIN + i, -10.0, 10.0, 0.0, "Min");
 	for (i = 0; i < 8; ++i)
@@ -34,7 +34,12 @@ void TrackerSynth::process(const ProcessArgs& args) {
 	float		cv_min, cv_max;
 	int			i;
 
-	synth = &(g_timeline.synths[(int)this->params[PARAM_SYNTH].getValue()]);
+	/// GET SYNTH
+	i = (int)this->params[PARAM_SYNTH].getValue();
+	if (i >= g_timeline.synth_count)
+		return;
+	synth = &(g_timeline.synths[i]);
+	/// SET CHANNEL COUNT
 	this->outputs[OUTPUT_PITCH].setChannels(synth->channel_count);
 	this->outputs[OUTPUT_GATE].setChannels(synth->channel_count);
 	this->outputs[OUTPUT_VELOCITY].setChannels(synth->channel_count);

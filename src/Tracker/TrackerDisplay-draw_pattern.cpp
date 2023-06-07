@@ -64,16 +64,16 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 	p = rect.getTopLeft();
 
 	/// [1] LAYER 1 (MARKERS + NOTES + CURVES)
-
 	/// DRAW BEAT CURSOR
-	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[15]);
-	nvgRect(args.vg,
-	/**/ p.x,
-	/**/ p.y + 3.5 + CHAR_H * (pattern->line_play - g_editor.pattern_cam_y),
-	/**/ rect.getWidth() + 0.5, CHAR_H);
-	nvgFill(args.vg);
-
+	if (g_timeline.play != TIMELINE_MODE_STOP) {
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, colors[15]);
+		nvgRect(args.vg,
+		/**/ p.x,
+		/**/ p.y + 3.5 + CHAR_H * (pattern->line_play - g_editor.pattern_cam_y),
+		/**/ rect.getWidth() + 0.5, CHAR_H);
+		nvgFill(args.vg);
+	}
 	/// DRAW PATTERN CURSOR LINE
 	nvgBeginPath(args.vg);
 	nvgFillColor(args.vg, colors[15]);
@@ -82,7 +82,6 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 	/**/ p.y + 3.5 + CHAR_H * (g_editor.pattern_line - g_editor.pattern_cam_y),
 	/**/ rect.getWidth() + 0.5, CHAR_H);
 	nvgFill(args.vg);
-
 	/// DRAW LINE / BEAT COUNT
 	x = p.x + 2;
 	for (i = 0; i < CHAR_COUNT_Y; ++i) {

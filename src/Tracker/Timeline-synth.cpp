@@ -17,7 +17,7 @@ Synth *Timeline::synth_new(void) {
 
 	/// GET NEW SYNTH
 	synth = &(this->synths[this->synth_count]);
-	synth->init(this->synth_count, 1);
+	synth->init();
 	this->synth_count += 1;
 	/// SELECT NEW SYNTH
 	g_editor.synth_id = this->synth_count - 1;

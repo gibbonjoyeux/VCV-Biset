@@ -1,6 +1,8 @@
 
 # BUGS
 
+- [ ] Pattern instances can have a negative `beat_start` but should not
+
 - [ ] Check if `thread_flag` has a big CPU impact
 
 - [ ] Drum synth should always have 12 "channels" (on process, the synth
@@ -32,16 +34,23 @@
 # TODO
 
 - [ ] NEW VERSION
+	- [ ] BACKEND
+		- [ ] Timeline
+		- [ ] Pattern
+			- [ ] Column effects (effects active on every lines of the column)
 	- [ ] Display
 		- [x] Tracker
 			- [x] Left click (Move cursor)
-			- [x] Right click (Edit pattern + column)
+			- [x] Right click
+				- [x] Edit pattern
+				- [x] Edit column
+				- [ ] Edit column effects
 		- [x] Timeline
 			- [x] Add instance
 			- [x] Del instance
 			- [x] Select instance
 			- [x] Move instance
-			- [x] Resize instance
+			- [ ] Resize instance (fix negative `beat_start`)
 	- [ ] Display Side
 		- [ ] SCreen Side Synths (Tracker)
 			- [x] Draw synths
@@ -167,6 +176,7 @@
 		Multiply base amplitude by noise (noise can only make it lower)
 [x] Pxx	Pan random				(xx: pan amplitude)
 		Add noise to base panning (bipolar noise)
+[ ] pxx	Pitch (micro) random	(xx: pitch amplitude)
 [x] Dxx Delay random			(xx: delay amplitude)
 [x] Oxy	Octave random			(x: mode y: amplitude)
 		x = 0 : -+ offset
@@ -190,3 +200,18 @@
 [ ] Rxx	Ratchet / Retrigger		(xx: retrigger interval) ? (x: amp fade y: interval)
 		x<5 : decrease | x>5 : increase | x=5 : static
 		y represents the interval between retriggers
+
+# live coding
+
+- pitch
+	- seq
+	- rnd
+	- xrnd
+	- shuf
+	- walk
+	- 0 1 2 seq(3 4 5)	=> 0 1 2 3 | 0 1 2 4 | 0 1 2 5
+	- 0 1 2 rnd(3 4 5)	=> 0 1 2 5 | 0 1 2 3 | 0 1 2 4
+- time
+- octave
+
+xrand(shuf(0.5, 0.25, 0.25)!1 seq(0.125)!4)!1

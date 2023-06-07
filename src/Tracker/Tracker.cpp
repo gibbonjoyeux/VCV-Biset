@@ -41,6 +41,14 @@ Tracker::Tracker() {
 	configParam(PARAM_COLUMN_CV_SYNTH, 0.0f, 63.0f, 0.0f, "Column synth", "")->snapEnabled = true;
 	configParam(PARAM_COLUMN_CV_CHANNEL, 0.0f, 7.0f, 0.0f, "Column channel", "")->snapEnabled = true;
 
+	configParam(PARAM_COLUMN_FX_VELOCITY, 0.0f, 100.0f, 0.0f, "Random velocity", "%");
+	configParam(PARAM_COLUMN_FX_PANNING, 0.0f, 100.0f, 0.0f, "Random panning", "%");
+	configParam(PARAM_COLUMN_FX_OCTAVE_MODE, 0.0f, 2.0f, 0.0f, "Random octave mode", "")->snapEnabled = true;
+	configParam(PARAM_COLUMN_FX_OCTAVE, 0.0f, 4.0f, 0.0f, "Random octave", "")->snapEnabled = true;
+	configParam(PARAM_COLUMN_FX_PANNING, 0.0f, 100.0f, 0.0f, "Random pitch", "%");
+	configParam(PARAM_COLUMN_FX_DELAY, 0.0f, 100.0f, 0.0f, "Random delay", "%");
+	configParam(PARAM_COLUMN_FX_CHANCE, 0.0f, 100.0f, 0.0f, "Random chance", "%");
+
 	configButton(PARAM_MODE + 0, "Mode pattern");
 	configButton(PARAM_MODE + 1, "Mode timeline");
 	configButton(PARAM_MODE + 2, "Mode parameters");
@@ -134,8 +142,8 @@ void Tracker::process(const ProcessArgs& args) {
 	else
 		outputs[OUTPUT_CLOCK].setVoltage(0.0f);
 
-	///// PROCESS TIMELINE
-	//g_timeline.process(args.frame, dt_sec, dt_beat);
+	/// PROCESS TIMELINE
+	g_timeline.process(args.frame, dt_sec, dt_beat);
 
 
 	/// USE / MODIFY EXPANDERS
