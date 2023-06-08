@@ -187,6 +187,7 @@ struct PatternSource {
 	void destroy(void);
 	void resize(int note_count, int cv_count, int beat_count, int lpb);
 	void rename(char *name);
+	void context_menu(Menu *menu);
 };
 
 struct PatternInstance {
@@ -267,6 +268,7 @@ struct Synth {
 	void init(void);
 	void rename(void);
 	void rename(char *name);
+	void context_menu(Menu *menu);
 	SynthVoice* add(PatternNoteCol *row, PatternNote *note, int lpb);
 };
 
@@ -342,6 +344,7 @@ struct Timeline {
 
 	void			process(i64 frame, float dt_sec, float dt_beat);
 	void			stop(void);
+	void			clear(void);
 	PatternSource	*pattern_new(void);
 	PatternSource	*pattern_new(int note_count, int cv_count, int beat_count, int lpb);
 	void			pattern_del(PatternSource *source);

@@ -9,7 +9,7 @@
 		should process the 12 channels).
 - [ ] If clone Tracker module accidentaly, the last module takes previous one
 		place in `g_module`. If the new one is removed, issue.
-- [ ] On saved and then modified file, if re-open saved filed without saving
+- [x] On saved and then modified file, if re-open saved filed without saving
 		last changes, theses changes seems to stay with weird behaviour.
 - [ ] ! ! ! Sometimes, on multi channels synth, gate / trigger got issue and
 		miss lot of notes.
@@ -55,9 +55,9 @@
 		- [ ] SCreen Side Synths (Tracker)
 			- [x] Draw synths
 			- [x] Select synth
-			- [ ] Edit Synth
+			- [x] Edit Synth
 				- [x] Basics (name + color)
-				- [ ] Synth mode & channel count
+				- [x] Synth mode & channel count
 			- [x] Add synth
 			- [x] Del synth
 			- [ ] Move synth (move & replace in patterns)
@@ -66,9 +66,9 @@
 			- [x] Draw patterns
 			- [x] Select pattern
 			- [x] Double click : open pattern tracker
-			- [ ] Edit pattern
+			- [x] Edit pattern
 				- [x] Basics (name + color)
-				- [ ] Pattern specs (length, lpb, etc.)
+				- [x] Pattern specs (length, lpb, etc.)
 			- [x] Add pattern
 			- [x] Del pattern
 			- [ ] Move pattern (move & replace in instances)

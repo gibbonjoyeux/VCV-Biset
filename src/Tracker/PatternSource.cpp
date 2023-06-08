@@ -110,3 +110,69 @@ void PatternSource::resize(int note_count, int cv_count, int beat_count,
 void PatternSource::rename(char *name) {
 	strcpy(this->name, name);
 }
+
+void PatternSource::context_menu(Menu *menu) {
+	ParamQuantity	*quant_length;
+	ParamQuantity	*quant_lpb;
+	ParamQuantity	*quant_note_count;
+	ParamQuantity	*quant_cv_count;
+	int				length;
+	int				lpb;
+	int				note_count;
+	int				cv_count;
+
+	/// ADD PATTERN LENGTH SLIDER
+	length = this->beat_count;
+	quant_length = g_module->paramQuantities[Tracker::PARAM_PATTERN_LENGTH];
+	quant_length->setValue(length);
+	quant_length->defaultValue = length;
+	menu->addChild(new MenuSliderEdit(quant_length, 0));
+	/// ADD PATTERN LPB SLIDER
+	lpb = this->lpb;
+	quant_lpb = g_module->paramQuantities[Tracker::PARAM_PATTERN_LPB];
+	quant_lpb->setValue(lpb);
+	quant_lpb->defaultValue = lpb;
+	menu->addChild(new MenuSliderEdit(quant_lpb, 0));
+	/// ADD PATTERN NOTE COUNT SLIDER
+	note_count = this->note_count;
+	quant_note_count = g_module->paramQuantities[Tracker::PARAM_PATTERN_NOTE_COUNT];
+	quant_note_count->setValue(note_count);
+	quant_note_count->defaultValue = note_count;
+	menu->addChild(new MenuSliderEdit(quant_note_count, 0));
+	/// ADD PATTERN CV COUNT SLIDER
+	cv_count = this->cv_count;
+	quant_cv_count = g_module->paramQuantities[Tracker::PARAM_PATTERN_CV_COUNT];
+	quant_cv_count->setValue(cv_count);
+	quant_cv_count->defaultValue = cv_count;
+	menu->addChild(new MenuSliderEdit(quant_cv_count, 0));
+	/// ADD PATTERN UPDATE BUTTON
+	menu->addChild(new MenuItemStay("Update pattern", "",
+		[=]() {
+			int	beat_count;
+			int	lpb;
+			int	note_count;
+			int	cv_count;
+
+			/// WAIT FOR THREAD FLAG
+			while (g_timeline.thread_flag.test_and_set()) {}
+
+			/// GET PATTERN SPECS
+			beat_count = g_module->params[Tracker::PARAM_PATTERN_LENGTH].getValue();
+			lpb = g_module->params[Tracker::PARAM_PATTERN_LPB].getValue();
+			note_count = g_module->params[Tracker::PARAM_PATTERN_NOTE_COUNT].getValue();
+			cv_count = g_module->params[Tracker::PARAM_PATTERN_CV_COUNT].getValue();
+			/// UPDATE PATTERN LENGTH
+			if (beat_count != g_editor.pattern->beat_count
+			|| lpb != g_editor.pattern->lpb
+			|| note_count != g_editor.pattern->note_count
+			|| cv_count != g_editor.pattern->cv_count) {
+				g_editor.pattern->resize(note_count, cv_count, beat_count, lpb);
+				g_editor.pattern_clamp_cursor();
+			}
+
+			/// CLEAR THREAD FLAG
+			g_timeline.thread_flag.clear();
+		}
+	));
+
+}

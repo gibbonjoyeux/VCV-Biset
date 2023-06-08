@@ -310,6 +310,9 @@ static void load_template(void) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void Tracker::onAdd(const AddEvent &e) {
+
+	g_timeline.clear();
+
 	/// [1] WAIT FOR THREAD FLAG
 	while (g_timeline.thread_flag.test_and_set()) {}
 

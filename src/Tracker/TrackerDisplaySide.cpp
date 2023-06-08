@@ -149,13 +149,15 @@ static void menu_pattern(PatternSource *pattern) {
 	));
 	/// ADD PATTERN EDITION MENU
 	if (play_disable == false) {
+		menu->addChild(new MenuSeparator());
+		pattern->context_menu(menu);
 	}
 }
 
 static void menu_synth(Synth *synth) {
-	Menu		*menu;
-	MenuLabel	*label;
-	bool		play_disable;
+	Menu			*menu;
+	MenuLabel		*label;
+	bool			play_disable;
 
 	play_disable = (g_timeline.play != TIMELINE_MODE_STOP);
 	menu = createMenu();
@@ -256,27 +258,8 @@ static void menu_synth(Synth *synth) {
 	));
 	/// ADD SYNTH EDITION MENU
 	if (play_disable == false) {
-		
 		menu->addChild(new MenuSeparator());
-
-		/// SYNTH CHANNEL COUNT
-		/// SYNTH MODE
-		menu->addChild(rack::createSubmenuItem("Mode", "",
-			[=](Menu *menu) {
-				menu->addChild(new MenuCheckItem("Gate", "",
-					[=]() { return synth->mode == SYNTH_MODE_GATE; },
-					[=]() { synth->mode = SYNTH_MODE_GATE; }
-				));
-				menu->addChild(new MenuCheckItem("Trigger", "",
-					[=]() { return synth->mode == SYNTH_MODE_TRIGGER; },
-					[=]() { synth->mode = SYNTH_MODE_TRIGGER; }
-				));
-				menu->addChild(new MenuCheckItem("Drum", "",
-					[=]() { return synth->mode == SYNTH_MODE_DRUM; },
-					[=]() { synth->mode = SYNTH_MODE_DRUM; }
-				));
-			}
-		));
+		synth->context_menu(menu);
 	}
 }
 

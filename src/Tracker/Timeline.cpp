@@ -177,3 +177,18 @@ void Timeline::stop(void) {
 		this->pattern_state[i] = false;
 	}
 }
+
+void Timeline::clear(void) {
+	int		i;
+
+	/// REMOVE INSTANCES
+	for (i = 0; i < 32; ++i)
+		while (this->timeline[i].begin() != this->timeline[i].end())
+			this->instance_del(&(*this->timeline[i].begin()));
+	/// REMOVE PATTERNS
+	while (this->pattern_count > 0)
+		this->pattern_del(&(this->patterns[this->pattern_count - 1]));
+	/// REMOVE SYNTHS
+	while (this->synth_count > 0)
+		this->synth_del(&(this->synths[this->synth_count - 1]));
+}

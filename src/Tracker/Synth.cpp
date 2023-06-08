@@ -91,3 +91,46 @@ SynthVoice* Synth::add(PatternNoteCol *col, PatternNote *note, int lpb) {
 	}
 	return NULL;
 }
+
+void Synth::context_menu(Menu *menu) {
+	ParamQuantity	*quant_mode;
+	ParamQuantity	*quant_channel;
+
+	/// ADD SYNTH CHANNEL COUNT
+	quant_channel = g_module->paramQuantities[Tracker::PARAM_SYNTH_CHANNEL_COUNT];
+	quant_channel->setValue(this->channel_count);
+	quant_channel->defaultValue = this->channel_count;
+	menu->addChild(new MenuSliderEdit(quant_channel, 0));
+	/// ADD SYNTH MODE
+	quant_mode = g_module->paramQuantities[Tracker::PARAM_SYNTH_MODE];
+	quant_mode->setValue(this->mode);
+	menu->addChild(rack::createSubmenuItem("Mode", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuCheckItem("Gate", "",
+				[=]() { return quant_mode->getValue() == SYNTH_MODE_GATE; },
+				[=]() { quant_mode->setValue(SYNTH_MODE_GATE); }
+			));
+			menu->addChild(new MenuCheckItem("Trigger", "",
+				[=]() { return quant_mode->getValue() == SYNTH_MODE_TRIGGER; },
+				[=]() { quant_mode->setValue(SYNTH_MODE_TRIGGER); }
+			));
+			menu->addChild(new MenuCheckItem("Drum", "",
+				[=]() { return quant_mode->getValue() == SYNTH_MODE_DRUM; },
+				[=]() { quant_mode->setValue(SYNTH_MODE_DRUM); }
+			));
+		}
+	));
+	/// ADD SYNTH UPDATE BUTTON
+	menu->addChild(new MenuItemStay("Update synth", "",
+		[=]() {
+			/// WAIT FOR THREAD FLAG
+			while (g_timeline.thread_flag.test_and_set()) {}
+
+			this->mode = quant_mode->getValue();
+			this->channel_count = quant_channel->getValue();
+
+			/// CLEAR THREAD FLAG
+			g_timeline.thread_flag.clear();
+		}
+	));
+}

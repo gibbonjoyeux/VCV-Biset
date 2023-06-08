@@ -143,16 +143,8 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 	PatternCVCol	*col_cv;
 	Menu			*menu;
 	MenuLabel		*label;
-	ParamQuantity	*quant_length;
-	ParamQuantity	*quant_lpb;
-	ParamQuantity	*quant_note_count;
-	ParamQuantity	*quant_cv_count;
 	ParamQuantity	*quant_effect_count;
 	ParamQuantity	*quant;
-	int				length;
-	int				lpb;
-	int				note_count;
-	int				cv_count;
 
 	/// SELECT CLICKED COLUMN
 	on_button_left(e);
@@ -169,59 +161,7 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 	label->text = "Edit Pattern";
 	menu->addChild(label);
 
-	/// ADD PATTERN LENGTH SLIDER
-	length = pattern->beat_count;
-	quant_length = g_module->paramQuantities[Tracker::PARAM_PATTERN_LENGTH];
-	quant_length->setValue(length);
-	quant_length->defaultValue = length;
-	menu->addChild(new MenuSliderEdit(quant_length, 0));
-	/// ADD PATTERN LPB SLIDER
-	lpb = pattern->lpb;
-	quant_lpb = g_module->paramQuantities[Tracker::PARAM_PATTERN_LPB];
-	quant_lpb->setValue(lpb);
-	quant_lpb->defaultValue = lpb;
-	menu->addChild(new MenuSliderEdit(quant_lpb, 0));
-	/// ADD PATTERN NOTE COUNT SLIDER
-	note_count = pattern->note_count;
-	quant_note_count = g_module->paramQuantities[Tracker::PARAM_PATTERN_NOTE_COUNT];
-	quant_note_count->setValue(note_count);
-	quant_note_count->defaultValue = note_count;
-	menu->addChild(new MenuSliderEdit(quant_note_count, 0));
-	/// ADD PATTERN CV COUNT SLIDER
-	cv_count = pattern->cv_count;
-	quant_cv_count = g_module->paramQuantities[Tracker::PARAM_PATTERN_CV_COUNT];
-	quant_cv_count->setValue(cv_count);
-	quant_cv_count->defaultValue = cv_count;
-	menu->addChild(new MenuSliderEdit(quant_cv_count, 0));
-	/// ADD PATTERN UPDATE BUTTON
-	menu->addChild(new MenuItemStay("Update pattern", "",
-		[=]() {
-			int	beat_count;
-			int	lpb;
-			int	note_count;
-			int	cv_count;
-
-			/// WAIT FOR THREAD FLAG
-			while (g_timeline.thread_flag.test_and_set()) {}
-
-			/// GET PATTERN SPECS
-			beat_count = g_module->params[Tracker::PARAM_PATTERN_LENGTH].getValue();
-			lpb = g_module->params[Tracker::PARAM_PATTERN_LPB].getValue();
-			note_count = g_module->params[Tracker::PARAM_PATTERN_NOTE_COUNT].getValue();
-			cv_count = g_module->params[Tracker::PARAM_PATTERN_CV_COUNT].getValue();
-			/// UPDATE PATTERN LENGTH
-			if (beat_count != g_editor.pattern->beat_count
-			|| lpb != g_editor.pattern->lpb
-			|| note_count != g_editor.pattern->note_count
-			|| cv_count != g_editor.pattern->cv_count) {
-				g_editor.pattern->resize(note_count, cv_count, beat_count, lpb);
-				g_editor.pattern_clamp_cursor();
-			}
-
-			/// CLEAR THREAD FLAG
-			g_timeline.thread_flag.clear();
-		}
-	));
+	pattern->context_menu(menu);
 
 	/// ADD COLUMN EDITION SECTION
 
