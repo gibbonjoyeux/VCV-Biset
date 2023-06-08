@@ -48,7 +48,7 @@ Timeline::Timeline() {
 void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	//PatternSource*				pattern;
 	Clock							clock_relative;
-	list<PatternInstance>::iterator	it;
+	list<PatternInstance>::iterator	it, it_end;
 	int								rate_divider;
 	int								count;
 	int								i;
@@ -99,12 +99,25 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 		/// COMPUTE ROWS
 		for (i = 0; i < 32; ++i) {
 			it = this->pattern_it[i];
-			/// ROW PLAY
-			if (it != this->timeline[i].end()) {
+			it_end = this->timeline[i].end();
+
+			/// FIND PLAYING INSTANCE
+			while (it != it_end
+			&& this->clock.beat >= it->beat + it->beat_length) {
+				/// DE-ACTIVATE INSTANCE
+				if (this->pattern_state[i] == true) {
+					this->pattern_state[i] = false;
+					this->pattern_reader[i].stop();
+				}
+				it = std::next(it);
+			}
+			/// PLAY INSTANCE (IF FOUND)
+			if (it != it_end) {
 				if (this->clock.beat >= it->beat) {
-					/// PATTERN PLAY
-					if (this->clock.beat < it->beat + it->beat_length) {
+					if (it->muted == false) {
+						/// ACTIVATE INSTANCE
 						this->pattern_state[i] = true;
+						this->pattern_it[i] = it;
 						/// COMPUTE RELATIVE CLOCK
 						clock_relative.beat =
 						(it->beat_start + (this->clock.beat - it->beat))
@@ -113,22 +126,8 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 						/// COMPUTE PATTERN PROCESS
 						this->pattern_reader[i].process(this->synths,
 						/**/ it->source, clock_relative);
-					/// PATTERN END
-					} else {
-						if (this->pattern_state[i] == true) {
-							it = std::next(it);
-							this->pattern_state[i] = false;
-							this->pattern_reader[i].stop();
-							this->pattern_it[i] = it;
-							/// PATTERN NEW
-							if (it != this->timeline[i].end()) {
-							} else {
-								count += 1;
-							}
-						}
 					}
 				}
-			/// ROW END
 			} else {
 				count += 1;
 			}
@@ -141,59 +140,7 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 			this->stop();
 		}
 	}
-
-	///// [5] PLAY
-	////// MODE PLAY SONG
-	//if (g_timeline.play == TIMELINE_MODE_PLAY_SONG) {
-	//	/// UPDATE TIMELINE COLS
-	//	for (i = 0; i < 12; ++i) {
-	//		cell = &(this->timeline[i][clock.beat]);
-	//		/// PATTERN CHANGE
-	//		if (cell->mode == TIMELINE_CELL_NEW
-	//		&& this->pattern_cell[i] != cell) {
-	//			if (cell->pattern < 256) {
-	//				/// COMPUTE PATTERN CHANGE / TIMING
-	//				pattern = &(this->patterns[cell->pattern]);
-	//				/// RESET RELATIVE CLOCK
-	//				clock_relative.beat = cell->beat % pattern->beat_count;
-	//				clock_relative.phase = this->clock.phase;
-	//				/// RESET PATTERN
-	//				this->pattern_reader[i].stop();
-	//				this->pattern_start[i] = clock.beat;
-	//				this->pattern_cell[i] = cell;
-	//				this->pattern_source[i] = pattern;
-	//				/// COMPUTE PATTERN PROCESS
-	//				this->pattern_reader[i].process(this->synths,
-	//				/**/ this->pattern_source[i], clock_relative,
-	//				/**/ &debug, &debug_2, debug_str);
-	//			}
-	//		/// PATTERN STOP
-	//		} else if (cell->mode == TIMELINE_CELL_STOP) {
-	//			/// PATTERN SWITCH OFF
-	//			if (this->pattern_source[i] != NULL) {
-	//				this->pattern_reader[i].stop();
-	//				this->pattern_source[i] = NULL;
-	//				this->pattern_source[i] = NULL;
-	//				this->pattern_cell[i] = NULL;
-	//				this->pattern_start[i] = 0;
-	//			}
-	//		/// PATTERN KEEP
-	//		} else {
-	//			if (this->pattern_source[i]) {
-	//				pattern = this->pattern_source[i];
-	//				/// COMPUTE RELATIVE CLOCK
-	//				clock_relative.beat =
-	//				/**/ (this->clock.beat - this->pattern_start[i]
-	//				/**/ + this->pattern_cell[i]->beat) % pattern->beat_count;
-	//				clock_relative.phase = this->clock.phase;
-	//				/// COMPUTE PATTERN PROCESS
-	//				this->pattern_reader[i].process(this->synths,
-	//				/**/ this->pattern_source[i], clock_relative,
-	//				/**/ &debug, &debug_2, debug_str);
-	//			}
-	//		}
-	//	}
-	////// MODE PLAY PATTERN
+	//// MODE PLAY PATTERN SOLO
 	//} else if (g_timeline.play == TIMELINE_MODE_PLAY_PATTERN) {
 	//	pattern = g_editor.pattern;
 	//	/// UPDATE PATTERN ON END
@@ -204,6 +151,8 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	//	/**/ this->pattern_source[0], this->clock,
 	//	/**/ &debug, &debug_2, debug_str);
 	//}
+	//// MODE PLAY PATTERN LOOP
+	//// MODE PLAY LIVE
 
 	//// -> ! ! ! BOTTLENECK ! ! !
 	//// -> Truncate framerate to run only every 32 / 64 frames

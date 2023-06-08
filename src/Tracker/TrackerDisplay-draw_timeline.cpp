@@ -101,7 +101,11 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 				corner = (it->beat_length > 1) ? 5 : 3;
 				/// FILL
 				nvgBeginPath(args.vg);
-				nvgFillColor(args.vg, colors_user[it->source->color]);
+				if (it->muted == true) {
+					nvgFillColor(args.vg, nvgTransRGBAf(colors_user[it->source->color], 0.5));
+				} else {
+					nvgFillColor(args.vg, colors_user[it->source->color]);
+				}
 				nvgRoundedRect(args.vg, x + 1, y + 2, w, h, corner);
 				nvgFill(args.vg);
 				/// HANDLES

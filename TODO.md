@@ -35,7 +35,7 @@
 
 - [ ] NEW VERSION
 	- [ ] BACKEND
-		- [ ] Timeline
+		- [x] Timeline
 		- [ ] Pattern
 			- [ ] Column effects (effects active on every lines of the column)
 	- [ ] Display

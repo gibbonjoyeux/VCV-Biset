@@ -41,6 +41,25 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 }
 
 static void on_button_right(const rack::Widget::ButtonEvent &e) {
+	Menu			*menu;
+	PatternInstance	*instance;
+	int				row;
+	int				beat;
+
+	if (e.action == GLFW_PRESS) {
+		/// COMPUTE POSITION
+		row = (int)((e.pos.y - 3) / (CHAR_H * 3)) + g_editor.timeline_cam_y - 1;
+		beat = (int)((e.pos.x - 2) / CHAR_W - 2) + g_editor.timeline_cam_x;
+		instance = g_timeline.instance_find(row, beat);
+		/// EDIT INSTANCE
+		if (instance != NULL) {
+			menu = createMenu();
+			menu->addChild(new MenuCheckItem("Mute", "",
+				[=]() { return instance->muted; },
+				[=]() { instance->muted = !instance->muted; }
+			));
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +92,8 @@ void TrackerDisplay::on_drag_move_timeline(const DragMoveEvent& e) {
 	if (g_timeline.play != TIMELINE_MODE_STOP)
 		return;
 	if (g_editor.instance == NULL)
+		return;
+	if (e.button != GLFW_MOUSE_BUTTON_LEFT)
 		return;
 	/// MOVE INSTANCE
 	if (g_editor.instance_handle == INSTANCE_HANDLE_MIDDLE) {

@@ -227,7 +227,8 @@ struct MenuItemStay : ui::MenuItem {
 	}
 
 	void onButton(const ButtonEvent &e) override {
-		if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+		if (e.button == GLFW_MOUSE_BUTTON_LEFT
+		&& e.action == GLFW_PRESS) {
 			this->action_func();
 			e.stopPropagating();
 		}
@@ -260,7 +261,8 @@ struct MenuCheckItem : ui::MenuItem {
 	}
 
 	void onButton(const ButtonEvent &e) override {
-		if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+		if (e.button == GLFW_MOUSE_BUTTON_LEFT
+		&& e.action == GLFW_PRESS) {
 			this->func_action();
 			e.stopPropagating();
 		}
