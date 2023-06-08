@@ -55,7 +55,9 @@
 		- [ ] SCreen Side Synths (Tracker)
 			- [x] Draw synths
 			- [x] Select synth
-			- [x] Edit Synth (name + color)
+			- [ ] Edit Synth
+				- [x] Basics (name + color)
+				- [ ] Synth mode & channel count
 			- [x] Add synth
 			- [x] Del synth
 			- [ ] Move synth (move & replace in patterns)
@@ -64,13 +66,15 @@
 			- [x] Draw patterns
 			- [x] Select pattern
 			- [x] Double click : open pattern tracker
-			- [x] Edit Synth (name + color)
+			- [ ] Edit pattern
+				- [x] Basics (name + color)
+				- [ ] Pattern specs (length, lpb, etc.)
 			- [x] Add pattern
 			- [x] Del pattern
 			- [ ] Move pattern (move & replace in instances)
 			- [ ] Duplicate pattern
 			- [x] Scroll
-	- [ ] Save new version
+	- [x] Save new version
 
 - [ ] MODULE Tracker
 	- [ ] BACKEND

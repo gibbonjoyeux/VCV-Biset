@@ -27,10 +27,6 @@ Timeline::Timeline() {
 	this->synth_count = 0;
 	/// [2] INIT TIMELINE READING
 	for (i = 0; i < 32; ++i) {
-		//this->pattern_source[i] = NULL;
-		//this->pattern_cell[i] = NULL;
-		//this->pattern_start[i] = 0;
-		//this->pattern_reader[i].reset();
 		this->pattern_it[i] = this->timeline[i].begin();
 		this->pattern_it_end[i] = this->timeline[i].end();
 		this->pattern_reader[i].reset();
@@ -226,13 +222,6 @@ void Timeline::stop(void) {
 	int		i;
 
 	for (i = 0; i < 32; ++i) {
-		//if (this->pattern_source[i] != NULL) {
-		//	this->pattern_reader[i].stop();
-		//	this->pattern_source[i] = NULL;
-		//	this->pattern_source[i] = NULL;
-		//	//this->pattern_cell[i] = NULL;
-		//	this->pattern_start[i] = 0;
-		//}
 		this->pattern_it[i] = this->timeline[i].begin();
 		this->pattern_it_end[i] = this->timeline[i].end();
 		this->pattern_reader[i].stop();

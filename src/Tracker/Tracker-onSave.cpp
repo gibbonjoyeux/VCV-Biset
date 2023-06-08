@@ -16,8 +16,6 @@ TRACKER BINARY SAVE FORMAT:
 - Saving endian									u8
 - File size										u32
 - Editor
-	- Active synth								u8
-	- Active pattern							u16
 	- Used jump									u8
 	- Used octave								u8
 	- View modes
@@ -26,61 +24,71 @@ TRACKER BINARY SAVE FORMAT:
 		- View delay							u8
 		- View glide							u8
 		- View effects							u8
+- Patterns
+	- Pattern count								u16
+	- Patterns
+		- Beat count							u16
+		- Note count							u8
+		- CV count								u8
+		- lpb (lines per beat)					u8
+		- Note columns										x N
+			- Column effect count				u8
+			- Column general effects
+				- Fx velocity					u8
+				- Fx octave						u8
+				- Fx octave mode				u8
+				- Fx pitch						u8
+				- Fx delay						u8
+				- Fx chance						u8
+				- Fx panning					u8
+			- Column set lines count			u16
+			- Lines (only set lines)
+				- Line number					u16
+				- Note mode						i8
+				- ? Mode NEW
+					- Note pitch				u8
+					- Note velocity				u8
+					- Note panning				u8
+					- Note synth				u8
+					- Note delay				u8
+					- Note glide				u8
+					- Note effects							x N
+						- Effect type			u8
+						- Effect value			u8
+				- ? Mode STOP
+					- Note delay				u8
+				- ? Mode CHANGE
+					- Note velocity				u8
+					- Note panning				u8
+					- Note delay				u8
+				- ? Mode GLIDE
+					- Note pitch				u8
+					- Note glide				u8
+		- CV columns										x N
+			- Column mode						u8
+			- Column synth						u8
+			- Column channel					u8
+			- Column set lines count			u16
+			- Lines (only set lines)
+				- Line number					u16
+				- CV mode						u8
+				- CV value						u16
+				- CV delay						u8
+				- CV curve						u8
+- Synths
+	- Synth count								u8
+	- Synths
+		- Synth mode							u8
+		- Synth channel count					u8
 - Timeline
-	- Beat count								u16
-	- Timeline set lines count					u16
-	- Lines (only set lines)
-		- Line (beat) column					u8
-		- Line (beat) number					u16
-		- Cell mode								u8
-		- ? Mode NEW
-			- Cell pattern						u16
-			- Cell beat							u16
-		- ? Mode STOP
-- Patterns													x 256
-	- Beat count								u16
-	- Note count								u8
-	- CV count									u8
-	- lpb (lines per beat)						u8
-	- Note columns											x N
-		- Column effect count					u8
-		- Column set lines count				u16
-		- Lines (only set lines)
-			- Line number						u16
-			- Note mode							i8
-			- ? Mode NEW
-				- Note pitch					u8
-				- Note velocity					u8
-				- Note panning					u8
-				- Note synth					u8
-				- Note delay					u8
-				- Note glide					u8
-				- Note effects								x N
-					- Effect type				u8
-					- Effect value				u8
-			- ? Mode STOP
-				- Note delay					u8
-			- ? Mode CHANGE
-				- Note velocity					u8
-				- Note panning					u8
-				- Note delay					u8
-			- ? Mode GLIDE
-				- Note pitch					u8
-				- Note glide					u8
-	- CV columns											x N
-		- Column mode							u8
-		- Column synth							u8
-		- Column channel						u8
-		- Column set lines count				u16
-		- Lines (only set lines)
-			- Line number						u16
-			- CV mode							u8
-			- CV value							u16
-			- CV delay							u8
-			- CV curve							u8
-- Synths													x 64
-	- Synth mode								u8
-	- Synth channel count						u8
+	- Instance count							u16
+	- Instances
+		- Instance row							u8
+		- Instance beat							u16
+		- Pattern id							u16
+		- Instance beat start					u16
+		- Instance beat length					u16
+		- Muted									u8
 
 */
 
@@ -154,132 +162,136 @@ static void fill_cursor_count(u8 size, u32 count) {
 }
 
 static void fill_save_buffer() {
-	//PatternSource	*pattern;
-	//PatternNoteCol	*note_col;
-	//PatternNote		*note;
-	//PatternCVCol	*cv_col;
-	//PatternCV		*cv;
-	//TimelineCell	*cell;
-	//int				i, j, k, l;
-	//u32				count;
+	list<PatternInstance>::iterator	it, it_end;
+	PatternSource					*pattern;
+	PatternNoteCol					*note_col;
+	PatternNote						*note;
+	PatternCVCol					*cv_col;
+	PatternCV						*cv;
+	int								i, j, k, l;
+	u32								count;
 
-	//if (g_timeline.save_mode == SAVE_MODE_WRITE
-	//&& g_timeline.save_buffer == NULL)
-	//	return;
-	///// [1] ADD BASICS
-	//g_timeline.save_cursor = 0;
-	//fill_u8(endian_native());				// Saving endian
-	//fill_u32(g_timeline.save_length);		// File size
-	//fill_u8(g_editor.synth_id);				// Active synth
-	//fill_u16(g_editor.pattern_id);			// Active pattern
-	//fill_u8(g_editor.pattern_jump);			// Used jump
-	//fill_u8(g_editor.pattern_octave);		// Used octave
-	//fill_u8(g_editor.switch_view[0].state);	// View velocity
-	//fill_u8(g_editor.switch_view[1].state);	// View panning
-	//fill_u8(g_editor.switch_view[2].state);	// View delay
-	//fill_u8(g_editor.switch_view[3].state);	// View glide
-	//fill_u8(g_editor.switch_view[4].state);	// View effects
-	///// [2] ADD TIMELINE
-	//fill_u16(g_timeline.beat_count);		// Beat count
-	//fill_cursor_save(sizeof(u16));			// -> Prepare set lines count
-	//count = 0;
-	//for (i = 0; i < 12; ++i) {
-	//	for (j = 0; j < g_timeline.beat_count; ++j) {
-	//		cell = &(g_timeline.timeline[i][j]);
-	//		if (cell->mode == TIMELINE_CELL_NEW) {
-	//			fill_u8(i);					// Line (beat) column
-	//			fill_u16(j);				// Line (beat) number
-	//			fill_u8(cell->mode);		// Cell mode
-	//			fill_u16(cell->pattern);	// Cell pattern
-	//			fill_u16(cell->beat);		// Cell beat
-	//			count += 1;
-	//		} else if (cell->mode == TIMELINE_CELL_STOP) {
-	//			fill_u8(i);					// Line (beat) column
-	//			fill_u16(j);				// Line (beat) number
-	//			fill_u8(cell->mode);		// Cell mode
-	//			count += 1;
-	//		}
-	//	}
-	//}
-	//fill_cursor_count(sizeof(u16), count);	// -> Fill set lines count
-	///// [3] ADD PATTERNS
-	//for (i = 0; i < 256; ++i) {
-	//	pattern = &(g_timeline.patterns[i]);
-	//	fill_u16(pattern->beat_count);		// Beat count
-	//	fill_u8(pattern->note_count);		// Note count
-	//	fill_u8(pattern->cv_count);			// CV count
-	//	fill_u8(pattern->lpb);				// lpb (lines per beat)
-	//	/// PATTERN NOTE COLUMNS
-	//	for (j = 0; j < pattern->note_count; ++j) {
-	//		note_col = pattern->notes[j];
-	//		fill_u8(note_col->effect_count);// Effect count
-	//		fill_cursor_save(sizeof(u16));	// -> Prepare set lines count
-	//		count = 0;
-	//		for (k = 0; k < pattern->line_count; ++k) {
-	//			note = &(note_col->lines[k]);
-	//			if (note->mode == PATTERN_NOTE_NEW) {
-	//				fill_u16(k);						// Line number
-	//				fill_u8(note->mode);				// Note mode
-	//				fill_u8(note->pitch);				// Note pitch
-	//				fill_u8(note->velocity);			// Note velocity
-	//				fill_u8(note->panning);				// Note panning
-	//				fill_u8(note->synth);				// Note synth
-	//				fill_u8(note->delay);				// Note delay
-	//				fill_u8(note->glide);				// Note glide
-	//				for (l = 0; l < note_col->effect_count; ++l) {
-	//					fill_u8(note->effects[l].type);	// Effect type
-	//					fill_u8(note->effects[l].value);// Effect value
-	//				}
-	//				count += 1;
-	//			} else if (note->mode == PATTERN_NOTE_STOP) {
-	//				fill_u16(k);						// Line number
-	//				fill_u8(note->mode);				// Note mode
-	//				fill_u8(note->delay);				// Note delay
-	//				count += 1;
-	//			} else if (note->mode == PATTERN_NOTE_CHANGE) {
-	//				fill_u16(k);						// Line number
-	//				fill_u8(note->mode);				// Note mode
-	//				fill_u8(note->velocity);			// Note velocity
-	//				fill_u8(note->panning);				// Note panning
-	//				fill_u8(note->delay);				// Note delay
-	//				count += 1;
-	//			} else if (note->mode == PATTERN_NOTE_GLIDE) {
-	//				fill_u16(k);						// Line number
-	//				fill_u8(note->mode);				// Note mode
-	//				fill_u8(note->pitch);				// Note pitch
-	//				fill_u8(note->glide);				// Note glide
-	//				count += 1;
-	//			}
-	//		}
-	//		fill_cursor_count(sizeof(u16), count);	// -> Fill set lines count
-	//	}
-	//	/// PATTERN CV COLUMNS
-	//	for (j = 0; j < pattern->cv_count; ++j) {
-	//		cv_col = pattern->cvs[j];
-	//		fill_u8(cv_col->mode);						// Column mode (cv / bpm)
-	//		fill_u8(cv_col->synth);						// Column synth
-	//		fill_u8(cv_col->channel);					// Column channel
-	//		fill_cursor_save(sizeof(u16));				// -> Prepare set lines count
-	//		count = 0;
-	//		for (k = 0; k < pattern->line_count; ++k) {
-	//			cv = &(cv_col->lines[k]);
-	//			if (cv->mode == PATTERN_CV_SET) {
-	//				fill_u16(k);						// Line number
-	//				fill_u8(cv->mode);					// CV mode
-	//				fill_u16(cv->value);				// CV value
-	//				fill_u8(cv->delay);					// CV delay
-	//				fill_u8(cv->glide);					// CV curve
-	//				count += 1;
-	//			}
-	//		}
-	//		fill_cursor_count(sizeof(u16), count);		// -> Fill set lines count
-	//	}
-	//}
-	///// [4] SYNTHS
-	//for (i = 0; i < 64; ++i) {
-	//	fill_u8(g_timeline.synths[i].mode);				// Mode (gate / trigger / drum)
-	//	fill_u8(g_timeline.synths[i].channel_count);	// Channel count
-	//}
+	if (g_timeline.save_mode == SAVE_MODE_WRITE
+	&& g_timeline.save_buffer == NULL)
+		return;
+	/// [1] ADD BASICS
+	g_timeline.save_cursor = 0;
+	fill_u8(endian_native());				// Saving endian
+	fill_u32(g_timeline.save_length);		// File size
+	fill_u8(g_editor.pattern_jump);			// Used jump
+	fill_u8(g_editor.pattern_octave);		// Used octave
+	fill_u8(g_editor.switch_view[0].state);	// View velocity
+	fill_u8(g_editor.switch_view[1].state);	// View panning
+	fill_u8(g_editor.switch_view[2].state);	// View delay
+	fill_u8(g_editor.switch_view[3].state);	// View glide
+	fill_u8(g_editor.switch_view[4].state);	// View effects
+	/// [2] ADD PATTERNS
+	fill_u16(g_timeline.pattern_count);
+	for (i = 0; i < g_timeline.pattern_count; ++i) {
+		pattern = &(g_timeline.patterns[i]);
+		fill_u16(pattern->beat_count);		// Beat count
+		fill_u8(pattern->note_count);		// Note count
+		fill_u8(pattern->cv_count);			// CV count
+		fill_u8(pattern->lpb);				// lpb (lines per beat)
+		/// PATTERN NOTE COLUMNS
+		for (j = 0; j < pattern->note_count; ++j) {
+			note_col = pattern->notes[j];
+			fill_u8(note_col->effect_count);		// Effect count
+			fill_u8(note_col->effect_velocity);		// Fx velocity
+			fill_u8(note_col->effect_octave);		// Fx octave
+			fill_u8(note_col->effect_octave_mode);	// Fx octave_mode
+			fill_u8(note_col->effect_pitch);		// Fx pitch
+			fill_u8(note_col->effect_delay);		// Fx delay
+			fill_u8(note_col->effect_chance);		// Fx chance
+			fill_u8(note_col->effect_panning);		// Fx panning
+			fill_cursor_save(sizeof(u16));			// -> Prepare set lines count
+			count = 0;
+			for (k = 0; k < pattern->line_count; ++k) {
+				note = &(note_col->lines[k]);
+				if (note->mode == PATTERN_NOTE_NEW) {
+					fill_u16(k);						// Line number
+					fill_u8(note->mode);				// Note mode
+					fill_u8(note->pitch);				// Note pitch
+					fill_u8(note->velocity);			// Note velocity
+					fill_u8(note->panning);				// Note panning
+					fill_u8(note->synth);				// Note synth
+					fill_u8(note->delay);				// Note delay
+					fill_u8(note->glide);				// Note glide
+					for (l = 0; l < note_col->effect_count; ++l) {
+						fill_u8(note->effects[l].type);	// Effect type
+						fill_u8(note->effects[l].value);// Effect value
+					}
+					count += 1;
+				} else if (note->mode == PATTERN_NOTE_STOP) {
+					fill_u16(k);						// Line number
+					fill_u8(note->mode);				// Note mode
+					fill_u8(note->delay);				// Note delay
+					count += 1;
+				} else if (note->mode == PATTERN_NOTE_CHANGE) {
+					fill_u16(k);						// Line number
+					fill_u8(note->mode);				// Note mode
+					fill_u8(note->velocity);			// Note velocity
+					fill_u8(note->panning);				// Note panning
+					fill_u8(note->delay);				// Note delay
+					count += 1;
+				} else if (note->mode == PATTERN_NOTE_GLIDE) {
+					fill_u16(k);						// Line number
+					fill_u8(note->mode);				// Note mode
+					fill_u8(note->pitch);				// Note pitch
+					fill_u8(note->glide);				// Note glide
+					count += 1;
+				}
+			}
+			fill_cursor_count(sizeof(u16), count);	// -> Fill set lines count
+		}
+		/// PATTERN CV COLUMNS
+		for (j = 0; j < pattern->cv_count; ++j) {
+			cv_col = pattern->cvs[j];
+			fill_u8(cv_col->mode);						// Column mode (cv / bpm)
+			fill_u8(cv_col->synth);						// Column synth
+			fill_u8(cv_col->channel);					// Column channel
+			fill_cursor_save(sizeof(u16));				// -> Prepare set lines count
+			count = 0;
+			for (k = 0; k < pattern->line_count; ++k) {
+				cv = &(cv_col->lines[k]);
+				if (cv->mode == PATTERN_CV_SET) {
+					fill_u16(k);						// Line number
+					fill_u8(cv->mode);					// CV mode
+					fill_u16(cv->value);				// CV value
+					fill_u8(cv->delay);					// CV delay
+					fill_u8(cv->glide);					// CV curve
+					count += 1;
+				}
+			}
+			fill_cursor_count(sizeof(u16), count);		// -> Fill set lines count
+		}
+	}
+	/// [3] SYNTHS
+	fill_u8(g_timeline.synth_count);
+	for (i = 0; i < g_timeline.synth_count; ++i) {
+		fill_u8(g_timeline.synths[i].mode);				// Mode (gate / trigger / drum)
+		fill_u8(g_timeline.synths[i].channel_count);	// Channel count
+	}
+	/// [4] ADD TIMELINE
+	fill_cursor_save(sizeof(u16));			// -> Prepare set instances count
+	count = 0;
+	for (i = 0; i < 32; ++i) {
+		it = g_timeline.timeline[i].begin();
+		it_end = g_timeline.timeline[i].end();
+		while (it != it_end) {
+			j = ((intptr_t)it->source - (intptr_t)g_timeline.patterns)
+			/**/ / sizeof(PatternSource);
+			fill_u8(it->row);				// Instance row
+			fill_u16(it->beat);				// Instance beat
+			fill_u16(j);					// Instance pattern source index
+			fill_u16(it->beat_start);		// Instance beat start
+			fill_u16(it->beat_length);		// Instance beat length
+			fill_u8(it->muted);				// Instance muted
+			it = std::next(it);
+			count += 1;
+		}
+	}
+	fill_cursor_count(sizeof(u16), count);	// -> Fill set instances count
 }
 
 //////////////////////////////////////////////////
@@ -339,16 +351,16 @@ static void write_save_buffer() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void Tracker::onSave(const SaveEvent &e) {
-	///// [1] WAIT FOR THREAD FLAG
-	//while (g_timeline.thread_flag.test_and_set()) {}
+	/// [1] WAIT FOR THREAD FLAG
+	while (g_timeline.thread_flag.test_and_set()) {}
 
-	///// [2] INIT SAVE BUFFER
-	//init_save_buffer();
-	///// [3] FILL SAVE BUFFER
-	//fill_save_buffer();
-	///// [4] WRITE SAVE BUFFER
-	//write_save_buffer();
+	/// [2] INIT SAVE BUFFER
+	init_save_buffer();
+	/// [3] FILL SAVE BUFFER
+	fill_save_buffer();
+	/// [4] WRITE SAVE BUFFER
+	write_save_buffer();
 
-	///// [5] CLEAR THREAD FLAG
-	//g_timeline.thread_flag.clear();
+	/// [5] CLEAR THREAD FLAG
+	g_timeline.thread_flag.clear();
 }

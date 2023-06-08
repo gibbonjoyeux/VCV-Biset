@@ -26,6 +26,24 @@ PatternSource *Timeline::pattern_new(void) {
 	return pattern;
 }
 
+PatternSource *Timeline::pattern_new(int note_count, int cv_count,
+				int beat_count, int lpb) {
+	PatternSource	*pattern;
+
+	if (this->pattern_count >= 999)
+		return NULL;
+
+	/// GET NEW PATTERN
+	pattern = &(this->patterns[this->pattern_count]);
+	pattern->init(note_count, cv_count, beat_count, lpb);
+	this->pattern_count += 1;
+	/// SELECT NEW PATTERN
+	g_editor.pattern_id = this->pattern_count - 1;
+	g_editor.pattern = pattern;
+	/// RETURN NEW PATTERN
+	return pattern;
+}
+
 void Timeline::pattern_del(PatternSource *pattern) {
 	bool	found;
 	int		i;

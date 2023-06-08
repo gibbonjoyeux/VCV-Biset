@@ -158,13 +158,13 @@ struct PatternCVCol {
 
 struct PatternNoteCol {
 	u8							effect_count;
-	float						effect_velocity;
-	float						effect_panning;
-	float						effect_delay;
-	float						effect_chance;
-	float						effect_octave_mode;
-	float						effect_octave;
-	float						effect_pitch;
+	u8							effect_velocity;
+	u8							effect_panning;
+	u8							effect_delay;
+	u8							effect_chance;
+	u8							effect_octave_mode;
+	u8							effect_octave;
+	u8							effect_pitch;
 	PatternNote					lines[0];	// Notes (memory as struct extension)
 };
 
@@ -343,6 +343,7 @@ struct Timeline {
 	void			process(i64 frame, float dt_sec, float dt_beat);
 	void			stop(void);
 	PatternSource	*pattern_new(void);
+	PatternSource	*pattern_new(int note_count, int cv_count, int beat_count, int lpb);
 	void			pattern_del(PatternSource *source);
 	void			pattern_swap(PatternSource *source_a, PatternSource *source_b);
 	Synth			*synth_new(void);

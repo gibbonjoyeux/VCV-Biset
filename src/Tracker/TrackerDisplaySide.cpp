@@ -34,7 +34,9 @@ static bool draw_list_pattern(int index, char **name, int *color, bool *state) {
 static void menu_pattern(PatternSource *pattern) {
 	Menu		*menu;
 	MenuLabel	*label;
+	bool		play_disable;
 
+	play_disable = (g_timeline.play != TIMELINE_MODE_STOP);
 	menu = createMenu();
 	/// ADD LABEL
 	label = new MenuLabel();
@@ -143,14 +145,19 @@ static void menu_pattern(PatternSource *pattern) {
 					g_timeline.pattern_del(pattern);
 				}
 			));
-		}
+		}, play_disable
 	));
+	/// ADD PATTERN EDITION MENU
+	if (play_disable == false) {
+	}
 }
 
 static void menu_synth(Synth *synth) {
 	Menu		*menu;
 	MenuLabel	*label;
+	bool		play_disable;
 
+	play_disable = (g_timeline.play != TIMELINE_MODE_STOP);
 	menu = createMenu();
 	/// ADD LABEL
 	label = new MenuLabel();
@@ -245,8 +252,32 @@ static void menu_synth(Synth *synth) {
 					g_timeline.synth_del(synth);
 				}
 			));
-		}
+		}, play_disable
 	));
+	/// ADD SYNTH EDITION MENU
+	if (play_disable == false) {
+		
+		menu->addChild(new MenuSeparator());
+
+		/// SYNTH CHANNEL COUNT
+		/// SYNTH MODE
+		menu->addChild(rack::createSubmenuItem("Mode", "",
+			[=](Menu *menu) {
+				menu->addChild(new MenuCheckItem("Gate", "",
+					[=]() { return synth->mode == SYNTH_MODE_GATE; },
+					[=]() { synth->mode = SYNTH_MODE_GATE; }
+				));
+				menu->addChild(new MenuCheckItem("Trigger", "",
+					[=]() { return synth->mode == SYNTH_MODE_TRIGGER; },
+					[=]() { synth->mode = SYNTH_MODE_TRIGGER; }
+				));
+				menu->addChild(new MenuCheckItem("Drum", "",
+					[=]() { return synth->mode == SYNTH_MODE_DRUM; },
+					[=]() { synth->mode = SYNTH_MODE_DRUM; }
+				));
+			}
+		));
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -475,6 +506,8 @@ void TrackerDisplaySide::onSelectKey(const SelectKeyEvent &e) {
 	if ((e.action == GLFW_PRESS || e.action == GLFW_REPEAT)
 	&& (e.key == GLFW_KEY_UP || e.key == GLFW_KEY_DOWN)) {
 		e.consume(this);
+		if (g_timeline.play != TIMELINE_MODE_STOP)
+			return;
 		/// MOVE SYNTH
 		if (g_editor.mode == EDITOR_MODE_PATTERN) {
 			if (g_editor.synth) {

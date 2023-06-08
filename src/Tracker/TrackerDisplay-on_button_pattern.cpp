@@ -157,6 +157,9 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 	/// SELECT CLICKED COLUMN
 	on_button_left(e);
 
+	if (g_timeline.play != TIMELINE_MODE_STOP)
+		return;
+
 	pattern = g_editor.pattern;
 	menu = createMenu();
 

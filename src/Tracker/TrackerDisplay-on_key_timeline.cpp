@@ -11,6 +11,8 @@
 
 void TrackerDisplay::on_key_timeline(const Widget::SelectKeyEvent &e) {
 	e.consume(this);
+	if (g_timeline.play != TIMELINE_MODE_STOP)
+		return;
 	if (e.action == GLFW_PRESS
 	|| e.action == GLFW_REPEAT) {
 		/// REMOVE INSTANCE

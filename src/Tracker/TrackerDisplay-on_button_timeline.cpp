@@ -10,8 +10,6 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 	int				row;
 	int				beat;
 
-	if (g_editor.pattern == NULL)
-		return;
 	if (e.action == GLFW_PRESS) {
 		/// COMPUTE POSITION
 		row = (int)((e.pos.y - 3) / (CHAR_H * 3)) + g_editor.timeline_cam_y - 1;
@@ -50,13 +48,15 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void TrackerDisplay::on_button_timeline(const ButtonEvent &e) {
+	e.consume(this);
+	if (g_timeline.play != TIMELINE_MODE_STOP)
+		return;
 	if (g_editor.pattern == NULL)
 		return;
 	if (e.button == GLFW_MOUSE_BUTTON_LEFT)
 		on_button_left(e);
 	else if (e.button == GLFW_MOUSE_BUTTON_RIGHT)
 		on_button_right(e);
-	e.consume(this);
 }
 
 void TrackerDisplay::on_drag_start_timeline(const DragStartEvent& e) {
@@ -70,6 +70,8 @@ void TrackerDisplay::on_drag_move_timeline(const DragMoveEvent& e) {
 	int		start;
 	int		length;
 
+	if (g_timeline.play != TIMELINE_MODE_STOP)
+		return;
 	if (g_editor.instance == NULL)
 		return;
 	/// MOVE INSTANCE

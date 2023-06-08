@@ -40,7 +40,7 @@ PatternInstance *Timeline::instance_new(PatternSource *source, int row, int beat
 	g_editor.instance = &(*it);
 	g_editor.instance_row = row;
 	g_editor.instance_beat = beat;
-	return NULL;
+	return &(*it);
 }
 
 void Timeline::instance_del(PatternInstance *instance) {
