@@ -9,4 +9,6 @@ void init(Plugin* p) {
 	p->addModel(modelTrackerSynth);
 	//p->addModel(modelTrackerDrum);
 	//p->addModel(modelTrackerClock);
+
+	p->addModel(modelRegex);
 }

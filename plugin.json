@@ -24,6 +24,12 @@
 		"name": "Tracker Synth",
 		"description": "Tracker synth output",
 		"tags": ["Digital", "Sequencer", "Polyphonic"]
+	},
+	{
+		"slug": "Regex",
+		"name": "Regex",
+		"description": "Live coding sequencer",
+		"tags": ["Digital", "Sequencer", "Clock generator"]
 	}
   ]
 }
