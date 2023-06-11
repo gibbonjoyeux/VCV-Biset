@@ -1,10 +1,6 @@
 
 #include "Regex.hpp"
 
-#define IS_MODE(c)		(c == '#' || c == '@' || c == '?' || c == '!' || c == '&')
-#define IS_DIGIT(c)		(c >= '0' && c <= '9')
-#define IS_MODULATOR(c)	(c == 'x' || c == '%')
-
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,14 +47,21 @@ void RegexDisplay::onSelectText(const SelectTextEvent &e) {
 void RegexDisplay::onSelectKey(const SelectKeyEvent &_e) {
 	SelectKeyEvent	e;
 	int				len;
+	int				i;
 
 	e = _e;
 	/// HANDLE ENTER
 	if (e.key == GLFW_KEY_ENTER) {
-		/// UPDATE ALL SEQUENCES
-		if (e.mods & GLFW_MOD_CONTROL) {
-		/// UPDATE SEQUENCE
-		} else {
+		if (e.action == GLFW_PRESS) {
+			/// UPDATE ALL SEQUENCES
+			if (e.mods & GLFW_MOD_CONTROL) {
+				for (i = 0; i < 4; ++i)
+					this->module->sequences[i].compile();
+			/// UPDATE SEQUENCE
+			} else {
+				// TODO: compile only rythm or pitch
+				this->sequence->compile();
+			}
 		}
 		e.consume(this);
 		return;

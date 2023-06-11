@@ -49,6 +49,12 @@ RegexWidget::RegexWidget(Regex* _module) {
 	///**/ createOutputCentered<Outlet>(mm2px(Vec(12.85, 30.0)),
 	///**/ module,
 	///**/ Regex::OUTPUT_BPM));
+
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 - 70.0, 8.5 + 26.0 * 4)),
+	/**/ module,
+	/**/ Regex::INPUT_CLOCK));
+
 	for (i = 0; i < 4; ++i) {
 		addOutput(
 		/**/ createOutputCentered<Outlet>(mm2px(Vec(104.5, 8.5 + 26.0 * i + 2.0)),
