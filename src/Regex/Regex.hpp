@@ -7,6 +7,11 @@
 #define REGEX_VALUE			0
 #define REGEX_SEQUENCE		1
 
+#define REGEX_MODE_CLOCK	0
+#define REGEX_MODE_RACHET	1
+#define REGEX_MODE_PITCH	2
+#define REGEX_MODE_OCTAVE	3
+
 #define IS_MODE(c)		(c == '#' || c == '@' || c == '?' || c == '!' || c == '$')
 #define IS_DIGIT(c)		(c >= '0' && c <= '9')
 #define IS_PITCH(c)		((c >= 'a' && c <= 'g') || (c >= 'A' && c <= 'G'))
@@ -40,57 +45,60 @@ struct RegexItem {
 		list<RegexItem>				sequence;			// Seq items
 	}								sequence;
 
-	bool pull(int &value);
-	bool pull_seq(int &value);
-	bool pull_shuffle(int &value);
-	bool pull_rand(int &value);
-	bool pull_xrand(int &value);
-	bool pull_walk(int &value);
+	bool pull_clock(int &value);
+	bool pull_clock_seq(int &value);
+	bool pull_clock_shuffle(int &value);
+	bool pull_clock_rand(int &value);
+	bool pull_clock_xrand(int &value);
+	bool pull_clock_walk(int &value);
+	void select(int index);
 	void shuffle(void);
 };
 
 struct RegexSeq {
-	RegexItem				*sequence_rythm;
-	RegexItem				*sequence_rythm_next;
-	RegexItem				*sequence_pitch;
-	RegexItem				*sequence_pitch_next;
-	RegexDisplay			*display_rythm;
-	RegexDisplay			*display_pitch;
-	Output					*out_rythm;
-	Output					*out_pitch;
-	int						trigger_divider;
-	int						trigger_count;
-	dsp::PulseGenerator		trigger;
+	u8							mode;			// Clock | Rachet | Pitch | Oct
+	RegexItem					*sequence;
+	RegexItem					*sequence_next;
+	RegexDisplay				*display;
+	Input						*in;
+	Output						*out;
+	std::string					sequence_string;
+	std::string					sequence_next_string;
+	int							clock_out_divider;
+	int							clock_out_count;
+	dsp::PulseGenerator			clock_out;
+	dsp::TSchmittTrigger<float>	clock_in;
 
 	RegexSeq();
 	~RegexSeq();
+	void reset(void);
 	void process(float dt, bool trigger);
 	void compile(void);
-	void compile_rythm(void);
-	void compile_rythm_req(RegexItem *item, char *str, int &i);
+	void compile_clock(void);
+	void compile_clock_req(RegexItem *item, char *str, int &i);
+	static bool is_value_clock(char c, int i);
+	static bool is_value_pitch(char c, int i);
 };
 
 struct Regex : Module {
 	enum	ParamIds {
-		PARAM_SYNTH,
-		PARAM_BPM,
-		ENUMS(PARAM_MODE, 4),
+		ENUMS(PARAM_MODE, 8),
 		PARAM_COUNT
 	};
 	enum	InputIds {
-		INPUT_CLOCK,
+		INPUT_MASTER,
+		ENUMS(INPUT_EXP, 8),
 		INPUT_COUNT
 	};
 	enum	OutputIds {
-		ENUMS(OUTPUT_GATE, 4),
-		ENUMS(OUTPUT_PITCH, 4),
+		ENUMS(OUTPUT_EXP, 8),
 		OUTPUT_COUNT
 	};
 	enum	LightIds {
 		LIGHT_COUNT
 	};
 	RegexWidget					*widget;
-	RegexSeq					sequences[4];
+	RegexSeq					sequences[8];
 	dsp::TSchmittTrigger<float>	clock;
 
 	Regex();
@@ -112,13 +120,12 @@ struct RegexDisplay : LedDisplayTextField {
 	void onSelectKey(const SelectKeyEvent &e) override;
 
 	bool check_syntax(void);
-	bool check_syntax_seq(char *str, int &i);
+	bool check_syntax_seq(std::function<bool(char,int)> func, char *str, int &i);
 };
 
 struct RegexWidget : ModuleWidget {
 	Regex					*module;
-	RegexDisplay			*display_rythm[4];
-	RegexDisplay			*display_pitch[4];
+	RegexDisplay			*display[8];
 
 	RegexWidget(Regex * _module);
 	//void onSelect(const SelectEvent &e) override;

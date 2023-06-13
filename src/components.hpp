@@ -99,6 +99,14 @@ struct KnobMedium : FlatKnob {
 	}
 };
 
+struct ParamQuantityOptions : ParamQuantity {
+	vector<std::string>	options;
+
+	std::string getDisplayValueString() override {
+		return options[(int)getValue()];
+	}
+};
+
 //////////////////////////////
 /// INLET / OUTLET
 //////////////////////////////

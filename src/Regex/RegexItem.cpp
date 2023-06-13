@@ -5,11 +5,46 @@
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
+static inline int euclidian_rythm(int onsets, int pulses, int beat_aim) {
+	float		slope;
+	int			current, previous;
+	int			beat_count;
+	int			len;
+	int			i;
+
+    slope = (float)onsets / (float)pulses;
+	len = 0;
+	beat_count = 0;
+	previous = -1;
+	for (i = 0; i < pulses; ++i) {
+		current = (int)((float)i * slope);
+		/// BEAT NEW
+		if (current != previous) {
+			/// MATCHING BEAT (RETURN LENGTH)
+			if (len > 0) {
+				// TODO: could store `i` value on `state_b` to restart loop
+				// without full computation
+				return len;
+			}
+			/// MATCHING BEAT (INIT LENGTH)
+			if (beat_count == beat_aim)
+				len = 1;
+			beat_count += 1;
+		/// BEAT CONTINUE
+		} else {
+			/// MATCHING BEAT (INCREMENT LENGTH)
+			if (len > 0)
+				len += 1;
+		}
+		previous = current;
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-bool RegexItem::pull_seq(int &value) {
+bool RegexItem::pull_clock_seq(int &value) {
 	list<RegexItem>::iterator	it_end;
 	bool						state;
 
@@ -18,7 +53,7 @@ bool RegexItem::pull_seq(int &value) {
 	if (this->sequence.it == it_end)
 		this->sequence.it = this->sequence.sequence.begin();
 	/// PULL SEQUENCE
-	state = this->sequence.it->pull(value);
+	state = this->sequence.it->pull_clock(value);
 	/// SEQUENCE NEXT
 	if (state == true) {
 		this->sequence.it = std::next(this->sequence.it);
@@ -51,7 +86,7 @@ bool RegexItem::pull_seq(int &value) {
 	return false;
 }
 
-bool RegexItem::pull_shuffle(int &value) {
+bool RegexItem::pull_clock_shuffle(int &value) {
 	list<RegexItem>::iterator	it_end;
 	bool						state;
 
@@ -62,7 +97,7 @@ bool RegexItem::pull_shuffle(int &value) {
 		this->sequence.it = this->sequence.sequence.begin();
 	}
 	/// PULL SEQUENCE
-	state = this->sequence.it->pull(value);
+	state = this->sequence.it->pull_clock(value);
 	/// SEQUENCE NEXT
 	if (state == true) {
 		this->sequence.it = std::next(this->sequence.it);
@@ -98,15 +133,15 @@ bool RegexItem::pull_shuffle(int &value) {
 	return false;
 }
 
-bool RegexItem::pull_rand(int &value) {
+bool RegexItem::pull_clock_rand(int &value) {
 	return false;
 }
 
-bool RegexItem::pull_xrand(int &value) {
+bool RegexItem::pull_clock_xrand(int &value) {
 	return false;
 }
 
-bool RegexItem::pull_walk(int &value) {
+bool RegexItem::pull_clock_walk(int &value) {
 	list<RegexItem>::iterator	it_end;
 	bool						state;
 
@@ -115,7 +150,7 @@ bool RegexItem::pull_walk(int &value) {
 	if (this->sequence.it == it_end)
 		this->sequence.it = this->sequence.sequence.begin();
 	/// PULL SEQUENCE
-	state = this->sequence.it->pull(value);
+	state = this->sequence.it->pull_clock(value);
 	/// SEQUENCE NEXT
 	if (state == true) {
 		if (this->sequence.length > 1) {
@@ -159,7 +194,7 @@ bool RegexItem::pull_walk(int &value) {
 	return false;
 }
 
-bool RegexItem::pull(int &value) {
+bool RegexItem::pull_clock(int &value) {
 	/// ITEM AS VALUE
 	if (this->type == REGEX_VALUE) {
 		value = this->value.value;
@@ -168,26 +203,51 @@ bool RegexItem::pull(int &value) {
 	} else {
 		/// SEQUENCE BASIC
 		if (this->sequence.mode == '#') {
-			return this->pull_seq(value);
+			return this->pull_clock_seq(value);
 		/// SEQUENCE SHUFFLE
 		} else if (this->sequence.mode == '@') {
-			return this->pull_shuffle(value);
+			return this->pull_clock_shuffle(value);
 		/// SEQUENCE RANDOM
 		} else if (this->sequence.mode == '?') {
-			return this->pull_rand(value);
+			return this->pull_clock_rand(value);
 		/// SEQUENCE X-RANDOM
 		} else if (this->sequence.mode == '!') {
-			return this->pull_xrand(value);
+			return this->pull_clock_xrand(value);
 		/// SEQUENCE WALK
 		} else if (this->sequence.mode == '$') {
-			return this->pull_walk(value);
+			return this->pull_clock_walk(value);
 		}
 	}
 	return false;
 }
 
+void RegexItem::select(int index) {
+	list<RegexItem>::iterator	it;
+	int							i;
+
+	/// FROM START TO END
+	if (index < this->sequence.length / 2) {
+		it = this->sequence.sequence.begin();
+		i = 0;
+		while (i < index) {
+			std::next(it);
+			i += 1;
+		}
+		this->sequence.it = it;
+	/// FROM END TO START
+	} else {
+		it = this->sequence.sequence.end();
+		i = this->sequence.length;
+		while (i > index) {
+			std::prev(it);
+			i -= 1;
+		}
+		this->sequence.it = it;
+	}
+}
+
 void RegexItem::shuffle(void) {
-	std::random_shuffle(
-	/**/ this->sequence.sequence.begin(),
-	/**/ this->sequence.sequence.end());
+	//std::random_shuffle(
+	///**/ this->sequence.sequence.begin(),
+	///**/ this->sequence.sequence.end());
 }
