@@ -44,7 +44,7 @@ bool RegexItem::pull_clock_seq(int &value, int &index) {
 					return true;
 				}
 			/// TYPE OFF
-			} else {
+			} else if (this->sequence.modulator_mode == 0) {
 				return true;
 			}
 		}
@@ -90,7 +90,7 @@ bool RegexItem::pull_clock_shuffle(int &value, int &index) {
 					return true;
 				}
 			/// TYPE OFF
-			} else {
+			} else if (this->sequence.modulator_mode == 0) {
 				this->shuffle();
 				return true;
 			}
@@ -137,7 +137,7 @@ bool RegexItem::pull_clock_rand(int &value, int &index) {
 				}
 			}
 		/// TYPE OFF
-		} else {
+		} else if (this->sequence.modulator_mode == 0) {
 			this->sequence.state_a += 1;
 			if (this->sequence.state_a >= this->sequence.length) {
 				this->sequence.state_a = 0;
@@ -196,7 +196,7 @@ bool RegexItem::pull_clock_xrand(int &value, int &index) {
 				}
 			}
 		/// TYPE OFF
-		} else {
+		} else if (this->sequence.modulator_mode == 0) {
 			this->sequence.state_a += 1;
 			if (this->sequence.state_a >= this->sequence.length) {
 				this->sequence.state_a = 0;
@@ -249,7 +249,7 @@ bool RegexItem::pull_clock_walk(int &value, int &index) {
 				this->sequence.state_a += value;
 			}
 		/// TYPE OFF
-		} else {
+		} else if (this->sequence.modulator_mode == 0) {
 			this->sequence.state_a += 1;
 			if (this->sequence.state_a >= this->sequence.length) {
 				this->sequence.state_a = 0;
