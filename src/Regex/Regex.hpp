@@ -8,14 +8,16 @@
 #define REGEX_SEQUENCE		1
 
 #define REGEX_MODE_CLOCK	0
-#define REGEX_MODE_RACHET	1
-#define REGEX_MODE_PITCH	2
-#define REGEX_MODE_OCTAVE	3
+#define REGEX_MODE_PITCH	1
+//#define REGEX_MODE_RACHET	2
+//#define REGEX_MODE_OCTAVE	3
 
 #define IS_MODE(c)		(c == '#' || c == '@' || c == '?' || c == '!' || c == '$')
 #define IS_DIGIT(c)		(c >= '0' && c <= '9')
 #define IS_PITCH(c)		((c >= 'a' && c <= 'g') || (c >= 'A' && c <= 'G'))
 #define IS_MODULATOR(c)	(c == 'x' || c == '%')
+
+extern int	table_pitch_midi[7];
 
 struct Regex;
 struct RegexItem;
@@ -36,6 +38,7 @@ struct RegexItem {
 	struct {
 		u8							state_a;			// Seq state a
 		u8							state_b;			// Seq state b
+		u8							state_c;			// Seq state c
 		char						mode;				// Seq mode
 		char						modulator_mode;		// Seq modulator type (x,%)
 		u8							modulator_value;	// Seq modulator value
@@ -74,10 +77,7 @@ struct RegexSeq {
 	void reset(void);
 	void process(float dt, bool trigger);
 	void compile(void);
-	void compile_clock(void);
-	void compile_clock_req(RegexItem *item, char *str, int &i);
-	static bool is_value_clock(char c, int i);
-	static bool is_value_pitch(char c, int i);
+	void compile_req(RegexItem *item, char *str, int &i);
 };
 
 struct Regex : Module {
@@ -116,11 +116,12 @@ struct RegexDisplay : LedDisplayTextField {
 	RegexDisplay();
 
 	void draw(const DrawArgs &args) override;
+	void draw_preview(const DrawArgs &args);
 	void onSelectText(const SelectTextEvent &e) override;
 	void onSelectKey(const SelectKeyEvent &e) override;
 
 	bool check_syntax(void);
-	bool check_syntax_seq(std::function<bool(char,int)> func, char *str, int &i);
+	bool check_syntax_seq(char *str, int &i);
 };
 
 struct RegexWidget : ModuleWidget {

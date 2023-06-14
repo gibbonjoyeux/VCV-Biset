@@ -19,7 +19,7 @@ RegexDisplay::RegexDisplay() {
 	LedDisplayTextField();
 }
 
-void RegexDisplay::draw(const DrawArgs &args) {
+void RegexDisplay::draw_preview(const DrawArgs &args) {
 	Rect					rect;
 
 	LedDisplayTextField::draw(args);
@@ -28,18 +28,39 @@ void RegexDisplay::draw(const DrawArgs &args) {
 	rect = box.zeroPos();
 	/// RECT BACKGROUND
 	nvgBeginPath(args.vg);
+	nvgFillColor(args.vg, colors[15]);
+	this->color = colors[4];
+	nvgRoundedRect(args.vg, RECT_ARGS(rect), 5);
+	nvgFill(args.vg);
+}
+
+void RegexDisplay::draw(const DrawArgs &args) {
+	Rect					rect;
+
+	LedDisplayTextField::draw(args);
+
+	if (this->module == NULL) {
+		this->draw_preview(args);
+		return;
+	}
+	/// GET CANVAS FORMAT
+	rect = box.zeroPos();
+	/// RECT BACKGROUND
+	nvgBeginPath(args.vg);
 	if (this->sequence->mode == REGEX_MODE_CLOCK) {
 		nvgFillColor(args.vg, colors[15]);
 		this->color = colors[4];
-	} else if (this->sequence->mode == REGEX_MODE_RACHET) {
+	//} else if (this->sequence->mode == REGEX_MODE_RACHET) {
+	//	nvgFillColor(args.vg, colors[14]);
+	//	this->color = colors[4];
+	} else if (this->sequence->mode == REGEX_MODE_PITCH) {
+		//nvgFillColor(args.vg, colors[13]);
+		//this->color = colors[15];
 		nvgFillColor(args.vg, colors[14]);
 		this->color = colors[4];
-	} else if (this->sequence->mode == REGEX_MODE_PITCH) {
-		nvgFillColor(args.vg, colors[13]);
-		this->color = colors[15];
-	} else if (this->sequence->mode == REGEX_MODE_OCTAVE) {
-		nvgFillColor(args.vg, colors[12]);
-		this->color = colors[14];
+	//} else if (this->sequence->mode == REGEX_MODE_OCTAVE) {
+	//	nvgFillColor(args.vg, colors[12]);
+	//	this->color = colors[14];
 	}
 	nvgRoundedRect(args.vg, RECT_ARGS(rect), 5);
 	nvgFill(args.vg);
@@ -127,9 +148,8 @@ void RegexDisplay::onSelectKey(const SelectKeyEvent &_e) {
 	this->check_syntax();
 }
 
-bool RegexDisplay::check_syntax_seq(std::function<bool(char,int)> func, char *str, int &i) {
+bool RegexDisplay::check_syntax_seq(char *str, int &i) {
 	bool				brackets;
-	int					index;
 
 	brackets = false;
 	/// HANDLE MODE (OPTIONNAL)
@@ -148,16 +168,20 @@ bool RegexDisplay::check_syntax_seq(std::function<bool(char,int)> func, char *st
 	if (str[i] == 0)
 		return false;
 	while (true) {
-		/// HANDLE VALUE AS CLOCK / PITCH VALUE
-		if (func(str[i], 0)) {
-			index = 0;
-			while (func(str[i], index)) {
-				index += 1;
+		/// HANDLE VALUE AS CLOCK VALUE
+		if (this->sequence->mode == REGEX_MODE_CLOCK
+		&& IS_DIGIT(str[i])) {
+			while (IS_DIGIT(str[i]))
 				i += 1;
-			}
+		/// HANDLE VALUE AS PITCH VALUE
+		} else if (this->sequence->mode == REGEX_MODE_PITCH
+		&& IS_PITCH(str[i])) {
+			i += 1;
+			if (str[i] == '#' || str[i] == 'b')
+				i += 1;
 		/// HANDLE VALUE AS SEQUENCE (RECURSIVE)
 		} else if (IS_MODE(str[i])) {
-			if (check_syntax_seq(func, str, i) == false)
+			if (check_syntax_seq(str, i) == false)
 				return false;
 		/// HANDLE ERROR
 		} else {
@@ -199,20 +223,11 @@ bool RegexDisplay::check_syntax_seq(std::function<bool(char,int)> func, char *st
 }
 
 bool RegexDisplay::check_syntax(void) {
-	std::function<bool(char,int)>	func;
 	char							*str;
 	int								i;
 
-	if (this->sequence->mode == REGEX_MODE_CLOCK)
-		func = RegexSeq::is_value_clock;
-	else if (this->sequence->mode == REGEX_MODE_RACHET)
-		func = RegexSeq::is_value_clock;
-	else if (this->sequence->mode == REGEX_MODE_PITCH)
-		func = RegexSeq::is_value_pitch;
-	else
-		func = RegexSeq::is_value_clock; // TODO
 	str = (char*)this->text.c_str();
 	i = 0;
-	this->syntax = this->check_syntax_seq(func, str, i);
+	this->syntax = this->check_syntax_seq(str, i);
 	return this->syntax;
 }

@@ -1,6 +1,16 @@
 
 #include "Regex.hpp"
 
+int	table_pitch_midi[] = {
+	9,	// A
+	11,	// B
+	0,	// C
+	2,	// D
+	4,	// E
+	5,	// F
+	7,	// G
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,9 +28,9 @@ Regex::Regex() {
 	configInput(INPUT_MASTER, "Master clock");
 	/// COMFIG PARAMS
 	for (i = 0; i < 8; ++i) {
-		param = configParam<ParamQuantityOptions>(PARAM_MODE + i, 0, 3, 0, string::f("Mode %d", i + 1));
+		param = configParam<ParamQuantityOptions>(PARAM_MODE + i, 0, 1, 0, string::f("Mode %d", i + 1));
 		param->snapEnabled = true;
-		param->options = {"Clock", "Rachet", "Pitch", "Octave"};
+		param->options = {"Clock", "Pitch"};
 	}
 	/// CONFIG INPUTS / OUTPUTS
 	for (i = 0; i < 8; ++i) {

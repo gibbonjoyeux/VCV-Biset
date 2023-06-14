@@ -33,15 +33,3 @@ void RegexSeq::reset(void) {
 	this->clock_out.reset();
 	this->clock_in.reset();
 }
-
-bool RegexSeq::is_value_clock(char c, int i) {
-	return (c >= '0' && c <= '9');
-}
-
-bool RegexSeq::is_value_pitch(char c, int i) {
-	if (i == 0)
-		return ((c >= 'a' && c <= 'g') || (c >= 'A' && c <= 'G'));
-	else if (i == 1)
-		return (c == '#' || c == 'b');
-	return false;
-}

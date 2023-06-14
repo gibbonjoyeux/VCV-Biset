@@ -52,6 +52,10 @@ RegexWidget::RegexWidget(Regex* _module) {
 		if (this->module) {
 			display->sequence = &(this->module->sequences[i]);
 			this->module->sequences[i].display = display;
+		} else {
+			display->text = 
+			/**/ "-----------R---G---X------------"
+			/**/ "-------------E---E--------------";
 		}
 		this->display[i] = display;
 		addChild(display);
