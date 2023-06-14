@@ -48,21 +48,10 @@ void RegexDisplay::draw(const DrawArgs &args) {
 	rect = box.zeroPos();
 	/// RECT BACKGROUND
 	nvgBeginPath(args.vg);
-	if (this->sequence->mode == REGEX_MODE_CLOCK) {
+	if (this->sequence->mode == REGEX_MODE_CLOCK)
 		nvgFillColor(args.vg, colors[15]);
-		this->color = colors[4];
-	//} else if (this->sequence->mode == REGEX_MODE_RACHET) {
-	//	nvgFillColor(args.vg, colors[14]);
-	//	this->color = colors[4];
-	} else if (this->sequence->mode == REGEX_MODE_PITCH) {
-		//nvgFillColor(args.vg, colors[13]);
-		//this->color = colors[15];
+	else if (this->sequence->mode == REGEX_MODE_PITCH)
 		nvgFillColor(args.vg, colors[14]);
-		this->color = colors[4];
-	//} else if (this->sequence->mode == REGEX_MODE_OCTAVE) {
-	//	nvgFillColor(args.vg, colors[12]);
-	//	this->color = colors[14];
-	}
 	nvgRoundedRect(args.vg, RECT_ARGS(rect), 5);
 	nvgFill(args.vg);
 	/// RECT STATE
@@ -112,14 +101,15 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 	i = 0;
 	while (i < 64 && str[i] != 0) {
 		c[0] = str[i];
-		/// ON ACTIVE VALUE
+		/// ACTIVE VALUE
 		if (i == this->active_value) {
 			nvgFillColor(args.vg, colors[3]);
 			/// MODE CLOCK
 			if (this->sequence->mode == REGEX_MODE_CLOCK) {
 				while (IS_DIGIT(str[i])) {
 					nvgText(args.vg,
-					/**/ rect.pos.x + 3.0 + (float)i * char_width, rect.pos.y + 3.0,
+					/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
+					/**/ rect.pos.y + 3.0 + (float)(i / 32) * 12.0,
 					/**/ c, NULL);
 					i += 1;
 				}
@@ -132,7 +122,8 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 					i += 1;
 					if (str[i] == '#' || str[i] == 'b') {
 						nvgText(args.vg,
-						/**/ rect.pos.x + 3.0 + (float)i * char_width, rect.pos.y + 3.0,
+						/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
+						/**/ rect.pos.y + 3.0 + (float)(i / 32) * 12.0,
 						/**/ c, NULL);
 						i += 1;
 					}
@@ -153,7 +144,8 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 			nvgFillColor(args.vg, colors[4]);	// VALUE
 		/// DRAW CHARACTER
 		nvgText(args.vg,
-		/**/ rect.pos.x + 3.0 + (float)i * char_width, rect.pos.y + 3.0,
+		/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
+		/**/ rect.pos.y + 3.0 + (float)(i / 32) * 12.0,
 		/**/ c, NULL);
 		i += 1;
 	}
@@ -162,12 +154,11 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 		nvgFillColor(args.vg, colors[0]);
 		nvgBeginPath(args.vg);
 		nvgRect(args.vg,
-		/**/ rect.pos.x + this->cursor * char_width + 2.0,
-		/**/ rect.pos.y + 3.0, 2, 12);
+		/**/ rect.pos.x + (float)(this->cursor % 32) * char_width + 2.0,
+		/**/ rect.pos.y + 3.0 + (float)(this->cursor / 32) * 12.0,
+		/**/ 2, 12);
 		nvgFill(args.vg);
 	}
-	//nvgScissor(args.vg, RECT_ARGS(rect));
-	//nvgResetScissor(args.vg);
 	//LedDisplayTextField::drawLayer(args, layer);
 }
 
