@@ -56,7 +56,22 @@ void RegexItem::select(int index) {
 }
 
 void RegexItem::shuffle(void) {
-	//std::random_shuffle(
-	///**/ this->sequence.sequence.begin(),
-	///**/ this->sequence.sequence.end());
+	list<RegexItem>::iterator	it_left;
+	list<RegexItem>::iterator	it_right;
+	int							index;
+	int							i;
+
+	for (i = 0; i < this->sequence.length; ++i) {
+		/// SELECT LEFT
+		index = random::uniform() * (float)this->sequence.length;
+		this->select(index);
+		it_left = this->sequence.it;
+		/// SELECT RIGHT
+		index = random::uniform() * (float)this->sequence.length;
+		this->select(index);
+		it_right = this->sequence.it;
+		/// SWAP LEFT & RIGHT
+		if (it_left != it_right)
+			std::swap(*it_left, *it_right);
+	}
 }
