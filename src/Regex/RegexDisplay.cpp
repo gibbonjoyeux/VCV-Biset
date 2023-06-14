@@ -16,6 +16,7 @@ RegexDisplay::RegexDisplay() {
 	this->color = colors[4];
 	this->textOffset = Vec(-1.0, -1.0);
 	this->syntax = true;
+	this->active_value = -1;
 	LedDisplayTextField();
 }
 
@@ -80,6 +81,94 @@ void RegexDisplay::draw(const DrawArgs &args) {
 	nvgBeginPath(args.vg);
 	nvgRect(args.vg, rect.pos.x + rect.size.x - 20, rect.pos.y, 10, rect.size.y);
 	nvgFill(args.vg);
+}
+
+void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
+	std::shared_ptr<Font>	font;
+	Rect					rect;
+	char					c[2];
+	char					*str;
+	int						i;
+	float					char_width;
+
+	if (module == NULL || layer != 1)
+		return;
+	/// GET FONT
+	font = APP->window->loadFont(this->fontPath);
+	if (font == NULL)
+		return;
+	/// SET FONT
+	nvgFontSize(args.vg, 12);
+	nvgFontFaceId(args.vg, font->handle);
+	nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+	/// GET CANVAS FORMAT
+	rect = box.zeroPos();
+	/// DRAW TEXT
+	if (this->sequence->sequence_string != this->text)
+		this->active_value = -1;
+	char_width = nvgTextBounds(args.vg, 0, 0, "x", NULL, NULL);
+	str = (char*)this->text.c_str();
+	c[1] = 0;
+	i = 0;
+	while (i < 64 && str[i] != 0) {
+		c[0] = str[i];
+		/// ON ACTIVE VALUE
+		if (i == this->active_value) {
+			nvgFillColor(args.vg, colors[3]);
+			/// MODE CLOCK
+			if (this->sequence->mode == REGEX_MODE_CLOCK) {
+				while (IS_DIGIT(str[i])) {
+					nvgText(args.vg,
+					/**/ rect.pos.x + 3.0 + (float)i * char_width, rect.pos.y + 3.0,
+					/**/ c, NULL);
+					i += 1;
+				}
+			/// MODE PITCH
+			} else if (this->sequence->mode == REGEX_MODE_PITCH) {
+				if (IS_PITCH(str[i])) {
+					nvgText(args.vg,
+					/**/ rect.pos.x + 3.0 + (float)i * char_width, rect.pos.y + 3.0,
+					/**/ c, NULL);
+					i += 1;
+					if (str[i] == '#' || str[i] == 'b') {
+						nvgText(args.vg,
+						/**/ rect.pos.x + 3.0 + (float)i * char_width, rect.pos.y + 3.0,
+						/**/ c, NULL);
+						i += 1;
+					}
+				}
+			}
+			continue;
+		}
+		/// DEFINE CHARACTER COLOR
+		if (IS_MODE(c[0]))
+			nvgFillColor(args.vg, colors[10]);	// MODE
+		else if (IS_MODULATOR(c[0]))
+			nvgFillColor(args.vg, colors[10]);	// MODULATOR
+		else if (c[0] == '(' || c[0] == ')')
+			nvgFillColor(args.vg, colors[13]);	// BRACKET
+		else if (c[0] == ',')
+			nvgFillColor(args.vg, colors[13]);	// COMMA
+		else
+			nvgFillColor(args.vg, colors[4]);	// VALUE
+		/// DRAW CHARACTER
+		nvgText(args.vg,
+		/**/ rect.pos.x + 3.0 + (float)i * char_width, rect.pos.y + 3.0,
+		/**/ c, NULL);
+		i += 1;
+	}
+	/// DRAW CURSOR
+	if (this == APP->event->selectedWidget) {
+		nvgFillColor(args.vg, colors[0]);
+		nvgBeginPath(args.vg);
+		nvgRect(args.vg,
+		/**/ rect.pos.x + this->cursor * char_width + 2.0,
+		/**/ rect.pos.y + 3.0, 2, 12);
+		nvgFill(args.vg);
+	}
+	//nvgScissor(args.vg, RECT_ARGS(rect));
+	//nvgResetScissor(args.vg);
+	//LedDisplayTextField::drawLayer(args, layer);
 }
 
 void RegexDisplay::onSelectText(const SelectTextEvent &e) {

@@ -48,12 +48,18 @@ struct RegexItem {
 		list<RegexItem>				sequence;			// Seq items
 	}								sequence;
 
-	bool pull_clock(int &value);
-	bool pull_clock_seq(int &value);
-	bool pull_clock_shuffle(int &value);
-	bool pull_clock_rand(int &value);
-	bool pull_clock_xrand(int &value);
-	bool pull_clock_walk(int &value);
+	bool pull_clock(int &value, int &index);
+	bool pull_clock_seq(int &value, int &index);
+	bool pull_clock_shuffle(int &value, int &index);
+	bool pull_clock_rand(int &value, int &index);
+	bool pull_clock_xrand(int &value, int &index);
+	bool pull_clock_walk(int &value, int &index);
+	bool pull_pitch(int &value, int &index);
+	bool pull_pitch_seq(int &value, int &index);
+	bool pull_pitch_shuffle(int &value, int &index);
+	bool pull_pitch_rand(int &value, int &index);
+	bool pull_pitch_xrand(int &value, int &index);
+	bool pull_pitch_walk(int &value, int &index);
 	void select(int index);
 	void shuffle(void);
 };
@@ -112,10 +118,12 @@ struct RegexDisplay : LedDisplayTextField {
 	RegexDisplay			*display_prev;
 	RegexDisplay			*display_next;
 	bool					syntax;
+	int						active_value;
 
 	RegexDisplay();
 
 	void draw(const DrawArgs &args) override;
+	void drawLayer(const DrawArgs &args, int layer) override;
 	void draw_preview(const DrawArgs &args);
 	void onSelectText(const SelectTextEvent &e) override;
 	void onSelectKey(const SelectKeyEvent &e) override;

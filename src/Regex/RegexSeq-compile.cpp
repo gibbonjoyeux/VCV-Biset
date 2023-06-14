@@ -20,6 +20,7 @@ void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 	item->sequence.modulator_mode = 0;
 	item->sequence.state_a = 0;
 	item->sequence.state_b = 0;
+	item->sequence.state_c = 0;
 	item->sequence.it = item->sequence.sequence.end();
 	/// HANDLE MODE (OPTIONNAL)
 	if (str[i] == 0)
@@ -62,10 +63,13 @@ void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 			item_new = &(item->sequence.sequence.back());
 			item_new->type = REGEX_VALUE;
 			item_new->value.index = i;
+			/// CHAR 1 (PITCH)
 			if (str[i] >= 'a')
 				item_new->value.value = table_pitch_midi[str[i] - 'a'];
 			else
 				item_new->value.value = table_pitch_midi[str[i] - 'A'];
+			i += 1;
+			/// CHAR 2 (SHARP & FLAT)
 			if (str[i] == '#') {
 				if (item_new->value.value < 11)
 					item_new->value.value += 1;

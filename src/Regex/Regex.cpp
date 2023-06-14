@@ -57,6 +57,7 @@ void Regex::process(const ProcessArgs& args) {
 				this->sequences[i].mode = mode;
 				this->sequences[i].reset();
 				this->sequences[i].display->check_syntax();
+				this->sequences[i].display->active_value = -1;
 			}
 		}
 		/// PROCESS SEQUENCE
