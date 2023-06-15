@@ -32,7 +32,7 @@ struct RegexWidget;
 struct RegexItem {
 	u8								type;				// Item type (Value OR Sequence)
 	struct {
-		u8							value;				// Value
+		i8							value;				// Value
 		u8							index;				// Value index on expression
 	}								value;
 	struct {
@@ -69,19 +69,21 @@ struct RegexSeq {
 	RegexItem					*sequence;
 	RegexItem					*sequence_next;
 	RegexDisplay				*display;
-	Input						*in;
+	Input						*in_1;
+	Input						*in_2;
 	Output						*out;
 	std::string					sequence_string;
 	std::string					sequence_next_string;
 	int							clock_out_divider;
 	int							clock_out_count;
 	dsp::PulseGenerator			clock_out;
-	dsp::TSchmittTrigger<float>	clock_in;
+	dsp::TSchmittTrigger<float>	clock_in_1;
+	dsp::TSchmittTrigger<float>	clock_in_2;
 
 	RegexSeq();
 	~RegexSeq();
 	void reset(void);
-	void process(float dt, bool trigger);
+	void process(float dt, bool clock_master);
 	void compile(void);
 	void compile_req(RegexItem *item, char *str, int &i);
 };
@@ -93,7 +95,8 @@ struct Regex : Module {
 	};
 	enum	InputIds {
 		INPUT_MASTER,
-		ENUMS(INPUT_EXP, 8),
+		ENUMS(INPUT_EXP_1, 8),
+		ENUMS(INPUT_EXP_2, 8),
 		INPUT_COUNT
 	};
 	enum	OutputIds {

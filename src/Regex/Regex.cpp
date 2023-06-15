@@ -34,9 +34,11 @@ Regex::Regex() {
 	}
 	/// CONFIG INPUTS / OUTPUTS
 	for (i = 0; i < 8; ++i) {
-		configInput(INPUT_EXP + i, string::f("%d", i + 1));
+		configInput(INPUT_EXP_1 + i, string::f("%d:1", i + 1));
+		configInput(INPUT_EXP_2 + i, string::f("%d:2", i + 1));
 		configOutput(OUTPUT_EXP + i, string::f("%d", i + 1));
-		this->sequences[i].in = &(this->inputs[INPUT_EXP + i]);
+		this->sequences[i].in_1 = &(this->inputs[INPUT_EXP_1 + i]);
+		this->sequences[i].in_2 = &(this->inputs[INPUT_EXP_2 + i]);
 		this->sequences[i].out = &(this->outputs[OUTPUT_EXP + i]);
 	}
 

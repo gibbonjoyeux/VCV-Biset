@@ -43,8 +43,8 @@ void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 		return;
 	item->sequence.length = 0;
 	while (true) {
-		/// HANDLE VALUE AS CLOCK VALUE
-		if (this->mode == REGEX_MODE_CLOCK && IS_DIGIT(str[i])) {
+		/// HANDLE VALUE AS NUMBER
+		if (IS_DIGIT(str[i])) {
 			item->sequence.length += 1;
 			item->sequence.sequence.emplace_back();
 			item_new = &(item->sequence.sequence.back());
@@ -56,8 +56,8 @@ void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 				i += 1;
 			}
 			item_new->value.value = value;
-		/// HANDLE VALUE AS PITCH VALUE
-		} else if (this->mode == REGEX_MODE_PITCH && IS_PITCH(str[i])) {
+		/// HANDLE VALUE AS PITCH
+		} else if (IS_PITCH(str[i])) {
 			item->sequence.length += 1;
 			item->sequence.sequence.emplace_back();
 			item_new = &(item->sequence.sequence.back());
@@ -71,16 +71,15 @@ void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 			i += 1;
 			/// CHAR 2 (SHARP & FLAT)
 			if (str[i] == '#') {
-				if (item_new->value.value < 11)
-					item_new->value.value += 1;
-				else
-					item_new->value.value = 0;
+				item_new->value.value += 1;
 				i += 1;
 			} else if (str[i] == 'b') {
-				if (item_new->value.value > 0)
-					item_new->value.value -= 1;
-				else
-					item_new->value.value = 11;
+				item_new->value.value -= 1;
+				i += 1;
+			}
+			/// CHAR 3 (OCT)
+			if (IS_DIGIT(str[i])) {
+				item_new->value.value += ((str[i] - '0') - 4) * 12;
 				i += 1;
 			}
 		/// HANDLE VALUE AS SEQUENCE (RECURSIVE)

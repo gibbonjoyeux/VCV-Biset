@@ -31,5 +31,6 @@ void RegexSeq::reset(void) {
 	this->clock_out_divider = 1;
 	this->clock_out_count = 0;
 	this->clock_out.reset();
-	this->clock_in.reset();
+	this->clock_in_1.reset();
+	this->clock_in_2.reset();
 }

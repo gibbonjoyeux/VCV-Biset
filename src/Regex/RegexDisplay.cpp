@@ -104,32 +104,41 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 		/// ACTIVE VALUE
 		if (i == this->active_value) {
 			nvgFillColor(args.vg, colors[3]);
-			/// MODE CLOCK
-			if (this->sequence->mode == REGEX_MODE_CLOCK) {
+			/// VALUE AS NUMBER
+			if (IS_DIGIT(str[i])) {
 				while (IS_DIGIT(str[i])) {
+					c[0] = str[i];
 					nvgText(args.vg,
 					/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
 					/**/ rect.pos.y + 3.0 + (float)(i / 32) * 12.0,
 					/**/ c, NULL);
 					i += 1;
 				}
-			/// MODE PITCH
-			} else if (this->sequence->mode == REGEX_MODE_PITCH) {
-				if (IS_PITCH(str[i])) {
+				continue;
+			/// VALUE AS PITCH
+			} else if (IS_PITCH(str[i])) {
+				nvgText(args.vg,
+				/**/ rect.pos.x + 3.0 + (float)i * char_width, rect.pos.y + 3.0,
+				/**/ c, NULL);
+				i += 1;
+				if (str[i] == '#' || str[i] == 'b') {
+					c[0] = str[i];
 					nvgText(args.vg,
-					/**/ rect.pos.x + 3.0 + (float)i * char_width, rect.pos.y + 3.0,
+					/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
+					/**/ rect.pos.y + 3.0 + (float)(i / 32) * 12.0,
 					/**/ c, NULL);
 					i += 1;
-					if (str[i] == '#' || str[i] == 'b') {
-						nvgText(args.vg,
-						/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
-						/**/ rect.pos.y + 3.0 + (float)(i / 32) * 12.0,
-						/**/ c, NULL);
-						i += 1;
-					}
 				}
+				if (IS_DIGIT(str[i])) {
+					c[0] = str[i];
+					nvgText(args.vg,
+					/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
+					/**/ rect.pos.y + 3.0 + (float)(i / 32) * 12.0,
+					/**/ c, NULL);
+					i += 1;
+				}
+				continue;
 			}
-			continue;
 		}
 		/// DEFINE CHARACTER COLOR
 		if (IS_MODE(c[0]))
@@ -248,16 +257,16 @@ bool RegexDisplay::check_syntax_seq(char *str, int &i) {
 	if (str[i] == 0)
 		return false;
 	while (true) {
-		/// HANDLE VALUE AS CLOCK VALUE
-		if (this->sequence->mode == REGEX_MODE_CLOCK
-		&& IS_DIGIT(str[i])) {
+		/// HANDLE VALUE AS NUMBER
+		if (IS_DIGIT(str[i])) {
 			while (IS_DIGIT(str[i]))
 				i += 1;
-		/// HANDLE VALUE AS PITCH VALUE
-		} else if (this->sequence->mode == REGEX_MODE_PITCH
-		&& IS_PITCH(str[i])) {
+		/// HANDLE VALUE AS PITCH
+		} else if (IS_PITCH(str[i])) {
 			i += 1;
 			if (str[i] == '#' || str[i] == 'b')
+				i += 1;
+			if (IS_DIGIT(str[i]))
 				i += 1;
 		/// HANDLE VALUE AS SEQUENCE (RECURSIVE)
 		} else if (IS_MODE(str[i])) {

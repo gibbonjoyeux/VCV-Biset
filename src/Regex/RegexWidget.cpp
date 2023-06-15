@@ -20,23 +20,27 @@ RegexWidget::RegexWidget(Regex* _module) {
 
 	for (i = 0; i < 8; ++i) {
 		addParam(
-		/**/ createParamCentered<KnobSmall>(mm2px(Vec(6.5, 8.5 + 13.0 * i)),
+		/**/ createParamCentered<KnobSmall>(mm2px(Vec(6.5 - 1.75, 8.5 + 13.0 * i)),
 		/**/ module,
 		/**/ Regex::PARAM_MODE + i));
 	}
 
 	/// ADD INPUTS / OUTPUTS
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0, 8.5 + 13.0 * 8)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 - 3.75, 8.5 + 13.0 * 8)),
 	/**/ module,
 	/**/ Regex::INPUT_MASTER));
 	for (i = 0; i < 8; ++i) {
 		addInput(
-		/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0, 8.5 + 13.0 * i)),
+		/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 - 3.75, 8.5 + 13.0 * i)),
 		/**/ module,
-		/**/ Regex::INPUT_EXP + i));
+		/**/ Regex::INPUT_EXP_1 + i));
+		addInput(
+		/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 18.0 - 3.75, 8.5 + 13.0 * i)),
+		/**/ module,
+		/**/ Regex::INPUT_EXP_2 + i));
 		addOutput(
-		/**/ createOutputCentered<Outlet>(mm2px(Vec(104.5 + 20.0, 8.5 + 13.0 * i)),
+		/**/ createOutputCentered<Outlet>(mm2px(Vec(104.5 + 26.0 - 3.75, 8.5 + 13.0 * i)),
 		/**/ module,
 		/**/ Regex::OUTPUT_EXP + i));
 	}
@@ -45,7 +49,7 @@ RegexWidget::RegexWidget(Regex* _module) {
 	display_prev = NULL;
 	for (i = 0; i < 8; ++i) {
 		/// DISPLAY
-		display = createWidget<RegexDisplay>(mm2px(Vec(3.0 + 10.0, 3.0 + 13.0 * i)));
+		display = createWidget<RegexDisplay>(mm2px(Vec(3.0 + 10.0 - 3.0, 3.0 + 13.0 * i)));
 		display->box.size = mm2px(Vec(95.0, 10.0));
 		display->module = module;
 		display->moduleWidget = this;
