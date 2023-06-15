@@ -57,6 +57,8 @@ RegexWidget::RegexWidget(Regex* _module) {
 		display->module = module;
 		display->moduleWidget = this;
 		if (this->module) {
+			if (this->module->expressions[i].empty() == false)
+				display->text = std::move(this->module->expressions[i]);
 			display->sequence = &(this->module->sequences[i]);
 			this->module->sequences[i].display = display;
 		} else {

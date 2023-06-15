@@ -112,9 +112,12 @@ struct Regex : Module {
 	RegexSeq					sequences[8];
 	dsp::TSchmittTrigger<float>	clock_reset;
 	dsp::TSchmittTrigger<float>	clock_master;
+	std::string					expressions[8];
 
 	Regex();
-	void	process(const ProcessArgs& args) override;
+	void process(const ProcessArgs& args) override;
+	json_t *dataToJson(void) override;
+	void dataFromJson(json_t *j_root) override;
 };
 
 struct RegexDisplay : LedDisplayTextField {
