@@ -20,19 +20,14 @@ int	table_pitch_midi[] = {
 ////////////////////////////////////////////////////////////////////////////////
 
 Regex::Regex() {
-	ParamQuantityOptions	*param;
 	int						i;
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
-	/// CONFIG INPUT
-	configInput(INPUT_MASTER, "Master clock");
 	/// COMFIG PARAMS
-	for (i = 0; i < 8; ++i) {
-		param = configParam<ParamQuantityOptions>(PARAM_MODE + i, 0, 1, 0, string::f("Mode %d", i + 1));
-		param->snapEnabled = true;
-		param->options = {"Clock", "Pitch"};
-	}
+	for (i = 0; i < 8; ++i)
+		configSwitch(PARAM_MODE + i, 0, 1, 0, string::f("Mode %d", i + 1), {"Clock", "Pitch"});
 	/// CONFIG INPUTS / OUTPUTS
+	configInput(INPUT_MASTER, "Master clock");
 	for (i = 0; i < 8; ++i) {
 		configInput(INPUT_EXP_1 + i, string::f("%d:1", i + 1));
 		configInput(INPUT_EXP_2 + i, string::f("%d:2", i + 1));
@@ -42,27 +37,32 @@ Regex::Regex() {
 		this->sequences[i].out = &(this->outputs[OUTPUT_EXP + i]);
 	}
 
-	this->clock.reset();
+	this->clock_reset.reset();
+	this->clock_master.reset();
 }
 
 void Regex::process(const ProcessArgs& args) {
-	float	clock_master;
+	bool	clock_master;
+	bool	clock_reset;
 	int		mode;
 	int		i;
 
-	clock_master = this->clock.process(this->inputs[INPUT_MASTER].getVoltage());
+	clock_master = this->clock_master.process(this->inputs[INPUT_MASTER].getVoltage());
+	clock_reset = this->clock_reset.process(this->inputs[INPUT_RESET].getVoltage());
 	for (i = 0; i < 8; ++i) {
 		/// UPDATE SEQUENCES MODES
 		mode = this->params[PARAM_MODE + i].getValue();
 		if (args.frame % 64 != 0) {
 			if (mode != this->sequences[i].mode) {
 				this->sequences[i].mode = mode;
-				this->sequences[i].reset();
+				this->sequences[i].reset(true);
 				this->sequences[i].display->check_syntax();
 				this->sequences[i].display->active_value = -1;
 			}
 		}
 		/// PROCESS SEQUENCE
+		if (clock_reset)
+			this->sequences[i].reset(false);
 		this->sequences[i].process(args.sampleTime, clock_master);
 	}
 }

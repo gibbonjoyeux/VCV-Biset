@@ -19,6 +19,14 @@ extern Plugin	*pluginInstance;
 /// BUTTONS
 //////////////////////////////
 
+struct ButtonSwitch : app::SvgSwitch {
+	ButtonSwitch() {
+		this->momentary = false;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch-On.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch-Off.svg")));
+	}
+};
+
 struct ButtonPlaySong : app::SvgSwitch {
 	ButtonPlaySong() {
 		this->momentary = true;

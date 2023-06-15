@@ -17,15 +17,18 @@ RegexWidget::RegexWidget(Regex* _module) {
 	this->module = _module;
 	setModule(this->module);
 	setPanel(createPanel(asset::plugin(pluginInstance, "res/Regex.svg")));
-
+	/// ADD SWITCHES
 	for (i = 0; i < 8; ++i) {
 		addParam(
-		/**/ createParamCentered<KnobSmall>(mm2px(Vec(6.5 - 1.75, 8.5 + 13.0 * i)),
+		/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(6.5 - 1.75, 8.5 + 13.0 * i)),
 		/**/ module,
 		/**/ Regex::PARAM_MODE + i));
 	}
-
 	/// ADD INPUTS / OUTPUTS
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + -3.35 - 3.75, 8.5 + 13.0 * 8)),
+	/**/ module,
+	/**/ Regex::INPUT_RESET));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 - 3.75, 8.5 + 13.0 * 8)),
 	/**/ module,

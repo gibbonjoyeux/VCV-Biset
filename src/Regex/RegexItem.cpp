@@ -44,6 +44,26 @@ static inline int euclidian_rythm(int onsets, int pulses, int beat_aim) {
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
+void RegexItem::reset(void) {
+	list<RegexItem>::iterator	it;
+
+	/// ITEM AS VALUE
+	if (this->type == REGEX_VALUE)
+		return;
+	/// RESET STATES
+	this->sequence.state_a = 0;
+	this->sequence.state_b = 0;
+	this->sequence.state_c = 0;
+	/// RESET CURRENT ITEM
+	this->sequence.it = this->sequence.sequence.end();
+	/// RESET LIST ITEMS (RECURSIVE)
+	it = this->sequence.sequence.begin();
+	while (it != this->sequence.it) {
+		it->reset();
+		it = std::next(it);
+	}
+}
+
 void RegexItem::select(int index) {
 	list<RegexItem>::iterator	it;
 

@@ -60,6 +60,7 @@ struct RegexItem {
 	bool pull_pitch_rand(int &value, int &index);
 	bool pull_pitch_xrand(int &value, int &index);
 	bool pull_pitch_walk(int &value, int &index);
+	void reset(void);
 	void select(int index);
 	void shuffle(void);
 };
@@ -82,7 +83,7 @@ struct RegexSeq {
 
 	RegexSeq();
 	~RegexSeq();
-	void reset(void);
+	void reset(bool destroy);
 	void process(float dt, bool clock_master);
 	void compile(void);
 	void compile_req(RegexItem *item, char *str, int &i);
@@ -94,6 +95,7 @@ struct Regex : Module {
 		PARAM_COUNT
 	};
 	enum	InputIds {
+		INPUT_RESET,
 		INPUT_MASTER,
 		ENUMS(INPUT_EXP_1, 8),
 		ENUMS(INPUT_EXP_2, 8),
@@ -108,7 +110,8 @@ struct Regex : Module {
 	};
 	RegexWidget					*widget;
 	RegexSeq					sequences[8];
-	dsp::TSchmittTrigger<float>	clock;
+	dsp::TSchmittTrigger<float>	clock_reset;
+	dsp::TSchmittTrigger<float>	clock_master;
 
 	Regex();
 	void	process(const ProcessArgs& args) override;
