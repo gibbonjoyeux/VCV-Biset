@@ -32,9 +32,11 @@ Regex::Regex() {
 		configInput(INPUT_EXP_1 + i, string::f("%d:1", i + 1));
 		configInput(INPUT_EXP_2 + i, string::f("%d:2", i + 1));
 		configOutput(OUTPUT_EXP + i, string::f("%d", i + 1));
+		this->sequences[i].in_reset = &(this->inputs[INPUT_EXP_RESET + i]);
 		this->sequences[i].in_1 = &(this->inputs[INPUT_EXP_1 + i]);
 		this->sequences[i].in_2 = &(this->inputs[INPUT_EXP_2 + i]);
 		this->sequences[i].out = &(this->outputs[OUTPUT_EXP + i]);
+		this->sequences[i].out_eoc = &(this->outputs[OUTPUT_EXP_EOC + i]);
 	}
 
 	this->clock_reset.reset();
@@ -61,9 +63,7 @@ void Regex::process(const ProcessArgs& args) {
 			}
 		}
 		/// PROCESS SEQUENCE
-		if (clock_reset)
-			this->sequences[i].reset(false);
-		this->sequences[i].process(args.sampleTime, clock_master);
+		this->sequences[i].process(args.sampleTime, clock_reset, clock_master);
 	}
 }
 

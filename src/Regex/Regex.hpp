@@ -9,8 +9,6 @@
 
 #define REGEX_MODE_CLOCK	0
 #define REGEX_MODE_PITCH	1
-//#define REGEX_MODE_RACHET	2
-//#define REGEX_MODE_OCTAVE	3
 
 #define IS_MODE(c)		(c == '#' || c == '@' || c == '?' || c == '!' || c == '$')
 #define IS_DIGIT(c)		(c >= '0' && c <= '9')
@@ -66,25 +64,29 @@ struct RegexItem {
 };
 
 struct RegexSeq {
-	u8							mode;			// Clock | Rachet | Pitch | Oct
+	u8							mode;			// Clock | Pitch
 	RegexItem					*sequence;
 	RegexItem					*sequence_next;
 	RegexDisplay				*display;
+	Input						*in_reset;
 	Input						*in_1;
 	Input						*in_2;
 	Output						*out;
+	Output						*out_eoc;
 	std::string					sequence_string;
 	std::string					sequence_next_string;
 	int							clock_out_divider;
 	int							clock_out_count;
 	dsp::PulseGenerator			clock_out;
+	dsp::PulseGenerator			clock_out_eoc;
+	dsp::TSchmittTrigger<float>	clock_in_reset;
 	dsp::TSchmittTrigger<float>	clock_in_1;
 	dsp::TSchmittTrigger<float>	clock_in_2;
 
 	RegexSeq();
 	~RegexSeq();
 	void reset(bool destroy);
-	void process(float dt, bool clock_master);
+	void process(float dt, bool clock_reset_master, bool clock_master);
 	void compile(void);
 	void compile_req(RegexItem *item, char *str, int &i);
 };
@@ -97,12 +99,14 @@ struct Regex : Module {
 	enum	InputIds {
 		INPUT_RESET,
 		INPUT_MASTER,
+		ENUMS(INPUT_EXP_RESET, 8),
 		ENUMS(INPUT_EXP_1, 8),
 		ENUMS(INPUT_EXP_2, 8),
 		INPUT_COUNT
 	};
 	enum	OutputIds {
 		ENUMS(OUTPUT_EXP, 8),
+		ENUMS(OUTPUT_EXP_EOC, 8),
 		OUTPUT_COUNT
 	};
 	enum	LightIds {
@@ -147,7 +151,7 @@ struct RegexWidget : ModuleWidget {
 
 	RegexWidget(Regex * _module);
 	//void onSelect(const SelectEvent &e) override;
-	//void appendContextMenu(Menu *menu) override;
+	void appendContextMenu(Menu *menu) override;
 };
 
 #endif

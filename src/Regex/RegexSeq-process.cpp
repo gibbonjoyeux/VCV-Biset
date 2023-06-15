@@ -9,9 +9,10 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-void RegexSeq::process(float dt, bool clock_master) {
+void RegexSeq::process(float dt, bool clock_reset_master, bool clock_master) {
 	bool			state;
 	bool			clock;
+	bool			clock_reset;
 	int				input;
 	int				value;
 	int				index;
@@ -25,6 +26,12 @@ void RegexSeq::process(float dt, bool clock_master) {
 			clock = clock_master;
 		if (this->in_2->isConnected())
 			clock += this->clock_in_2.process(this->in_2->getVoltage());
+		clock_reset = clock_reset_master;
+		if (this->in_reset->isConnected())
+			clock_reset += this->clock_in_reset.process(this->in_reset->getVoltage());
+		/// ON CLOCK RESET
+		if (clock_reset)
+			this->reset(false);
 		/// ON CLOCK
 		if (clock) {
 			this->clock_out_count += 1;
@@ -36,11 +43,14 @@ void RegexSeq::process(float dt, bool clock_master) {
 					state = this->sequence->pull_clock(value, index);
 					this->display->active_value = index;
 					/// UPDATE SEQUENCE
-					if (state == true && this->sequence_next != NULL) {
-						delete this->sequence;
-						this->sequence = this->sequence_next;
-						this->sequence_next = NULL;
-						this->sequence_string = std::move(this->sequence_next_string);
+					if (state == true) {
+						this->clock_out_eoc.trigger();
+						if (this->sequence_next != NULL) {
+							delete this->sequence;
+							this->sequence = this->sequence_next;
+							this->sequence_next = NULL;
+							this->sequence_string = std::move(this->sequence_next_string);
+						}
 					}
 					this->clock_out_divider = value;
 					if (this->clock_out_divider < 1)
@@ -52,6 +62,7 @@ void RegexSeq::process(float dt, bool clock_master) {
 		}
 		/// SET VOLTAGE
 		this->out->setVoltage(this->clock_out.process(dt) ? 10.0 : 0.0);
+		this->out_eoc->setVoltage(this->clock_out_eoc.process(dt) ? 10.0 : 0.0);
 	/// SEQUENCE AS PITCH
 	} else if (this->mode == REGEX_MODE_PITCH) {
 		/// COMPUTE CLOCK
@@ -59,6 +70,12 @@ void RegexSeq::process(float dt, bool clock_master) {
 			clock = this->clock_in_1.process(this->in_1->getVoltage());
 		else
 			clock = clock_master;
+		clock_reset = clock_reset_master;
+		if (this->in_reset->isConnected())
+			clock_reset += this->clock_in_reset.process(this->in_reset->getVoltage());
+		/// ON CLOCK RESET
+		if (clock_reset)
+			this->reset(false);
 		/// ON CLOCK
 		if (clock) {
 			/// COMPUTE SEQUENCE
@@ -74,15 +91,19 @@ void RegexSeq::process(float dt, bool clock_master) {
 				state = this->sequence->pull_pitch(value, index);
 				this->display->active_value = index;
 				/// UPDATE SEQUENCE
-				if (state == true && this->sequence_next != NULL) {
-					delete this->sequence;
-					this->sequence = this->sequence_next;
-					this->sequence_next = NULL;
-					this->sequence_string = std::move(this->sequence_next_string);
+				if (state == true) {
+					this->clock_out_eoc.trigger();
+					if (this->sequence_next != NULL) {
+						delete this->sequence;
+						this->sequence = this->sequence_next;
+						this->sequence_next = NULL;
+						this->sequence_string = std::move(this->sequence_next_string);
+					}
 				}
 				/// SET VOLTAGE
 				this->out->setVoltage((float)(value + input) / 12.0);
 			}
 		}
+		this->out_eoc->setVoltage(this->clock_out_eoc.process(dt) ? 10.0 : 0.0);
 	}
 }

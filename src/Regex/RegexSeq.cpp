@@ -15,6 +15,10 @@ RegexSeq::RegexSeq(void) {
 	this->clock_out_divider = 1;
 	this->clock_out_count = 0;
 	this->clock_out.reset();
+	this->clock_out_eoc.reset();
+	this->clock_in_reset.reset();
+	this->clock_in_1.reset();
+	this->clock_in_2.reset();
 }
 
 RegexSeq::~RegexSeq(void) {
@@ -48,6 +52,8 @@ void RegexSeq::reset(bool destroy) {
 	this->clock_out_divider = 1;
 	this->clock_out_count = 0;
 	this->clock_out.reset();
+	this->clock_out_eoc.reset();
+	this->clock_in_reset.reset();
 	this->clock_in_1.reset();
 	this->clock_in_2.reset();
 }
