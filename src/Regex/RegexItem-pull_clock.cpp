@@ -9,7 +9,7 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-bool RegexItem::pull_clock_seq(int &value, int &index) {
+bool RegexItem::pull_clock_foreward(int &value, int &index) {
 	list<RegexItem>::iterator	it_end;
 	bool						state;
 
@@ -46,6 +46,106 @@ bool RegexItem::pull_clock_seq(int &value, int &index) {
 			/// TYPE OFF
 			} else if (this->sequence.modulator_mode == 0) {
 				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool RegexItem::pull_clock_backward(int &value, int &index) {
+	list<RegexItem>::iterator	it_end;
+	bool						state;
+
+	it_end = this->sequence.sequence.end();
+	/// INIT SEQUENCE
+	if (this->sequence.it == it_end)
+		this->sequence.it = std::prev(this->sequence.sequence.end());
+	/// PULL SEQUENCE
+	state = this->sequence.it->pull_clock(value, index);
+	// TODO: should check % here too
+	/// SEQUENCE NEXT
+	if (state == true) {
+		this->sequence.it = std::prev(this->sequence.it);
+		/// TYPE MODULO
+		if (this->sequence.modulator_mode == '%') {
+			if (this->sequence.state_a + value >= this->sequence.modulator_value) {
+				value = this->sequence.modulator_value - this->sequence.state_a;
+				this->sequence.it = std::prev(this->sequence.sequence.end());
+				this->sequence.state_a = 0;
+				return true;
+			} else {
+				this->sequence.state_a += value;
+			}
+		}
+		if (this->sequence.it == it_end) {
+			this->sequence.it = std::prev(this->sequence.sequence.end());
+			/// TYPE MULT
+			if (this->sequence.modulator_mode == 'x') {
+				this->sequence.state_a += 1;
+				if (this->sequence.state_a >= this->sequence.modulator_value) {
+					this->sequence.state_a = 0;
+					return true;
+				}
+			/// TYPE OFF
+			} else if (this->sequence.modulator_mode == 0) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool RegexItem::pull_clock_pingpong(int &value, int &index) {
+	list<RegexItem>::iterator	it_end;
+	bool						state;
+
+	it_end = this->sequence.sequence.end();
+	/// INIT SEQUENCE
+	if (this->sequence.it == it_end) {
+		this->sequence.it = this->sequence.sequence.begin();
+		this->sequence.state_b = 0;
+	}
+	/// PULL SEQUENCE
+	state = this->sequence.it->pull_clock(value, index);
+	// TODO: should check % here too
+	/// SEQUENCE NEXT
+	if (state == true) {
+		if (this->sequence.state_b == 0)
+			this->sequence.it = std::next(this->sequence.it);
+		else
+			this->sequence.it = std::prev(this->sequence.it);
+		/// TYPE MODULO
+		if (this->sequence.modulator_mode == '%') {
+			if (this->sequence.state_a + value >= this->sequence.modulator_value) {
+				value = this->sequence.modulator_value - this->sequence.state_a;
+				this->sequence.it = this->sequence.sequence.begin();
+				this->sequence.state_a = 0;
+				this->sequence.state_b = 0;
+				return true;
+			} else {
+				this->sequence.state_a += value;
+			}
+		}
+		if (this->sequence.it == it_end) {
+			/// GO BACKWARD
+			if (this->sequence.state_b == 0) {
+				this->sequence.it = std::prev(this->sequence.sequence.end());
+				this->sequence.state_b = 1;
+			/// GO FOREWARD (END)
+			} else {
+				this->sequence.it = this->sequence.sequence.begin();
+				this->sequence.state_b = 0;
+				/// TYPE MULT
+				if (this->sequence.modulator_mode == 'x') {
+					this->sequence.state_a += 1;
+					if (this->sequence.state_a >= this->sequence.modulator_value) {
+						this->sequence.state_a = 0;
+						return true;
+					}
+				/// TYPE OFF
+				} else if (this->sequence.modulator_mode == 0) {
+					return true;
+				}
 			}
 		}
 	}
@@ -268,9 +368,15 @@ bool RegexItem::pull_clock(int &value, int &index) {
 		return true;
 	/// ITEM AS SEQUENCE
 	} else {
-		/// SEQUENCE BASIC
-		if (this->sequence.mode == '#') {
-			return this->pull_clock_seq(value, index);
+		/// SEQUENCE FOREWARD
+		if (this->sequence.mode == '>') {
+			return this->pull_clock_foreward(value, index);
+		/// SEQUENCE BACKWARD
+		} else if (this->sequence.mode == '<') {
+			return this->pull_clock_backward(value, index);
+		/// SEQUENCE PING-PONG
+		} else if (this->sequence.mode == '^') {
+			return this->pull_clock_pingpong(value, index);
 		/// SEQUENCE SHUFFLE
 		} else if (this->sequence.mode == '@') {
 			return this->pull_clock_shuffle(value, index);

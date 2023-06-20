@@ -10,7 +10,7 @@
 #define REGEX_MODE_CLOCK	0
 #define REGEX_MODE_PITCH	1
 
-#define IS_MODE(c)		(c == '#' || c == '@' || c == '?' || c == '!' || c == '$')
+#define IS_MODE(c)		(c == '>' || c == '<' || c == '^' || c == '@' || c == '?' || c == '!' || c == '$')
 #define IS_DIGIT(c)		(c >= '0' && c <= '9')
 #define IS_PITCH(c)		((c >= 'a' && c <= 'g') || (c >= 'A' && c <= 'G'))
 #define IS_MODULATOR(c)	(c == 'x' || c == '%')
@@ -47,17 +47,23 @@ struct RegexItem {
 	}								sequence;
 
 	bool pull_clock(int &value, int &index);
-	bool pull_clock_seq(int &value, int &index);
+	bool pull_clock_foreward(int &value, int &index);
+	bool pull_clock_backward(int &value, int &index);
+	bool pull_clock_pingpong(int &value, int &index);
 	bool pull_clock_shuffle(int &value, int &index);
 	bool pull_clock_rand(int &value, int &index);
 	bool pull_clock_xrand(int &value, int &index);
 	bool pull_clock_walk(int &value, int &index);
+
 	bool pull_pitch(int &value, int &index);
-	bool pull_pitch_seq(int &value, int &index);
+	bool pull_pitch_foreward(int &value, int &index);
+	bool pull_pitch_backward(int &value, int &index);
+	bool pull_pitch_pingpong(int &value, int &index);
 	bool pull_pitch_shuffle(int &value, int &index);
 	bool pull_pitch_rand(int &value, int &index);
 	bool pull_pitch_xrand(int &value, int &index);
 	bool pull_pitch_walk(int &value, int &index);
+
 	void reset(void);
 	void select(int index);
 	void shuffle(void);
@@ -87,7 +93,7 @@ struct RegexSeq {
 	~RegexSeq();
 	void reset(bool destroy);
 	void process(float dt, bool clock_reset_master, bool clock_master);
-	void compile(void);
+	void compile(Regex *module);
 	void compile_req(RegexItem *item, char *str, int &i);
 };
 
@@ -112,6 +118,7 @@ struct Regex : Module {
 	enum	LightIds {
 		LIGHT_COUNT
 	};
+	std::atomic_flag			thread_flag;
 	RegexWidget					*widget;
 	RegexSeq					sequences[8];
 	dsp::TSchmittTrigger<float>	clock_reset;

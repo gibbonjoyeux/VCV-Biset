@@ -10,8 +10,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 RegexSeq::RegexSeq(void) {
+	this->mode = REGEX_MODE_CLOCK;
 	this->sequence = NULL;
 	this->sequence_next = NULL;
+	this->display = NULL;
 	this->clock_out_divider = 1;
 	this->clock_out_count = 0;
 	this->clock_out.reset();

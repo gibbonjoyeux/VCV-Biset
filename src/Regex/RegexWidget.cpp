@@ -65,11 +65,13 @@ RegexWidget::RegexWidget(Regex* _module) {
 		display->module = module;
 		display->moduleWidget = this;
 		if (this->module) {
+			// ? ? ? THREAD UNSAFE ? ? ?
 			if (this->module->expressions[i].empty() == false)
 				display->text = std::move(this->module->expressions[i]);
 			display->sequence = &(this->module->sequences[i]);
 			this->module->sequences[i].display = display;
 		} else {
+			display->sequence = NULL;
 			display->text = 
 			/**/ "-----------R---G---X------------"
 			/**/ "-------------E---E--------------";
@@ -102,7 +104,9 @@ void RegexWidget::appendContextMenu(Menu *menu) {
 	label = new MenuLabel();
 	label->text = "Expression types";
 	menu->addChild(label);
-	menu->addChild(new MenuItemStay("#", "Sequence", [=](){}));
+	menu->addChild(new MenuItemStay(">", "Sequence forward", [=](){}));
+	menu->addChild(new MenuItemStay("<", "Sequence backward", [=](){}));
+	menu->addChild(new MenuItemStay("^", "Sequence ping-pong", [=](){}));
 	menu->addChild(new MenuItemStay("@", "Shuffle sequence", [=](){}));
 	menu->addChild(new MenuItemStay("?", "Random", [=](){}));
 	menu->addChild(new MenuItemStay("!", "Random exclude", [=](){}));
@@ -131,7 +135,6 @@ void RegexWidget::appendContextMenu(Menu *menu) {
 	menu->addChild(label);
 	menu->addChild(new MenuItemStay("Enter", "Compile exp", [=](){}));
 	menu->addChild(new MenuItemStay("Ctrl + Enter", "Compile all exp", [=](){}));
-	menu->addChild(new MenuItemStay("Maj + Enter", "Compile sync exp", [=](){}));
 	menu->addChild(new MenuItemStay("Escape", "Stop exp", [=](){}));
 	menu->addChild(new MenuItemStay("Ctrl + Arrow", "Jump exp", [=](){}));
 }

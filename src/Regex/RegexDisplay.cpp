@@ -50,7 +50,7 @@ void RegexDisplay::draw(const DrawArgs &args) {
 	nvgBeginPath(args.vg);
 	if (this->sequence->mode == REGEX_MODE_CLOCK)
 		nvgFillColor(args.vg, colors[15]);
-	else if (this->sequence->mode == REGEX_MODE_PITCH)
+	else
 		nvgFillColor(args.vg, colors[14]);
 	nvgRoundedRect(args.vg, RECT_ARGS(rect), 5);
 	nvgFill(args.vg);
@@ -190,10 +190,10 @@ void RegexDisplay::onSelectKey(const SelectKeyEvent &_e) {
 			/// UPDATE ALL SEQUENCES
 			if (e.mods & GLFW_MOD_CONTROL) {
 				for (i = 0; i < 8; ++i)
-					this->module->sequences[i].compile();
+					this->module->sequences[i].compile(this->module);
 			/// UPDATE SEQUENCE
 			} else {
-				this->sequence->compile();
+				this->sequence->compile(this->module);
 			}
 		}
 		e.consume(this);
@@ -269,7 +269,7 @@ bool RegexDisplay::check_syntax_seq(char *str, int &i) {
 			if (IS_DIGIT(str[i]))
 				i += 1;
 		/// HANDLE VALUE AS SEQUENCE (RECURSIVE)
-		} else if (IS_MODE(str[i])) {
+		} else if (IS_MODE(str[i]) || str[i] == '(') {
 			if (check_syntax_seq(str, i) == false)
 				return false;
 		/// HANDLE ERROR

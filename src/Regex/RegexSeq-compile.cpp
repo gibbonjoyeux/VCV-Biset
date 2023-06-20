@@ -29,7 +29,7 @@ void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 		item->sequence.mode = str[i];
 		i += 1;
 	} else {
-		item->sequence.mode = '#';
+		item->sequence.mode = '>';
 	}
 	/// HANDLE BRACKETS
 	if (str[i] == 0)
@@ -83,7 +83,7 @@ void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 				i += 1;
 			}
 		/// HANDLE VALUE AS SEQUENCE (RECURSIVE)
-		} else if (IS_MODE(str[i])) {
+		} else if (IS_MODE(str[i]) || str[i] == '(') {
 			item->sequence.length += 1;
 			item->sequence.sequence.emplace_back();
 			item_new = &(item->sequence.sequence.back());
@@ -132,7 +132,7 @@ void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 	return;
 }
 
-void RegexSeq::compile(void) {
+void RegexSeq::compile(Regex *module) {
 	RegexItem	*sequence;
 	char		*str;
 	int			i;
@@ -149,7 +149,11 @@ void RegexSeq::compile(void) {
 	i = 0;
 	sequence = new RegexItem();
 	this->compile_req(sequence, str, i);
-	/// [3] SET EXPRESSION
+
+	/// [3] WAIT FOR THREAD FLAG
+	while (module->thread_flag.test_and_set()) {}
+
+	/// [4] SET EXPRESSION
 	if (this->sequence == NULL) {
 		this->sequence = sequence;
 	} else {
@@ -157,4 +161,7 @@ void RegexSeq::compile(void) {
 			delete this->sequence_next;
 		this->sequence_next = sequence;
 	}
+
+	/// [5] CLEAR THREAD FLAG
+	module->thread_flag.clear();
 }
