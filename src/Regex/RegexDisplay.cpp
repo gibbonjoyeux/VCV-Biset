@@ -184,7 +184,7 @@ void RegexDisplay::onSelectKey(const SelectKeyEvent &_e) {
 	int				i;
 
 	e = _e;
-	/// HANDLE ENTER
+	/// HANDLE ENTER (COMPILE)
 	if (e.key == GLFW_KEY_ENTER) {
 		if (e.action == GLFW_PRESS) {
 			/// UPDATE ALL SEQUENCES
@@ -195,6 +195,19 @@ void RegexDisplay::onSelectKey(const SelectKeyEvent &_e) {
 			} else {
 				this->sequence->compile(this->module);
 			}
+		}
+		e.consume(this);
+		return;
+	}
+	/// HANDLE ESCAPE (STOP)
+	if (e.key == GLFW_KEY_ESCAPE) {
+		if (e.action == GLFW_PRESS) {
+			/// WAIT FOR THREAD FLAG
+			while (this->module->thread_flag.test_and_set()) {}
+			/// RESET EXPRESSION
+			this->sequence->reset(true);
+			/// CLEAR THREAD FLAG
+			this->module->thread_flag.clear();
 		}
 		e.consume(this);
 		return;

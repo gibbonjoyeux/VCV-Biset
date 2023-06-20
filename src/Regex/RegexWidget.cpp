@@ -95,9 +95,9 @@ void RegexWidget::appendContextMenu(Menu *menu) {
 	label = new MenuLabel();
 	label->text = "Expression exemples";
 	menu->addChild(label);
-	menu->addChild(new MenuItemStay("#1,2,3", "", [=](){}));
-	menu->addChild(new MenuItemStay("#(1,2,3)%16", "", [=](){}));
-	menu->addChild(new MenuItemStay("#(1,2,3,?(4,5,6))", "", [=](){}));
+	menu->addChild(new MenuItemStay("1,2,3", "", [=](){}));
+	menu->addChild(new MenuItemStay(">(1,2,3)%16", "", [=](){}));
+	menu->addChild(new MenuItemStay(">(1,2,3,?(4,5,6))", "", [=](){}));
 
 	/// SEQUENCE TYPE
 	menu->addChild(new MenuSeparator);
