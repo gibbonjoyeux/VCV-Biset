@@ -15,6 +15,7 @@ RegexDisplay::RegexDisplay() {
 	this->bgColor = colors[15];
 	this->color = colors[4];
 	this->textOffset = Vec(-1.0, -1.0);
+	this->char_width = 0;
 	this->syntax = true;
 	this->active_value = -1;
 	LedDisplayTextField();
@@ -103,7 +104,6 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 	int						i;
 	int						index;
 	int						count;
-	float					char_width;
 
 	if (module == NULL || layer != 1)
 		return;
@@ -120,7 +120,7 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 	/// DRAW TEXT
 	if (this->sequence->sequence_string != this->text)
 		this->active_value = -1;
-	char_width = nvgTextBounds(args.vg, 0, 0, "x", NULL, NULL);
+	this->char_width = nvgTextBounds(args.vg, 0, 0, "x", NULL, NULL);
 	str = (char*)this->text.c_str();
 	c[1] = 0;
 	/// HANDLE OFFSET
@@ -145,7 +145,7 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 				while (i < count && IS_DIGIT(str[index])) {
 					c[0] = str[index];
 					nvgText(args.vg,
-					/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
+					/**/ rect.pos.x + 3.0 + (float)(i % 32) * this->char_width,
 					/**/ rect.pos.y + 3.0 + (float)(i / 32) * 12.0,
 					/**/ c, NULL);
 					index += 1;
@@ -155,14 +155,14 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 			/// VALUE AS PITCH
 			} else if (IS_PITCH(str[index])) {
 				nvgText(args.vg,
-				/**/ rect.pos.x + 3.0 + (float)i * char_width, rect.pos.y + 3.0,
+				/**/ rect.pos.x + 3.0 + (float)i * this->char_width, rect.pos.y + 3.0,
 				/**/ c, NULL);
 				index += 1;
 				i += 1;
 				if (i < count && (str[index] == '#' || str[index] == 'b')) {
 					c[0] = str[index];
 					nvgText(args.vg,
-					/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
+					/**/ rect.pos.x + 3.0 + (float)(i % 32) * this->char_width,
 					/**/ rect.pos.y + 3.0 + (float)(i / 32) * 12.0,
 					/**/ c, NULL);
 					index += 1;
@@ -171,7 +171,7 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 				if (i < count && IS_DIGIT(str[index])) {
 					c[0] = str[index];
 					nvgText(args.vg,
-					/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
+					/**/ rect.pos.x + 3.0 + (float)(i % 32) * this->char_width,
 					/**/ rect.pos.y + 3.0 + (float)(i / 32) * 12.0,
 					/**/ c, NULL);
 					index += 1;
@@ -193,7 +193,7 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 			nvgFillColor(args.vg, colors[4]);	// VALUE
 		/// DRAW CHARACTER
 		nvgText(args.vg,
-		/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
+		/**/ rect.pos.x + 3.0 + (float)(i % 32) * this->char_width,
 		/**/ rect.pos.y + 3.0 + (float)(i / 32) * 12.0,
 		/**/ c, NULL);
 		index += 1;
@@ -205,12 +205,12 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 		nvgBeginPath(args.vg);
 		if (this->condensed) {
 			nvgRect(args.vg,
-			/**/ rect.pos.x + (float)((this->cursor < 32) ? this->cursor : 32) * char_width + 2.0,
+			/**/ rect.pos.x + (float)((this->cursor < 32) ? this->cursor : 32) * this->char_width + 2.0,
 			/**/ rect.pos.y + 3.0,
 			/**/ 2, 12);
 		} else {
 			nvgRect(args.vg,
-			/**/ rect.pos.x + (float)(this->cursor % 32) * char_width + 2.0,
+			/**/ rect.pos.x + (float)(this->cursor % 32) * this->char_width + 2.0,
 			/**/ rect.pos.y + 3.0 + (float)(this->cursor >= 32) * 12.0,
 			/**/ 2, 12);
 		}
@@ -296,6 +296,48 @@ void RegexDisplay::onSelectKey(const SelectKeyEvent &_e) {
 	LedDisplayTextField::onSelectKey(e);
 	/// CHECK SYNTAX
 	this->check_syntax();
+}
+
+void RegexDisplay::onButton(const ButtonEvent &e) {
+	Vec		mouse;
+	Rect	rect;
+	int		max;
+	int		offset;
+
+	if (this->char_width == 0)
+		return;
+	if (e.action != GLFW_PRESS)
+		return;
+	/// [1] UPDATE CURSOR
+	mouse = e.pos;
+	mouse.x -= 3.0;
+	mouse.y -= 3.0;
+	rect = box.zeroPos();
+	offset = 0;
+	//// DISPLAY CONDENSED
+	if (this->condensed) {
+		if (this->cursor >= 32)
+			offset = this->cursor - 32;
+		this->cursor = ((mouse.x - rect.pos.x) / this->char_width) + offset;
+	//// DISPLAY REGULAR
+	} else {
+		if (this->cursor >= 64)
+			offset = ((this->cursor - 32) / 32) * 32;
+		this->cursor = ((mouse.x - rect.pos.x) / this->char_width)
+		/**/ + ((int)(mouse.y - rect.pos.y) / 12) * 32
+		/**/ + offset;
+	}
+	/// [2] CLAMP CURSOR
+	max = this->text.length();
+	if (this->cursor > max)
+		this->cursor = max;
+	if (this->cursor < 0)
+		this->cursor = 0;
+	this->selection = this->cursor;
+	e.consume(this);
+}
+
+void RegexDisplay::onDragHover(const DragHoverEvent &e) {
 }
 
 bool RegexDisplay::check_syntax_seq(char *str, int &i) {

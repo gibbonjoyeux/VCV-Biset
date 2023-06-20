@@ -145,6 +145,7 @@ struct RegexDisplay : LedDisplayTextField {
 	RegexDisplay			*display_next;
 	bool					condensed;
 	bool					syntax;
+	float					char_width;
 	int						active_value;
 
 	RegexDisplay();
@@ -154,6 +155,8 @@ struct RegexDisplay : LedDisplayTextField {
 	void draw_preview(const DrawArgs &args);
 	void onSelectText(const SelectTextEvent &e) override;
 	void onSelectKey(const SelectKeyEvent &e) override;
+	void onButton(const ButtonEvent &e) override;
+	void onDragHover(const DragHoverEvent &e) override;
 
 	bool check_syntax(void);
 	bool check_syntax_seq(char *str, int &i);
