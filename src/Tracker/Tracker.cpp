@@ -152,4 +152,4 @@ void Tracker::process(const ProcessArgs& args) {
 	//}
 }
 
-Model* modelTracker = createModel<Tracker, TrackerWidget>("Tracker");
+Model* modelTracker = createModel<Tracker, TrackerWidget>("Biset-Tracker");

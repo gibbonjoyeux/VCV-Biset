@@ -63,4 +63,4 @@ void TrackerSynth::process(const ProcessArgs& args) {
 	}
 }
 
-Model* modelTrackerSynth = createModel<TrackerSynth, TrackerSynthWidget>("TrackerSynth");
+Model* modelTrackerSynth = createModel<TrackerSynth, TrackerSynthWidget>("Biset-TrackerSynth");

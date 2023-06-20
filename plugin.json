@@ -14,20 +14,26 @@
   "changelogUrl": "",
   "modules": [
 	{
-		"slug": "Tracker",
+		"slug": "Biset-Tracker",
 		"name": "Tracker",
 		"description": "Advanced pattern based tracker sequencer",
 		"tags": ["Digital", "Sequencer", "Polyphonic"]
 	},
 	{
-		"slug": "TrackerSynth",
+		"slug": "Biset-TrackerSynth",
 		"name": "Tracker Synth",
 		"description": "Tracker synth output",
 		"tags": ["Digital", "Sequencer", "Polyphonic"]
 	},
 	{
-		"slug": "Regex",
+		"slug": "Biset-Regex",
 		"name": "Regex",
+		"description": "Live coding sequencer",
+		"tags": ["Digital", "Sequencer", "Clock generator"]
+	},
+	{
+		"slug": "Biset-Regex-Condensed",
+		"name": "Regex Condensed",
 		"description": "Live coding sequencer",
 		"tags": ["Digital", "Sequencer", "Clock generator"]
 	}

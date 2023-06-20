@@ -9,18 +9,36 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-RegexWidget::RegexWidget(Regex* _module) {
+RegexWidget::RegexWidget(Regex* _module, bool _condensed) {
 	RegexDisplay		*display;
 	RegexDisplay		*display_prev;
+	float				step;
+	float				height;
+	float				offset;
 	int					i;
 
 	this->module = _module;
+	this->condensed = _condensed;
 	setModule(this->module);
-	setPanel(createPanel(asset::plugin(pluginInstance, "res/Regex.svg")));
+	/// COMPUTE WIDGET TYPE
+	if (this->condensed) {
+		setPanel(createPanel(asset::plugin(pluginInstance, "res/Regex-Condensed.svg")));
+		step = 8.265;
+		height = 6.0;
+		offset = 2.5;
+		this->exp_count = 12;
+	} else {
+		setPanel(createPanel(asset::plugin(pluginInstance, "res/Regex.svg")));
+		step = 13.0;
+		height = 10.0;
+		offset = 0;
+		this->exp_count = 8;
+	}
+
 	/// ADD SWITCHES
-	for (i = 0; i < 8; ++i) {
+	for (i = 0; i < this->exp_count; ++i) {
 		addParam(
-		/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(6.5 - 1.75, 8.5 + 13.0 * i)),
+		/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(6.5 - 1.75, 8.5 + step * i)),
 		/**/ module,
 		/**/ Regex::PARAM_MODE + i));
 	}
@@ -33,48 +51,45 @@ RegexWidget::RegexWidget(Regex* _module) {
 	/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 - 3.75, 8.5 + 13.0 * 8)),
 	/**/ module,
 	/**/ Regex::INPUT_MASTER));
-	for (i = 0; i < 8; ++i) {
+	for (i = 0; i < this->exp_count; ++i) {
 		addInput(
-		/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 - 3.75, 8.5 + 13.0 * i)),
+		/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 - 3.75, 8.5 + step * i)),
 		/**/ module,
 		/**/ Regex::INPUT_EXP_RESET + i));
 		addInput(
-		/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 * 1 - 3.75, 8.5 + 13.0 * i)),
+		/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 * 1 - 3.75, 8.5 + step * i)),
 		/**/ module,
 		/**/ Regex::INPUT_EXP_1 + i));
 		addInput(
-		/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 * 2 - 3.75, 8.5 + 13.0 * i)),
+		/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 * 2 - 3.75, 8.5 + step * i)),
 		/**/ module,
 		/**/ Regex::INPUT_EXP_2 + i));
 		addOutput(
-		/**/ createOutputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 * 3 - 3.75, 8.5 + 13.0 * i)),
+		/**/ createOutputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 * 3 - 3.75, 8.5 + step * i)),
 		/**/ module,
 		/**/ Regex::OUTPUT_EXP_EOC + i));
 		addOutput(
-		/**/ createOutputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 * 4 - 3.75, 8.5 + 13.0 * i)),
+		/**/ createOutputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 * 4 - 3.75, 8.5 + step * i)),
 		/**/ module,
 		/**/ Regex::OUTPUT_EXP + i));
 	}
 
 	/// ADD DISPLAYS
 	display_prev = NULL;
-	for (i = 0; i < 8; ++i) {
+	for (i = 0; i < this->exp_count; ++i) {
 		/// DISPLAY
-		display = createWidget<RegexDisplay>(mm2px(Vec(3.0 + 10.0 - 3.0, 3.0 + 13.0 * i)));
-		display->box.size = mm2px(Vec(95.0, 10.0));
+		display = createWidget<RegexDisplay>(mm2px(Vec(3.0 + 10.0 - 3.0, 3.0 + step * i + offset)));
+		display->box.size = mm2px(Vec(95.0, height));
 		display->module = module;
 		display->moduleWidget = this;
+		display->condensed = this->condensed;
 		if (this->module) {
-			// ? ? ? THREAD UNSAFE ? ? ?
 			if (this->module->expressions[i].empty() == false)
 				display->text = std::move(this->module->expressions[i]);
 			display->sequence = &(this->module->sequences[i]);
 			this->module->sequences[i].display = display;
 		} else {
 			display->sequence = NULL;
-			display->text = 
-			/**/ "-----------R---G---X------------"
-			/**/ "-------------E---E--------------";
 		}
 		this->display[i] = display;
 		addChild(display);

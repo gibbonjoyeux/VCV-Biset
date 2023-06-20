@@ -102,6 +102,7 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 	char					*str;
 	int						i;
 	int						index;
+	int						count;
 	float					char_width;
 
 	if (module == NULL || layer != 1)
@@ -122,19 +123,26 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 	char_width = nvgTextBounds(args.vg, 0, 0, "x", NULL, NULL);
 	str = (char*)this->text.c_str();
 	c[1] = 0;
-	if (this->cursor >= 64)
-		index = ((this->cursor - 32) / 32) * 32;
-	else
-		index = 0;
+	/// HANDLE OFFSET
+	index = 0;
+	if (this->condensed) {
+		count = 32;
+		if (this->cursor >= 32)
+			index = this->cursor - 32;
+	} else {
+		count = 64;
+		if (this->cursor >= 64)
+			index = ((this->cursor - 32) / 32) * 32;
+	}
 	i = 0;
-	while (i < 64 && str[index] != 0) {
+	while (i < count && str[index] != 0) {
 		c[0] = str[index];
 		/// ACTIVE VALUE
 		if (i == this->active_value) {
 			nvgFillColor(args.vg, colors[3]);
 			/// VALUE AS NUMBER
 			if (IS_DIGIT(str[index])) {
-				while (IS_DIGIT(str[index])) {
+				while (i < count && IS_DIGIT(str[index])) {
 					c[0] = str[index];
 					nvgText(args.vg,
 					/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
@@ -151,7 +159,7 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 				/**/ c, NULL);
 				index += 1;
 				i += 1;
-				if (str[index] == '#' || str[index] == 'b') {
+				if (i < count && (str[index] == '#' || str[index] == 'b')) {
 					c[0] = str[index];
 					nvgText(args.vg,
 					/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
@@ -160,7 +168,7 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 					index += 1;
 					i += 1;
 				}
-				if (IS_DIGIT(str[index])) {
+				if (i < count && IS_DIGIT(str[index])) {
 					c[0] = str[index];
 					nvgText(args.vg,
 					/**/ rect.pos.x + 3.0 + (float)(i % 32) * char_width,
@@ -195,10 +203,17 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 	if (this == APP->event->selectedWidget) {
 		nvgFillColor(args.vg, colors[0]);
 		nvgBeginPath(args.vg);
-		nvgRect(args.vg,
-		/**/ rect.pos.x + (float)(this->cursor % 32) * char_width + 2.0,
-		/**/ rect.pos.y + 3.0 + (float)(this->cursor >= 32) * 12.0,
-		/**/ 2, 12);
+		if (this->condensed) {
+			nvgRect(args.vg,
+			/**/ rect.pos.x + (float)((this->cursor < 32) ? this->cursor : 32) * char_width + 2.0,
+			/**/ rect.pos.y + 3.0,
+			/**/ 2, 12);
+		} else {
+			nvgRect(args.vg,
+			/**/ rect.pos.x + (float)(this->cursor % 32) * char_width + 2.0,
+			/**/ rect.pos.y + 3.0 + (float)(this->cursor >= 32) * 12.0,
+			/**/ 2, 12);
+		}
 		nvgFill(args.vg);
 	}
 	//LedDisplayTextField::drawLayer(args, layer);
@@ -222,7 +237,7 @@ void RegexDisplay::onSelectKey(const SelectKeyEvent &_e) {
 		if (e.action == GLFW_PRESS) {
 			/// UPDATE ALL SEQUENCES
 			if (e.mods & GLFW_MOD_CONTROL) {
-				for (i = 0; i < 8; ++i)
+				for (i = 0; i < this->module->exp_count; ++i)
 					this->module->sequences[i].compile(this->module);
 			/// UPDATE SEQUENCE
 			} else {
@@ -258,7 +273,7 @@ void RegexDisplay::onSelectKey(const SelectKeyEvent &_e) {
 				if (this->display_next)
 					APP->event->setSelectedWidget(this->display_next);
 			/// GO TO NEXT LINE
-			} else {
+			} else if (this->condensed == false) {
 				len = this->text.length();
 				if (this->cursor + 32 <= len)
 					this->cursor += 32;
@@ -271,7 +286,7 @@ void RegexDisplay::onSelectKey(const SelectKeyEvent &_e) {
 				if (this->display_prev)
 					APP->event->setSelectedWidget(this->display_prev);
 			/// GO TO PREVIOUS LINE
-			} else {
+			} else if (this->condensed == false) {
 				if (this->cursor - 32 >= 0)
 					this->cursor -= 32;
 				this->selection = this->cursor;

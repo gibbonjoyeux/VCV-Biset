@@ -11,4 +11,5 @@ void init(Plugin* p) {
 	//p->addModel(modelTrackerClock);
 
 	p->addModel(modelRegex);
+	p->addModel(modelRegexCondensed);
 }

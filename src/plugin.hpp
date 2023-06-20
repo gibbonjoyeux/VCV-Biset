@@ -26,3 +26,4 @@ extern Model*		modelTrackerSynth;
 //extern Model*		modelTrackerClock;
 
 extern Model*		modelRegex;
+extern Model*		modelRegexCondensed;

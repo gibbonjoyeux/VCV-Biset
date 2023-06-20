@@ -1,4 +1,8 @@
 
+# CONSTRUCTION / DESTRUCTION ORDER
+Construction: [Module - dataFromJson - onAdd] - [Widget]
+Destruction: [dataToJson], [Widget, onRemove, Module]
+
 # BUGS
 
 - [ ] Pattern instances can have a negative `beat_start` but should not

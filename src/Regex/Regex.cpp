@@ -19,16 +19,20 @@ int	table_pitch_midi[] = {
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-Regex::Regex() {
+Regex::Regex(bool condensed) {
 	int						i;
 
+	if (condensed)
+		this->exp_count = 12;
+	else
+		this->exp_count = 8;
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 	/// COMFIG PARAMS
-	for (i = 0; i < 8; ++i)
+	for (i = 0; i < this->exp_count; ++i)
 		configSwitch(PARAM_MODE + i, 0, 1, 0, string::f("Mode %d", i + 1), {"Clock", "Pitch"});
 	/// CONFIG INPUTS / OUTPUTS
 	configInput(INPUT_MASTER, "Master clock");
-	for (i = 0; i < 8; ++i) {
+	for (i = 0; i < this->exp_count; ++i) {
 		configInput(INPUT_EXP_RESET + i, string::f("Reset %d", i + 1));
 		configInput(INPUT_EXP_1 + i, string::f("%d:1", i + 1));
 		configInput(INPUT_EXP_2 + i, string::f("%d:2", i + 1));
@@ -61,7 +65,7 @@ void Regex::process(const ProcessArgs& args) {
 	/// [2] COMPUTE PROCESS
 	clock_master = this->clock_master.process(this->inputs[INPUT_MASTER].getVoltage());
 	clock_reset = this->clock_reset.process(this->inputs[INPUT_RESET].getVoltage());
-	for (i = 0; i < 8; ++i) {
+	for (i = 0; i < this->exp_count; ++i) {
 		/// UPDATE SEQUENCES MODES
 		if (args.frame % 64 != 0) {
 			mode = this->params[PARAM_MODE + i].getValue();
@@ -80,4 +84,5 @@ void Regex::process(const ProcessArgs& args) {
 	this->thread_flag.clear();
 }
 
-Model* modelRegex = createModel<Regex, RegexWidget>("Regex");
+Model* modelRegex = createModel<Regex, RegexWidget>("Biset-Regex");
+Model* modelRegexCondensed = createModel<RegexCondensed, RegexCondensedWidget>("Biset-Regex-Condensed");

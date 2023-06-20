@@ -22,6 +22,7 @@ struct RegexItem;
 struct RegexSeq;
 struct RegexDisplay;
 struct RegexWidget;
+struct RegexWidgetCondensed;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -99,20 +100,20 @@ struct RegexSeq {
 
 struct Regex : Module {
 	enum	ParamIds {
-		ENUMS(PARAM_MODE, 8),
+		ENUMS(PARAM_MODE, 12),
 		PARAM_COUNT
 	};
 	enum	InputIds {
 		INPUT_RESET,
 		INPUT_MASTER,
-		ENUMS(INPUT_EXP_RESET, 8),
-		ENUMS(INPUT_EXP_1, 8),
-		ENUMS(INPUT_EXP_2, 8),
+		ENUMS(INPUT_EXP_RESET, 12),
+		ENUMS(INPUT_EXP_1, 12),
+		ENUMS(INPUT_EXP_2, 12),
 		INPUT_COUNT
 	};
 	enum	OutputIds {
-		ENUMS(OUTPUT_EXP, 8),
-		ENUMS(OUTPUT_EXP_EOC, 8),
+		ENUMS(OUTPUT_EXP, 12),
+		ENUMS(OUTPUT_EXP_EOC, 12),
 		OUTPUT_COUNT
 	};
 	enum	LightIds {
@@ -120,15 +121,20 @@ struct Regex : Module {
 	};
 	std::atomic_flag			thread_flag;
 	RegexWidget					*widget;
-	RegexSeq					sequences[8];
+	RegexSeq					sequences[12];
 	dsp::TSchmittTrigger<float>	clock_reset;
 	dsp::TSchmittTrigger<float>	clock_master;
-	std::string					expressions[8];
+	std::string					expressions[12];
+	int							exp_count;
 
-	Regex();
+	Regex(bool condensed = false);
 	void process(const ProcessArgs& args) override;
 	json_t *dataToJson(void) override;
 	void dataFromJson(json_t *j_root) override;
+};
+
+struct RegexCondensed : Regex {
+	RegexCondensed() : Regex(true) {};
 };
 
 struct RegexDisplay : LedDisplayTextField {
@@ -137,6 +143,7 @@ struct RegexDisplay : LedDisplayTextField {
 	RegexSeq				*sequence;
 	RegexDisplay			*display_prev;
 	RegexDisplay			*display_next;
+	bool					condensed;
 	bool					syntax;
 	int						active_value;
 
@@ -154,11 +161,16 @@ struct RegexDisplay : LedDisplayTextField {
 
 struct RegexWidget : ModuleWidget {
 	Regex					*module;
-	RegexDisplay			*display[8];
+	RegexDisplay			*display[12];
+	bool					condensed;
+	int						exp_count;
 
-	RegexWidget(Regex * _module);
-	//void onSelect(const SelectEvent &e) override;
+	RegexWidget(Regex *_module, bool condensed = false);
 	void appendContextMenu(Menu *menu) override;
+};
+
+struct RegexCondensedWidget : RegexWidget {
+	RegexCondensedWidget(Regex *_module) : RegexWidget(_module, true) {};
 };
 
 #endif
