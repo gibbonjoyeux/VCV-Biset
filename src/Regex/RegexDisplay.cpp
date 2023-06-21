@@ -182,9 +182,9 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 		}
 		/// DEFINE CHARACTER COLOR
 		if (IS_MODE(c[0]))
-			nvgFillColor(args.vg, colors[10]);	// MODE
+			nvgFillColor(args.vg, colors[3]);	// MODE
 		else if (IS_MODULATOR(c[0]))
-			nvgFillColor(args.vg, colors[10]);	// MODULATOR
+			nvgFillColor(args.vg, colors[3]);	// MODULATOR
 		else if (c[0] == '(' || c[0] == ')')
 			nvgFillColor(args.vg, colors[13]);	// BRACKET
 		else if (c[0] == ',')
