@@ -1,7 +1,12 @@
 
-**Biset** sequencing modules
+# Biset
 
-# Regex & Regex-Condensed
+**Biset** sequencing modules.
+
+## Regex & Regex-Condensed
+
+![Regex](./doc/shot-regex.png)
+![Regex Condensed](./doc/shot-regex-condensed.png)
 
 **Regex** is a text based pattern sequencer.
 It can generate both clock (rythm) and pitch sequences.
@@ -19,7 +24,7 @@ build sequences, rythm and/or pitch/cv and connect them.
 - Input reset: Reset all running expressions
 - Input clock master: Clock all expressions
 
-## Expression
+### Expression
 
 An expression is a string defining a pattern generating **clock** (rythm) or **pitch** (or CV).
 
@@ -43,7 +48,7 @@ led display. You can also press **Ctrl + Enter** to run all expressions.
 An expression can be stopped by pression **Escape**.
 You can use **Ctrl + Arrow** to jump to other expressions.
 
-### Sequence types
+#### Sequence types
 
 By default, a sequence is set with the **foreward** type.
 
@@ -57,7 +62,7 @@ Here is a list of available types:
 - `!` X-Random		Pick an item of the sequence avoiding the last picked
 - `$` Walk			Random walk in the sequence
 
-### Sequence values
+#### Sequence values
 
 Expressions values can be numbers of pitch (with optionnal octave).
 You can also use other sequences as values, allowing you to build complex
@@ -73,7 +78,7 @@ Here a a few valid values:
 - `3`
 - `16`
 
-### Sequence modulators
+#### Sequence modulators
 
 Modulator define the sequence behavior through time.
 When no modulator is used, the sequence is read once.
@@ -85,7 +90,7 @@ On **clock mode**, it loops the sequence until N clock triggers have been
 reached on the **input**, allowing you to easily build "regular" rythms.
 On **pitch mode**, it loops the sequence until N values have been **output**.
 
-## Clock mode
+### Clock mode
 
 The **clock mode** generates rythm. It uses the **master clock input**
 or the **1st input** as main clock and can use the **2nd input** as additional
@@ -102,7 +107,7 @@ Exemples:
 - `>1,2,3%8`	xx.x..|xx|
 - `>1,2,3%16`	xx.x..|xx.x..|xx.x|
 
-## Pitch mode
+### Pitch mode
 
 The **pitch mode** generates pitch on each trigger received via the
 **master clock input** or the **1st input**.
@@ -118,7 +123,7 @@ octave using values like `0`, `12`, `24` or even `c4`, `c5`, `c3`, etc.
 
 
 
-# Tracker suite
+## Tracker suite
 
 Work in progress.
 
