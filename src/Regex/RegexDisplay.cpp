@@ -36,9 +36,15 @@ void RegexDisplay::draw_preview(const DrawArgs &args) {
 	nvgRoundedRect(args.vg, RECT_ARGS(rect), 5);
 	nvgFill(args.vg);
 	/// DRAW TEXT
-	if (this != ((RegexWidget*)this->moduleWidget)->display[3]
-	&& this != ((RegexWidget*)this->moduleWidget)->display[4])
-		return;
+	if (this->condensed) {
+		if (this != ((RegexWidget*)this->moduleWidget)->display[5]
+		&& this != ((RegexWidget*)this->moduleWidget)->display[6])
+			return;
+	} else {
+		if (this != ((RegexWidget*)this->moduleWidget)->display[3]
+		&& this != ((RegexWidget*)this->moduleWidget)->display[4])
+			return;
+	}
 	//// GET FONT
 	font = APP->window->loadFont(this->fontPath);
 	if (font == NULL)
@@ -47,16 +53,23 @@ void RegexDisplay::draw_preview(const DrawArgs &args) {
 	nvgFontSize(args.vg, 12);
 	nvgFontFaceId(args.vg, font->handle);
 	nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-	//// DRAW FONT
 	nvgFillColor(args.vg, colors[4]);
-	nvgText(args.vg,
-	/**/ rect.pos.x + 3.0,
-	/**/ rect.pos.y + 3.0,
-	/**/ "            R - G - X           ", NULL);
-	nvgText(args.vg,
-	/**/ rect.pos.x + 3.0,
-	/**/ rect.pos.y + 3.0 + 12.0,
-	/**/ "            - E - E -           ", NULL);
+	//// DRAW FONT
+	if (this->condensed) {
+		nvgText(args.vg,
+		/**/ rect.pos.x + 3.0,
+		/**/ rect.pos.y + 3.0,
+		/**/ "       R - E - G - E - X        ", NULL);
+	} else {
+		nvgText(args.vg,
+		/**/ rect.pos.x + 3.0,
+		/**/ rect.pos.y + 3.0,
+		/**/ "            R - G - X           ", NULL);
+		nvgText(args.vg,
+		/**/ rect.pos.x + 3.0,
+		/**/ rect.pos.y + 3.0 + 12.0,
+		/**/ "            - E - E -           ", NULL);
+	}
 }
 
 void RegexDisplay::draw(const DrawArgs &args) {

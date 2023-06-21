@@ -61,20 +61,20 @@
 #define CHAR_COUNT_Y				39
 
 
-extern char		table_pitch[12][3];
-extern char		table_effect[14];					// 12
-extern char		table_hex[17];					// 16
-extern int		table_keyboard[128];
-extern float	table_temp_equal[12];
-extern float	table_temp_just[12];
-extern float	table_temp_pyth[12];
-extern float	table_temp_carlos_super_just[12];
-extern float	table_temp_carlos_harmonic[12];
-extern float	table_temp_kirnberger[12];
-extern float	table_temp_vallotti_young[12];
-extern float	table_temp_werckmeister_3[12];
-extern NVGcolor	colors[16];
-extern NVGcolor	colors_user[8];
+//extern char		table_pitch[12][3];
+//extern char		table_effect[14];					// 12
+//extern char		table_hex[17];					// 16
+//extern int		table_keyboard[128];
+//extern float	table_temp_equal[12];
+//extern float	table_temp_just[12];
+//extern float	table_temp_pyth[12];
+//extern float	table_temp_carlos_super_just[12];
+//extern float	table_temp_carlos_harmonic[12];
+//extern float	table_temp_kirnberger[12];
+//extern float	table_temp_vallotti_young[12];
+//extern float	table_temp_werckmeister_3[12];
+//extern NVGcolor	colors[16];
+//extern NVGcolor	colors_user[8];
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -89,7 +89,6 @@ struct PatternSource;
 struct SynthVoice;
 struct Synth;
 struct PatternReader;
-//struct TimelineCell;
 struct Timeline;
 struct Editor;
 

@@ -166,6 +166,6 @@ NVGcolor	colors_user[8] = {
 /// GLOBAL STRUCTURES
 ////////////////////////////////////////////////////////////////////////////////
 
-Timeline		g_timeline;
-Editor			g_editor;
-Tracker			*g_module;
+//Timeline		g_timeline;
+//Editor			g_editor;
+//Tracker			*g_module;

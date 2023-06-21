@@ -8,25 +8,11 @@
   "authorEmail": "",
   "authorUrl": "",
   "pluginUrl": "",
-  "manualUrl": "",
+  "manualUrl": "https://github.com/gibbonjoyeux/VCV-Biset",
   "sourceUrl": "https://github.com/gibbonjoyeux/VCV-Biset",
   "donateUrl": "",
   "changelogUrl": "",
   "modules": [
-	{
-		"slug": "Biset-Tracker",
-		"name": "Tracker",
-		"hidden": false,
-		"description": "Advanced pattern based tracker sequencer",
-		"tags": ["Digital", "Sequencer", "Polyphonic"]
-	},
-	{
-		"slug": "Biset-TrackerSynth",
-		"name": "Tracker Synth",
-		"hidden": false,
-		"description": "Tracker synth output",
-		"tags": ["Digital", "Sequencer", "Polyphonic"]
-	},
 	{
 		"slug": "Biset-Regex",
 		"name": "Regex",
