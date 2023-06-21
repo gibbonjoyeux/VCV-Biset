@@ -6,6 +6,9 @@
 **Regex** is a text based pattern sequencer.
 It can generate both clock (rythm) and pitch sequences.
 
+It has been thought for performance as a live coding device. You can easily
+build sequences, rythm and/or pitch/cv and connect them.
+
 **Regex** is made of 8 (12 for the condensed version) expressions, and 2 inputs:
 - An expression is made of a **screen**, a **mode switch**, **3 inputs** and **2 outputs**:
 	- Screen: Expression editor
@@ -38,6 +41,7 @@ Here are a few valid expression
 To run an expression, you should press **Enter** while on the corresponding
 led display. You can also press **Ctrl + Enter** to run all expressions.
 An expression can be stopped by pression **Escape**.
+You can use **Ctrl + Arrow** to jump to other expressions.
 
 ### Sequence types
 
@@ -87,12 +91,15 @@ The **clock mode** generates rythm. It uses the **master clock input**
 or the **1st input** as main clock and can use the **2nd input** as additional
 clock (resulting in a more complex rythm).
 
-The values acts like clock dividers.
+The sequence values acts like clock dividers.
 
-Exemple:
+Exemples:
 
 - `>1,2`		xx.|
-- `>1,2,3`		xx.x..|xx.x..|
+- `<1,2`		x.x|
+- `^1,2`		xx.x.x|
+- `>1,2,3`		xx.x..|
+- `>1,2,3%8`	xx.x..|xx|
 - `>1,2,3%16`	xx.x..|xx.x..|xx.x|
 
 ## Pitch mode
