@@ -67,6 +67,9 @@ struct RegexItem {
 
 	void reset(void);
 	void select(int index);
+	void walk(void);
+	int pick(void);
+	int xpick(int last_picked);
 	void shuffle(void);
 };
 

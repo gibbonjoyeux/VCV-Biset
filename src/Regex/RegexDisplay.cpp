@@ -151,7 +151,7 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 	while (i < count && str[index] != 0) {
 		c[0] = str[index];
 		/// ACTIVE VALUE
-		if (i == this->active_value) {
+		if (index == this->active_value) {
 			nvgFillColor(args.vg, colors[3]);
 			/// VALUE AS NUMBER
 			if (IS_DIGIT(str[index])) {

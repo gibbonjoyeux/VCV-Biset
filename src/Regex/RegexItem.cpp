@@ -75,12 +75,52 @@ void RegexItem::select(int index) {
 	this->sequence.it = it;
 }
 
+int RegexItem::pick(void) {
+	int		rand;
+
+	rand = random::uniform() * (float)this->sequence.length;
+	this->select(rand);
+	return rand;
+}
+
+int RegexItem::xpick(int last_picked) {
+	int		rand;
+
+	if (this->sequence.length == 1) {
+		rand = 0;
+	} else if (this->sequence.length == 2) {
+		rand = (last_picked == 0) ? 1 : 0;
+	} else {
+		rand = random::uniform() * (float)this->sequence.length;
+		while (rand == last_picked)
+			rand = random::uniform() * (float)this->sequence.length;
+	}
+	this->select(rand);
+	return rand;
+}
+
+void RegexItem::walk(void) {
+	if (this->sequence.length <= 1)
+		return;
+	if (this->sequence.it == this->sequence.sequence.begin()) {
+		this->sequence.it = std::next(this->sequence.it);
+	} else if (this->sequence.it == std::prev(this->sequence.sequence.end())) {
+		this->sequence.it = std::prev(this->sequence.it);
+	} else {
+		if (random::uniform() > 0.5)
+			this->sequence.it = std::next(this->sequence.it);
+		else
+			this->sequence.it = std::prev(this->sequence.it);
+	}
+}
+
 void RegexItem::shuffle(void) {
 	list<RegexItem>::iterator	it_left;
 	list<RegexItem>::iterator	it_right;
 	int							index;
 	int							i;
 
+	/// SHUFFLE LIST
 	for (i = 0; i < this->sequence.length; ++i) {
 		/// SELECT LEFT
 		index = random::uniform() * (float)this->sequence.length;
@@ -94,4 +134,6 @@ void RegexItem::shuffle(void) {
 		if (it_left != it_right)
 			std::swap(*it_left, *it_right);
 	}
+	/// SELECT FIRST ITEM
+	this->sequence.it = this->sequence.sequence.begin();
 }

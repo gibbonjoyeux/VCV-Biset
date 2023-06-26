@@ -154,7 +154,6 @@ bool RegexItem::pull_pitch_shuffle(int &value, int &index) {
 	/// INIT SEQUENCE
 	if (this->sequence.it == it_end) {
 		this->shuffle();
-		this->sequence.it = this->sequence.sequence.begin();
 	}
 	/// PULL SEQUENCE
 	state = this->sequence.it->pull_pitch(value, index);
@@ -163,7 +162,6 @@ bool RegexItem::pull_pitch_shuffle(int &value, int &index) {
 		this->sequence.state_a += 1;
 		if (this->sequence.state_a >= this->sequence.modulator_value) {
 			this->shuffle();
-			this->sequence.it = this->sequence.sequence.begin();
 			this->sequence.state_a = 0;
 			return true;
 		}
@@ -195,12 +193,10 @@ bool RegexItem::pull_pitch_shuffle(int &value, int &index) {
 bool RegexItem::pull_pitch_rand(int &value, int &index) {
 	list<RegexItem>::iterator	it_end;
 	bool						state;
-	int							rand;
 
 	/// INIT SEQUENCE
 	if (this->sequence.it == this->sequence.sequence.end()) {
-		rand = random::uniform() * (float)this->sequence.length;
-		this->select(rand);
+		this->pick();
 	}
 	/// PULL SEQUENCE
 	state = this->sequence.it->pull_pitch(value, index);
@@ -208,6 +204,7 @@ bool RegexItem::pull_pitch_rand(int &value, int &index) {
 	if (this->sequence.modulator_mode == '%') {
 		this->sequence.state_a += 1;
 		if (this->sequence.state_a >= this->sequence.modulator_value) {
+			this->pick();
 			this->sequence.state_a = 0;
 			return true;
 		}
@@ -215,8 +212,7 @@ bool RegexItem::pull_pitch_rand(int &value, int &index) {
 	/// SEQUENCE NEXT
 	if (state == true) {
 		/// SELECT RANDOM ELEMENT
-		rand = random::uniform() * (float)this->sequence.length;
-		this->select(rand);
+		this->pick();
 		/// TYPE MULT
 		if (this->sequence.modulator_mode == 'x') {
 			this->sequence.state_a += 1;
@@ -240,13 +236,10 @@ bool RegexItem::pull_pitch_rand(int &value, int &index) {
 bool RegexItem::pull_pitch_xrand(int &value, int &index) {
 	list<RegexItem>::iterator	it_end;
 	bool						state;
-	int							rand;
 
 	/// INIT SEQUENCE
 	if (this->sequence.it == this->sequence.sequence.end()) {
-		rand = random::uniform() * (float)this->sequence.length;
-		this->sequence.state_c = rand;
-		this->select(rand);
+		this->sequence.state_c = this->pick();
 	}
 	/// PULL SEQUENCE
 	state = this->sequence.it->pull_pitch(value, index);
@@ -254,6 +247,7 @@ bool RegexItem::pull_pitch_xrand(int &value, int &index) {
 	if (this->sequence.modulator_mode == '%') {
 		this->sequence.state_a += 1;
 		if (this->sequence.state_a >= this->sequence.modulator_value) {
+			this->sequence.state_c = this->xpick(this->sequence.state_c);
 			this->sequence.state_a = 0;
 			return true;
 		}
@@ -261,17 +255,7 @@ bool RegexItem::pull_pitch_xrand(int &value, int &index) {
 	/// SEQUENCE NEXT
 	if (state == true) {
 		/// SELECT RANDOM ELEMENT
-		if (this->sequence.length == 1) {
-			rand = 0;
-		} else if (this->sequence.length == 2) {
-			rand = (this->sequence.state_c == 0) ? 1 : 0;
-		} else {
-			rand = random::uniform() * (float)this->sequence.length;
-			while (rand == this->sequence.state_c)
-				rand = random::uniform() * (float)this->sequence.length;
-		}
-		this->sequence.state_c = rand;
-		this->select(rand);
+		this->sequence.state_c = this->xpick(this->sequence.state_c);
 		/// TYPE MULT
 		if (this->sequence.modulator_mode == 'x') {
 			this->sequence.state_a += 1;
@@ -306,29 +290,20 @@ bool RegexItem::pull_pitch_walk(int &value, int &index) {
 	if (this->sequence.modulator_mode == '%') {
 		this->sequence.state_a += 1;
 		if (this->sequence.state_a >= this->sequence.modulator_value) {
+			this->sequence.it = this->sequence.sequence.begin();
 			this->sequence.state_a = 0;
 			return true;
 		}
 	}
 	/// SEQUENCE NEXT
 	if (state == true) {
-		if (this->sequence.length > 1) {
-			if (this->sequence.it == this->sequence.sequence.begin()) {
-				this->sequence.it = std::next(this->sequence.it);
-			} else if (this->sequence.it == it_end) {
-				this->sequence.it = std::prev(this->sequence.it);
-			} else {
-				if (random::uniform() > 0.5)
-					this->sequence.it = std::next(this->sequence.it);
-				else
-					this->sequence.it = std::prev(this->sequence.it);
-			}
-		}
+		this->walk();
 		/// TYPE MULT
 		if (this->sequence.modulator_mode == 'x') {
 			this->sequence.state_a += 1;
 			if (this->sequence.state_a
 			>= this->sequence.modulator_value * this->sequence.length) {
+				this->sequence.it = this->sequence.sequence.begin();
 				this->sequence.state_a = 0;
 				return true;
 			}
@@ -336,6 +311,7 @@ bool RegexItem::pull_pitch_walk(int &value, int &index) {
 		} else if (this->sequence.modulator_mode == 0) {
 			this->sequence.state_a += 1;
 			if (this->sequence.state_a >= this->sequence.length) {
+				this->sequence.it = this->sequence.sequence.begin();
 				this->sequence.state_a = 0;
 				return true;
 			}
