@@ -84,10 +84,8 @@ RegexWidget::RegexWidget(Regex* _module, bool _condensed) {
 		display->moduleWidget = this;
 		display->condensed = this->condensed;
 		if (this->module) {
-			if (this->module->expressions[i].empty() == false)
-				display->text = std::move(this->module->expressions[i]);
+			display->text = this->module->sequences[i].string_edit;
 			display->sequence = &(this->module->sequences[i]);
-			this->module->sequences[i].display = display;
 		} else {
 			display->sequence = NULL;
 		}
@@ -132,7 +130,7 @@ void RegexWidget::appendContextMenu(Menu *menu) {
 	label = new MenuLabel();
 	label->text = "Expression values";
 	menu->addChild(label);
-	menu->addChild(new MenuItemStay("4 / 12", "Number", [=](){}));
+	menu->addChild(new MenuItemStay("4 / 12 / -7", "Number", [=](){}));
 	menu->addChild(new MenuItemStay("c / c# / cb / c4", "Pitch", [=](){}));
 
 	/// SEQUENCE MODULATOR

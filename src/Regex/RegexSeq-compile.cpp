@@ -147,15 +147,15 @@ void RegexSeq::compile(Regex *module) {
 	char		*str;
 	int			i;
 
-	if (this->display->check_syntax() == false)
+	if (this->string_syntax == false)
 		return;
 	/// [1] SAVE EXPRESSION
 	if (this->sequence == NULL)
-		this->sequence_string = this->display->text;
+		this->string_run = this->string_edit;
 	else
-		this->sequence_next_string = this->display->text;
+		this->string_run_next = this->string_edit;
 	/// [2] COMPILE EXPRESSION
-	str = (char*)this->display->text.c_str();
+	str = (char*)this->string_edit.c_str();
 	i = 0;
 	sequence = new RegexItem();
 	this->compile_req(sequence, str, i);

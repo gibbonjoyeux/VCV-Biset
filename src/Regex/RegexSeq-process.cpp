@@ -41,7 +41,7 @@ void RegexSeq::process(float dt, bool clock_reset_master, bool clock_master) {
 					value = 0;
 					index = -1;
 					state = this->sequence->pull_clock(value, index);
-					this->display->active_value = index;
+					this->string_active_value = index;
 					/// UPDATE SEQUENCE
 					if (state == true) {
 						this->clock_out_eoc.trigger();
@@ -49,7 +49,7 @@ void RegexSeq::process(float dt, bool clock_reset_master, bool clock_master) {
 							delete this->sequence;
 							this->sequence = this->sequence_next;
 							this->sequence_next = NULL;
-							this->sequence_string = std::move(this->sequence_next_string);
+							this->string_run = std::move(this->string_run_next);
 						}
 					}
 					this->clock_out_divider = value;
@@ -89,7 +89,7 @@ void RegexSeq::process(float dt, bool clock_reset_master, bool clock_master) {
 				value = 0;
 				index = -1;
 				state = this->sequence->pull_pitch(value, index);
-				this->display->active_value = index;
+				this->string_active_value = index;
 				/// UPDATE SEQUENCE
 				if (state == true) {
 					this->clock_out_eoc.trigger();
@@ -97,7 +97,7 @@ void RegexSeq::process(float dt, bool clock_reset_master, bool clock_master) {
 						delete this->sequence;
 						this->sequence = this->sequence_next;
 						this->sequence_next = NULL;
-						this->sequence_string = std::move(this->sequence_next_string);
+						this->string_run = std::move(this->string_run_next);
 					}
 				}
 				/// SET VOLTAGE

@@ -16,8 +16,6 @@ RegexDisplay::RegexDisplay() {
 	this->color = colors[4];
 	this->textOffset = Vec(-1.0, -1.0);
 	this->char_width = 0;
-	this->syntax = true;
-	this->active_value = -1;
 	LedDisplayTextField();
 }
 
@@ -93,10 +91,10 @@ void RegexDisplay::draw(const DrawArgs &args) {
 	nvgFill(args.vg);
 	/// RECT STATE
 	//// STATE SYNTAX ERROR
-	if (this->syntax == false && this->text.empty() == false)
+	if (this->sequence->string_syntax == false && this->text.empty() == false)
 		nvgFillColor(args.vg, colors[2]);
 	//// STATE RUNNING
-	else if (this->sequence->sequence_string == this->text)
+	else if (this->sequence->string_run == this->text)
 		nvgFillColor(args.vg, colors[5]);
 	//// STATE EDITING
 	else
@@ -131,8 +129,8 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 	/// GET CANVAS FORMAT
 	rect = box.zeroPos();
 	/// DRAW TEXT
-	if (this->sequence->sequence_string != this->text)
-		this->active_value = -1;
+	if (this->sequence->string_run != this->text)
+		this->sequence->string_active_value = -1;
 	this->char_width = nvgTextBounds(args.vg, 0, 0, "x", NULL, NULL);
 	str = (char*)this->text.c_str();
 	c[1] = 0;
@@ -151,7 +149,7 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 	while (i < count && str[index] != 0) {
 		c[0] = str[index];
 		/// ACTIVE VALUE
-		if (index == this->active_value) {
+		if (index == this->sequence->string_active_value) {
 			nvgFillColor(args.vg, colors[3]);
 			/// VALUE AS NUMBER
 			if (IS_DIGIT(str[index]) || str[index] == '-') {
@@ -244,8 +242,6 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 void RegexDisplay::onSelectText(const SelectTextEvent &e) {
 	if (e.codepoint != ' ')
 		LedDisplayTextField::onSelectText(e);
-	/// CHECK SYNTAX
-	this->check_syntax();
 }
 
 void RegexDisplay::onSelectKey(const SelectKeyEvent &_e) {
@@ -316,8 +312,6 @@ void RegexDisplay::onSelectKey(const SelectKeyEvent &_e) {
 		}
 	}
 	LedDisplayTextField::onSelectKey(e);
-	/// CHECK SYNTAX
-	this->check_syntax();
 }
 
 void RegexDisplay::onButton(const ButtonEvent &e) {
@@ -362,91 +356,7 @@ void RegexDisplay::onButton(const ButtonEvent &e) {
 void RegexDisplay::onDragHover(const DragHoverEvent &e) {
 }
 
-bool RegexDisplay::check_syntax_seq(char *str, int &i) {
-	bool				brackets;
-
-	brackets = false;
-	/// HANDLE MODE (OPTIONNAL)
-	if (str[i] == 0)
-		return false;
-	if (IS_MODE(str[i]))
-		i += 1;
-	/// HANDLE BRACKETS
-	if (str[i] == 0)
-		return false;
-	if (str[i] == '(') {
-		i += 1;
-		brackets = true;
-	}
-	/// HANDLE SEQUENCE
-	if (str[i] == 0)
-		return false;
-	while (true) {
-		/// HANDLE VALUE AS NUMBER
-		if (IS_DIGIT(str[i]) || str[i] == '-') {
-			if (str[i] == '-') {
-				i += 1;
-				if (IS_DIGIT(str[i]) == false)
-					return false;
-			}
-			while (IS_DIGIT(str[i]))
-				i += 1;
-		/// HANDLE VALUE AS PITCH
-		} else if (IS_PITCH(str[i])) {
-			i += 1;
-			if (str[i] == '#' || str[i] == 'b')
-				i += 1;
-			if (IS_DIGIT(str[i]))
-				i += 1;
-		/// HANDLE VALUE AS SEQUENCE (RECURSIVE)
-		} else if (IS_MODE(str[i]) || str[i] == '(') {
-			if (check_syntax_seq(str, i) == false)
-				return false;
-		/// HANDLE ERROR
-		} else {
-			return false;
-		}
-		/// HANDLE SEPARATOR
-		if (str[i] == ',') {
-			i += 1;
-		/// HANDLE SEQUENCE END
-		} else if (str[i] == ')') {
-			if (brackets == true) {
-				i += 1;
-				if (IS_MODULATOR(str[i]))
-					break;
-				return true;
-			}
-			return true;
-		/// HANDLE MODULATOR
-		} else if (IS_MODULATOR(str[i])) {
-			break;
-		/// HANDLE END
-		} else if (str[i] == 0) {
-			if (brackets == true)
-				return false;
-			return true;
-		/// HANDLE ERROR
-		} else {
-			return false;
-		}
-	}
-	/// HANDLE MODULATOR
-	i += 1;
-	if (IS_DIGIT(str[i])) {
-		while (IS_DIGIT(str[i]))
-			i += 1;
-		return true;
-	}
-	return false;
-}
-
-bool RegexDisplay::check_syntax(void) {
-	char							*str;
-	int								i;
-
-	str = (char*)this->text.c_str();
-	i = 0;
-	this->syntax = this->check_syntax_seq(str, i);
-	return this->syntax;
+void RegexDisplay::onChange(const ChangeEvent &e) {
+	this->sequence->string_edit = this->getText();
+	this->sequence->check_syntax();
 }

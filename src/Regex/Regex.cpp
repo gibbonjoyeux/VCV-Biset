@@ -57,7 +57,6 @@ void Regex::process(const ProcessArgs& args) {
 	int		mode;
 	int		i;
 
-
 	/// [1] CHECK THREAD FLAG
 	if (this->thread_flag.test_and_set())
 		return;
@@ -72,8 +71,7 @@ void Regex::process(const ProcessArgs& args) {
 			if (mode != this->sequences[i].mode) {
 				this->sequences[i].mode = mode;
 				this->sequences[i].reset(true);
-				this->sequences[i].display->check_syntax();
-				this->sequences[i].display->active_value = -1;
+				this->sequences[i].string_active_value = -1;
 			}
 		}
 		/// PROCESS SEQUENCE

@@ -77,14 +77,16 @@ struct RegexSeq {
 	u8							mode;			// Clock | Pitch
 	RegexItem					*sequence;
 	RegexItem					*sequence_next;
-	RegexDisplay				*display;
 	Input						*in_reset;
 	Input						*in_1;
 	Input						*in_2;
 	Output						*out;
 	Output						*out_eoc;
-	std::string					sequence_string;
-	std::string					sequence_next_string;
+	std::string					string_edit;		// Editable string
+	std::string					string_run;			// Running sequence string
+	std::string					string_run_next;	// Next running sequence string
+	int							string_active_value;
+	bool						string_syntax;
 	int							clock_out_divider;
 	int							clock_out_count;
 	dsp::PulseGenerator			clock_out;
@@ -99,6 +101,8 @@ struct RegexSeq {
 	void process(float dt, bool clock_reset_master, bool clock_master);
 	void compile(Regex *module);
 	void compile_req(RegexItem *item, char *str, int &i);
+	bool check_syntax(void);
+	bool check_syntax_seq(char *str, int &i);
 };
 
 struct Regex : Module {
@@ -127,7 +131,6 @@ struct Regex : Module {
 	RegexSeq					sequences[12];
 	dsp::TSchmittTrigger<float>	clock_reset;
 	dsp::TSchmittTrigger<float>	clock_master;
-	std::string					expressions[12];
 	int							exp_count;
 
 	Regex(bool condensed = false);
@@ -147,9 +150,7 @@ struct RegexDisplay : LedDisplayTextField {
 	RegexDisplay			*display_prev;
 	RegexDisplay			*display_next;
 	bool					condensed;
-	bool					syntax;
 	float					char_width;
-	int						active_value;
 
 	RegexDisplay();
 
@@ -160,9 +161,7 @@ struct RegexDisplay : LedDisplayTextField {
 	void onSelectKey(const SelectKeyEvent &e) override;
 	void onButton(const ButtonEvent &e) override;
 	void onDragHover(const DragHoverEvent &e) override;
-
-	bool check_syntax(void);
-	bool check_syntax_seq(char *str, int &i);
+	void onChange(const ChangeEvent &e) override;
 };
 
 struct RegexWidget : ModuleWidget {
