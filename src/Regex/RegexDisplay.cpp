@@ -154,7 +154,16 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 		if (index == this->active_value) {
 			nvgFillColor(args.vg, colors[3]);
 			/// VALUE AS NUMBER
-			if (IS_DIGIT(str[index])) {
+			if (IS_DIGIT(str[index]) || str[index] == '-') {
+				if (str[index] == '-') {
+					c[0] = '-';
+					nvgText(args.vg,
+					/**/ rect.pos.x + 3.0 + (float)(i % 32) * this->char_width,
+					/**/ rect.pos.y + 3.0 + (float)(i / 32) * 12.0,
+					/**/ c, NULL);
+					index += 1;
+					i += 1;
+				}
 				while (i < count && IS_DIGIT(str[index])) {
 					c[0] = str[index];
 					nvgText(args.vg,
@@ -374,7 +383,12 @@ bool RegexDisplay::check_syntax_seq(char *str, int &i) {
 		return false;
 	while (true) {
 		/// HANDLE VALUE AS NUMBER
-		if (IS_DIGIT(str[i])) {
+		if (IS_DIGIT(str[i]) || str[i] == '-') {
+			if (str[i] == '-') {
+				i += 1;
+				if (IS_DIGIT(str[i]) == false)
+					return false;
+			}
 			while (IS_DIGIT(str[i]))
 				i += 1;
 		/// HANDLE VALUE AS PITCH

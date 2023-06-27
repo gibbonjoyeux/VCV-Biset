@@ -12,6 +12,7 @@
 void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 	RegexItem			*item_new;
 	bool				brackets;
+	bool				negative;
 	int					value;
 
 	brackets = false;
@@ -44,7 +45,13 @@ void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 	item->sequence.length = 0;
 	while (true) {
 		/// HANDLE VALUE AS NUMBER
-		if (IS_DIGIT(str[i])) {
+		if (IS_DIGIT(str[i]) || str[i] == '-') {
+			if (str[i] == '-') {
+				negative = true;
+				i += 1;
+			} else {
+				negative = false;
+			}
 			item->sequence.length += 1;
 			item->sequence.sequence.emplace_back();
 			item_new = &(item->sequence.sequence.back());
@@ -55,7 +62,10 @@ void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 				value = value * 10 + (str[i] - '0');
 				i += 1;
 			}
-			item_new->value.value = value;
+			if (negative)
+				item_new->value.value = -value;
+			else
+				item_new->value.value = value;
 		/// HANDLE VALUE AS PITCH
 		} else if (IS_PITCH(str[i])) {
 			item->sequence.length += 1;

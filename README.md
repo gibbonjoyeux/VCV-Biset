@@ -34,7 +34,7 @@ It is based on sequences that are made of:
 - A **series of values** (number, pitch, recursive sequence)
 - A **modulator**	OPTIONAL
 
-Here are a few valid expression
+Here are a few valid expressions:
 
 - `c,d,e`
 - `0,1,2,3`
@@ -54,13 +54,13 @@ By default, a sequence is set with the **foreward** type.
 
 Here is a list of available types:
 
-- `>` Foreward		Read the sequence foreward
-- `<` Backward		Read the sequence backward
-- `^` Ping-pong		Read the sequence foreward and backward
-- `@` Shuffle		Read the sequence shuffled
-- `?` Random		Pick an item of the sequence
-- `!` X-Random		Pick an item of the sequence avoiding the last picked
-- `$` Walk			Random walk in the sequence
+- `>` **Foreward**		Read the sequence foreward
+- `<` **Backward**		Read the sequence backward
+- `^` **Ping-pong**		Read the sequence foreward and backward
+- `@` **Shuffle**		Read the sequence shuffled
+- `?` **Random**		Pick an item of the sequence
+- `!` **X-Random**		Pick an item of the sequence avoiding the last picked
+- `$` **Walk**			Random walk in the sequence
 
 #### Sequence values
 
@@ -68,7 +68,7 @@ Expressions values can be numbers of pitch (with optionnal octave).
 You can also use other sequences as values, allowing you to build complex
 patterns.
 
-Here a a few valid values:
+Here are a few valid values:
 
 - `C`
 - `c`
@@ -77,6 +77,14 @@ Here a a few valid values:
 - `c5`
 - `3`
 - `16`
+- `-4`
+- `-17`
+
+Values follow the **v/oct** rule, even for numerical values.
+
+`0` returns **0 volt** while `12` returns **1 volt**.
+
+`c4` returns **0 volt** while `c3` returns **-1 volt**.
 
 #### Sequence modulators
 
