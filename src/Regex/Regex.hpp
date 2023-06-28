@@ -4,6 +4,8 @@
 
 #include "../plugin.hpp"
 
+#define REGEX_FRAME_DIVIDER	8
+
 #define REGEX_VALUE			0
 #define REGEX_SEQUENCE		1
 

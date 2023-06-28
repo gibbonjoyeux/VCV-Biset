@@ -57,6 +57,9 @@ void Regex::process(const ProcessArgs& args) {
 	int		mode;
 	int		i;
 
+	if (args.frame % REGEX_FRAME_DIVIDER != 0)
+		return;
+
 	/// [1] CHECK THREAD FLAG
 	if (this->thread_flag.test_and_set())
 		return;
@@ -66,16 +69,15 @@ void Regex::process(const ProcessArgs& args) {
 	clock_reset = this->clock_reset.process(this->inputs[INPUT_RESET].getVoltage());
 	for (i = 0; i < this->exp_count; ++i) {
 		/// UPDATE SEQUENCES MODES
-		if (args.frame % 64 != 0) {
-			mode = this->params[PARAM_MODE + i].getValue();
-			if (mode != this->sequences[i].mode) {
-				this->sequences[i].mode = mode;
-				this->sequences[i].reset(true);
-				this->sequences[i].string_active_value = -1;
-			}
+		mode = this->params[PARAM_MODE + i].getValue();
+		if (mode != this->sequences[i].mode) {
+			this->sequences[i].mode = mode;
+			this->sequences[i].reset(true);
+			this->sequences[i].string_active_value = -1;
 		}
 		/// PROCESS SEQUENCE
-		this->sequences[i].process(args.sampleTime, clock_reset, clock_master);
+		this->sequences[i].process(args.sampleTime * REGEX_FRAME_DIVIDER,
+		/**/ clock_reset, clock_master);
 	}
 
 	/// [3] CLEAR THREAD FLAG
