@@ -14,6 +14,20 @@
   "changelogUrl": "",
   "modules": [
 	{
+		"slug": "Biset-Tracker",
+		"name": "Tracker",
+		"hidden": false,
+		"description": "An avanced sequencer based on a tracker",
+		"tags": ["Sequencer", "Controller", "Digital"]
+	},
+	{
+		"slug": "Biset-Tracker-Synth",
+		"name": "Tracker Synth",
+		"hidden": false,
+		"description": "Tracker synth output",
+		"tags": ["Sequencer", "Digital"]
+	},
+	{
 		"slug": "Biset-Regex",
 		"name": "Regex",
 		"hidden": false,

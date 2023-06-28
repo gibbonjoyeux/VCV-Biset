@@ -10,8 +10,8 @@ using				std::unique_ptr;
 
 #include "types.hpp"
 #include "components.hpp"
-//#include "Tracker/Tracker.hpp"
-//#include "TrackerSynth/TrackerSynth.hpp"
+#include "Tracker/Tracker.hpp"
+#include "TrackerSynth/TrackerSynth.hpp"
 //#include "TrackerDrum/TrackerDrum.hpp"
 
 #include "Regex/Regex.hpp"
@@ -35,8 +35,8 @@ extern NVGcolor	colors_user[8];
 extern Plugin*		pluginInstance;
 
 // Declare each Model, defined in each module source file
-//extern Model*		modelTracker;
-//extern Model*		modelTrackerSynth;
+extern Model*		modelTracker;
+extern Model*		modelTrackerSynth;
 //extern Model*		modelTrackerDrum;
 //extern Model*		modelTrackerClock;
 //extern Model*		modelTrackerPhase;
