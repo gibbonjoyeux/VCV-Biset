@@ -87,7 +87,7 @@ void TrackerSynth::learn_enable(int cv, int map) {
 	this->map_learn = true;
 	this->map_learn_cv = cv;
 	this->map_learn_map = map;
-	APP->scene->rack->setTouchedParam(NULL);
+	//APP->scene->rack->setTouchedParam(NULL);
 }
 
 void TrackerSynth::learn_disable(void) {
