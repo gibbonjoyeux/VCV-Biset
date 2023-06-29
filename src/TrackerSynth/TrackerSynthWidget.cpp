@@ -65,28 +65,42 @@ void TrackerSynthWidget::onSelect(const SelectEvent &e) {
 	g_editor.set_synth(synth);
 }
 
+void TrackerSynthWidget::onDeselect(const DeselectEvent &e) {
+	ParamWidget		*param;
+
+	if (this->module->map_learn == false)
+		return;
+
+	this->module->params[TrackerSynth::PARAM_SYNTH].setValue(0);	// TMP
+	
+	param = APP->scene->rack->getTouchedParam();
+	if (param) {
+		this->module->params[TrackerSynth::PARAM_SYNTH].setValue(1);// TMP
+		APP->scene->rack->touchedParam = NULL;
+		this->module->learn_map(param->module->id, param->paramId);
+	} else {
+		this->module->learn_disable();
+	}
+}
+
 void TrackerSynthWidget::appendContextMenu(Menu *menu) {
-	MenuSeparator	*separator;
-	char			str[32];
 	int				i;
 
-	separator = new MenuSeparator();
-	menu->addChild(separator);
+	menu->addChild(new MenuSeparator());
 
 	for (i = 0; i < 8; ++i) {
-		sprintf(str, "CV %d", i + 1);
-		menu->addChild(rack::createSubmenuItem(str, "",
+		menu->addChild(rack::createSubmenuItem(string::f("CV %d", i + 1), "",
 			[=](Menu *menu) {
 				MenuSliderEdit	*slider;
 				rack::Widget	*holder;
 				MenuItem		*item;
 
 				/// SLIDER MIN
-				slider = new MenuSliderEdit(this->module->paramQuantities[TrackerSynth::PARAM_OUT_MIN]);
+				slider = new MenuSliderEdit(this->module->paramQuantities[TrackerSynth::PARAM_OUT_MIN + i]);
 				slider->box.size.x = 200.f;
 				menu->addChild(slider);
 				/// SLIDER MAX
-				slider = new MenuSliderEdit(this->module->paramQuantities[TrackerSynth::PARAM_OUT_MAX]);
+				slider = new MenuSliderEdit(this->module->paramQuantities[TrackerSynth::PARAM_OUT_MAX + i]);
 				slider->box.size.x = 200.f;
 				menu->addChild(slider);
 
@@ -97,14 +111,20 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 				holder->box.size.y = 20.0f;
 				//// +/-10
 				item = new MenuItemStay("+/-10", "",	
-					[=]() { }
+					[=]() {
+						this->module->params[TrackerSynth::PARAM_OUT_MIN + i].setValue(-10);
+						this->module->params[TrackerSynth::PARAM_OUT_MAX + i].setValue(10);
+					}
 				);
 				item->box.size.x = 50.0f;
 				item->box.size.y = 20.0f;
 				holder->addChild(item);
 				//// +/-5
 				item = new MenuItemStay("+/-5", "",
-					[=]() { }
+					[=]() {
+						this->module->params[TrackerSynth::PARAM_OUT_MIN + i].setValue(-5);
+						this->module->params[TrackerSynth::PARAM_OUT_MAX + i].setValue(5);
+					}
 				);
 				item->box.size.x = 50.0f;
 				item->box.size.y = 20.0f;
@@ -112,7 +132,10 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 				holder->addChild(item);
 				//// +/-2
 				item = new MenuItemStay("+/-2", "",
-					[=]() { }
+					[=]() {
+						this->module->params[TrackerSynth::PARAM_OUT_MIN + i].setValue(-2);
+						this->module->params[TrackerSynth::PARAM_OUT_MAX + i].setValue(2);
+					}
 				);
 				item->box.size.x = 50.0f;
 				item->box.size.y = 20.0f;
@@ -120,7 +143,10 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 				holder->addChild(item);
 				//// +/-1
 				item = new MenuItemStay("+/-1", "",
-					[=]() { }
+					[=]() {
+						this->module->params[TrackerSynth::PARAM_OUT_MIN + i].setValue(-1);
+						this->module->params[TrackerSynth::PARAM_OUT_MAX + i].setValue(1);
+					}
 				);
 				item->box.size.x = 50.0f;
 				item->box.size.y = 20.0f;
@@ -134,14 +160,20 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 				holder->box.size.y = 20.0f;
 				//// +10
 				item = new MenuItemStay("+10", "",	
-					[=]() { }
+					[=]() {
+						this->module->params[TrackerSynth::PARAM_OUT_MIN + i].setValue(0);
+						this->module->params[TrackerSynth::PARAM_OUT_MAX + i].setValue(10);
+					}
 				);
 				item->box.size.x = 50.0f;
 				item->box.size.y = 20.0f;
 				holder->addChild(item);
 				//// +5
 				item = new MenuItemStay("+5", "",
-					[=]() { }
+					[=]() {
+						this->module->params[TrackerSynth::PARAM_OUT_MIN + i].setValue(0);
+						this->module->params[TrackerSynth::PARAM_OUT_MAX + i].setValue(5);
+					}
 				);
 				item->box.size.x = 50.0f;
 				item->box.size.y = 20.0f;
@@ -149,7 +181,10 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 				holder->addChild(item);
 				//// +2
 				item = new MenuItemStay("+2", "",
-					[=]() { }
+					[=]() {
+						this->module->params[TrackerSynth::PARAM_OUT_MIN + i].setValue(0);
+						this->module->params[TrackerSynth::PARAM_OUT_MAX + i].setValue(2);
+					}
 				);
 				item->box.size.x = 50.0f;
 				item->box.size.y = 20.0f;
@@ -157,7 +192,10 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 				holder->addChild(item);
 				//// +1
 				item = new MenuItemStay("+1", "",
-					[=]() { }
+					[=]() {
+						this->module->params[TrackerSynth::PARAM_OUT_MIN + i].setValue(0);
+						this->module->params[TrackerSynth::PARAM_OUT_MAX + i].setValue(1);
+					}
 				);
 				item->box.size.x = 50.0f;
 				item->box.size.y = 20.0f;
@@ -165,6 +203,56 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 				holder->addChild(item);
 
 				menu->addChild(holder);
+
+				menu->addChild(rack::createSubmenuItem("Map", "",
+					[=](Menu *menu) {
+						ParamHandle		*handle;
+						int				j;
+
+						for (j = 0; j < 4; ++j) {
+							handle = &(this->module->map_handles[i][j]);
+							menu->addChild(rack::createSubmenuItem(string::f("Map %d", j + 1),
+								(handle->moduleId >= 0) ? "Mapped" : "",
+								[=](Menu *menu) {
+									MenuLabel	*label;
+									MenuItem	*item;
+
+									/// MAP EDIT
+									if (handle->moduleId >= 0) {
+										/// MAPPED MODULE
+										label = new MenuLabel();
+										label->text = handle->module->model->name;
+										menu->addChild(label);
+										/// MAPPED PARAM
+										label = new MenuLabel();
+										label->text = "Mapped param";
+										label->text = handle->module->getParamQuantity(handle->paramId)->name;
+										menu->addChild(label);
+										/// EDIT
+										menu->addChild(new MenuSeparator());
+										item = createMenuItem("Unmap", "",
+											[=]() {
+												APP->engine->updateParamHandle(handle, -1, 0, true);
+											}
+										);
+										menu->addChild(item);
+									/// MAP LEARN
+									} else {
+										item = createMenuItem("Learn", "",
+											[=]() {
+												//APP->scene->rack->select(this);
+												this->module->learn_enable(i, j);
+											}
+										);
+										menu->addChild(item);
+									}
+								}
+							));
+						}
+					}
+				));
+
+
 			}
 		));
 	}

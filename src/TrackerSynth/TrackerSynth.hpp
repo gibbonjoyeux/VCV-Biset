@@ -29,9 +29,18 @@ struct TrackerSynth: Module {
 	enum	LightIds {
 		LIGHT_COUNT
 	};
+	ParamHandle		map_handles[8][4];
+	bool			map_learn;
+	int				map_learn_cv;
+	int				map_learn_map;
 
 	TrackerSynth();
+	~TrackerSynth();
 	void	process(const ProcessArgs& args) override;
+
+	void	learn_enable(int cv, int map);
+	void	learn_disable(void);
+	void	learn_map(i64 module_id, int param_id);
 };
 
 struct TrackerSynthDisplay : LedDisplay {
@@ -51,6 +60,7 @@ struct TrackerSynthWidget : ModuleWidget {
 
 	TrackerSynthWidget(TrackerSynth* _module);
 	void onSelect(const SelectEvent &e) override;
+	void onDeselect(const DeselectEvent &e) override;
 	void appendContextMenu(Menu *menu) override;
 };
 

@@ -42,6 +42,13 @@ void TrackerSynthDisplay::drawLayer(const DrawArgs& args, int layer) {
 		nvgFontFaceId(args.vg, font->handle);
 		nvgFillColor(args.vg, colors[4]);
 		nvgText(args.vg, p.x + 35.0 / 2, p.y + 40.0 / 2, this->str_synth, NULL);
+		/// DRAW MAPPING LEARN NOTIF
+		if (this->module->map_learn) {
+			nvgBeginPath(args.vg);
+			nvgFillColor(args.vg, colors[2]);
+			nvgRect(args.vg, rect.pos.x + rect.size.x - 6.5, rect.pos.y + 2, 5, 5);
+			nvgFill(args.vg);
+		}
 	}
 	LedDisplay::drawLayer(args, layer);
 }

@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 TrackerSynth::TrackerSynth() {
-	int			i;
+	int			i, j;
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 	/// CONFIG PARAMETERS
@@ -26,6 +26,26 @@ TrackerSynth::TrackerSynth() {
 	configOutput(OUTPUT_PANNING, "Panning");
 	for (i = 0; i < 8; ++i)
 		configOutput(OUTPUT_CV + i, string::f("CV %d", i + 1));
+	/// CONFIG PARAM HANDLES
+	for (i = 0; i < 8; i++) {
+		for (j = 0; j < 4; ++j) {
+			this->map_handles[i][j].color = nvgRGB(0xff, 0xff, 0x40);
+			APP->engine->addParamHandle(&(this->map_handles[i][j]));
+		}
+	}
+	this->map_learn = false;
+	this->map_learn_cv = 0;
+	this->map_learn_map = 0;
+}
+
+TrackerSynth::~TrackerSynth() {
+	int			i, j;
+
+	for (i = 0; i < 8; i++) {
+		for (j = 0; j < 4; ++j) {
+			APP->engine->removeParamHandle(&(this->map_handles[i][j]));
+		}
+	}
 }
 
 void TrackerSynth::process(const ProcessArgs& args) {
@@ -61,6 +81,26 @@ void TrackerSynth::process(const ProcessArgs& args) {
 			this->outputs[OUTPUT_CV + i].setVoltage(cv);
 		}
 	}
+}
+
+void TrackerSynth::learn_enable(int cv, int map) {
+	this->map_learn = true;
+	this->map_learn_cv = cv;
+	this->map_learn_map = map;
+	APP->scene->rack->setTouchedParam(NULL);
+}
+
+void TrackerSynth::learn_disable(void) {
+	this->map_learn = false;
+}
+
+void TrackerSynth::learn_map(i64 module_id, int param_id) {
+	ParamHandle		*handle;
+
+	handle = &(this->map_handles[this->map_learn_cv][this->map_learn_map]);
+	APP->engine->updateParamHandle(handle, module_id, param_id, true);
+	handle->text = "Midi map";
+	this->map_learn = false;
 }
 
 Model* modelTrackerSynth = createModel<TrackerSynth, TrackerSynthWidget>("Biset-Tracker-Synth");
