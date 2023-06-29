@@ -400,8 +400,9 @@ void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 		/// CLICK ON SYNTH
 		if (index < (int)g_timeline.synth_count) {
 			/// SELECT SYNTH
-			g_editor.synth_id = index;
-			g_editor.synth = &(g_timeline.synths[index]);
+			g_editor.set_synth(index);
+			//g_editor.synth_id = index;
+			//g_editor.synth = &(g_timeline.synths[index]);
 			/// CLICK RIGHT
 			if (e.button == GLFW_MOUSE_BUTTON_RIGHT)
 				menu_synth(&(g_timeline.synths[index]));
@@ -418,8 +419,9 @@ void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 		/// CLICK ON PATTERN
 		if (index < (int)g_timeline.pattern_count) {
 			/// SELECT PATTERN
-			g_editor.pattern_id = index;
-			g_editor.pattern = &(g_timeline.patterns[index]);
+			g_editor.set_pattern(index);
+			//g_editor.pattern_id = index;
+			//g_editor.pattern = &(g_timeline.patterns[index]);
 			/// CLICK RIGHT
 			if (e.button == GLFW_MOUSE_BUTTON_RIGHT)
 				menu_pattern(&(g_timeline.patterns[index]));

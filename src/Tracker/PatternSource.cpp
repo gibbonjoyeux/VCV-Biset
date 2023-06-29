@@ -34,6 +34,7 @@ PatternSource::PatternSource() {
 
 void PatternSource::init(void) {
 	/// NAME
+	memset(this->name, 0, 256);
 	strcpy(this->name, "Pattern");
 	/// COLOR
 	this->color = 0;
@@ -108,7 +109,7 @@ void PatternSource::resize(int note_count, int cv_count, int beat_count,
 }
 
 void PatternSource::rename(char *name) {
-	strcpy(this->name, name);
+	strncpy(this->name, name, 255);
 }
 
 void PatternSource::context_menu(Menu *menu) {

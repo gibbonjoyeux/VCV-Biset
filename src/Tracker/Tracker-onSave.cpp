@@ -27,6 +27,8 @@ TRACKER BINARY SAVE FORMAT:
 - Patterns
 	- Pattern count								u16
 	- Patterns
+		- Name length							u8
+		- Name string							chars
 		- Beat count							u16
 		- Note count							u8
 		- CV count								u8
@@ -78,6 +80,8 @@ TRACKER BINARY SAVE FORMAT:
 - Synths
 	- Synth count								u8
 	- Synths
+		- Synth name length						u8
+		- Synth name string						char
 		- Synth mode							u8
 		- Synth channel count					u8
 - Timeline
@@ -136,6 +140,20 @@ static void fill_u32(u32 number) {
 	g_timeline.save_cursor += 4;
 }
 
+static void fill_name(char *name) {
+	int		len;
+
+	/// HANDLE LENGTH
+	len = strlen(name);
+	fill_u8(len);
+	/// HANDLE STRING
+	//// MODE WRITE
+	if (g_timeline.save_mode == SAVE_MODE_WRITE)
+		memcpy(&(g_timeline.save_buffer[g_timeline.save_cursor]), name, len);
+	//// MODE RECORD & WRITE
+	g_timeline.save_cursor += len;
+}
+
 static void fill_cursor_save(u8 size) {
 	/// MODE WRITE
 	if (g_timeline.save_mode == SAVE_MODE_WRITE)
@@ -189,6 +207,7 @@ static void fill_save_buffer() {
 	fill_u16(g_timeline.pattern_count);
 	for (i = 0; i < g_timeline.pattern_count; ++i) {
 		pattern = &(g_timeline.patterns[i]);
+		fill_name(pattern->name);			// Name
 		fill_u16(pattern->beat_count);		// Beat count
 		fill_u8(pattern->note_count);		// Note count
 		fill_u8(pattern->cv_count);			// CV count
@@ -269,6 +288,7 @@ static void fill_save_buffer() {
 	/// [3] SYNTHS
 	fill_u8(g_timeline.synth_count);
 	for (i = 0; i < g_timeline.synth_count; ++i) {
+		fill_name(g_timeline.synths[i].name + 5);		// Name
 		fill_u8(g_timeline.synths[i].mode);				// Mode (gate / trigger / drum)
 		fill_u8(g_timeline.synths[i].channel_count);	// Channel count
 	}

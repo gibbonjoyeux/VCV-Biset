@@ -32,6 +32,8 @@ TRACKER BINARY SAVE FORMAT:
 - Patterns
 	- Pattern count								u16
 	- Patterns
+		- Name length							u8
+		- Name string							chars
 		- Beat count							u16
 		- Note count							u8
 		- CV count								u8
@@ -83,6 +85,8 @@ TRACKER BINARY SAVE FORMAT:
 - Synths
 	- Synth count								u8
 	- Synths
+		- Synth name length						u8
+		- Synth name string						chars
 		- Synth mode							u8
 		- Synth channel count					u8
 - Timeline
@@ -116,6 +120,17 @@ static u16 read_u16(void) {
 	g_timeline.save_cursor += 2;
 	ENDIAN_16(value);
 	return value;
+}
+
+static void read_name(char *buffer) {
+	u8		len;
+
+	/// HANDLE LENGTH
+	len = read_u8();
+	/// HANDLE STRING
+	memcpy(buffer, &(g_timeline.save_buffer[g_timeline.save_cursor]), len);
+	buffer[len] = 0;
+	g_timeline.save_cursor += len;
 }
 
 static bool load_save_file(void) {
@@ -162,6 +177,7 @@ static bool load_save_file(void) {
 }
 
 static bool compute_save_file(void) {
+	char			name[256];
 	PatternSource	*pattern;
 	PatternNoteCol	*note_col;
 	PatternNote		*note;
@@ -192,11 +208,13 @@ static bool compute_save_file(void) {
 	pattern_count = read_u16();
 	for (i = 0; i < pattern_count; ++i) {
 		/// PATTERN SIZE
+		read_name(name);								// Name
 		beat_count = read_u16();						// Beat count
 		note_count = read_u8();							// Note count
 		cv_count = read_u8();							// CV count
 		lpb = read_u8();								// lpb
 		pattern = g_timeline.pattern_new(note_count, cv_count, beat_count, lpb);
+		pattern->rename(name);
 		/// PATTERN NOTES
 		for (j = 0; j < note_count; ++j) {
 			note_col = pattern->notes[j];
@@ -255,6 +273,8 @@ static bool compute_save_file(void) {
 	synth_count = read_u8();
 	for (i = 0; i < synth_count; ++i) {
 		synth = g_timeline.synth_new();
+		read_name(name);								// Name
+		synth->rename(name);
 		synth->mode = read_u8();						// Synth mode
 		synth->channel_count = read_u8();				// Synth channel count
 	}

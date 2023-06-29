@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 Synth::Synth() {
+	memset(this->name, 0, 256 + 5);
 	strcpy(this->name, "synth");
 	this->color = 1;
 	this->index = 0;

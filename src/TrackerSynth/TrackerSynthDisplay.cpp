@@ -25,14 +25,9 @@ void TrackerSynthDisplay::drawLayer(const DrawArgs& args, int layer) {
 		/// GET CANVAS FORMAT
 		rect = box.zeroPos();
 		p = rect.getTopLeft();
-
 		/// GET SYNTH
 		synth = module->params[TrackerSynth::PARAM_SYNTH].getValue();
-		if (g_module)
-			synth_selected = g_module->params[Tracker::PARAM_SYNTH].getValue();
-		else
-			synth_selected = -1;
-
+		synth_selected = g_editor.synth_id;
 		/// DRAW BACKGROUND
 		nvgBeginPath(args.vg);
 		if (synth == synth_selected)
@@ -41,7 +36,6 @@ void TrackerSynthDisplay::drawLayer(const DrawArgs& args, int layer) {
 			nvgFillColor(args.vg, colors[15]);
 		nvgRect(args.vg, RECT_ARGS(rect));
 		nvgFill(args.vg);
-
 		/// DRAW SYNTH
 		itoaw(this->str_synth, synth, 2);
 		nvgFontSize(args.vg, 21);
@@ -50,4 +44,21 @@ void TrackerSynthDisplay::drawLayer(const DrawArgs& args, int layer) {
 		nvgText(args.vg, p.x + 35.0 / 2, p.y + 40.0 / 2, this->str_synth, NULL);
 	}
 	LedDisplay::drawLayer(args, layer);
+}
+
+void TrackerSynthDisplay::onButton(const ButtonEvent &e) {
+	Menu	*menu;
+	Param	*param;
+	int		i;
+
+	param = &(this->module->params[TrackerSynth::PARAM_SYNTH]);
+
+	menu = createMenu();
+	/// ADD COLOR SUB-MENU
+	for (i = 0; i < g_timeline.synth_count; ++i) {
+		menu->addChild(new MenuCheckItem(g_timeline.synths[i].name, "",
+			[=]() { return param->getValue() == i; },
+			[=]() { param->setValue(i); }
+		));
+	}
 }

@@ -62,7 +62,7 @@ void TrackerSynthWidget::onSelect(const SelectEvent &e) {
 	int		synth;
 
 	synth = this->module->params[TrackerSynth::PARAM_SYNTH].getValue();
-	g_editor.set_synth(synth, true);
+	g_editor.set_synth(synth);
 }
 
 void TrackerSynthWidget::appendContextMenu(Menu *menu) {
