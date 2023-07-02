@@ -20,8 +20,10 @@ RegexSeq::RegexSeq(void) {
 	this->clock_in_reset.reset();
 	this->clock_in_1.reset();
 	this->clock_in_2.reset();
+	this->clock_in_prev = false;
 	this->string_active_value = -1;
 	this->string_syntax = true;
+	this->clock_out_eoc_next = false;
 }
 
 RegexSeq::~RegexSeq(void) {
@@ -56,6 +58,7 @@ void RegexSeq::reset(bool destroy) {
 	this->clock_out_count = 0;
 	this->clock_out.reset();
 	this->clock_out_eoc.reset();
+	this->clock_out_eoc_next = false;
 	this->clock_in_reset.reset();
 	this->clock_in_1.reset();
 	this->clock_in_2.reset();

@@ -93,9 +93,11 @@ struct RegexSeq {
 	int							clock_out_count;
 	dsp::PulseGenerator			clock_out;
 	dsp::PulseGenerator			clock_out_eoc;
+	bool						clock_out_eoc_next;
 	dsp::TSchmittTrigger<float>	clock_in_reset;
 	dsp::TSchmittTrigger<float>	clock_in_1;
 	dsp::TSchmittTrigger<float>	clock_in_2;
+	bool						clock_in_prev;
 
 	RegexSeq();
 	~RegexSeq();

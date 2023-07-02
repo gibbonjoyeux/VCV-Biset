@@ -30,28 +30,39 @@ void RegexSeq::process(float dt, bool clock_reset_master, bool clock_master) {
 		if (this->in_reset->isConnected())
 			clock_reset += this->clock_in_reset.process(this->in_reset->getVoltage());
 		/// ON CLOCK RESET
-		if (clock_reset)
+		if (clock_reset) {
 			this->reset(false);
+			/// IF CLOCK WAS ACTIVE LAST TURN : RE-RUN CLOCK TO COMPENSATE RESET
+			if (this->clock_in_prev)
+				clock = true;
+		}
+		this->clock_in_prev = false;
 		/// ON CLOCK
 		if (clock) {
+			this->clock_in_prev = true;
 			this->clock_out_count += 1;
 			if (this->clock_out_count >= this->clock_out_divider) {
 				this->clock_out_count = 0;
+				/// HANDLE EOC
+				if (this->clock_out_eoc_next) {
+					this->clock_out_eoc_next = false;
+					this->clock_out_eoc.trigger();
+					if (this->sequence != NULL && this->sequence_next != NULL) {
+						delete this->sequence;
+						this->sequence = this->sequence_next;
+						this->sequence_next = NULL;
+						this->string_run = std::move(this->string_run_next);
+					}
+				}
+				/// HANDLE SEQUENCE
 				if (this->sequence != NULL) {
 					value = 0;
 					index = -1;
 					state = this->sequence->pull_clock(value, index);
 					this->string_active_value = index;
 					/// UPDATE SEQUENCE
-					if (state == true) {
-						this->clock_out_eoc.trigger();
-						if (this->sequence_next != NULL) {
-							delete this->sequence;
-							this->sequence = this->sequence_next;
-							this->sequence_next = NULL;
-							this->string_run = std::move(this->string_run_next);
-						}
-					}
+					if (state == true)
+						this->clock_out_eoc_next = true;
 					this->clock_out_divider = value;
 					if (this->clock_out_divider < 1)
 						this->clock_out_divider = 1;
@@ -74,11 +85,28 @@ void RegexSeq::process(float dt, bool clock_reset_master, bool clock_master) {
 		if (this->in_reset->isConnected())
 			clock_reset += this->clock_in_reset.process(this->in_reset->getVoltage());
 		/// ON CLOCK RESET
-		if (clock_reset)
+		if (clock_reset) {
 			this->reset(false);
+			/// IF CLOCK WAS ACTIVE LAST TURN : RE-RUN CLOCK TO COMPENSATE RESET
+			if (this->clock_in_prev)
+				clock = true;
+		}
+		this->clock_in_prev = false;
 		/// ON CLOCK
 		if (clock) {
-			/// COMPUTE SEQUENCE
+			this->clock_in_prev = true;
+			/// HANDLE EOC
+			if (this->clock_out_eoc_next) {
+				this->clock_out_eoc_next = false;
+				this->clock_out_eoc.trigger();
+				if (this->sequence != NULL && this->sequence_next != NULL) {
+					delete this->sequence;
+					this->sequence = this->sequence_next;
+					this->sequence_next = NULL;
+					this->string_run = std::move(this->string_run_next);
+				}
+			}
+			/// HANDLE SEQUENCE
 			if (this->sequence != NULL) {
 				/// COMPUTE INPUT (PITCH OFFSET)
 				if (this->in_2->isConnected())
@@ -91,15 +119,8 @@ void RegexSeq::process(float dt, bool clock_reset_master, bool clock_master) {
 				state = this->sequence->pull_pitch(value, index);
 				this->string_active_value = index;
 				/// UPDATE SEQUENCE
-				if (state == true) {
-					this->clock_out_eoc.trigger();
-					if (this->sequence_next != NULL) {
-						delete this->sequence;
-						this->sequence = this->sequence_next;
-						this->sequence_next = NULL;
-						this->string_run = std::move(this->string_run_next);
-					}
-				}
+				if (state == true)
+					this->clock_out_eoc_next = true;
 				/// SET VOLTAGE
 				this->out->setVoltage((float)(value + input) / 12.0);
 			}
