@@ -58,6 +58,9 @@ void TrackerSynthDisplay::onButton(const ButtonEvent &e) {
 	Param	*param;
 	int		i;
 
+	if (e.button != GLFW_MOUSE_BUTTON_LEFT || e.action != GLFW_PRESS)
+		return;
+
 	param = &(this->module->params[TrackerSynth::PARAM_SYNTH]);
 
 	menu = createMenu();

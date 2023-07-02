@@ -5,6 +5,10 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 
 # BUGS
 
+- [ ] Regex: issue with compiled tree initialisation ?
+		Sometimes, adding a recursive sequence into a sequence make the
+		expression freeze. It then needs to restart from reset input.
+
 - [ ] Pattern instances can have a negative `beat_start` but should not
 
 - [ ] Check if `thread_flag` has a big CPU impact
