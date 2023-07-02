@@ -29,15 +29,15 @@ Regex::Regex(bool condensed) {
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 	/// COMFIG PARAMS
 	for (i = 0; i < this->exp_count; ++i)
-		configSwitch(PARAM_MODE + i, 0, 1, 0, string::f("Mode %d", i + 1), {"Clock", "Pitch"});
+		configSwitch(PARAM_MODE + i, 0, 1, 0, rack::string::f("Mode %d", i + 1), {"Clock", "Pitch"});
 	/// CONFIG INPUTS / OUTPUTS
 	configInput(INPUT_MASTER, "Master clock");
 	for (i = 0; i < this->exp_count; ++i) {
-		configInput(INPUT_EXP_RESET + i, string::f("Reset %d", i + 1));
-		configInput(INPUT_EXP_1 + i, string::f("%d:1", i + 1));
-		configInput(INPUT_EXP_2 + i, string::f("%d:2", i + 1));
-		configOutput(OUTPUT_EXP_EOC + i, string::f("EOC %d", i + 1));
-		configOutput(OUTPUT_EXP + i, string::f("Out %d", i + 1));
+		configInput(INPUT_EXP_RESET + i, rack::string::f("Reset %d", i + 1));
+		configInput(INPUT_EXP_1 + i, rack::string::f("%d:1", i + 1));
+		configInput(INPUT_EXP_2 + i, rack::string::f("%d:2", i + 1));
+		configOutput(OUTPUT_EXP_EOC + i, rack::string::f("EOC %d", i + 1));
+		configOutput(OUTPUT_EXP + i, rack::string::f("Out %d", i + 1));
 		this->sequences[i].in_reset = &(this->inputs[INPUT_EXP_RESET + i]);
 		this->sequences[i].in_1 = &(this->inputs[INPUT_EXP_1 + i]);
 		this->sequences[i].in_2 = &(this->inputs[INPUT_EXP_2 + i]);

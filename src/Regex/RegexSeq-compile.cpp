@@ -46,26 +46,25 @@ void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 	while (true) {
 		/// HANDLE VALUE AS NUMBER
 		if (IS_DIGIT(str[i]) || str[i] == '-') {
+			item->sequence.length += 1;
+			item->sequence.sequence.emplace_back();
+			item_new = &(item->sequence.sequence.back());
+			item_new->type = REGEX_VALUE;
+			item_new->value.index = i;
+			/// HANDLE SIGN
 			if (str[i] == '-') {
 				negative = true;
 				i += 1;
 			} else {
 				negative = false;
 			}
-			item->sequence.length += 1;
-			item->sequence.sequence.emplace_back();
-			item_new = &(item->sequence.sequence.back());
-			item_new->type = REGEX_VALUE;
-			item_new->value.index = i;
+			/// HANDLE VALUE
 			value = 0;
 			while (IS_DIGIT(str[i])) {
 				value = value * 10 + (str[i] - '0');
 				i += 1;
 			}
-			if (negative)
-				item_new->value.value = -value;
-			else
-				item_new->value.value = value;
+			item_new->value.value = (negative) ? -value : value;
 		/// HANDLE VALUE AS PITCH
 		} else if (IS_PITCH(str[i])) {
 			item->sequence.length += 1;
@@ -149,29 +148,27 @@ void RegexSeq::compile(Regex *module) {
 
 	if (this->string_syntax == false)
 		return;
-	/// [1] SAVE EXPRESSION
-	if (this->sequence == NULL)
-		this->string_run = this->string_edit;
-	else
-		this->string_run_next = this->string_edit;
-	/// [2] COMPILE EXPRESSION
+
+	/// [1] COMPILE EXPRESSION
 	str = (char*)this->string_edit.c_str();
 	i = 0;
 	sequence = new RegexItem();
 	this->compile_req(sequence, str, i);
 
-	/// [3] WAIT FOR THREAD FLAG
+	/// [2] WAIT FOR THREAD FLAG
 	while (module->thread_flag.test_and_set()) {}
 
-	/// [4] SET EXPRESSION
+	/// [3] SET EXPRESSION
 	if (this->sequence == NULL) {
+		this->string_run = this->string_edit;
 		this->sequence = sequence;
 	} else {
+		this->string_run_next = this->string_edit;
 		if (this->sequence_next != NULL)
 			delete this->sequence_next;
 		this->sequence_next = sequence;
 	}
 
-	/// [5] CLEAR THREAD FLAG
+	/// [4] CLEAR THREAD FLAG
 	module->thread_flag.clear();
 }
