@@ -75,31 +75,65 @@ void RegexItem::select(int index) {
 	this->sequence.it = it;
 }
 
-int RegexItem::pick(void) {
-	int		rand;
+int RegexItem::pick(float bias) {
+	int		range;
+	int		offset;
+	int		index;
 
-	rand = random::uniform() * (float)this->sequence.length;
-	this->select(rand);
-	return rand;
-}
-
-int RegexItem::xpick(int last_picked) {
-	int		rand;
-
-	if (this->sequence.length == 1) {
-		rand = 0;
-	} else if (this->sequence.length == 2) {
-		rand = (last_picked == 0) ? 1 : 0;
+	if (bias < 0) {
+		range = this->sequence.length * (1.0 + bias);
+		if (range == 0)
+			range = 1;
+		index = random::uniform() * range;
 	} else {
-		rand = random::uniform() * (float)this->sequence.length;
-		while (rand == last_picked)
-			rand = random::uniform() * (float)this->sequence.length;
+		range = this->sequence.length * (1.0 - bias);
+		if (range == 0)
+			range = 1;
+		offset = this->sequence.length - range;
+		index = offset + random::uniform() * range;
 	}
-	this->select(rand);
-	return rand;
+	this->select(index);
+	return index;
 }
 
-void RegexItem::walk(void) {
+int RegexItem::xpick(int last_picked, float bias) {
+	int		range;
+	int		offset;
+	int		index;
+
+	/// COMPUTE RANGE & OFFSET
+	if (bias < 0) {
+		range = this->sequence.length * (1.0 + bias);
+		if (range == 0)
+			range = 1;
+		if (range == 1 && this->sequence.length > 1)
+			range = 2;
+		offset = 0;
+	} else {
+		range = this->sequence.length * (1.0 - bias);
+		if (range == 0)
+			range = 1;
+		if (range == 1 && this->sequence.length > 1)
+			range = 2;
+		offset = this->sequence.length - range;
+	}
+	/// COMPUTE RANDOM
+	if (range == 1) {
+		index = 0;
+	} else if (range == 2) {
+		index = (last_picked == offset) ? 1 : 0;
+	} else {
+		index = random::uniform() * range;
+		while (last_picked == offset + index)
+			index = random::uniform() * range;
+	}
+	this->select(offset + index);
+	return offset + index;
+}
+
+void RegexItem::walk(float bias) {
+	float	threshold;
+
 	if (this->sequence.length <= 1)
 		return;
 	if (this->sequence.it == this->sequence.sequence.begin()) {
@@ -107,7 +141,8 @@ void RegexItem::walk(void) {
 	} else if (this->sequence.it == std::prev(this->sequence.sequence.end())) {
 		this->sequence.it = std::prev(this->sequence.it);
 	} else {
-		if (random::uniform() > 0.5)
+		threshold = 0.5 - (bias * 0.5);
+		if (random::uniform() > threshold)
 			this->sequence.it = std::next(this->sequence.it);
 		else
 			this->sequence.it = std::prev(this->sequence.it);

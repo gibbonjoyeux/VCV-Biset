@@ -9,7 +9,11 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-void RegexSeq::process(float dt, bool clock_reset_master, bool clock_master) {
+void RegexSeq::process(
+	float			dt,
+	bool			clock_reset_master,
+	bool			clock_master,
+	float			bias) {
 	bool			state;
 	bool			clock;
 	bool			clock_reset;
@@ -58,7 +62,7 @@ void RegexSeq::process(float dt, bool clock_reset_master, bool clock_master) {
 				if (this->sequence != NULL) {
 					value = 0;
 					index = -1;
-					state = this->sequence->pull_clock(value, index);
+					state = this->sequence->pull_clock(value, index, bias);
 					this->string_active_value = index;
 					/// UPDATE SEQUENCE
 					if (state == true)
@@ -116,7 +120,7 @@ void RegexSeq::process(float dt, bool clock_reset_master, bool clock_master) {
 				/// COMPUTE SEQUENCE
 				value = 0;
 				index = -1;
-				state = this->sequence->pull_pitch(value, index);
+				state = this->sequence->pull_pitch(value, index, bias);
 				this->string_active_value = index;
 				/// UPDATE SEQUENCE
 				if (state == true)

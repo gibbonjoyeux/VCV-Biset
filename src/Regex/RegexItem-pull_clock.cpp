@@ -9,7 +9,7 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-bool RegexItem::pull_clock_foreward(int &value, int &index) {
+bool RegexItem::pull_clock_foreward(int &value, int &index, float bias) {
 	list<RegexItem>::iterator	it_end;
 	bool						state;
 	int							step;
@@ -19,7 +19,7 @@ bool RegexItem::pull_clock_foreward(int &value, int &index) {
 	if (this->sequence.it == it_end)
 		this->sequence.it = this->sequence.sequence.begin();
 	/// PULL SEQUENCE
-	state = this->sequence.it->pull_clock(value, index);
+	state = this->sequence.it->pull_clock(value, index, bias);
 	/// TYPE MODULO
 	if (this->sequence.modulator_mode == '%') {
 		step = (value > 0) ? value : 1;
@@ -57,7 +57,7 @@ bool RegexItem::pull_clock_foreward(int &value, int &index) {
 	return false;
 }
 
-bool RegexItem::pull_clock_backward(int &value, int &index) {
+bool RegexItem::pull_clock_backward(int &value, int &index, float bias) {
 	list<RegexItem>::iterator	it_end;
 	bool						state;
 	int							step;
@@ -67,7 +67,7 @@ bool RegexItem::pull_clock_backward(int &value, int &index) {
 	if (this->sequence.it == it_end)
 		this->sequence.it = std::prev(this->sequence.sequence.end());
 	/// PULL SEQUENCE
-	state = this->sequence.it->pull_clock(value, index);
+	state = this->sequence.it->pull_clock(value, index, bias);
 	/// TYPE MODULO
 	if (this->sequence.modulator_mode == '%') {
 		step = (value > 0) ? value : 1;
@@ -105,7 +105,7 @@ bool RegexItem::pull_clock_backward(int &value, int &index) {
 	return false;
 }
 
-bool RegexItem::pull_clock_pingpong(int &value, int &index) {
+bool RegexItem::pull_clock_pingpong(int &value, int &index, float bias) {
 	list<RegexItem>::iterator	it_end;
 	bool						state;
 	int							step;
@@ -117,7 +117,7 @@ bool RegexItem::pull_clock_pingpong(int &value, int &index) {
 		this->sequence.state_b = 0;
 	}
 	/// PULL SEQUENCE
-	state = this->sequence.it->pull_clock(value, index);
+	state = this->sequence.it->pull_clock(value, index, bias);
 	/// TYPE MODULO
 	if (this->sequence.modulator_mode == '%') {
 		step = (value > 0) ? value : 1;
@@ -167,7 +167,7 @@ bool RegexItem::pull_clock_pingpong(int &value, int &index) {
 	return false;
 }
 
-bool RegexItem::pull_clock_shuffle(int &value, int &index) {
+bool RegexItem::pull_clock_shuffle(int &value, int &index, float bias) {
 	list<RegexItem>::iterator	it_end;
 	bool						state;
 	int							step;
@@ -178,7 +178,7 @@ bool RegexItem::pull_clock_shuffle(int &value, int &index) {
 		this->shuffle();
 	}
 	/// PULL SEQUENCE
-	state = this->sequence.it->pull_clock(value, index);
+	state = this->sequence.it->pull_clock(value, index, bias);
 	/// TYPE MODULO
 	if (this->sequence.modulator_mode == '%') {
 		step = (value > 0) ? value : 1;
@@ -218,17 +218,17 @@ bool RegexItem::pull_clock_shuffle(int &value, int &index) {
 	return false;
 }
 
-bool RegexItem::pull_clock_rand(int &value, int &index) {
+bool RegexItem::pull_clock_rand(int &value, int &index, float bias) {
 	list<RegexItem>::iterator	it_end;
 	bool						state;
 	int							step;
 
 	/// INIT SEQUENCE
 	if (this->sequence.it == this->sequence.sequence.end()) {
-		this->pick();
+		this->pick(bias);
 	}
 	/// PULL SEQUENCE
-	state = this->sequence.it->pull_clock(value, index);
+	state = this->sequence.it->pull_clock(value, index, bias);
 	/// TYPE MODULO
 	if (this->sequence.modulator_mode == '%') {
 		step = (value > 0) ? value : 1;
@@ -237,7 +237,7 @@ bool RegexItem::pull_clock_rand(int &value, int &index) {
 				value = this->sequence.modulator_value - this->sequence.state_a;
 			else
 				value = 0;
-			this->pick();
+			this->pick(bias);
 			this->sequence.state_a = 0;
 			return true;
 		} else {
@@ -247,7 +247,7 @@ bool RegexItem::pull_clock_rand(int &value, int &index) {
 	/// SEQUENCE NEXT
 	if (state == true) {
 		/// SELECT RANDOM ELEMENT
-		this->pick();
+		this->pick(bias);
 		/// TYPE MULT
 		if (this->sequence.modulator_mode == 'x') {
 			this->sequence.state_a += 1;
@@ -268,17 +268,17 @@ bool RegexItem::pull_clock_rand(int &value, int &index) {
 	return false;
 }
 
-bool RegexItem::pull_clock_xrand(int &value, int &index) {
+bool RegexItem::pull_clock_xrand(int &value, int &index, float bias) {
 	list<RegexItem>::iterator	it_end;
 	bool						state;
 	int							step;
 
 	/// INIT SEQUENCE
 	if (this->sequence.it == this->sequence.sequence.end()) {
-		this->sequence.state_c = this->pick();
+		this->sequence.state_c = this->pick(bias);
 	}
 	/// PULL SEQUENCE
-	state = this->sequence.it->pull_clock(value, index);
+	state = this->sequence.it->pull_clock(value, index, bias);
 	/// TYPE MODULO
 	if (this->sequence.modulator_mode == '%') {
 		step = (value > 0) ? value : 1;
@@ -287,7 +287,7 @@ bool RegexItem::pull_clock_xrand(int &value, int &index) {
 				value = this->sequence.modulator_value - this->sequence.state_a;
 			else
 				value = 0;
-			this->sequence.state_c = this->xpick(this->sequence.state_c);
+			this->sequence.state_c = this->xpick(this->sequence.state_c, bias);
 			this->sequence.state_a = 0;
 			return true;
 		} else {
@@ -297,7 +297,7 @@ bool RegexItem::pull_clock_xrand(int &value, int &index) {
 	/// SEQUENCE NEXT
 	if (state == true) {
 		/// SELECT RANDOM ELEMENT
-		this->sequence.state_c = this->xpick(this->sequence.state_c);
+		this->sequence.state_c = this->xpick(this->sequence.state_c, bias);
 		/// TYPE MULT
 		if (this->sequence.modulator_mode == 'x') {
 			this->sequence.state_a += 1;
@@ -318,7 +318,7 @@ bool RegexItem::pull_clock_xrand(int &value, int &index) {
 	return false;
 }
 
-bool RegexItem::pull_clock_walk(int &value, int &index) {
+bool RegexItem::pull_clock_walk(int &value, int &index, float bias) {
 	list<RegexItem>::iterator	it_end;
 	bool						state;
 	int							step;
@@ -328,7 +328,7 @@ bool RegexItem::pull_clock_walk(int &value, int &index) {
 	if (this->sequence.it == it_end)
 		this->sequence.it = this->sequence.sequence.begin();
 	/// PULL SEQUENCE
-	state = this->sequence.it->pull_clock(value, index);
+	state = this->sequence.it->pull_clock(value, index, bias);
 	/// TYPE MODULO
 	if (this->sequence.modulator_mode == '%') {
 		step = (value > 0) ? value : 1;
@@ -346,7 +346,7 @@ bool RegexItem::pull_clock_walk(int &value, int &index) {
 	}
 	/// SEQUENCE NEXT
 	if (state == true) {
-		this->walk();
+		this->walk(bias);
 		/// TYPE MULT
 		if (this->sequence.modulator_mode == 'x') {
 			this->sequence.state_a += 1;
@@ -369,7 +369,7 @@ bool RegexItem::pull_clock_walk(int &value, int &index) {
 	return false;
 }
 
-bool RegexItem::pull_clock(int &value, int &index) {
+bool RegexItem::pull_clock(int &value, int &index, float bias) {
 	/// ITEM AS VALUE
 	if (this->type == REGEX_VALUE) {
 		value = this->value.value;
@@ -379,25 +379,25 @@ bool RegexItem::pull_clock(int &value, int &index) {
 	} else {
 		/// SEQUENCE FOREWARD
 		if (this->sequence.mode == '>') {
-			return this->pull_clock_foreward(value, index);
+			return this->pull_clock_foreward(value, index, bias);
 		/// SEQUENCE BACKWARD
 		} else if (this->sequence.mode == '<') {
-			return this->pull_clock_backward(value, index);
+			return this->pull_clock_backward(value, index, bias);
 		/// SEQUENCE PING-PONG
 		} else if (this->sequence.mode == '^') {
-			return this->pull_clock_pingpong(value, index);
+			return this->pull_clock_pingpong(value, index, bias);
 		/// SEQUENCE SHUFFLE
 		} else if (this->sequence.mode == '@') {
-			return this->pull_clock_shuffle(value, index);
+			return this->pull_clock_shuffle(value, index, bias);
 		/// SEQUENCE RANDOM
 		} else if (this->sequence.mode == '?') {
-			return this->pull_clock_rand(value, index);
+			return this->pull_clock_rand(value, index, bias);
 		/// SEQUENCE X-RANDOM
 		} else if (this->sequence.mode == '!') {
-			return this->pull_clock_xrand(value, index);
+			return this->pull_clock_xrand(value, index, bias);
 		/// SEQUENCE WALK
 		} else if (this->sequence.mode == '$') {
-			return this->pull_clock_walk(value, index);
+			return this->pull_clock_walk(value, index, bias);
 		}
 	}
 	return false;

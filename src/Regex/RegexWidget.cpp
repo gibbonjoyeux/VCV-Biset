@@ -35,6 +35,11 @@ RegexWidget::RegexWidget(Regex* _module, bool _condensed) {
 		this->exp_count = 8;
 	}
 
+	/// ADD PARAMS
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(114.5 - 8.75 - 3.75, 8.5 + 13.0 * 8 + 10.75)),
+	/**/ module,
+	/**/ Regex::PARAM_BIAS));
 	/// ADD SWITCHES
 	for (i = 0; i < this->exp_count; ++i) {
 		addParam(
@@ -44,32 +49,36 @@ RegexWidget::RegexWidget(Regex* _module, bool _condensed) {
 	}
 	/// ADD INPUTS / OUTPUTS
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 - 3.75, 8.5 + 13.0 * 8)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(114.5 - 8.75 - 3.75, 8.5 + 13.0 * 8)),
+	/**/ module,
+	/**/ Regex::INPUT_BIAS));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(114.5 + 8.75 * 0 - 3.75, 8.5 + 13.0 * 8)),
 	/**/ module,
 	/**/ Regex::INPUT_RESET));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 - 3.75, 8.5 + 13.0 * 8)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(114.5 + 8.75 * 1 - 3.75, 8.5 + 13.0 * 8)),
 	/**/ module,
 	/**/ Regex::INPUT_MASTER));
 	for (i = 0; i < this->exp_count; ++i) {
 		addInput(
-		/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 - 3.75, 8.5 + step * i)),
+		/**/ createInputCentered<Outlet>(mm2px(Vec(114.5 - 3.75, 8.5 + step * i)),
 		/**/ module,
 		/**/ Regex::INPUT_EXP_RESET + i));
 		addInput(
-		/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 * 1 - 3.75, 8.5 + step * i)),
+		/**/ createInputCentered<Outlet>(mm2px(Vec(114.5 + 8.75 * 1 - 3.75, 8.5 + step * i)),
 		/**/ module,
 		/**/ Regex::INPUT_EXP_1 + i));
 		addInput(
-		/**/ createInputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 * 2 - 3.75, 8.5 + step * i)),
+		/**/ createInputCentered<Outlet>(mm2px(Vec(114.5 + 8.75 * 2 - 3.75, 8.5 + step * i)),
 		/**/ module,
 		/**/ Regex::INPUT_EXP_2 + i));
 		addOutput(
-		/**/ createOutputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 * 3 - 3.75, 8.5 + step * i)),
+		/**/ createOutputCentered<Outlet>(mm2px(Vec(114.5 + 8.75 * 3 - 3.75, 8.5 + step * i)),
 		/**/ module,
 		/**/ Regex::OUTPUT_EXP_EOC + i));
 		addOutput(
-		/**/ createOutputCentered<Outlet>(mm2px(Vec(104.5 + 10.0 + 8.75 * 4 - 3.75, 8.5 + step * i)),
+		/**/ createOutputCentered<Outlet>(mm2px(Vec(114.5 + 8.75 * 4 - 3.75, 8.5 + step * i)),
 		/**/ module,
 		/**/ Regex::OUTPUT_EXP + i));
 	}

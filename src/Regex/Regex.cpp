@@ -28,9 +28,12 @@ Regex::Regex(bool condensed) {
 		this->exp_count = 8;
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 	/// COMFIG PARAMS
+	configParam(PARAM_BIAS, -1, 1, 0, "Bias", "%", 0, 100);
 	for (i = 0; i < this->exp_count; ++i)
 		configSwitch(PARAM_MODE + i, 0, 1, 0, rack::string::f("Mode %d", i + 1), {"Clock", "Pitch"});
 	/// CONFIG INPUTS / OUTPUTS
+	configInput(INPUT_BIAS, "Orientation");
+	configInput(INPUT_RESET, "Master reset");
 	configInput(INPUT_MASTER, "Master clock");
 	for (i = 0; i < this->exp_count; ++i) {
 		configInput(INPUT_EXP_RESET + i, rack::string::f("Reset %d", i + 1));
@@ -54,6 +57,7 @@ Regex::Regex(bool condensed) {
 void Regex::process(const ProcessArgs& args) {
 	bool	clock_master;
 	bool	clock_reset;
+	float	bias;
 	int		mode;
 	int		i;
 
@@ -64,7 +68,18 @@ void Regex::process(const ProcessArgs& args) {
 	if (this->thread_flag.test_and_set())
 		return;
 
-	/// [2] COMPUTE PROCESS
+	/// [2] COMPUTE BIAS
+	if (this->inputs[INPUT_BIAS].isConnected()) {
+		bias = (this->inputs[INPUT_BIAS].getVoltage() / 5.0)
+		/**/ * this->params[PARAM_BIAS].getValue();
+		if (bias > 1.0)
+			bias = 1.0;
+		if (bias < -1.0)
+			bias = -1.0;
+	} else {
+		bias = this->params[PARAM_BIAS].getValue();
+	}
+	/// [3] COMPUTE PROCESS
 	clock_master = this->clock_master.process(this->inputs[INPUT_MASTER].getVoltage());
 	clock_reset = this->clock_reset.process(this->inputs[INPUT_RESET].getVoltage());
 	for (i = 0; i < this->exp_count; ++i) {
@@ -77,10 +92,10 @@ void Regex::process(const ProcessArgs& args) {
 		}
 		/// PROCESS SEQUENCE
 		this->sequences[i].process(args.sampleTime * REGEX_FRAME_DIVIDER,
-		/**/ clock_reset, clock_master);
+		/**/ clock_reset, clock_master, bias);
 	}
 
-	/// [3] CLEAR THREAD FLAG
+	/// [4] CLEAR THREAD FLAG
 	this->thread_flag.clear();
 }
 

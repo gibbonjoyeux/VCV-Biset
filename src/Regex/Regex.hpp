@@ -49,29 +49,29 @@ struct RegexItem {
 		list<RegexItem>				sequence;			// Seq items
 	}								sequence;
 
-	bool pull_clock(int &value, int &index);
-	bool pull_clock_foreward(int &value, int &index);
-	bool pull_clock_backward(int &value, int &index);
-	bool pull_clock_pingpong(int &value, int &index);
-	bool pull_clock_shuffle(int &value, int &index);
-	bool pull_clock_rand(int &value, int &index);
-	bool pull_clock_xrand(int &value, int &index);
-	bool pull_clock_walk(int &value, int &index);
+	bool pull_clock(int &value, int &index, float bias);
+	bool pull_clock_foreward(int &value, int &index, float bias);
+	bool pull_clock_backward(int &value, int &index, float bias);
+	bool pull_clock_pingpong(int &value, int &index, float bias);
+	bool pull_clock_shuffle(int &value, int &index, float bias);
+	bool pull_clock_rand(int &value, int &index, float bias);
+	bool pull_clock_xrand(int &value, int &index, float bias);
+	bool pull_clock_walk(int &value, int &index, float bias);
 
-	bool pull_pitch(int &value, int &index);
-	bool pull_pitch_foreward(int &value, int &index);
-	bool pull_pitch_backward(int &value, int &index);
-	bool pull_pitch_pingpong(int &value, int &index);
-	bool pull_pitch_shuffle(int &value, int &index);
-	bool pull_pitch_rand(int &value, int &index);
-	bool pull_pitch_xrand(int &value, int &index);
-	bool pull_pitch_walk(int &value, int &index);
+	bool pull_pitch(int &value, int &index, float bias);
+	bool pull_pitch_foreward(int &value, int &index, float bias);
+	bool pull_pitch_backward(int &value, int &index, float bias);
+	bool pull_pitch_pingpong(int &value, int &index, float bias);
+	bool pull_pitch_shuffle(int &value, int &index, float bias);
+	bool pull_pitch_rand(int &value, int &index, float bias);
+	bool pull_pitch_xrand(int &value, int &index, float bias);
+	bool pull_pitch_walk(int &value, int &index, float bias);
 
 	void reset(void);
 	void select(int index);
-	void walk(void);
-	int pick(void);
-	int xpick(int last_picked);
+	void walk(float bias);
+	int pick(float bias);
+	int xpick(int last_picked, float bias);
 	void shuffle(void);
 };
 
@@ -102,7 +102,7 @@ struct RegexSeq {
 	RegexSeq();
 	~RegexSeq();
 	void reset(bool destroy);
-	void process(float dt, bool clock_reset_master, bool clock_master);
+	void process(float dt, bool clock_reset_master, bool clock_master, float bias);
 	void compile(Regex *module);
 	void compile_req(RegexItem *item, char *str, int &i);
 	bool check_syntax(void);
@@ -112,6 +112,8 @@ struct RegexSeq {
 struct Regex : Module {
 	enum	ParamIds {
 		ENUMS(PARAM_MODE, 12),
+		PARAM_BIAS,
+		PARAM_BIAS_DEPTH,
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -120,6 +122,7 @@ struct Regex : Module {
 		ENUMS(INPUT_EXP_RESET, 12),
 		ENUMS(INPUT_EXP_1, 12),
 		ENUMS(INPUT_EXP_2, 12),
+		INPUT_BIAS,
 		INPUT_COUNT
 	};
 	enum	OutputIds {
