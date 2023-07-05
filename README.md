@@ -16,11 +16,11 @@ build sequences, rythm and/or pitch/cv and connect them.
 
 **Regex** is made of 8 (12 for the condensed version) expressions, and 2 inputs:
 - An expression is made of a **screen**, a **mode switch**, **3 inputs** and **2 outputs**:
-	- Screen: Expression editor
-	- Mode switch: Expression mode switch (**clock** or **pitch**)
-	- Input reset: Reset the running expression
-	- Input 1 (clock): 1st input of the expression. Replace master clock if connected.
-	- Input 2: 2nd input of the expression. Used as an additional clock on **clock** mode and as pitch offset on **pitch** mode.
+	- `Screen` Expression editor
+	- `Mode switch` Expression mode switch (**clock** or **pitch**)
+	- `Input reset` Reset the running expression
+	- `Input 1 (clock)` 1st input of the expression. Replace master clock if connected.
+	- `Input 2` 2nd input of the expression. Used as an additional clock on **clock** mode and as pitch offset on **pitch** mode.
 - Input reset: Reset all running expressions
 - Input clock master: Clock all expressions
 
@@ -30,22 +30,24 @@ An expression is a string defining a pattern generating **clock** (rythm) or **p
 
 It is based on sequences that are made of:
 
-- A **type** (foreward, backward, pingpong, random, etc.) OPTIONAL (foreward by default)
-- A **series of values** (number, pitch, recursive sequence)
-- A **modulator**	OPTIONAL
+- `A type` (foreward, backward, pingpong, random, etc.) OPTIONAL (foreward by default)
+- `A series of values` (number, pitch, recursive sequence) can be enclosed in brackets for clarity
+- `A modulator`	OPTIONAL
 
 Here are a few valid expressions:
 
 - `c,d,e`
 - `0,1,2,3`
+- `(0,1,2,3)`
 - `?0,1,2,3`
 - `>(0,1,2,?(3,4,5))`
 - `^(1,2,3)%16`
 - `^(1,2,3,4)x4`
+- `(a,b,c,((d,e,f))%1)`
 
 To run an expression, you should press **Enter** while on the corresponding
 led display. You can also press **Ctrl + Enter** to run all expressions.
-An expression can be stopped by pression **Escape**.
+An expression can be stopped by pressing **Escape**.
 You can use **Ctrl + Arrow** to jump to other expressions.
 
 #### Sequence types
@@ -64,7 +66,8 @@ Here is a list of available types:
 
 #### Sequence values
 
-Expressions values can be numbers of pitch (with optionnal octave).
+Expressions values can be numbers or pitch (with optionnal octave).
+Both numerical and pitch values can be used in **clock** and **pitch** modes.
 You can also use other sequences as values, allowing you to build complex
 patterns.
 
@@ -101,31 +104,36 @@ On **pitch mode**, it loops the sequence until N values have been **output**.
 ### Clock mode
 
 The **clock mode** generates rythm. It uses the **master clock input**
-or the **1st input** as main clock and can use the **2nd input** as additional
-clock (resulting in a more complex rythm).
+or the expression **1st input** as main clock and can use the expression
+**2nd input** as additional clock (resulting in a more complex rythm).
 
 The sequence values acts like clock dividers.
 
 Exemples:
 
-- `>1,2`		xx.|
-- `<1,2`		x.x|
-- `^1,2`		xx.x.x|
-- `>1,2,3`		xx.x..|
-- `>1,2,3%8`	xx.x..|xx|
-- `>1,2,3%16`	xx.x..|xx.x..|xx.x|
+- `>1,2`				xx.|
+- `<1,2`				x.x|
+- `^1,2`				xx.x.x|
+- `>1,2,3`				xx.x..|
+- `>1,2,3%8`			xx.x..|xx|
+- `>1,2,3%16`			xx.x..|xx.x..|xx.x|
+- `>(1,2,((3,4))%1)%16`	xx.x..|xx.x...|xx.|
 
 ### Pitch mode
 
 The **pitch mode** generates pitch on each trigger received via the
-**master clock input** or the **1st input**.
+**master clock input** or the expression **1st input**.
 
-The **2nd input** allows you to combine pitch sequences. It acts as an
-**offset** to the output pitch.
-You can have a pitch expression outputing random pitch on 1 octave, connect that
-expression to a second expression
-(connect 1st expression output to 2nd expression 2nd input) to modulate the
-octave using values like `0`, `12`, `24` or even `c4`, `c5`, `c3`, etc.
+The expression **2nd input** allows you to combine pitch sequences.
+It acts as an **offset** to the output pitch.
+
+Exemple:
+
+- `>a,b,c,d,e,f,g`							Generate pitch on 1 octave
+- `?0,0,0,12,12,24` or `?c4,c4,c4,c5,c5,c6`	Generate random octave
+
+By connecting one expression to the other (both way are possible),
+you add these random octave values to the linear sequence and offset it.
 
 
 
