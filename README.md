@@ -8,6 +8,11 @@
 ![Regex](./doc/shot-regex.png)
 ![Regex Condensed](./doc/shot-regex-condensed.png)
 
+Here is a [walk through](https://www.youtube.com/watch?v=hXMN2y9V8K0) of the modules.
+
+I also published a small [demo](https://www.youtube.com/watch?v=6aDPGLpFWYQ)
+where I use **Regex** both as a drum & pitch sequencer and as a glitchy VCO.
+
 **Regex** is a text based pattern sequencer.
 It can generate both clock (rythm) and pitch sequences.
 
