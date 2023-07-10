@@ -11,9 +11,11 @@
 
 void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 	RegexItem			*item_new;
+	RegexItem			*item_copy;
 	bool				brackets;
 	bool				negative;
 	int					value;
+	int					j;
 
 	brackets = false;
 	/// INIT ITEM
@@ -65,6 +67,24 @@ void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 				i += 1;
 			}
 			item_new->value.value = (negative) ? -value : value;
+			/// HANDLE MULTIPLICATION
+			if (IS_MODULATOR(str[i])) {
+				i += 1;
+				value = 0;
+				while (IS_DIGIT(str[i])) {
+					value = value * 10 + (str[i] - '0');
+					i += 1;
+				}
+				if (value > 64)
+					value = 64;
+				for (j = 1; j < value; ++j) {
+					item->sequence.sequence.emplace_back();
+					item_copy = &(item->sequence.sequence.back());
+					item_copy->type = REGEX_VALUE;
+					item_copy->value.index = item_new->value.index;
+					item_copy->value.value = item_new->value.value;
+				}
+			}
 		/// HANDLE VALUE AS PITCH
 		} else if (IS_PITCH(str[i])) {
 			item->sequence.length += 1;
@@ -90,6 +110,24 @@ void RegexSeq::compile_req(RegexItem *item, char *str, int &i) {
 			if (IS_DIGIT(str[i])) {
 				item_new->value.value += ((str[i] - '0') - 4) * 12;
 				i += 1;
+			}
+			/// HANDLE MULTIPLICATION
+			if (IS_MODULATOR(str[i])) {
+				i += 1;
+				value = 0;
+				while (IS_DIGIT(str[i])) {
+					value = value * 10 + (str[i] - '0');
+					i += 1;
+				}
+				if (value > 64)
+					value = 64;
+				for (j = 1; j < value; ++j) {
+					item->sequence.sequence.emplace_back();
+					item_copy = &(item->sequence.sequence.back());
+					item_copy->type = REGEX_VALUE;
+					item_copy->value.index = item_new->value.index;
+					item_copy->value.value = item_new->value.value;
+				}
 			}
 		/// HANDLE VALUE AS SEQUENCE (RECURSIVE)
 		} else if (IS_MODE(str[i]) || str[i] == '(') {

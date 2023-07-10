@@ -86,20 +86,41 @@ bool RegexSeq::check_syntax_seq(char *str, int &i) {
 	while (true) {
 		/// HANDLE VALUE AS NUMBER
 		if (IS_DIGIT(str[i]) || str[i] == '-') {
+			/// VALUE SIGN
 			if (str[i] == '-') {
 				i += 1;
 				if (IS_DIGIT(str[i]) == false)
 					return false;
 			}
+			/// VALUE NUMBER
 			while (IS_DIGIT(str[i]))
 				i += 1;
+			/// VALUE MODULATOR
+			if (IS_MODULATOR(str[i])) {
+				i += 1;
+				if (IS_DIGIT(str[i]) == false)
+					return false;
+				while (IS_DIGIT(str[i]))
+					i += 1;
+			}
 		/// HANDLE VALUE AS PITCH
 		} else if (IS_PITCH(str[i])) {
+			/// PITCH
 			i += 1;
+			/// PITCH OFFSET
 			if (str[i] == '#' || str[i] == 'b')
 				i += 1;
+			/// PITCH OCTAVE
 			if (IS_DIGIT(str[i]))
 				i += 1;
+			/// PITCH MODULATOR
+			if (IS_MODULATOR(str[i])) {
+				i += 1;
+				if (IS_DIGIT(str[i]) == false)
+					return false;
+				while (IS_DIGIT(str[i]))
+					i += 1;
+			}
 		/// HANDLE VALUE AS SEQUENCE (RECURSIVE)
 		} else if (IS_MODE(str[i]) || str[i] == '(') {
 			if (check_syntax_seq(str, i) == false)
@@ -122,7 +143,9 @@ bool RegexSeq::check_syntax_seq(char *str, int &i) {
 			return true;
 		/// HANDLE MODULATOR
 		} else if (IS_MODULATOR(str[i])) {
-			break;
+			if (brackets == false)
+				break;
+			return false;
 		/// HANDLE END
 		} else if (str[i] == 0) {
 			if (brackets == true)
@@ -147,8 +170,13 @@ bool RegexSeq::check_syntax(void) {
 	char							*str;
 	int								i;
 
+	/// CHECK SYNTAX
 	str = (char*)this->string_edit.c_str();
 	i = 0;
 	this->string_syntax = this->check_syntax_seq(str, i);
+	/// CHECK SYNTAX OVER
+	if (str[i] != 0)
+		this->string_syntax = false;
+	/// RETURN SYNTAX
 	return this->string_syntax;
 }
