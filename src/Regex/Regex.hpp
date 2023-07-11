@@ -104,7 +104,6 @@ struct RegexSeq {
 	void reset(bool destroy);
 	void process(float dt, bool clock_reset_master, bool clock_master, float bias);
 	void compile(Regex *module);
-	void compile_req(RegexItem *item, char *str, int &i);
 	bool check_syntax(void);
 	bool check_syntax_seq(char *str, int &i);
 };
