@@ -117,9 +117,6 @@ Tracker::Tracker() {
 		table_keyboard['='] = 30;	// F#
 	table_keyboard[']'] = 31;		// G
 
-
-	clock_timer.reset();
-
 	/// SET ACTIVE SYNTH & PATTERN
 	g_module = this;
 }
@@ -135,16 +132,6 @@ void Tracker::process(const ProcessArgs& args) {
 	bpm = params[PARAM_BPM].getValue();
 	dt_sec = args.sampleTime;
 	dt_beat = (bpm * dt_sec) / 60.0f;
-	clock_time_p = clock_timer.time;
-	clock_timer.process(dt_beat);
-	if (clock_timer.time >= 64.0f)
-		clock_timer.time -= 64.0f;
-	clock_time = clock_timer.time;
-	/// OUTPUT CLOCK
-	if (clock_time_p - (int)clock_time_p > clock_time - (int)clock_time)
-		outputs[OUTPUT_CLOCK].setVoltage(10.0f);
-	else
-		outputs[OUTPUT_CLOCK].setVoltage(0.0f);
 
 	/// PROCESS TIMELINE
 	g_timeline.process(args.frame, dt_sec, dt_beat);

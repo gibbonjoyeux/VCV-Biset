@@ -115,6 +115,18 @@ struct ParamQuantityOptions : ParamQuantity {
 	}
 };
 
+struct ParamQuantityClock : ParamQuantity {
+	std::string getDisplayValueString() override {
+		int		value;
+
+		value = getValue();
+		if (value >= 0)
+			return rack::string::f("x%d", 1 + value);
+		else
+			return rack::string::f("/%d", 1 - value);
+	}
+};
+
 //////////////////////////////
 /// INLET / OUTLET
 //////////////////////////////

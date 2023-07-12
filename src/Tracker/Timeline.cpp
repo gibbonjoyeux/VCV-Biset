@@ -34,6 +34,7 @@ Timeline::Timeline() {
 	}
 	/// [3] INIT CLOCK
 	this->clock.reset();
+	this->clock_phase.reset();
 	/// [4] INIT TIMELINE
 	this->play = TIMELINE_MODE_STOP;
 	/// [5] INIT SAVE BUFFER
@@ -54,9 +55,19 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	int								i;
 
 	/// [1] UPDATE CLOCK
-	if (g_timeline.play != TIMELINE_MODE_STOP)
+	if (g_timeline.play != TIMELINE_MODE_STOP) {
+		/// COMPUTE CLOCK
 		this->clock.process(dt_beat);
-	//// MODE PLAY SONG
+		//// COMPUTE CLOCK PHASE
+		this->clock_phase_step = dt_beat;
+		this->clock_phase.process(dt_beat);
+		if (this->clock_phase.time >= 1.0f)
+			this->clock_phase.time -= 1.0f;
+	} else {
+		this->clock_phase_step = 0;
+	}
+
+	////// MODE PLAY SONG
 	//if (g_timeline.play == TIMELINE_MODE_PLAY_SONG) {
 	//	if (this->clock.beat >= this->beat_count) {
 	//		/// RESET CLOCK
@@ -135,7 +146,9 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 		/// ROWS ALL ENDED
 		if (count >= 32) {
 			/// RESET CLOCK
-			this->clock.beat = 0;
+			//this->clock.beat = 0;
+			this->clock.reset();
+			this->clock_phase.reset();
 			/// RESET RUNNING PATTERNS
 			this->stop();
 		}

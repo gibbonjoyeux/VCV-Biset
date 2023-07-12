@@ -295,12 +295,8 @@ struct Timeline {
 	u8							play;
 	std::atomic_flag			thread_flag;
 	Clock						clock;
-	//u16							beat_count;
-	//Array2D<TimelineCell>		timeline;
-	//PatternSource*				pattern_source[12];
-	//TimelineCell*				pattern_cell[12];
-	//u32							pattern_start[12];
-	//PatternReader				pattern_reader[12];
+	dsp::TTimer<float>			clock_phase;
+	float						clock_phase_step;
 
 	list<PatternInstance>::iterator	pattern_it[32];
 	list<PatternInstance>::iterator	pattern_it_end[32];
@@ -497,10 +493,6 @@ struct Tracker : Module {
 								ENUMS(LIGHT_VIEW, 5),
 								LIGHT_COUNT
 	};
-
-	dsp::TTimer<float>			clock_timer;
-	float						clock_time;
-	float						clock_time_p;
 
 	Tracker();
 

@@ -15,6 +15,7 @@ SOURCES += $(wildcard src/*.cpp)
 SOURCES += $(wildcard src/Tracker/*.cpp)
 SOURCES += $(wildcard src/TrackerSynth/*.cpp)
 #SOURCES += $(wildcard src/TrackerDrum/*.cpp)
+SOURCES += $(wildcard src/TrackerPhase/*.cpp)
 SOURCES += $(wildcard src/Regex/*.cpp)
 
 # Add files to the ZIP package when running `make dist`
