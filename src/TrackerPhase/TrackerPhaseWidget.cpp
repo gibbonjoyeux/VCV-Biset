@@ -19,9 +19,12 @@ TrackerPhaseWidget::TrackerPhaseWidget(TrackerPhase* _module) {
 	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker-Phase.svg")));
 
 	x = 8.0;
-	y = 13.0 + 10.5;
+	y = 11.85;// + 10.5;
 	x_step = 11.0;
-	y_step = 30.0 - 3.5;
+	y_step = 30.0 - 2.9;
+	//y_step = 30.0 - 3.5;
+	//y_step = 30.0 - 12.0;
+	//y_step = 30.0 - 8.5;
 	for (i = 0; i < 4; ++i) {
 		/// SHAPE + FREQ + WIDTH
 		addParam(
@@ -53,9 +56,9 @@ TrackerPhaseWidget::TrackerPhaseWidget(TrackerPhase* _module) {
 		/**/ module,
 		/**/ TrackerPhase::PARAM_ROUND + i));
 		addParam(
-		/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(x + 7.5, y + y_step * i + 8.0)),
+		/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(x + x_step, y + y_step * i + 8.0)),
 		/**/ module,
-		/**/ TrackerPhase::PARAM_INVERSE + i));
+		/**/ TrackerPhase::PARAM_INVERT + i));
 
 		/// OUTPUT
 		addOutput(
