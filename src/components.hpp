@@ -22,8 +22,8 @@ extern Plugin	*pluginInstance;
 struct ButtonSwitch : app::SvgSwitch {
 	ButtonSwitch() {
 		this->momentary = false;
-		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch-On.svg")));
 		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch-Off.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch-On.svg")));
 	}
 };
 
