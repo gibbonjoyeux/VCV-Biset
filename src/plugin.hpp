@@ -13,6 +13,7 @@ using				std::unique_ptr;
 #include "Tracker/Tracker.hpp"
 #include "TrackerSynth/TrackerSynth.hpp"
 //#include "TrackerDrum/TrackerDrum.hpp"
+#include "TrackerClock/TrackerClock.hpp"
 #include "TrackerPhase/TrackerPhase.hpp"
 
 #include "Regex/Regex.hpp"
@@ -39,7 +40,7 @@ extern Plugin*		pluginInstance;
 extern Model*		modelTracker;
 extern Model*		modelTrackerSynth;
 //extern Model*		modelTrackerDrum;
-//extern Model*		modelTrackerClock;
+extern Model*		modelTrackerClock;
 extern Model*		modelTrackerPhase;
 //extern Model*		modelTrackerState;
 //extern Model*		modelTrackerTemp;

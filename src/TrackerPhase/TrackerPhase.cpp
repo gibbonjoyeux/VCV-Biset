@@ -15,7 +15,7 @@ TrackerPhase::TrackerPhase() {
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
 	for (i = 0; i < 4; ++i) {
-		this->phases[i] = 0.0;
+		this->phase[i] = 0.0;
 		configParam(PARAM_TYPE + i, 0, 3, 0, "Wave")->snapEnabled = true;
 		configParam<ParamQuantityClock>(PARAM_FREQ + i, -31, 31, 0, "Frequency");
 		configParam(PARAM_WIDTH + i, 0, 100, 50, "Width", "%");
@@ -41,7 +41,7 @@ void TrackerPhase::process(const ProcessArgs& args) {
 	for (i = 0; i < 4; ++i) {
 		
 		if (g_timeline.clock_phase_step == 0) {
-			this->phases[i] = 0;
+			this->phase[i] = 0;
 			continue;
 		}
 
@@ -64,25 +64,25 @@ void TrackerPhase::process(const ProcessArgs& args) {
 			freq = 1.0 / (1.0 - knob_freq);
 
 		/// [2] COMPUTE PHASE
-		this->phases[i] += g_timeline.clock_phase_step * freq;
-		this->phases[i] = this->phases[i] - (int)this->phases[i];
+		this->phase[i] += g_timeline.clock_phase_step * freq;
+		this->phase[i] = this->phase[i] - (int)this->phase[i];
 
 		/// [3] COMPUTE WAVE
 		//// WAVE RAMP UP
 		if (knob_type == 0) {
-			out = this->phases[i];
+			out = this->phase[i];
 		//// WAVE TRIANGLE
 		} else if (knob_type == 1) {
-			if (this->phases[i] < 0.5)
-				out = this->phases[i] * 2.0;
+			if (this->phase[i] < 0.5)
+				out = this->phase[i] * 2.0;
 			else
-				out = (1.0 - this->phases[i]) * 2.0;
+				out = (1.0 - this->phase[i]) * 2.0;
 		//// WAVE SIN
 		} else if (knob_type == 2) {
-			out = sin(this->phases[i] * 2 * M_PI) * 0.5 + 0.5;
+			out = sin(this->phase[i] * 2 * M_PI) * 0.5 + 0.5;
 		//// WAVE SQUARE
 		} else if (knob_type == 3) {
-			out = (this->phases[i] < knob_width / 100.0) ? 0.0 : 1.0;
+			out = (this->phase[i] < knob_width / 100.0) ? 0.0 : 1.0;
 		} else {
 			out = 0;
 		}

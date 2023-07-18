@@ -292,8 +292,8 @@ struct Timeline {
 	int							debug;
 	int							debug_2;
 
-	u8							play;
 	std::atomic_flag			thread_flag;
+	u8							play;
 	Clock						clock;
 	dsp::TTimer<float>			clock_phase;
 	float						clock_phase_step;

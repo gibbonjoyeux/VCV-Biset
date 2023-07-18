@@ -26,6 +26,12 @@
 		"tags": ["Sequencer", "Digital"]
 	},
 	{
+		"slug": "Biset-Tracker-Clock",
+		"name": "Tracker Clock",
+		"description": "Tracker clock divider / multiplier",
+		"tags": ["Sequencer", "Digital"]
+	},
+	{
 		"slug": "Biset-Tracker-Phase",
 		"name": "Tracker Phase",
 		"description": "Tracker phase / synced LFO output",

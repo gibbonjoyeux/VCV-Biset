@@ -30,7 +30,7 @@ struct TrackerPhase: Module {
 	enum	LightIds {
 		LIGHT_COUNT
 	};
-	float		phases[4];
+	float		phase[4];
 
 	TrackerPhase();
 

@@ -8,7 +8,7 @@ void init(Plugin* p) {
 	p->addModel(modelTracker);
 	p->addModel(modelTrackerSynth);
 	//p->addModel(modelTrackerDrum);
-	//p->addModel(modelTrackerClock);
+	p->addModel(modelTrackerClock);
 	p->addModel(modelTrackerPhase);
 
 	p->addModel(modelRegex);

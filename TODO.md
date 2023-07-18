@@ -58,7 +58,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 			- [x] Del instance
 			- [x] Select instance
 			- [x] Move instance
-			- [ ] Resize instance (fix negative `beat_start`)
+			- [x] Resize instance (fix negative `beat_start`)
 	- [ ] Display Side
 		- [ ] SCreen Side Synths (Tracker)
 			- [x] Draw synths
