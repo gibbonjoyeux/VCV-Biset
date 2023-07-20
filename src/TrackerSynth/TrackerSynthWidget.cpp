@@ -210,13 +210,13 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 				for (j = 0; j < 4; ++j) {
 					handle = &(this->module->map_handles[i][j]);
 					menu->addChild(rack::createSubmenuItem(string::f("Map %d", j + 1),
-						(handle->moduleId >= 0) ? "Mapped" : "",
+						(handle->module != NULL) ? "Mapped" : "",
 						[=](Menu *menu) {
 							MenuLabel	*label;
 							MenuItem	*item;
 
 							/// MAP EDIT
-							if (handle->moduleId >= 0) {
+							if (handle->module != NULL) {
 								/// MAPPED MODULE
 								label = new MenuLabel();
 								label->text = handle->module->model->name;

@@ -37,6 +37,8 @@ struct TrackerSynth: Module {
 	TrackerSynth();
 	~TrackerSynth();
 	void	process(const ProcessArgs& args) override;
+	json_t	*dataToJson(void) override;
+	void	dataFromJson(json_t *j_root) override;
 
 	void	learn_enable(int cv, int map);
 	void	learn_disable(void);

@@ -114,7 +114,7 @@ void TrackerSynth::learn_map(i64 module_id, int param_id) {
 
 	handle = &(this->map_handles[this->map_learn_cv][this->map_learn_map]);
 	APP->engine->updateParamHandle(handle, module_id, param_id, true);
-	handle->text = "Midi map";
+	//handle->text = "Midi map";
 	this->map_learn = false;
 }
 
