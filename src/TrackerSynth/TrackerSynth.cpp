@@ -49,10 +49,12 @@ TrackerSynth::~TrackerSynth() {
 }
 
 void TrackerSynth::process(const ProcessArgs& args) {
-	Synth		*synth;
-	float		cv;
-	float		cv_min, cv_max;
-	int			i;
+	ParamHandle		*handle;
+	ParamQuantity	*quantity;
+	Synth			*synth;
+	float			cv;
+	float			cv_min, cv_max;
+	int				i, j;
 
 	/// GET SYNTH
 	i = (int)this->params[PARAM_SYNTH].getValue();
@@ -78,7 +80,21 @@ void TrackerSynth::process(const ProcessArgs& args) {
 			cv_min = this->params[PARAM_OUT_MIN + i].getValue();
 			cv_max = this->params[PARAM_OUT_MAX + i].getValue();
 			cv = (synth->out_cv[i] * (cv_max - cv_min)) + cv_min;
+			/// SET CV
 			this->outputs[OUTPUT_CV + i].setVoltage(cv);
+			/// SET MAPPED PARAMS
+			for (j = 0; j < 4; ++j) {
+				handle = &(this->map_handles[i][j]);
+				if (handle->module) {
+					quantity = handle->module->getParamQuantity(handle->paramId);
+					if (quantity) {
+						cv_min = quantity->getMinValue();
+						cv_max = quantity->getMaxValue();
+						cv = (synth->out_cv[i] * (cv_max - cv_min)) + cv_min;
+						quantity->setValue(cv);
+					}
+				}
+			}
 		}
 	}
 }
@@ -87,7 +103,6 @@ void TrackerSynth::learn_enable(int cv, int map) {
 	this->map_learn = true;
 	this->map_learn_cv = cv;
 	this->map_learn_map = map;
-	//APP->scene->rack->setTouchedParam(NULL);
 }
 
 void TrackerSynth::learn_disable(void) {

@@ -71,11 +71,8 @@ void TrackerSynthWidget::onDeselect(const DeselectEvent &e) {
 	if (this->module->map_learn == false)
 		return;
 
-	this->module->params[TrackerSynth::PARAM_SYNTH].setValue(0);	// TMP
-	
 	param = APP->scene->rack->getTouchedParam();
 	if (param) {
-		this->module->params[TrackerSynth::PARAM_SYNTH].setValue(1);// TMP
 		APP->scene->rack->touchedParam = NULL;
 		this->module->learn_map(param->module->id, param->paramId);
 	} else {
@@ -241,8 +238,10 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 							} else {
 								item = createMenuItem("Learn", "",
 									[=]() {
-										//APP->scene->rack->select(this);
-										//APP->scene->rack->setTouchedParam(this->module->paramQuantities[0]);
+										/// SELECT WIDGET
+										APP->event->setSelectedWidget(this);
+										APP->scene->rack->touchedParam = NULL;
+										/// ENABLE LEARN
 										this->module->learn_enable(i, j);
 									}
 								);
