@@ -18,11 +18,11 @@ static double json_object_get_real(json_t *j, const char *key) {
 ////////////////////////////////////////////////////////////////////////////////
 
 json_t *TrackerSynth::dataToJson(void) {
-	ParamHandle	*handle;
-	json_t		*j_root;
-	json_t		*j_array;
-	json_t		*j_handle;
-	int			i, j;
+	ParamHandleRange	*handle;
+	json_t				*j_root;
+	json_t				*j_array;
+	json_t				*j_handle;
+	int					i, j;
 
 	j_root = json_object();
 	j_array = json_array();
@@ -35,8 +35,8 @@ json_t *TrackerSynth::dataToJson(void) {
 				json_object_set_new(j_handle, "map", json_integer(j));
 				json_object_set_new(j_handle, "module", json_integer(handle->moduleId));
 				json_object_set_new(j_handle, "param", json_integer(handle->paramId));
-				json_object_set_new(j_handle, "min", json_real(0.0));
-				json_object_set_new(j_handle, "max", json_real(0.0));
+				json_object_set_new(j_handle, "min", json_real(handle->min));
+				json_object_set_new(j_handle, "max", json_real(handle->max));
 				json_array_append_new(j_array, j_handle);
 			}
 		}
@@ -46,15 +46,15 @@ json_t *TrackerSynth::dataToJson(void) {
 }
 
 void TrackerSynth::dataFromJson(json_t *j_root) {
-	ParamHandle	*handle;
-	json_t		*j_array;
-	json_t		*j_handle;
-	i64			handle_module;
-	int			handle_param;
-	float		handle_min;
-	float		handle_max;
-	int			len;
-	int			i;
+	ParamHandleRange	*handle;
+	json_t				*j_array;
+	json_t				*j_handle;
+	i64					handle_module;
+	int					handle_param;
+	float				handle_min;
+	float				handle_max;
+	int					len;
+	int					i;
 
 	j_array = json_object_get(j_root, "mapping");
 	if (j_array && json_typeof(j_array) == JSON_ARRAY) {
@@ -73,8 +73,8 @@ void TrackerSynth::dataFromJson(json_t *j_root) {
 				this->learn_map(handle_module, handle_param);
 				/// SET HANDLE BOUNDARIES
 				handle = &(this->map_handles[this->map_learn_cv][this->map_learn_map]);
-				//handle->min = handle_min;
-				//handle->max = handle_max;
+				handle->min = handle_min;
+				handle->max = handle_max;
 			}
 		}
 	}

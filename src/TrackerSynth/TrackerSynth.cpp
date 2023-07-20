@@ -49,12 +49,12 @@ TrackerSynth::~TrackerSynth() {
 }
 
 void TrackerSynth::process(const ProcessArgs& args) {
-	ParamHandle		*handle;
-	ParamQuantity	*quantity;
-	Synth			*synth;
-	float			cv;
-	float			cv_min, cv_max;
-	int				i, j;
+	ParamHandleRange	*handle;
+	ParamQuantity		*quantity;
+	Synth				*synth;
+	float				cv;
+	float				cv_min, cv_max;
+	int					i, j;
 
 	/// GET SYNTH
 	i = (int)this->params[PARAM_SYNTH].getValue();
@@ -88,8 +88,8 @@ void TrackerSynth::process(const ProcessArgs& args) {
 				if (handle->module) {
 					quantity = handle->module->getParamQuantity(handle->paramId);
 					if (quantity) {
-						cv_min = quantity->getMinValue();
-						cv_max = quantity->getMaxValue();
+						cv_min = handle->min;
+						cv_max = handle->max;
 						cv = (synth->out_cv[i] * (cv_max - cv_min)) + cv_min;
 						quantity->setValue(cv);
 					}
@@ -110,11 +110,11 @@ void TrackerSynth::learn_disable(void) {
 }
 
 void TrackerSynth::learn_map(i64 module_id, int param_id) {
-	ParamHandle		*handle;
+	ParamHandleRange	*handle;
 
 	handle = &(this->map_handles[this->map_learn_cv][this->map_learn_map]);
 	APP->engine->updateParamHandle(handle, module_id, param_id, true);
-	//handle->text = "Midi map";
+	handle->init();
 	this->map_learn = false;
 }
 

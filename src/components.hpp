@@ -11,6 +11,25 @@ extern Plugin	*pluginInstance;
 /// STRUCTURES
 ////////////////////////////////////////////////////////////////////////////////
 
+struct ParamHandleRange : ParamHandle {
+	float	min;
+	float	max;
+
+	void init(void) {
+		ParamQuantity	*quantity;
+
+		this->min = 0;
+		this->max = 0;
+		if (this->module) {
+			quantity = this->module->getParamQuantity(this->paramId);
+			if (quantity) {
+				this->min = quantity->getMinValue();
+				this->max = quantity->getMaxValue();
+			}
+		}
+	}
+};
+
 //////////////////////////////////////////////////
 /// SVG COMPONENTS
 //////////////////////////////////////////////////

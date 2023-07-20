@@ -29,10 +29,10 @@ struct TrackerSynth: Module {
 	enum	LightIds {
 		LIGHT_COUNT
 	};
-	ParamHandle		map_handles[8][4];
-	bool			map_learn;
-	int				map_learn_cv;
-	int				map_learn_map;
+	ParamHandleRange	map_handles[8][4];
+	bool				map_learn;
+	int					map_learn_cv;
+	int					map_learn_map;
 
 	TrackerSynth();
 	~TrackerSynth();
