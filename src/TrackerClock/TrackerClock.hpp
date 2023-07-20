@@ -11,6 +11,8 @@
 struct TrackerClock: Module {
 	enum	ParamIds {
 		ENUMS(PARAM_FREQ, 4),
+		ENUMS(PARAM_PHASE, 4),
+		ENUMS(PARAM_PW, 4),
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -23,10 +25,10 @@ struct TrackerClock: Module {
 	enum	LightIds {
 		LIGHT_COUNT
 	};
-	float					phase_global;
-	dsp::PulseGenerator		trigger[4];
-	int						count[4];
-	float					phase[4];
+	dsp::TSchmittTrigger<float>	global_trigger;
+	float						global_phase;
+	int							count[4];
+	float						phase[4];
 
 	TrackerClock();
 

@@ -28,24 +28,31 @@ TrackerClockWidget::TrackerClockWidget(TrackerClock* _module) {
 	//y_step = 30.0 - 8.5;
 	for (i = 0; i < 4; ++i) {
 
-		/// FREQ
+		/// FREQ + PHASE + PULSE WIDTH
 		addParam(
-		/**/ createParamCentered<KnobMedium>(mm2px(Vec(x + x_step * 0.0, y + y_step * i)),
+		/**/ createParamCentered<KnobMedium>(mm2px(Vec(x, y + y_step * i)),
 		/**/ module,
 		/**/ TrackerClock::PARAM_FREQ + i));
+		addParam(
+		/**/ createParamCentered<KnobSmall>(mm2px(Vec(x, y + y_step * i + 8.0)),
+		/**/ module,
+		/**/ TrackerClock::PARAM_PHASE + i));
+		addParam(
+		/**/ createParamCentered<KnobSmall>(mm2px(Vec(x + 8.5, y + y_step * i + 8.0)),
+		/**/ module,
+		/**/ TrackerClock::PARAM_PW + i));
 
 		/// FREQ DISPLAY
-		display = createWidget<TrackerClockDisplay>(mm2px(Vec(x + x_step * 1.0 - 5.25 + 3.0, y + y_step * i - 3.0)));
+		display = createWidget<TrackerClockDisplay>(mm2px(Vec(x + 11.0 + 3.0 - 5.25, y + y_step * i - 3.0)));
 		display->box.size = mm2px(Vec(10.5, 6.0));
 		display->index = i;
 		display->module = module;
 		display->moduleWidget = this;
 		addChild(display);
 
-
 		/// OUTPUT
 		addOutput(
-		/**/ createOutputCentered<Outlet>(mm2px(Vec(x + 26.5, y + y_step * i)),
+		/**/ createOutputCentered<Outlet>(mm2px(Vec(x + 26.4, y + y_step * i)),
 		/**/ module,
 		/**/ TrackerClock::OUTPUT_CLOCK + i));
 	}

@@ -13,8 +13,7 @@ struct TrackerPhase: Module {
 		ENUMS(PARAM_TYPE, 4),
 		ENUMS(PARAM_FREQ, 4),
 		ENUMS(PARAM_PHASE, 4),
-		ENUMS(PARAM_WIDTH, 4),
-		ENUMS(PARAM_ROUND, 4),
+		ENUMS(PARAM_WARP, 4),
 		ENUMS(PARAM_INVERT, 4),
 		ENUMS(PARAM_OFFSET, 4),
 		ENUMS(PARAM_SCALE, 4),
@@ -30,23 +29,27 @@ struct TrackerPhase: Module {
 	enum	LightIds {
 		LIGHT_COUNT
 	};
-	float		phase[4];
+	dsp::TSchmittTrigger<float>	global_trigger;
+	float						global_phase;
+	int							count[4];
+	float						phase[4];
 
 	TrackerPhase();
 
 	void	process(const ProcessArgs& args) override;
 };
 
-//struct TrackerPhaseDisplay : LedDisplay {
-//	TrackerPhase			*module;
-//	ModuleWidget			*moduleWidget;
-//	std::string				font_path;
-//
-//	TrackerPhaseDisplay();
-//	void draw(const DrawArgs &args) override {};
-//	void drawLayer(const DrawArgs &args, int layer) override;
-//	void onButton(const ButtonEvent &e) override;
-//};
+struct TrackerPhaseDisplay : LedDisplay {
+	TrackerPhase			*module;
+	ModuleWidget			*moduleWidget;
+	std::string				font_path;
+	int						index;
+
+	TrackerPhaseDisplay();
+	void draw(const DrawArgs &args) override {};
+	void drawLayer(const DrawArgs &args, int layer) override;
+	void onButton(const ButtonEvent &e) override;
+};
 
 struct TrackerPhaseWidget : ModuleWidget {
 	TrackerPhase			*module;

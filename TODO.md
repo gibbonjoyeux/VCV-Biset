@@ -176,7 +176,8 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 			- [x] CV mode range (min / max sliders)
 			- [ ] CV mode mapping
 - [ ] MODULE TrackerDrumOut
-- [ ] MODULE TrackerClock (mult & div clock)
+- [x] MODULE TrackerClock (mult & div clock)
+- [x] MODULE TrackerPhase (mult & div synced LFO)
 - [ ] MODULE TrackerState (Playing gate & trigger)
 - [ ] MODULE TrackerQuant (quantizer with Tracker pitch & temperament)
 

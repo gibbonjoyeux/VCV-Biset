@@ -10,9 +10,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 TrackerPhaseWidget::TrackerPhaseWidget(TrackerPhase* _module) {
-	float		x, y;
-	float		x_step, y_step;
-	int			i;
+	TrackerPhaseDisplay	*display;
+	float				x, y;
+	float				x_step, y_step;
+	int					i;
 
 	module = _module;
 	setModule(module);
@@ -26,19 +27,15 @@ TrackerPhaseWidget::TrackerPhaseWidget(TrackerPhase* _module) {
 	//y_step = 30.0 - 12.0;
 	//y_step = 30.0 - 8.5;
 	for (i = 0; i < 4; ++i) {
-		/// SHAPE + FREQ + WIDTH
+		/// FREQ + SHAPE
 		addParam(
 		/**/ createParamCentered<KnobMedium>(mm2px(Vec(x, y + y_step * i)),
 		/**/ module,
-		/**/ TrackerPhase::PARAM_TYPE + i));
-		addParam(
-		/**/ createParamCentered<KnobMedium>(mm2px(Vec(x + x_step * 1.0, y + y_step * i)),
-		/**/ module,
 		/**/ TrackerPhase::PARAM_FREQ + i));
 		addParam(
-		/**/ createParamCentered<KnobMedium>(mm2px(Vec(x + x_step * 2.0, y + y_step * i)),
+		/**/ createParamCentered<KnobSmall>(mm2px(Vec(x + x_step * 1.0, y + y_step * i)),
 		/**/ module,
-		/**/ TrackerPhase::PARAM_WIDTH + i));
+		/**/ TrackerPhase::PARAM_TYPE + i));
 
 		/// OFFSET + SCALE
 		addParam(
@@ -50,15 +47,27 @@ TrackerPhaseWidget::TrackerPhaseWidget(TrackerPhase* _module) {
 		/**/ module,
 		/**/ TrackerPhase::PARAM_SCALE + i));
 
-		/// ROUND + INVERSE
+		/// PHASE + WARP + INVERT
 		addParam(
-		/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(x, y + y_step * i + 8.0)),
+		/**/ createParamCentered<KnobSmall>(mm2px(Vec(x, y + y_step * i + 8.0)),
 		/**/ module,
-		/**/ TrackerPhase::PARAM_ROUND + i));
+		/**/ TrackerPhase::PARAM_PHASE + i));
 		addParam(
-		/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(x + x_step, y + y_step * i + 8.0)),
+		/**/ createParamCentered<KnobSmall>(mm2px(Vec(x + x_step * 1.0, y + y_step * i + 8.0)),
+		/**/ module,
+		/**/ TrackerPhase::PARAM_WARP + i));
+		addParam(
+		/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(x + x_step * 2.0, y + y_step * i + 8.0)),
 		/**/ module,
 		/**/ TrackerPhase::PARAM_INVERT + i));
+
+		/// FREQ DISPLAY
+		display = createWidget<TrackerPhaseDisplay>(mm2px(Vec(x + x_step * 2.0 - 5.25, y + y_step * i - 3.0)));
+		display->box.size = mm2px(Vec(10.5, 6.0));
+		display->index = i;
+		display->module = module;
+		display->moduleWidget = this;
+		addChild(display);
 
 		/// OUTPUT
 		addOutput(

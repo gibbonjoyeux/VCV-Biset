@@ -294,9 +294,8 @@ struct Timeline {
 
 	std::atomic_flag			thread_flag;
 	u8							play;
+	dsp::PulseGenerator			play_trigger;	// Used by other modules
 	Clock						clock;
-	dsp::TTimer<float>			clock_phase;
-	float						clock_phase_step;
 
 	list<PatternInstance>::iterator	pattern_it[32];
 	list<PatternInstance>::iterator	pattern_it_end[32];

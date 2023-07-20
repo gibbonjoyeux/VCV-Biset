@@ -120,10 +120,12 @@ struct ParamQuantityClock : ParamQuantity {
 		int		value;
 
 		value = getValue();
-		if (value >= 0)
-			return rack::string::f("x%d", 1 + value);
+		if (value > 1)
+			return rack::string::f("x%d", value);
+		else if (value < -1)
+			return rack::string::f("/%d", -value);
 		else
-			return rack::string::f("/%d", 1 - value);
+			return rack::string::f("x1");
 	}
 };
 

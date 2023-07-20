@@ -14,39 +14,48 @@ TrackerClock::TrackerClock() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
-	this->phase_global = 0;
+	this->global_phase = 0;
+	this->global_trigger.reset();
 	for (i = 0; i < 4; ++i) {
 		this->count[i] = 0;
 		this->phase[i] = 0.0;
-		this->trigger[i].reset();
-		configParam(PARAM_FREQ + i, -64, 64, 0, "Frequency")->snapEnabled = true;
+		configParam(PARAM_FREQ + i, -96, 96, 0, "Frequency")->snapEnabled = true;
+		configParam(PARAM_PHASE + i, 0, 1, 0, "Phase");
+		configParam(PARAM_PW + i, 0, 1, 0.5, "Pulse Width");
 	}
 }
 
 void TrackerClock::process(const ProcessArgs& args) {
 	int		knob_freq;
+	float	knob_phase;
+	float	knob_pw;
 	int		divider;
 	int		multiplier;
 	float	phase;
 	bool	trigger;
+	float	out;
 	int		i;
 
-	/// [1] COMPUTE MAIN TRIGGER
-	trigger = (g_timeline.clock_phase.time < this->phase_global);
-	this->phase_global = g_timeline.clock_phase.time;
+	/// [1] CHECK GLOBAL PLAY TRIGGER (RESET)
+	if (this->global_trigger.process(g_timeline.play_trigger.remaining > 0.0)) {
+		for (i = 0; i < 4; ++i) {
+			this->count[i] = 0;
+			this->phase[i] = 0.0;
+		}
+		this->global_phase = g_timeline.clock.phase;
+	}
+
+	/// [2] CHECK GLOBAL CLOCK TRIGGER
+	trigger = (g_timeline.clock.phase < this->global_phase);
+	this->global_phase = g_timeline.clock.phase;
 
 	for (i = 0; i < 4; ++i) {
 		
-		if (g_timeline.clock_phase_step == 0) {
-			this->count[i] = 0;
-			this->phase[i] = 0.0;
-			this->trigger[i].reset();
-			continue;
-		}
-
 		knob_freq = this->params[PARAM_FREQ + i].getValue();
+		knob_phase = this->params[PARAM_PHASE + i].getValue();
+		knob_pw = this->params[PARAM_PW + i].getValue();
 
-		/// [2] COMPUTE CLOCK DIV / MULT
+		/// [3] COMPUTE CLOCK DIV / MULT
 		//// CLOCK MULT
 		if (knob_freq >= -1.0) {
 			/// COMPUTE FREQ
@@ -54,27 +63,28 @@ void TrackerClock::process(const ProcessArgs& args) {
 			if (multiplier < 1)
 				multiplier = 1;
 			/// COMPUTE PHASE
-			phase = g_timeline.clock_phase.time * (float)multiplier;
+			phase = g_timeline.clock.phase * (float)multiplier + knob_phase;
 			phase = phase - (int)phase;
 			/// COMPUTE TRIGGER
-			if (phase < this->phase[i])
-				this->trigger[i].trigger();
+			out = (phase < knob_pw);
 			this->phase[i] = phase;
 		//// CLOCK DIV
 		} else {
+			/// COMPUTE FREQ
 			divider = -knob_freq;
-			if (trigger) {
+			/// COMPUTE PHASE
+			if (trigger)
 				this->count[i] += 1;
-				if (this->count[i] >= divider) {
-					this->trigger[i].trigger();
-					this->count[i] = 0;
-				}
-			}
+			phase = ((float)this->count[i] + g_timeline.clock.phase)
+			/**/ / (float)divider + knob_phase;
+			phase = phase - (int)phase;
+			/// COMPUTE TRIGGER
+			out = (phase < knob_pw);
+			this->phase[i] = phase;
 		}
 		
-		/// [3] OUTPUT TRIGGERS
-		this->outputs[OUTPUT_CLOCK + i].setVoltage(
-		/**/ this->trigger[i].process(args.sampleTime) * 10.0);
+		/// [4] OUTPUT TRIGGERS
+		this->outputs[OUTPUT_CLOCK + i].setVoltage(out * 10.0);
 	}
 }
 
