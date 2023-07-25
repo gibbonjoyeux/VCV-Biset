@@ -1,6 +1,6 @@
 
-#ifndef TRACKERSYNTH_HPP
-#define TRACKERSYNTH_HPP
+#ifndef TRACKERPHASE_HPP
+#define TRACKERPHASE_HPP
 
 #include "../plugin.hpp"
 

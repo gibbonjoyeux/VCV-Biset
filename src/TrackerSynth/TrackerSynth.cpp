@@ -44,11 +44,9 @@ TrackerSynth::TrackerSynth() {
 TrackerSynth::~TrackerSynth() {
 	int			i, j;
 
-	for (i = 0; i < 8; i++) {
-		for (j = 0; j < 4; ++j) {
+	for (i = 0; i < 8; i++)
+		for (j = 0; j < 4; ++j)
 			APP->engine->removeParamHandle(&(this->map_handles[i][j]));
-		}
-	}
 }
 
 void TrackerSynth::process(const ProcessArgs& args) {

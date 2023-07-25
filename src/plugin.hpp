@@ -12,7 +12,7 @@ using				std::unique_ptr;
 #include "components.hpp"
 #include "Tracker/Tracker.hpp"
 #include "TrackerSynth/TrackerSynth.hpp"
-//#include "TrackerDrum/TrackerDrum.hpp"
+#include "TrackerDrum/TrackerDrum.hpp"
 #include "TrackerClock/TrackerClock.hpp"
 #include "TrackerPhase/TrackerPhase.hpp"
 
@@ -39,7 +39,7 @@ extern Plugin*		pluginInstance;
 // Declare each Model, defined in each module source file
 extern Model*		modelTracker;
 extern Model*		modelTrackerSynth;
-//extern Model*		modelTrackerDrum;
+extern Model*		modelTrackerDrum;
 extern Model*		modelTrackerClock;
 extern Model*		modelTrackerPhase;
 //extern Model*		modelTrackerState;

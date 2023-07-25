@@ -13,7 +13,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 
 - [ ] Check if `thread_flag` has a big CPU impact
 
-- [ ] Drum synth should always have 12 "channels" (on process, the synth
+- [x] Drum synth should always have 12 "channels" (on process, the synth
 		should process the 12 channels).
 - [ ] If clone Tracker module accidentaly, the last module takes previous one
 		place in `g_module`. If the new one is removed, issue.
@@ -60,7 +60,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 			- [x] Move instance
 			- [x] Resize instance (fix negative `beat_start`)
 	- [ ] Display Side
-		- [ ] SCreen Side Synths (Tracker)
+		- [x] SCreen Side Synths (Tracker)
 			- [x] Draw synths
 			- [x] Select synth
 			- [x] Edit Synth
@@ -68,7 +68,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Synth mode & channel count
 			- [x] Add synth
 			- [x] Del synth
-			- [ ] Move synth (move & replace in patterns)
+			- [x] Move synth (move & replace in patterns)
 			- [x] Scroll
 		- [ ] SCreen Side Patterns (Timeline)
 			- [x] Draw patterns
@@ -78,8 +78,8 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Basics (name + color)
 				- [x] Pattern specs (length, lpb, etc.)
 			- [x] Add pattern
-			- [x] Del pattern
-			- [ ] Move pattern (move & replace in instances)
+			- [x] Del pattern (remove instances)
+			- [x] Move pattern (move & replace in instances)
 			- [ ] Duplicate pattern
 			- [x] Scroll
 	- [x] Save new version
@@ -146,7 +146,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Pattern lpb
 				- [x] Pattern note column count
 				- [x] Pattern CV column count
-				- [ ] Pattern color
+				- [x] Pattern color
 			- [x] Column
 				- [x] Note
 					- [x] Effect count

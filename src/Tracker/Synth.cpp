@@ -49,8 +49,15 @@ void Synth::process(float dt_sec, float dt_beat) {
 	// -> ! ! ! BOTTLENECK ! ! !
 	// -> Call only if active ? On de-activation -> set output to 0
 	/// COMPUTE VOICES
-	for (i = 0; i < this->channel_count; ++i)
-		this->voices[i].process(dt_sec, dt_beat, this->out_synth);
+	//// MODE DRUM
+	if (this->mode == SYNTH_MODE_DRUM) {
+		for (i = 0; i < 12; ++i)
+			this->voices[i].process(dt_sec, dt_beat, this->out_synth);
+	//// MODE GATE + TRIGGER
+	} else {
+		for (i = 0; i < this->channel_count; ++i)
+			this->voices[i].process(dt_sec, dt_beat, this->out_synth);
+	}
 }
 
 void Synth::rename(void) {
