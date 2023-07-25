@@ -19,6 +19,9 @@ TrackerSynth::TrackerSynth() {
 		configParam(PARAM_OUT_MIN + i, -10.0, 10.0, 0.0, "Min");
 	for (i = 0; i < 8; ++i)
 		configParam(PARAM_OUT_MAX + i, -10.0, 10.0, 10.0, "Max");
+	/// CONFIG MENU PARAMETERS
+	for (i = 0; i < 2; ++i)
+		configParam<ParamQuantityLink>(PARAM_MENU + i, 0, 1, 0);
 	/// CONFIG OUTPUTS
 	configOutput(OUTPUT_PITCH, "Pitch");
 	configOutput(OUTPUT_GATE, "Gate");

@@ -13,6 +13,7 @@ struct TrackerSynth: Module {
 		PARAM_SYNTH,
 		ENUMS(PARAM_OUT_MIN, 8),
 		ENUMS(PARAM_OUT_MAX, 8),
+		ENUMS(PARAM_MENU, 2),
 		PARAM_COUNT
 	};
 	enum	InputIds {

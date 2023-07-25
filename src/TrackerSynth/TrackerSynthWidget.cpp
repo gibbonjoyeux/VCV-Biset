@@ -88,11 +88,11 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 	for (i = 0; i < 8; ++i) {
 		menu->addChild(rack::createSubmenuItem(string::f("CV %d", i + 1), "",
 			[=](Menu *menu) {
-				ParamHandle		*handle;
-				MenuSliderEdit	*slider;
-				rack::Widget	*holder;
-				MenuItem		*item;
-				int				j;
+				ParamHandleRange	*handle;
+				MenuSliderEdit		*slider;
+				rack::Widget		*holder;
+				MenuItem			*item;
+				int					j;
 
 				/// [1] CV RANGE
 				//// SLIDER MIN
@@ -212,11 +212,17 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 					menu->addChild(rack::createSubmenuItem(string::f("Map %d", j + 1),
 						(handle->module != NULL) ? "Mapped" : "",
 						[=](Menu *menu) {
-							MenuLabel	*label;
-							MenuItem	*item;
+							MenuLabel			*label;
+							MenuItem			*item;
+							MenuSlider			*slider;
+							ParamQuantityLink	*param_link;
+							ParamQuantity		*param;
+							float				min;
+							float				max;
 
 							/// MAP EDIT
 							if (handle->module != NULL) {
+								param = handle->module->getParamQuantity(handle->paramId);
 								/// MAPPED MODULE
 								label = new MenuLabel();
 								label->text = handle->module->model->name;
@@ -224,8 +230,33 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 								/// MAPPED PARAM
 								label = new MenuLabel();
 								label->text = "Mapped param";
-								label->text = handle->module->getParamQuantity(handle->paramId)->name;
+								label->text = param->name;
 								menu->addChild(label);
+								/// MAP RANGE
+								min = param->getMinValue();
+								max = param->getMaxValue();
+								//// MAP RANGE MIN
+								param_link = (ParamQuantityLink*)this->module->paramQuantities[TrackerSynth::PARAM_MENU + 0];
+								param_link->link = &(handle->min);
+								param_link->minValue = min;
+								param_link->maxValue = max;
+								param_link->defaultValue = min;
+								param_link->setValue(handle->min);
+								param_link->name = "Min";
+								slider = new MenuSlider(param_link);
+								slider->box.size.x = 200.f;
+								menu->addChild(slider);
+								//// MAP RANGE MAX
+								param_link = (ParamQuantityLink*)this->module->paramQuantities[TrackerSynth::PARAM_MENU + 1];
+								param_link->link = &(handle->max);
+								param_link->minValue = min;
+								param_link->maxValue = max;
+								param_link->defaultValue = max;
+								param_link->setValue(handle->max);
+								param_link->name = "Max";
+								slider = new MenuSlider(param_link);
+								slider->box.size.x = 200.f;
+								menu->addChild(slider);
 								/// EDIT
 								menu->addChild(new MenuSeparator());
 								item = createMenuItem("Unmap", "",

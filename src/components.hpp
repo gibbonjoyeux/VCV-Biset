@@ -11,9 +11,10 @@ extern Plugin	*pluginInstance;
 /// STRUCTURES
 ////////////////////////////////////////////////////////////////////////////////
 
+/// ParamHandle storing MIN and MAX range values
 struct ParamHandleRange : ParamHandle {
-	float	min;
-	float	max;
+	float				min;
+	float				max;
 
 	void init(void) {
 		ParamQuantity	*quantity;
@@ -126,6 +127,27 @@ struct KnobMedium : FlatKnob {
 	}
 };
 
+//////////////////////////////
+/// PARAM QUANTITIES
+//////////////////////////////
+
+// ParamQuantity that links its value to an external float.
+// Allows to easily use parameters into context menu sliders.
+struct ParamQuantityLink : ParamQuantity {
+	float		*link = NULL;
+
+	void setValue(float value) override {
+		ParamQuantity::setValue(value);
+		if (this->link)
+			*(this->link) = value;
+	}
+
+	void setLink(float *link) {
+		this->link = link;
+	}
+};
+
+/// ParamQuantity consisting of a set of fixed items.
 struct ParamQuantityOptions : ParamQuantity {
 	vector<std::string>	options;
 
@@ -134,6 +156,7 @@ struct ParamQuantityOptions : ParamQuantity {
 	}
 };
 
+/// ParamQuantity for clock mult / div values.
 struct ParamQuantityClock : ParamQuantity {
 	std::string getDisplayValueString() override {
 		int		value;
