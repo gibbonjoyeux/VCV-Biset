@@ -69,7 +69,7 @@ void TrackerDrumWidget::onSelect(const SelectEvent &e) {
 	int		synth;
 
 	synth = this->module->params[TrackerDrum::PARAM_SYNTH].getValue();
-	g_editor.set_synth(synth);
+	g_editor->set_synth(synth);
 }
 
 void TrackerDrumWidget::onDeselect(const DeselectEvent &e) {

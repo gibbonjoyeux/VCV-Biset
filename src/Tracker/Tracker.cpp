@@ -1,9 +1,9 @@
 
 #include "Tracker.hpp"
 
-Timeline		g_timeline;
-Editor			g_editor;
-Tracker			*g_module;
+Timeline		*g_timeline = NULL;
+Editor			*g_editor = NULL;
+Tracker			*g_module = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -117,8 +117,18 @@ Tracker::Tracker() {
 		table_keyboard['='] = 30;	// F#
 	table_keyboard[']'] = 31;		// G
 
-	/// SET ACTIVE SYNTH & PATTERN
-	g_module = this;
+	/// SET GLOBAL STRUCTURES
+	if (g_module == NULL)
+		g_module = this;
+	if (g_timeline == NULL) {
+		g_timeline = new Timeline();
+		g_editor = new Editor();
+	}
+}
+
+Tracker::~Tracker() {
+	if (g_module == this)
+		g_module = NULL;
 }
 
 void Tracker::process(const ProcessArgs& args) {
@@ -126,7 +136,7 @@ void Tracker::process(const ProcessArgs& args) {
 	float	bpm;
 
 	/// PROCESS EDITOR
-	g_editor.process(args.frame);
+	g_editor->process(args.frame);
 
 	/// COMPUTE CLOCK
 	bpm = params[PARAM_BPM].getValue();
@@ -134,13 +144,7 @@ void Tracker::process(const ProcessArgs& args) {
 	dt_beat = (bpm * dt_sec) / 60.0f;
 
 	/// PROCESS TIMELINE
-	g_timeline.process(args.frame, dt_sec, dt_beat);
-
-
-	/// USE / MODIFY EXPANDERS
-	//if (rightExpander.module) {
-	//	rightExpander.module->params[0].setValue(0);
-	//}
+	g_timeline->process(args.frame, dt_sec, dt_beat);
 }
 
 Model* modelTracker = createModel<Tracker, TrackerWidget>("Biset-Tracker");

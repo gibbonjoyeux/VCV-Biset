@@ -15,7 +15,7 @@ static int key_midi(const Widget::SelectKeyEvent &e) {
 	midi = table_keyboard[e.key];
 	if (midi < 0)
 		return -2;
-	midi += g_editor.pattern_octave * 12;
+	midi += g_editor->pattern_octave * 12;
 	if (midi > 127)
 		midi = 127;
 	return midi;
@@ -55,24 +55,24 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 	e.consume(this);
 	if (e.action == GLFW_PRESS
 	|| e.action == GLFW_REPEAT) {
-		if (g_editor.pattern) {
+		if (g_editor->pattern) {
 			/// EVENT CURSOR MOVE
 			if (e.key == GLFW_KEY_LEFT) {
-				g_editor.pattern_move_cursor_x(-1);
+				g_editor->pattern_move_cursor_x(-1);
 			} else if (e.key == GLFW_KEY_RIGHT) {
-				g_editor.pattern_move_cursor_x(+1);
+				g_editor->pattern_move_cursor_x(+1);
 			} else if (e.key == GLFW_KEY_UP) {
-				g_editor.pattern_move_cursor_y(-1);
+				g_editor->pattern_move_cursor_y(-1);
 			} else if (e.key == GLFW_KEY_DOWN) {
-				g_editor.pattern_move_cursor_y(+1);
+				g_editor->pattern_move_cursor_y(+1);
 			/// EVENT KEYBOARD
 			} else {
-				pattern = g_editor.pattern;
+				pattern = g_editor->pattern;
 				/// KEY ON NOTE
-				if (g_editor.pattern_col < pattern->note_count) {
-					col_note = pattern->notes[g_editor.pattern_col];
-					line_note = &(col_note->lines[g_editor.pattern_line]);
-					switch (g_editor.pattern_cell) {
+				if (g_editor->pattern_col < pattern->note_count) {
+					col_note = pattern->notes[g_editor->pattern_col];
+					line_note = &(col_note->lines[g_editor->pattern_line]);
+					switch (g_editor->pattern_cell) {
 						/// PITCH
 						case 0:
 							/// NOTE DELETE
@@ -92,8 +92,8 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 								/// NOTE NEW
 								if (key >= 0) {
 									line_note->pitch = key;
-									if (g_editor.synth_id >= 0)
-										line_note->synth = g_editor.synth_id;
+									if (g_editor->synth_id >= 0)
+										line_note->synth = g_editor->synth_id;
 									else
 										line_note->synth = 0;
 									if (line_note->mode == PATTERN_NOTE_KEEP
@@ -102,9 +102,9 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 										line_note->velocity = 99;
 										line_note->panning = 50;
 									}
-									strcpy(g_editor.pattern_debug,
+									strcpy(g_editor->pattern_debug,
 									/**/ table_pitch[key % 12]);
-									g_editor.pattern_move_cursor_y(1);
+									g_editor->pattern_move_cursor_y(1);
 								/// NOTE STOP
 								} else if (key == -1) {
 									line_note->mode = PATTERN_NOTE_STOP;
@@ -124,16 +124,16 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 						case 2:
 							key = key_dec(e);
 							if (key >= 0) {
-								if (g_editor.pattern_char == 0) {
+								if (g_editor->pattern_char == 0) {
 									line_note->velocity =
 									/**/ line_note->velocity % 10
 									/**/ + key * 10;
-									g_editor.pattern_char += 1;
+									g_editor->pattern_char += 1;
 								} else {
 									line_note->velocity =
 									/**/ (line_note->velocity / 10) * 10
 									/**/ + key;
-									g_editor.pattern_move_cursor_y(1);
+									g_editor->pattern_move_cursor_y(1);
 								}
 							}
 							break;
@@ -141,16 +141,16 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 						case 3:
 							key = key_dec(e);
 							if (key >= 0) {
-								if (g_editor.pattern_char == 0) {
+								if (g_editor->pattern_char == 0) {
 									line_note->panning =
 									/**/ line_note->panning % 10
 									/**/ + key * 10;
-									g_editor.pattern_char += 1;
+									g_editor->pattern_char += 1;
 								} else {
 									line_note->panning =
 									/**/ (line_note->panning / 10) * 10
 									/**/ + key;
-									g_editor.pattern_move_cursor_y(1);
+									g_editor->pattern_move_cursor_y(1);
 								}
 							}
 							break;
@@ -158,16 +158,16 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 						case 4:
 							key = key_dec(e);
 							if (key >= 0) {
-								if (g_editor.pattern_char == 0) {
+								if (g_editor->pattern_char == 0) {
 									line_note->synth =
 									/**/ line_note->synth % 10
 									/**/ + key * 10;
-									g_editor.pattern_char += 1;
+									g_editor->pattern_char += 1;
 								} else {
 									line_note->synth =
 									/**/ (line_note->synth / 10) * 10
 									/**/ + key;
-									g_editor.pattern_move_cursor_y(1);
+									g_editor->pattern_move_cursor_y(1);
 								}
 							}
 							break;
@@ -175,16 +175,16 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 						case 5:
 							key = key_dec(e);
 							if (key >= 0) {
-								if (g_editor.pattern_char == 0) {
+								if (g_editor->pattern_char == 0) {
 									line_note->delay =
 									/**/ line_note->delay % 10
 									/**/ + key * 10;
-									g_editor.pattern_char += 1;
+									g_editor->pattern_char += 1;
 								} else {
 									line_note->delay =
 									/**/ (line_note->delay / 10) * 10
 									/**/ + key;
-									g_editor.pattern_move_cursor_y(1);
+									g_editor->pattern_move_cursor_y(1);
 								}
 							}
 							break;
@@ -201,24 +201,24 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 								if (key >= 0) {
 									if (line_note->mode == PATTERN_NOTE_NEW)
 										line_note->mode = PATTERN_NOTE_GLIDE;
-									if (g_editor.pattern_char == 0) {
+									if (g_editor->pattern_char == 0) {
 										line_note->glide =
 										/**/ line_note->glide % 10
 										/**/ + key * 10;
-										g_editor.pattern_char += 1;
+										g_editor->pattern_char += 1;
 									} else {
 										line_note->glide =
 										/**/ (line_note->glide / 10) * 10
 										/**/ + key;
-										g_editor.pattern_move_cursor_y(1);
+										g_editor->pattern_move_cursor_y(1);
 									}
 								}
 							}
 							break;
 						/// EFFECT
 						default:
-							fx_1 = (g_editor.pattern_cell - 7) / 2;
-							fx_2 = (g_editor.pattern_cell - 7) % 2;
+							fx_1 = (g_editor->pattern_cell - 7) / 2;
+							fx_2 = (g_editor->pattern_cell - 7) % 2;
 							effect = &(line_note->effects[fx_1]);
 							/// EFFECT DELETE
 							if (e.key == GLFW_KEY_DELETE
@@ -237,7 +237,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 											/// MATCH EFFECT TYPE
 											if (key == table_effect[i]) {
 												effect->type = i + 1;
-												g_editor.pattern_move_cursor_y(1);
+												g_editor->pattern_move_cursor_y(1);
 											}
 											i += 1;
 										}
@@ -246,16 +246,16 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 								} else {
 									key = key_dec(e);
 									if (key >= 0) {
-										if (g_editor.pattern_char == 0) {
+										if (g_editor->pattern_char == 0) {
 											effect->value =
 											/**/ effect->value % 10
 											/**/ + key * 10;
-											g_editor.pattern_char += 1;
+											g_editor->pattern_char += 1;
 										} else {
 											effect->value =
 											/**/ (effect->value / 10) * 10
 											/**/ + key;
-											g_editor.pattern_move_cursor_y(1);
+											g_editor->pattern_move_cursor_y(1);
 										}
 									}
 								}
@@ -264,9 +264,9 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 					}
 				/// KEY ON CV
 				} else {
-					col_cv = pattern->cvs[g_editor.pattern_col - pattern->note_count];
-					line_cv = &(col_cv->lines[g_editor.pattern_line]);
-					switch (g_editor.pattern_cell) {
+					col_cv = pattern->cvs[g_editor->pattern_col - pattern->note_count];
+					line_cv = &(col_cv->lines[g_editor->pattern_line]);
+					switch (g_editor->pattern_cell) {
 						/// VALUE
 						case 0:
 							/// VALUE DELETE
@@ -279,22 +279,22 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 								if (key >= 0) {
 									if (line_cv->mode == PATTERN_CV_KEEP)
 										line_cv->mode = PATTERN_CV_SET;
-									if (g_editor.pattern_char == 0) {
+									if (g_editor->pattern_char == 0) {
 										line_cv->value =
 										/**/ key * 100
 										/**/ + line_cv->value % 100;
-										g_editor.pattern_char += 1;
-									} else if (g_editor.pattern_char == 1) {
+										g_editor->pattern_char += 1;
+									} else if (g_editor->pattern_char == 1) {
 										line_cv->value =
 										/**/ (line_cv->value / 100) * 100
 										/**/ + key * 10
 										/**/ + (line_cv->value % 10);
-										g_editor.pattern_char += 1;
+										g_editor->pattern_char += 1;
 									} else {
 										line_cv->value =
 										/**/ (line_cv->value / 10) * 10
 										/**/ + key;
-										g_editor.pattern_move_cursor_y(1);
+										g_editor->pattern_move_cursor_y(1);
 									}
 								}
 							}
@@ -303,16 +303,16 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 						case 1:
 							key = key_dec(e);
 							if (key >= 0) {
-								if (g_editor.pattern_char == 0) {
+								if (g_editor->pattern_char == 0) {
 									line_cv->glide =
 									/**/ line_cv->glide % 10
 									/**/ + key * 10;
-									g_editor.pattern_char += 1;
+									g_editor->pattern_char += 1;
 								} else {
 									line_cv->glide =
 									/**/ (line_cv->glide / 10) * 10
 									/**/ + key;
-									g_editor.pattern_char = 0;
+									g_editor->pattern_char = 0;
 								}
 							}
 							break;
@@ -320,16 +320,16 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 						case 2:
 							key = key_dec(e);
 							if (key >= 0) {
-								if (g_editor.pattern_char == 0) {
+								if (g_editor->pattern_char == 0) {
 									line_cv->delay =
 									/**/ line_cv->delay % 10
 									/**/ + key * 10;
-									g_editor.pattern_char += 1;
+									g_editor->pattern_char += 1;
 								} else {
 									line_cv->delay =
 									/**/ (line_cv->delay / 10) * 10
 									/**/ + key;
-									g_editor.pattern_char = 0;
+									g_editor->pattern_char = 0;
 								}
 							}
 							break;
@@ -337,7 +337,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 				}
 			}
 			/// CLAMP CURSOR
-			g_editor.pattern_clamp_cursor();
+			g_editor->pattern_clamp_cursor();
 		}
 	}
 }

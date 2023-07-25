@@ -55,11 +55,11 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	int								i;
 
 	/// [1] UPDATE CLOCK
-	if (g_timeline.play != TIMELINE_MODE_STOP)
+	if (g_timeline->play != TIMELINE_MODE_STOP)
 		this->clock.process(dt_beat);
 
 	////// MODE PLAY SONG
-	//if (g_timeline.play == TIMELINE_MODE_PLAY_SONG) {
+	//if (g_timeline->play == TIMELINE_MODE_PLAY_SONG) {
 	//	if (this->clock.beat >= this->beat_count) {
 	//		/// RESET CLOCK
 	//		this->clock.beat = 0;
@@ -67,7 +67,7 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	//		this->stop();
 	//	}
 	////// MODE PLAY PATTERN
-	//} else if (g_timeline.play == TIMELINE_MODE_PLAY_PATTERN) {
+	//} else if (g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
 	//	if (this->pattern_source[0]
 	//	&& this->clock.beat >= this->pattern_source[0]->beat_count) {
 	//		/// RESET CLOCK
@@ -83,7 +83,7 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 		return;
 
 	/// [3] CHECK THREAD FLAG
-	if (g_timeline.thread_flag.test_and_set())
+	if (g_timeline->thread_flag.test_and_set())
 		return;
 
 	/// [4] COMPUTE TEMPERAMENT
@@ -96,7 +96,7 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 
 	/// [5] PLAY
 	//// MODE PLAY SONG
-	if (g_timeline.play == TIMELINE_MODE_PLAY_SONG) {
+	if (g_timeline->play == TIMELINE_MODE_PLAY_SONG) {
 		count = 0;
 		/// COMPUTE ROWS
 		for (i = 0; i < 32; ++i) {
@@ -144,8 +144,8 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 		}
 	}
 	//// MODE PLAY PATTERN SOLO
-	//} else if (g_timeline.play == TIMELINE_MODE_PLAY_PATTERN) {
-	//	pattern = g_editor.pattern;
+	//} else if (g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
+	//	pattern = g_editor->pattern;
 	//	/// UPDATE PATTERN ON END
 	//	if (this->pattern_source[0] == NULL)
 	//		this->pattern_source[0] = pattern;
@@ -169,7 +169,7 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	this->play_trigger.process(dt_sec * rate_divider);
 
 	/// [7] CLEAR THREAD FLAG
-	g_timeline.thread_flag.clear();
+	g_timeline->thread_flag.clear();
 }
 
 void Timeline::stop(void) {

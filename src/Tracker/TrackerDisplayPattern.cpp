@@ -34,7 +34,7 @@ void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 	label->text = "Edit Pattern";
 	menu->addChild(label);
 
-	pattern = g_editor.pattern;
+	pattern = g_editor->pattern;
 	/// ADD PATTERN LENGTH SLIDER
 	length = pattern->beat_count;
 	quant_length = g_module->paramQuantities[Tracker::PARAM_PATTERN_LENGTH];
@@ -68,7 +68,7 @@ void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 			int	cv_count;
 
 			/// WAIT FOR THREAD FLAG
-			while (g_timeline.thread_flag.test_and_set()) {}
+			while (g_timeline->thread_flag.test_and_set()) {}
 
 			/// GET PATTERN SPECS
 			beat_count = g_module->params[Tracker::PARAM_PATTERN_LENGTH].getValue();
@@ -76,16 +76,16 @@ void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 			note_count = g_module->params[Tracker::PARAM_PATTERN_NOTE_COUNT].getValue();
 			cv_count = g_module->params[Tracker::PARAM_PATTERN_CV_COUNT].getValue();
 			/// UPDATE PATTERN LENGTH
-			if (beat_count != g_editor.pattern->beat_count
-			|| lpb != g_editor.pattern->lpb
-			|| note_count != g_editor.pattern->note_count
-			|| cv_count != g_editor.pattern->cv_count) {
-				g_editor.pattern->resize(note_count, cv_count, beat_count, lpb);
-				g_editor.pattern_clamp_cursor();
+			if (beat_count != g_editor->pattern->beat_count
+			|| lpb != g_editor->pattern->lpb
+			|| note_count != g_editor->pattern->note_count
+			|| cv_count != g_editor->pattern->cv_count) {
+				g_editor->pattern->resize(note_count, cv_count, beat_count, lpb);
+				g_editor->pattern_clamp_cursor();
 			}
 
 			/// CLEAR THREAD FLAG
-			g_timeline.thread_flag.clear();
+			g_timeline->thread_flag.clear();
 		}
 	));
 
@@ -98,8 +98,8 @@ void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 	menu->addChild(label);
 
 	/// COLUMN AS NOTE COLUMN
-	if (g_editor.pattern_col < g_editor.pattern->note_count) {
-		col_note = g_editor.pattern->notes[g_editor.pattern_col];
+	if (g_editor->pattern_col < g_editor->pattern->note_count) {
+		col_note = g_editor->pattern->notes[g_editor->pattern_col];
 		/// ADD COLUMN EFFECT COUNT SLIDER
 		quant_effect_count = g_module->paramQuantities[Tracker::PARAM_COLUMN_NOTE_EFFECT_COUNT];
 		quant_effect_count->setValue(col_note->effect_count);
@@ -112,21 +112,21 @@ void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 				int	note_effect;
 
 				/// WAIT FOR THREAD FLAG
-				while (g_timeline.thread_flag.test_and_set()) {}
+				while (g_timeline->thread_flag.test_and_set()) {}
 
 				/// UPDATE PATTERN COLUMNS
-				col_note = g_editor.pattern->notes[g_editor.pattern_col];
+				col_note = g_editor->pattern->notes[g_editor->pattern_col];
 				note_effect = g_module->params[Tracker::PARAM_COLUMN_NOTE_EFFECT_COUNT].getValue();
 				if (note_effect != col_note->effect_count)
 					col_note->effect_count = note_effect;
 
 				/// CLEAR THREAD FLAG
-				g_timeline.thread_flag.clear();
+				g_timeline->thread_flag.clear();
 			}
 		));
 	/// COLUMN AS CV COLUMN
 	} else {
-		col_cv = g_editor.pattern->cvs[g_editor.pattern_col - g_editor.pattern->note_count];
+		col_cv = g_editor->pattern->cvs[g_editor->pattern_col - g_editor->pattern->note_count];
 		/// ADD COLUMN MODE LIST
 		menu->addChild(rack::createSubmenuItem("Mode", "",
 			[=](Menu *menu) {
@@ -171,10 +171,10 @@ void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 				int				cv_channel;
 
 				/// WAIT FOR THREAD FLAG
-				while (g_timeline.thread_flag.test_and_set()) {}
+				while (g_timeline->thread_flag.test_and_set()) {}
 
 				/// UPDATE PATTERN COLUMNS
-				col_cv = g_editor.pattern->cvs[g_editor.pattern_col - g_editor.pattern->note_count];
+				col_cv = g_editor->pattern->cvs[g_editor->pattern_col - g_editor->pattern->note_count];
 				cv_mode = g_module->params[Tracker::PARAM_COLUMN_CV_MODE].getValue();
 				cv_synth = g_module->params[Tracker::PARAM_COLUMN_CV_SYNTH].getValue();
 				cv_channel = g_module->params[Tracker::PARAM_COLUMN_CV_CHANNEL].getValue();
@@ -186,7 +186,7 @@ void TrackerDisplayPattern::onButton(const ButtonEvent &e) {
 					col_cv->channel = cv_channel;
 
 				/// CLEAR THREAD FLAG
-				g_timeline.thread_flag.clear();
+				g_timeline->thread_flag.clear();
 			}
 		));
 	}

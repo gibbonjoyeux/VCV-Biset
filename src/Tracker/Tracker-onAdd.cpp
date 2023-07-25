@@ -3,12 +3,12 @@
 #include <unistd.h>
 #include "Tracker.hpp"
 
-#define ENDIAN_16(x)	if (g_timeline.save_endian_reverse) {	\
+#define ENDIAN_16(x)	if (g_timeline->save_endian_reverse) {	\
 							x = ((x << 8)						\
 							| ((x >> 8) & 0x00ff));				\
 						}
 
-#define ENDIAN_32(x)	if (g_timeline.save_endian_reverse) {	\
+#define ENDIAN_32(x)	if (g_timeline->save_endian_reverse) {	\
 							x = ((x << 24)						\
 							| ((x <<  8) & 0x00ff0000)			\
 							| ((x >>  8) & 0x0000ff00)			\
@@ -34,6 +34,7 @@ TRACKER BINARY SAVE FORMAT:
 	- Patterns
 		- Name length							u8
 		- Name string							chars
+		- Color									u8
 		- Beat count							u16
 		- Note count							u8
 		- CV count								u8
@@ -87,6 +88,7 @@ TRACKER BINARY SAVE FORMAT:
 	- Synths
 		- Synth name length						u8
 		- Synth name string						chars
+		- Synth color							u8
 		- Synth mode							u8
 		- Synth channel count					u8
 - Timeline
@@ -108,16 +110,16 @@ TRACKER BINARY SAVE FORMAT:
 static u8 read_u8(void) {
 	u8		value;
 
-	value = g_timeline.save_buffer[g_timeline.save_cursor];
-	g_timeline.save_cursor += 1;
+	value = g_timeline->save_buffer[g_timeline->save_cursor];
+	g_timeline->save_cursor += 1;
 	return value;
 }
 
 static u16 read_u16(void) {
 	u16		value;
 
-	value = *((u16*)&(g_timeline.save_buffer[g_timeline.save_cursor]));
-	g_timeline.save_cursor += 2;
+	value = *((u16*)&(g_timeline->save_buffer[g_timeline->save_cursor]));
+	g_timeline->save_cursor += 2;
 	ENDIAN_16(value);
 	return value;
 }
@@ -128,9 +130,9 @@ static void read_name(char *buffer) {
 	/// HANDLE LENGTH
 	len = read_u8();
 	/// HANDLE STRING
-	memcpy(buffer, &(g_timeline.save_buffer[g_timeline.save_cursor]), len);
+	memcpy(buffer, &(g_timeline->save_buffer[g_timeline->save_cursor]), len);
 	buffer[len] = 0;
-	g_timeline.save_cursor += len;
+	g_timeline->save_cursor += len;
 }
 
 static bool load_save_file(void) {
@@ -150,28 +152,28 @@ static bool load_save_file(void) {
 		return false;
 	/// [3] LOAD FILE ENDIAN & SIZE
 	read(fd, &endian, sizeof(u8));
-	g_timeline.save_endian_reverse = (endian != endian_native());
+	g_timeline->save_endian_reverse = (endian != endian_native());
 	read(fd, &size, sizeof(u32));
 	ENDIAN_32(size);
 	/// [4] ALLOC BUFFER
 	//// NEW BUFFER
-	if (g_timeline.save_buffer == NULL) {
+	if (g_timeline->save_buffer == NULL) {
 		buffer = (u8*)malloc(size);
 	//// RESIZE BUFFER
-	} else if (size != g_timeline.save_length) {
-		buffer = (u8*)realloc(g_timeline.save_buffer, size);
+	} else if (size != g_timeline->save_length) {
+		buffer = (u8*)realloc(g_timeline->save_buffer, size);
 		if (buffer == NULL)
-			free(g_timeline.save_buffer);
+			free(g_timeline->save_buffer);
 	//// KEEP BUFFER
 	} else {
-		buffer = g_timeline.save_buffer;
+		buffer = g_timeline->save_buffer;
 	}
-	g_timeline.save_buffer = buffer;
-	g_timeline.save_length = size;
+	g_timeline->save_buffer = buffer;
+	g_timeline->save_length = size;
 	if (buffer == NULL)
 		return false;
 	/// [5] LOAD FILE INTO BUFFER
-	read(fd, g_timeline.save_buffer + 1 + 4, size - 1 - 4);
+	read(fd, g_timeline->save_buffer + 1 + 4, size - 1 - 4);
 	close(fd);
 	return true;
 }
@@ -193,27 +195,30 @@ static bool compute_save_file(void) {
 	int				lpb;
 	int				count;
 	int				row, beat;
+	int				color;
 	int				i, j, k, l;
 
-	g_timeline.save_cursor = 1 + 4;						// Endian + file size
+	g_timeline->save_cursor = 1 + 4;						// Endian + file size
 	/// [1] GET EDITOR BASICS
-	g_editor.pattern_jump = read_u8();					// Used jump
-	g_editor.pattern_octave = read_u8();				// Used octave
-	g_editor.switch_view[0].state = read_u8();			// View velocity
-	g_editor.switch_view[1].state = read_u8();			// View panning
-	g_editor.switch_view[2].state = read_u8();			// View delay
-	g_editor.switch_view[3].state = read_u8();			// View glide
-	g_editor.switch_view[4].state = read_u8();			// View effects
+	g_editor->pattern_jump = read_u8();					// Used jump
+	g_editor->pattern_octave = read_u8();				// Used octave
+	g_editor->switch_view[0].state = read_u8();			// View velocity
+	g_editor->switch_view[1].state = read_u8();			// View panning
+	g_editor->switch_view[2].state = read_u8();			// View delay
+	g_editor->switch_view[3].state = read_u8();			// View glide
+	g_editor->switch_view[4].state = read_u8();			// View effects
 	/// [2] GET PATTERNS
 	pattern_count = read_u16();
 	for (i = 0; i < pattern_count; ++i) {
 		/// PATTERN SIZE
 		read_name(name);								// Name
+		color = read_u8();								// Color
 		beat_count = read_u16();						// Beat count
 		note_count = read_u8();							// Note count
 		cv_count = read_u8();							// CV count
 		lpb = read_u8();								// lpb
-		pattern = g_timeline.pattern_new(note_count, cv_count, beat_count, lpb);
+		pattern = g_timeline->pattern_new(note_count, cv_count, beat_count, lpb);
+		pattern->color = color;
 		pattern->rename(name);
 		/// PATTERN NOTES
 		for (j = 0; j < note_count; ++j) {
@@ -272,8 +277,9 @@ static bool compute_save_file(void) {
 	/// [3] GET SYNTHS
 	synth_count = read_u8();
 	for (i = 0; i < synth_count; ++i) {
-		synth = g_timeline.synth_new();
+		synth = g_timeline->synth_new();
 		read_name(name);								// Name
+		synth->color = read_u8();						// Color
 		synth->rename(name);
 		synth->mode = read_u8();						// Synth mode
 		synth->channel_count = read_u8();				// Synth channel count
@@ -283,8 +289,8 @@ static bool compute_save_file(void) {
 	for (i = 0; i < instance_count; ++i) {
 		row = read_u8();								// Instance row
 		beat = read_u16();								// Instance beat
-		pattern = &(g_timeline.patterns[read_u16()]);	// Instance source pattern
-		instance = g_timeline.instance_new(pattern, row, beat);
+		pattern = &(g_timeline->patterns[read_u16()]);	// Instance source pattern
+		instance = g_timeline->instance_new(pattern, row, beat);
 		instance->beat_start = read_u16();				// Instance beat start
 		instance->beat_length = read_u16();				// Instance beat length
 		instance->muted = read_u8();					// Instance muted
@@ -296,7 +302,7 @@ static void load_template(void) {
 	PatternInstance	*instance;
 	PatternSource	*pattern;
 
-	pattern = g_timeline.pattern_new(2, 0, 8, 4);
+	pattern = g_timeline->pattern_new(2, 0, 8, 4);
 
 	/// FILL PATTERN SOURCE NOTES
 	pattern->notes[0]->lines[0].mode = PATTERN_NOTE_NEW;
@@ -320,7 +326,7 @@ static void load_template(void) {
 	pattern->notes[0]->lines[24].velocity = 99;
 	pattern->notes[0]->lines[24].panning = 50;
 
-	instance = g_timeline.instance_new(pattern, 0, 0);
+	instance = g_timeline->instance_new(pattern, 0, 0);
 	instance->beat_start = 0;
 	instance->beat_length = pattern->beat_count;
 }
@@ -330,13 +336,11 @@ static void load_template(void) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void Tracker::onAdd(const AddEvent &e) {
-
-	g_timeline.clear();
-
 	/// [1] WAIT FOR THREAD FLAG
-	while (g_timeline.thread_flag.test_and_set()) {}
+	while (g_timeline->thread_flag.test_and_set()) {}
 
 	/// [2] LOAD FILE
+	g_timeline->clear();
 	if (load_save_file()) {
 		if (compute_save_file() == false) {
 			load_template();
@@ -347,6 +351,6 @@ void Tracker::onAdd(const AddEvent &e) {
 	}
 
 	/// [4] CLEAR THREAD FLAG
-	g_timeline.thread_flag.clear();
+	g_timeline->thread_flag.clear();
 }
 

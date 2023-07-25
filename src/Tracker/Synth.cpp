@@ -24,7 +24,7 @@ void Synth::init(void) {
 
 	/// TODO: INIT NAME & COLOR ?
 	/// INIT INDEX
-	index = ((intptr_t)this - (intptr_t)g_timeline.synths) / sizeof(Synth);
+	index = ((intptr_t)this - (intptr_t)g_timeline->synths) / sizeof(Synth);
 	this->index = index;
 	/// INIT NAME
 	this->rename((char*)"synth");
@@ -64,7 +64,7 @@ void Synth::rename(void) {
 	int		index;
 
 	/// UPDATE SYNTH INDEX
-	index = ((intptr_t)this - (intptr_t)g_timeline.synths) / sizeof(Synth);
+	index = ((intptr_t)this - (intptr_t)g_timeline->synths) / sizeof(Synth);
 	itoaw(this->name, index, 2);
 	this->name[2] = ' ';
 }
@@ -73,7 +73,7 @@ void Synth::rename(char *name) {
 	int		index;
 
 	/// UPDATE SYNTH INDEX
-	index = ((intptr_t)this - (intptr_t)g_timeline.synths) / sizeof(Synth);
+	index = ((intptr_t)this - (intptr_t)g_timeline->synths) / sizeof(Synth);
 	itoaw(this->name, index, 2);
 	strcpy(this->name + 2, " - ");
 	strncpy(this->name + 5, name, 255);
@@ -83,7 +83,7 @@ SynthVoice* Synth::add(PatternNoteCol *col, PatternNote *note, int lpb) {
 	Synth			*synth;
 	SynthVoice		*voice;
 
-	synth = &(g_timeline.synths[note->synth]);
+	synth = &(g_timeline->synths[note->synth]);
 	/// MODE DRUM
 	if (synth->mode == SYNTH_MODE_DRUM) {
 		voice = &(this->voices[note->pitch % 12]);
@@ -132,13 +132,13 @@ void Synth::context_menu(Menu *menu) {
 	menu->addChild(new MenuItemStay("Update synth", "",
 		[=]() {
 			/// WAIT FOR THREAD FLAG
-			while (g_timeline.thread_flag.test_and_set()) {}
+			while (g_timeline->thread_flag.test_and_set()) {}
 
 			this->mode = quant_mode->getValue();
 			this->channel_count = quant_channel->getValue();
 
 			/// CLEAR THREAD FLAG
-			g_timeline.thread_flag.clear();
+			g_timeline->thread_flag.clear();
 		}
 	));
 }

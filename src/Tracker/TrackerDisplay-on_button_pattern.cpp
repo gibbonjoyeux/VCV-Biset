@@ -15,14 +15,14 @@ static void get_cell(
 	int		x, x_aim;
 	int		i, j;
 
-	pattern = g_editor.pattern;
+	pattern = g_editor->pattern;
 	/// [1] COMPUTE ROW
-	row = (int)((e.pos.y - 3.0) / CHAR_H) - g_editor.pattern_cam_y;
+	row = (int)((e.pos.y - 3.0) / CHAR_H) - g_editor->pattern_cam_y;
 	/// [2] COMPUTE COLUMN
 	cell = 0;
 	col = 0;
 	x = 0;
-	x_aim = (int)((e.pos.x - 2.0) / CHAR_W) - 2 + g_editor.pattern_cam_x;
+	x_aim = (int)((e.pos.x - 2.0) / CHAR_W) - 2 + g_editor->pattern_cam_x;
 	//// FOR EACH NOTE COLUMN
 	for (i = 0; i < pattern->note_count; ++i) {
 		col_note = pattern->notes[i];
@@ -39,7 +39,7 @@ static void get_cell(
 			return;
 		}
 		/// VELOCITY
-		if (g_editor.switch_view[0].state) {
+		if (g_editor->switch_view[0].state) {
 			x += 2;
 			if (x >= x_aim) {
 				cell = 2;
@@ -47,7 +47,7 @@ static void get_cell(
 			}
 		}
 		/// PANNING
-		if (g_editor.switch_view[1].state) {
+		if (g_editor->switch_view[1].state) {
 			x += 2;
 			if (x >= x_aim) {
 				cell = 3;
@@ -61,7 +61,7 @@ static void get_cell(
 			return;
 		}
 		/// DELAY
-		if (g_editor.switch_view[2].state) {
+		if (g_editor->switch_view[2].state) {
 			x += 2;
 			if (x >= x_aim) {
 				cell = 5;
@@ -69,7 +69,7 @@ static void get_cell(
 			}
 		}
 		/// GLIDE
-		if (g_editor.switch_view[3].state) {
+		if (g_editor->switch_view[3].state) {
 			x += 2;
 			if (x >= x_aim) {
 				cell = 6;
@@ -77,7 +77,7 @@ static void get_cell(
 			}
 		}
 		/// EFFECTS
-		if (g_editor.switch_view[4].state) {
+		if (g_editor->switch_view[4].state) {
 			cell = 7;
 			for (j = 0; j < col_note->effect_count; ++j) {
 				/// TYPE
@@ -130,11 +130,11 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 	/// [1] COMPUTE ROW
 	get_cell(e, row, col, cell);
 	/// [3] MOVE CURSOR
-	g_editor.pattern_line = row;
-	g_editor.pattern_col = col;
-	g_editor.pattern_cell = cell;
+	g_editor->pattern_line = row;
+	g_editor->pattern_col = col;
+	g_editor->pattern_cell = cell;
 	/// [4] CLAMP CURSOR
-	g_editor.pattern_clamp_cursor();
+	g_editor->pattern_clamp_cursor();
 }
 
 static void on_button_right(const rack::Widget::ButtonEvent &e) {
@@ -149,10 +149,10 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 	/// SELECT CLICKED COLUMN
 	on_button_left(e);
 
-	if (g_timeline.play != TIMELINE_MODE_STOP)
+	if (g_timeline->play != TIMELINE_MODE_STOP)
 		return;
 
-	pattern = g_editor.pattern;
+	pattern = g_editor->pattern;
 	menu = createMenu();
 
 	/// ADD PATTERN EDITION SECTION
@@ -172,8 +172,8 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 	menu->addChild(label);
 
 	/// COLUMN AS NOTE COLUMN
-	if (g_editor.pattern_col < g_editor.pattern->note_count) {
-		col_note = g_editor.pattern->notes[g_editor.pattern_col];
+	if (g_editor->pattern_col < g_editor->pattern->note_count) {
+		col_note = g_editor->pattern->notes[g_editor->pattern_col];
 		/// ADD COLUMN EFFECT COUNT SLIDER
 		quant_effect_count = g_module->paramQuantities[Tracker::PARAM_COLUMN_NOTE_EFFECT_COUNT];
 		quant_effect_count->setValue(col_note->effect_count);
@@ -186,21 +186,21 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 				int	note_effect;
 
 				/// WAIT FOR THREAD FLAG
-				while (g_timeline.thread_flag.test_and_set()) {}
+				while (g_timeline->thread_flag.test_and_set()) {}
 
 				/// UPDATE PATTERN COLUMNS
-				col_note = g_editor.pattern->notes[g_editor.pattern_col];
+				col_note = g_editor->pattern->notes[g_editor->pattern_col];
 				note_effect = g_module->params[Tracker::PARAM_COLUMN_NOTE_EFFECT_COUNT].getValue();
 				if (note_effect != col_note->effect_count)
 					col_note->effect_count = note_effect;
 
 				/// CLEAR THREAD FLAG
-				g_timeline.thread_flag.clear();
+				g_timeline->thread_flag.clear();
 			}
 		));
 	/// COLUMN AS CV COLUMN
 	} else {
-		col_cv = g_editor.pattern->cvs[g_editor.pattern_col - g_editor.pattern->note_count];
+		col_cv = g_editor->pattern->cvs[g_editor->pattern_col - g_editor->pattern->note_count];
 		/// ADD COLUMN MODE LIST
 		menu->addChild(rack::createSubmenuItem("Mode", "",
 			[=](Menu *menu) {
@@ -245,10 +245,10 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 				int				cv_channel;
 
 				/// WAIT FOR THREAD FLAG
-				while (g_timeline.thread_flag.test_and_set()) {}
+				while (g_timeline->thread_flag.test_and_set()) {}
 
 				/// UPDATE PATTERN COLUMNS
-				col_cv = g_editor.pattern->cvs[g_editor.pattern_col - g_editor.pattern->note_count];
+				col_cv = g_editor->pattern->cvs[g_editor->pattern_col - g_editor->pattern->note_count];
 				cv_mode = g_module->params[Tracker::PARAM_COLUMN_CV_MODE].getValue();
 				cv_synth = g_module->params[Tracker::PARAM_COLUMN_CV_SYNTH].getValue();
 				cv_channel = g_module->params[Tracker::PARAM_COLUMN_CV_CHANNEL].getValue();
@@ -260,7 +260,7 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 					col_cv->channel = cv_channel;
 
 				/// CLEAR THREAD FLAG
-				g_timeline.thread_flag.clear();
+				g_timeline->thread_flag.clear();
 			}
 		));
 	}
@@ -271,7 +271,7 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void TrackerDisplay::on_button_pattern(const ButtonEvent &e) {
-	if (g_editor.pattern == NULL)
+	if (g_editor->pattern == NULL)
 		return;
 	if (e.button == GLFW_MOUSE_BUTTON_LEFT)
 		on_button_left(e);

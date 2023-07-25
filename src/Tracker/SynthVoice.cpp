@@ -68,7 +68,7 @@ void SynthVoice::process(
 				this->active = false;
 		}
 		/// SET OUTPUT (PITCH + GATE + VELOCITY + PANNING)
-		output[this->channel * 4 + 0] = pitch + g_timeline.pitch_base_offset;
+		output[this->channel * 4 + 0] = pitch + g_timeline->pitch_base_offset;
 		output[this->channel * 4 + 1] = 10.0f;
 		output[this->channel * 4 + 2] = velocity;
 		output[this->channel * 4 + 3] = panning;
@@ -184,7 +184,7 @@ bool SynthVoice::start(
 		}
 	}
 	/// SET PITCH
-	pitch_real = g_timeline.pitch_scale[pitch % 12] + (pitch / 12) * 12;
+	pitch_real = g_timeline->pitch_scale[pitch % 12] + (pitch / 12) * 12;
 	this->pitch_from = pitch_real;
 	this->pitch_to = pitch_real;
 	this->pitch_glide_len = 0;
@@ -210,7 +210,7 @@ void SynthVoice::glide(
 		} else {
 		}
 		/// SET GLIDE ENDING PITCH
-		pitch = g_timeline.pitch_scale[note->pitch % 12] 
+		pitch = g_timeline->pitch_scale[note->pitch % 12] 
 		/**/ + (note->pitch / 12) * 12;
 		this->pitch_to = pitch;
 		this->pitch_glide_len = (1.0 - ((float)note->glide / 100.0));

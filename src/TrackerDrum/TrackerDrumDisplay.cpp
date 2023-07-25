@@ -27,7 +27,7 @@ void TrackerDrumDisplay::drawLayer(const DrawArgs& args, int layer) {
 		p = rect.getTopLeft();
 		/// GET SYNTH
 		synth = module->params[TrackerDrum::PARAM_SYNTH].getValue();
-		synth_selected = g_editor.synth_id;
+		synth_selected = g_editor->synth_id;
 		/// DRAW BACKGROUND
 		nvgBeginPath(args.vg);
 		if (synth == synth_selected)
@@ -65,8 +65,8 @@ void TrackerDrumDisplay::onButton(const ButtonEvent &e) {
 
 	menu = createMenu();
 	/// ADD COLOR SUB-MENU
-	for (i = 0; i < g_timeline.synth_count; ++i) {
-		menu->addChild(new MenuCheckItem(g_timeline.synths[i].name, "",
+	for (i = 0; i < g_timeline->synth_count; ++i) {
+		menu->addChild(new MenuCheckItem(g_timeline->synths[i].name, "",
 			[=]() { return param->getValue() == i; },
 			[=]() { param->setValue(i); }
 		));

@@ -57,11 +57,14 @@ void TrackerSynth::process(const ProcessArgs& args) {
 	float				cv_min, cv_max;
 	int					i, j;
 
+	if (g_module == NULL)
+		return;
+
 	/// GET SYNTH
 	i = (int)this->params[PARAM_SYNTH].getValue();
-	if (i >= g_timeline.synth_count)
+	if (i >= g_timeline->synth_count)
 		return;
-	synth = &(g_timeline.synths[i]);
+	synth = &(g_timeline->synths[i]);
 	/// SET CHANNEL COUNT
 	this->outputs[OUTPUT_PITCH].setChannels(synth->channel_count);
 	this->outputs[OUTPUT_GATE].setChannels(synth->channel_count);

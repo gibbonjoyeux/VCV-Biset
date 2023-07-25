@@ -52,6 +52,8 @@ Editor::Editor() {
 	this->timeline_cam_x = 0;
 	this->timeline_cam_y = 0;
 
+	this->side_synth_cam_y = 0;
+	this->side_pattern_cam_y = 0;
 }
 
 void Editor::process(i64 frame) {
@@ -62,7 +64,7 @@ void Editor::process(i64 frame) {
 		return;
 
 	module = g_module;
-	// TODO: check change in g_editor.pattern_col
+	// TODO: check change in g_editor->pattern_col
 	// -> On change update edit knobs (Note or CV)
 
 	/// [1] HANDLE VIEW SWITCHES
@@ -74,11 +76,11 @@ void Editor::process(i64 frame) {
 	}
 
 	/// [2] HANDLE PLAY LIGHT
-	if (g_editor.selected == true)
+	if (g_editor->selected == true)
 		module->lights[Tracker::LIGHT_FOCUS].setBrightness(1.0);
 	else
 		module->lights[Tracker::LIGHT_FOCUS].setBrightness(0.0);
-	if (g_timeline.play != TIMELINE_MODE_STOP)
+	if (g_timeline->play != TIMELINE_MODE_STOP)
 		module->lights[Tracker::LIGHT_PLAY].setBrightness(1.0);
 	else
 		module->lights[Tracker::LIGHT_PLAY].setBrightness(0.0);
@@ -108,30 +110,30 @@ void Editor::process(i64 frame) {
 	/// HANDLE PLAY
 	//// PLAY SONG
 	if (this->button_play[0].process(module->params[Tracker::PARAM_PLAY_SONG].getValue())) {
-		g_timeline.stop();
-		g_timeline.clock.reset();
-		g_timeline.play = TIMELINE_MODE_PLAY_SONG;
+		g_timeline->stop();
+		g_timeline->clock.reset();
+		g_timeline->play = TIMELINE_MODE_PLAY_SONG;
 	}
 	//// PLAY PATTERN
 	if (this->button_play[1].process(module->params[Tracker::PARAM_PLAY_PATTERN].getValue())) {
-		g_timeline.stop();
-		g_timeline.clock.reset();
-		g_timeline.play = TIMELINE_MODE_PLAY_PATTERN;
+		g_timeline->stop();
+		g_timeline->clock.reset();
+		g_timeline->play = TIMELINE_MODE_PLAY_PATTERN;
 	}
 	//// PLAY
 	if (this->button_play[2].process(module->params[Tracker::PARAM_PLAY].getValue())) {
-		if (g_timeline.play == TIMELINE_MODE_PLAY_PATTERN) {
-			g_timeline.stop();
-			g_timeline.clock.reset();
-		} else if (g_timeline.play == TIMELINE_MODE_STOP) {
-			g_timeline.stop();
+		if (g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
+			g_timeline->stop();
+			g_timeline->clock.reset();
+		} else if (g_timeline->play == TIMELINE_MODE_STOP) {
+			g_timeline->stop();
 		}
-		g_timeline.play = TIMELINE_MODE_PLAY_SONG;
+		g_timeline->play = TIMELINE_MODE_PLAY_SONG;
 	}
 	//// STOP
 	if (this->button_play[3].process(module->params[Tracker::PARAM_STOP].getValue())) {
-		g_timeline.stop();
-		g_timeline.play = TIMELINE_MODE_STOP;
+		g_timeline->stop();
+		g_timeline->play = TIMELINE_MODE_STOP;
 	}
 	/// HANDLE OCTAVE BUTTONS
 	if (this->button_octave[0].process(module->params[Tracker::PARAM_OCTAVE_UP].getValue()))
@@ -162,17 +164,17 @@ void Editor::process(i64 frame) {
 }
 
 void Editor::set_synth(int index) {
-	if (index >= g_timeline.synth_count)
+	if (index >= g_timeline->synth_count)
 		return;
-	g_editor.synth_id = index;
-	g_editor.synth = &(g_timeline.synths[index]);
+	g_editor->synth_id = index;
+	g_editor->synth = &(g_timeline->synths[index]);
 }
 
 void Editor::set_pattern(int index) {
-	if (index >= g_timeline.pattern_count)
+	if (index >= g_timeline->pattern_count)
 		return;
 	this->pattern_id = index;
-	this->pattern = &(g_timeline.patterns[index]);
+	this->pattern = &(g_timeline->patterns[index]);
 	//this->pattern_reset_cursor();
 }
 
@@ -190,36 +192,36 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 		/// TO RIGHT
 		if (delta_x > 0) {
 			//// VELOCITY
-			if (this->pattern_cell == 2 && !g_editor.switch_view[0].state)
+			if (this->pattern_cell == 2 && !g_editor->switch_view[0].state)
 				this->pattern_cell += 1;
 			//// PANNING
-			if (this->pattern_cell == 3 && !g_editor.switch_view[1].state)
+			if (this->pattern_cell == 3 && !g_editor->switch_view[1].state)
 				this->pattern_cell += 1;
 			//// DELAY
-			if (this->pattern_cell == 5 && !g_editor.switch_view[2].state)
+			if (this->pattern_cell == 5 && !g_editor->switch_view[2].state)
 				this->pattern_cell += 1;
 			//// GLIDE
-			if (this->pattern_cell == 6 && !g_editor.switch_view[3].state)
+			if (this->pattern_cell == 6 && !g_editor->switch_view[3].state)
 				this->pattern_cell += 1;
 			//// EFFECT
-			if (this->pattern_cell > 6 && !g_editor.switch_view[4].state)
+			if (this->pattern_cell > 6 && !g_editor->switch_view[4].state)
 				this->pattern_cell = 7 + 2 * note_col ->effect_count;
 		/// TO LEFT
 		} else if (delta_x < 0) {
 			//// EFFECT
-			if (this->pattern_cell > 6 && !g_editor.switch_view[4].state)
+			if (this->pattern_cell > 6 && !g_editor->switch_view[4].state)
 				this->pattern_cell = 6;
 			//// GLIDE
-			if (this->pattern_cell == 6 && !g_editor.switch_view[3].state)
+			if (this->pattern_cell == 6 && !g_editor->switch_view[3].state)
 				this->pattern_cell -= 1;
 			//// DELAY
-			if (this->pattern_cell == 5 && !g_editor.switch_view[2].state)
+			if (this->pattern_cell == 5 && !g_editor->switch_view[2].state)
 				this->pattern_cell -= 1;
 			//// PANNING
-			if (this->pattern_cell == 3 && !g_editor.switch_view[1].state)
+			if (this->pattern_cell == 3 && !g_editor->switch_view[1].state)
 				this->pattern_cell -= 1;
 			//// VELOCITY
-			if (this->pattern_cell == 2 && !g_editor.switch_view[0].state)
+			if (this->pattern_cell == 2 && !g_editor->switch_view[0].state)
 				this->pattern_cell -= 1;
 		}
 	}
@@ -255,12 +257,12 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 				break;
 			}
 			x += (2 + 1
-			/**/ + g_editor.switch_view[0].state * 2
-			/**/ + g_editor.switch_view[1].state * 2
+			/**/ + g_editor->switch_view[0].state * 2
+			/**/ + g_editor->switch_view[1].state * 2
 			/**/ + 2
-			/**/ + g_editor.switch_view[2].state * 2
-			/**/ + g_editor.switch_view[3].state * 2
-			/**/ + g_editor.switch_view[4].state * 3 * note_col->effect_count
+			/**/ + g_editor->switch_view[2].state * 2
+			/**/ + g_editor->switch_view[3].state * 2
+			/**/ + g_editor->switch_view[4].state * 3 * note_col->effect_count
 			/**/ + 1);
 		/// ON CV
 		} else {
@@ -301,7 +303,7 @@ void Editor::pattern_clamp_cursor(void) {
 	PatternSource	*pattern;
 	PatternNoteCol	*col_note;
 
-	pattern = g_editor.pattern;
+	pattern = g_editor->pattern;
 	if (pattern == NULL)
 		return;
 
@@ -339,15 +341,15 @@ void Editor::pattern_clamp_cursor(void) {
 				this->pattern_cell = 7 + 2 * col_note->effect_count - 1;
 				/// CHECK ON/OFF VIEW MODES
 				//// EFFECT
-				if (g_editor.switch_view[4].state == false)
+				if (g_editor->switch_view[4].state == false)
 					this->pattern_cell = 6;
 				//// GLIDE
 				if (this->pattern_cell == 6
-				&& g_editor.switch_view[3].state == false)
+				&& g_editor->switch_view[3].state == false)
 					this->pattern_cell -= 1;
 				//// DELAY
 				if (this->pattern_cell == 5
-				&& g_editor.switch_view[2].state == false)
+				&& g_editor->switch_view[2].state == false)
 					this->pattern_cell -= 1;
 			/// FALL ON CV COL
 			} else {
@@ -368,15 +370,15 @@ void Editor::pattern_clamp_cursor(void) {
 					this->pattern_cell = 7 + 2 * col_note->effect_count - 1;
 					/// CHECK ON/OFF VIEW MODES
 					//// EFFECT
-					if (g_editor.switch_view[4].state == false)
+					if (g_editor->switch_view[4].state == false)
 						this->pattern_cell = 6;
 					//// GLIDE
 					if (this->pattern_cell == 6
-					&& g_editor.switch_view[3].state == false)
+					&& g_editor->switch_view[3].state == false)
 						this->pattern_cell -= 1;
 					//// DELAY
 					if (this->pattern_cell == 5
-					&& g_editor.switch_view[2].state == false)
+					&& g_editor->switch_view[2].state == false)
 						this->pattern_cell -= 1;
 				/// GOT CV
 				} else {

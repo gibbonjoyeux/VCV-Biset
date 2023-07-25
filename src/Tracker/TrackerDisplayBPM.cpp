@@ -24,7 +24,7 @@ void TrackerDisplayBPM::onButton(const ButtonEvent &e) {
 	//	menu->addChild(label);
 
 	//	/// ADD SONG LENGTH SLIDER
-	//	length = g_timeline.beat_count;
+	//	length = g_timeline->beat_count;
 	//	quant_length = g_module->paramQuantities[Tracker::PARAM_SONG_LENGTH];
 	//	quant_length->setValue(length);
 	//	quant_length->defaultValue = length;
@@ -34,13 +34,13 @@ void TrackerDisplayBPM::onButton(const ButtonEvent &e) {
 	//	menu->addChild(new MenuItemStay("Update song", "",
 	//		[=]() {
 	//			/// WAIT FOR THREAD FLAG
-	//			while (g_timeline.thread_flag.test_and_set()) {}
+	//			while (g_timeline->thread_flag.test_and_set()) {}
 
-	//			g_timeline.resize(g_module->params[Tracker::PARAM_SONG_LENGTH].getValue());
-	//			g_editor.timeline_clamp_cursor();
+	//			g_timeline->resize(g_module->params[Tracker::PARAM_SONG_LENGTH].getValue());
+	//			g_editor->timeline_clamp_cursor();
 
 	//			/// CLEAR THREAD FLAG
-	//			g_timeline.thread_flag.clear();
+	//			g_timeline->thread_flag.clear();
 	//		}
 	//	));
 	//}

@@ -202,7 +202,7 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	//display_jump = createWidget<LedDisplayDigit>(mm2px(Vec(BTN_JUMP_X, BTN_JUMP_Y)));
 	//display_jump->box.size = mm2px(Vec(8.25, 3.5));
 	//display_jump->module = module;
-	//display_jump->value_link = &(g_editor.pattern_jump);
+	//display_jump->value_link = &(g_editor->pattern_jump);
 	//display_jump->value_length = 2;
 	//display_jump->color_back = colors[15];
 	//display_jump->color_font = colors[4];
@@ -221,7 +221,7 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	//display_octave = createWidget<LedDisplayDigit>(mm2px(Vec(BTN_OCTAVE_X, BTN_OCTAVE_Y)));
 	//display_octave->box.size = mm2px(Vec(8.25, 3.5));
 	//display_octave->module = module;
-	//display_octave->value_link = &(g_editor.pattern_octave);
+	//display_octave->value_link = &(g_editor->pattern_octave);
 	//display_octave->value_length = 2;
 	//display_octave->color_back = colors[15];
 	//display_octave->color_font = colors[4];
@@ -235,60 +235,67 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	/**/ createParamCentered<ButtonMinus>(mm2px(Vec(BTN_OCTAVE_X + 4.0, BTN_OCTAVE_Y + 14.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_OCTAVE_DOWN));
-
 }
 
 void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
+
+	if (g_module == NULL)
+		return;
+
 	/// CHANGE VIEW
 	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_SHIFT)
 	&& (e.key == GLFW_KEY_LEFT || e.key == GLFW_KEY_RIGHT)) {
-		if (g_editor.mode == EDITOR_MODE_PATTERN) {
+		if (g_editor->mode == EDITOR_MODE_PATTERN) {
 			g_module->params[Tracker::PARAM_MODE + 0].setValue(0);
 			g_module->params[Tracker::PARAM_MODE + 1].setValue(1);
-			g_editor.mode = EDITOR_MODE_TIMELINE;
-		} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+			g_editor->mode = EDITOR_MODE_TIMELINE;
+		} else if (g_editor->mode == EDITOR_MODE_TIMELINE) {
 			g_module->params[Tracker::PARAM_MODE + 0].setValue(1);
 			g_module->params[Tracker::PARAM_MODE + 1].setValue(0);
-			g_editor.mode = EDITOR_MODE_PATTERN;
+			g_editor->mode = EDITOR_MODE_PATTERN;
 		}
 		e.consume(this);
 		return;
 	}
 	/// EDIT PATTERN & TIMELINE
-	if (g_editor.mode == EDITOR_MODE_PATTERN) {
+	if (g_editor->mode == EDITOR_MODE_PATTERN) {
 		this->display->on_key_pattern(e);
-	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+	} else if (g_editor->mode == EDITOR_MODE_TIMELINE) {
 		this->display->on_key_timeline(e);
 	}
 	e.consume(this);
 }
 
 void TrackerWidget::onHoverScroll(const HoverScrollEvent &e) {
+
+	if (g_module == NULL)
+		return;
+
 	ModuleWidget::onHoverScroll(e);
-	//if (g_editor.selected == false)
+	//if (g_editor->selected == false)
 	//	return;
-	//if (g_editor.pattern) {
+	//if (g_editor->pattern) {
 	//	/// SCROLL X
 	//	if (APP->window->getMods() & GLFW_MOD_SHIFT) {
 	//		/// MOVE CURSOR
 	//		if (e.scrollDelta.y > 0)
-	//			g_editor.pattern_move_cursor_x(-1);
+	//			g_editor->pattern_move_cursor_x(-1);
 	//		else
-	//			g_editor.pattern_move_cursor_x(+1);
+	//			g_editor->pattern_move_cursor_x(+1);
 	//	/// SCROLL Y
 	//	} else {
 	//		/// MOVE CURSOR
 	//		if (e.scrollDelta.y > 0)
-	//			g_editor.pattern_move_cursor_y(-1);
+	//			g_editor->pattern_move_cursor_y(-1);
 	//		else
-	//			g_editor.pattern_move_cursor_y(+1);
+	//			g_editor->pattern_move_cursor_y(+1);
 	//	}
 	//}
 	//e.consume(this);
 }
 
 //void TrackerWidget::onSelect(const SelectEvent &e) {
-//	g_editor.selected = true;
+//	g_editor->selected = true;
 //	//this->module->lights[0].setBrightness(1.0);
 //}
 //
@@ -300,7 +307,7 @@ void TrackerWidget::onHoverScroll(const HoverScrollEvent &e) {
 //	//	APP->event->setSelectedWidget(this);
 //	//	return;
 //	//}
-//	g_editor.selected = false;
+//	g_editor->selected = false;
 //	//this->module->lights[0].setBrightness(0.0);
 //}
 

@@ -29,6 +29,7 @@ TRACKER BINARY SAVE FORMAT:
 	- Patterns
 		- Name length							u8
 		- Name string							chars
+		- Color									u8
 		- Beat count							u16
 		- Note count							u8
 		- CV count								u8
@@ -82,6 +83,7 @@ TRACKER BINARY SAVE FORMAT:
 	- Synths
 		- Synth name length						u8
 		- Synth name string						char
+		- Synth color							u8
 		- Synth mode							u8
 		- Synth channel count					u8
 - Timeline
@@ -106,38 +108,38 @@ TRACKER BINARY SAVE FORMAT:
 
 static void fill_u8(u8 number) {
 	/// MODE WRITE
-	if (g_timeline.save_mode == SAVE_MODE_WRITE)
-		g_timeline.save_buffer[g_timeline.save_cursor] = number;
+	if (g_timeline->save_mode == SAVE_MODE_WRITE)
+		g_timeline->save_buffer[g_timeline->save_cursor] = number;
 	/// MODE RECORD & WRITE
-	g_timeline.save_cursor += 1;
+	g_timeline->save_cursor += 1;
 }
 
 static void fill_u16(u16 number) {
 	u8		*bytes;
 
 	/// MODE WRITE
-	if (g_timeline.save_mode == SAVE_MODE_WRITE) {
+	if (g_timeline->save_mode == SAVE_MODE_WRITE) {
 		bytes = (u8*)&number;
-		g_timeline.save_buffer[g_timeline.save_cursor] = bytes[0];
-		g_timeline.save_buffer[g_timeline.save_cursor + 1] = bytes[1];
+		g_timeline->save_buffer[g_timeline->save_cursor] = bytes[0];
+		g_timeline->save_buffer[g_timeline->save_cursor + 1] = bytes[1];
 	}
 	/// MODE RECORD & WRITE
-	g_timeline.save_cursor += 2;
+	g_timeline->save_cursor += 2;
 }
 
 static void fill_u32(u32 number) {
 	u8		*bytes;
 
 	/// MODE WRITE
-	if (g_timeline.save_mode == SAVE_MODE_WRITE) {
+	if (g_timeline->save_mode == SAVE_MODE_WRITE) {
 		bytes = (u8*)&number;
-		g_timeline.save_buffer[g_timeline.save_cursor] = bytes[0];
-		g_timeline.save_buffer[g_timeline.save_cursor + 1] = bytes[1];
-		g_timeline.save_buffer[g_timeline.save_cursor + 2] = bytes[2];
-		g_timeline.save_buffer[g_timeline.save_cursor + 3] = bytes[3];
+		g_timeline->save_buffer[g_timeline->save_cursor] = bytes[0];
+		g_timeline->save_buffer[g_timeline->save_cursor + 1] = bytes[1];
+		g_timeline->save_buffer[g_timeline->save_cursor + 2] = bytes[2];
+		g_timeline->save_buffer[g_timeline->save_cursor + 3] = bytes[3];
 	}
 	/// MODE RECORD & WRITE
-	g_timeline.save_cursor += 4;
+	g_timeline->save_cursor += 4;
 }
 
 static void fill_name(char *name) {
@@ -148,34 +150,34 @@ static void fill_name(char *name) {
 	fill_u8(len);
 	/// HANDLE STRING
 	//// MODE WRITE
-	if (g_timeline.save_mode == SAVE_MODE_WRITE)
-		memcpy(&(g_timeline.save_buffer[g_timeline.save_cursor]), name, len);
+	if (g_timeline->save_mode == SAVE_MODE_WRITE)
+		memcpy(&(g_timeline->save_buffer[g_timeline->save_cursor]), name, len);
 	//// MODE RECORD & WRITE
-	g_timeline.save_cursor += len;
+	g_timeline->save_cursor += len;
 }
 
 static void fill_cursor_save(u8 size) {
 	/// MODE WRITE
-	if (g_timeline.save_mode == SAVE_MODE_WRITE)
-		g_timeline.save_cursor_save = g_timeline.save_cursor;
+	if (g_timeline->save_mode == SAVE_MODE_WRITE)
+		g_timeline->save_cursor_save = g_timeline->save_cursor;
 	/// MODE RECORD & WRITE
-	g_timeline.save_cursor += size;
+	g_timeline->save_cursor += size;
 }
 
 static void fill_cursor_count(u8 size, u32 count) {
 	u32		cursor;
 
 	/// MODE WRITE
-	if (g_timeline.save_mode == SAVE_MODE_WRITE) {
-		cursor = g_timeline.save_cursor;
-		g_timeline.save_cursor = g_timeline.save_cursor_save;
+	if (g_timeline->save_mode == SAVE_MODE_WRITE) {
+		cursor = g_timeline->save_cursor;
+		g_timeline->save_cursor = g_timeline->save_cursor_save;
 		if (size == 1)
 			fill_u8(count);
 		else if (size == 2)
 			fill_u16(count);
 		else
 			fill_u32(count);
-		g_timeline.save_cursor = cursor;
+		g_timeline->save_cursor = cursor;
 	}
 }
 
@@ -189,25 +191,26 @@ static void fill_save_buffer() {
 	int								i, j, k, l;
 	u32								count;
 
-	if (g_timeline.save_mode == SAVE_MODE_WRITE
-	&& g_timeline.save_buffer == NULL)
+	if (g_timeline->save_mode == SAVE_MODE_WRITE
+	&& g_timeline->save_buffer == NULL)
 		return;
 	/// [1] ADD BASICS
-	g_timeline.save_cursor = 0;
+	g_timeline->save_cursor = 0;
 	fill_u8(endian_native());				// Saving endian
-	fill_u32(g_timeline.save_length);		// File size
-	fill_u8(g_editor.pattern_jump);			// Used jump
-	fill_u8(g_editor.pattern_octave);		// Used octave
-	fill_u8(g_editor.switch_view[0].state);	// View velocity
-	fill_u8(g_editor.switch_view[1].state);	// View panning
-	fill_u8(g_editor.switch_view[2].state);	// View delay
-	fill_u8(g_editor.switch_view[3].state);	// View glide
-	fill_u8(g_editor.switch_view[4].state);	// View effects
+	fill_u32(g_timeline->save_length);		// File size
+	fill_u8(g_editor->pattern_jump);			// Used jump
+	fill_u8(g_editor->pattern_octave);		// Used octave
+	fill_u8(g_editor->switch_view[0].state);	// View velocity
+	fill_u8(g_editor->switch_view[1].state);	// View panning
+	fill_u8(g_editor->switch_view[2].state);	// View delay
+	fill_u8(g_editor->switch_view[3].state);	// View glide
+	fill_u8(g_editor->switch_view[4].state);	// View effects
 	/// [2] ADD PATTERNS
-	fill_u16(g_timeline.pattern_count);
-	for (i = 0; i < g_timeline.pattern_count; ++i) {
-		pattern = &(g_timeline.patterns[i]);
+	fill_u16(g_timeline->pattern_count);
+	for (i = 0; i < g_timeline->pattern_count; ++i) {
+		pattern = &(g_timeline->patterns[i]);
 		fill_name(pattern->name);			// Name
+		fill_u8(pattern->color);			// Color
 		fill_u16(pattern->beat_count);		// Beat count
 		fill_u8(pattern->note_count);		// Note count
 		fill_u8(pattern->cv_count);			// CV count
@@ -286,20 +289,21 @@ static void fill_save_buffer() {
 		}
 	}
 	/// [3] SYNTHS
-	fill_u8(g_timeline.synth_count);
-	for (i = 0; i < g_timeline.synth_count; ++i) {
-		fill_name(g_timeline.synths[i].name + 5);		// Name
-		fill_u8(g_timeline.synths[i].mode);				// Mode (gate / trigger / drum)
-		fill_u8(g_timeline.synths[i].channel_count);	// Channel count
+	fill_u8(g_timeline->synth_count);
+	for (i = 0; i < g_timeline->synth_count; ++i) {
+		fill_name(g_timeline->synths[i].name + 5);		// Name
+		fill_u8(g_timeline->synths[i].color);			// Color
+		fill_u8(g_timeline->synths[i].mode);			// Mode (gate / trigger / drum)
+		fill_u8(g_timeline->synths[i].channel_count);	// Channel count
 	}
 	/// [4] ADD TIMELINE
 	fill_cursor_save(sizeof(u16));			// -> Prepare set instances count
 	count = 0;
 	for (i = 0; i < 32; ++i) {
-		it = g_timeline.timeline[i].begin();
-		it_end = g_timeline.timeline[i].end();
+		it = g_timeline->timeline[i].begin();
+		it_end = g_timeline->timeline[i].end();
 		while (it != it_end) {
-			j = ((intptr_t)it->source - (intptr_t)g_timeline.patterns)
+			j = ((intptr_t)it->source - (intptr_t)g_timeline->patterns)
 			/**/ / sizeof(PatternSource);
 			fill_u8(it->row);				// Instance row
 			fill_u16(it->beat);				// Instance beat
@@ -323,26 +327,26 @@ static void init_save_buffer() {
 	u32				size;
 
 	/// [1] COMPUTE BUFFER SIZE
-	g_timeline.save_mode = SAVE_MODE_RECORD;
+	g_timeline->save_mode = SAVE_MODE_RECORD;
 	fill_save_buffer();
-	size = g_timeline.save_cursor;
-	g_timeline.save_mode = SAVE_MODE_WRITE;
+	size = g_timeline->save_cursor;
+	g_timeline->save_mode = SAVE_MODE_WRITE;
 
 	/// [2] ALLOC BUFFER
 	//// NEW BUFFER
-	if (g_timeline.save_buffer == NULL) {
+	if (g_timeline->save_buffer == NULL) {
 		buffer = (u8*)malloc(size);
 	//// RESIZE BUFFER
-	} else if (size != g_timeline.save_length) {
-		buffer = (u8*)realloc(g_timeline.save_buffer, size);
+	} else if (size != g_timeline->save_length) {
+		buffer = (u8*)realloc(g_timeline->save_buffer, size);
 		if (buffer == NULL)
-			free(g_timeline.save_buffer);
+			free(g_timeline->save_buffer);
 	//// KEEP BUFFER
 	} else {
-		buffer = g_timeline.save_buffer;
+		buffer = g_timeline->save_buffer;
 	}
-	g_timeline.save_buffer = buffer;
-	g_timeline.save_length = size;
+	g_timeline->save_buffer = buffer;
+	g_timeline->save_length = size;
 }
 
 //////////////////////////////////////////////////
@@ -361,7 +365,7 @@ static void write_save_buffer() {
 	file.open(path, std::ios::out | std::ios::binary | std::ios::trunc);
 	/// WRITE FILE
 	if (file.is_open()) {
-		file.write((const char*)g_timeline.save_buffer, g_timeline.save_length);
+		file.write((const char*)g_timeline->save_buffer, g_timeline->save_length);
 		file.close();
 	}
 }
@@ -372,7 +376,7 @@ static void write_save_buffer() {
 
 void Tracker::onSave(const SaveEvent &e) {
 	/// [1] WAIT FOR THREAD FLAG
-	while (g_timeline.thread_flag.test_and_set()) {}
+	while (g_timeline->thread_flag.test_and_set()) {}
 
 	/// [2] INIT SAVE BUFFER
 	init_save_buffer();
@@ -382,5 +386,5 @@ void Tracker::onSave(const SaveEvent &e) {
 	write_save_buffer();
 
 	/// [5] CLEAR THREAD FLAG
-	g_timeline.thread_flag.clear();
+	g_timeline->thread_flag.clear();
 }

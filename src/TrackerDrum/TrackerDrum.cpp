@@ -58,7 +58,10 @@ void TrackerDrum::process(const ProcessArgs& args) {
 	float				cv_min, cv_max;
 	int					i, j;
 
-	synth = &(g_timeline.synths[(int)this->params[PARAM_SYNTH].getValue()]);
+	if (g_module == NULL)
+		return;
+
+	synth = &(g_timeline->synths[(int)this->params[PARAM_SYNTH].getValue()]);
 	/// SET OUTPUT SYNTH
 	for (i = 0; i < 12; ++i) {
 		this->outputs[OUTPUT_TRIGGER + i].setVoltage(synth->out_synth[i * 4 + 1]);

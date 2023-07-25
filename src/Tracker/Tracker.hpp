@@ -494,6 +494,7 @@ struct Tracker : Module {
 	};
 
 	Tracker();
+	~Tracker();
 
 	void	onAdd(const AddEvent &e) override;
 	void	onSave(const SaveEvent &e) override;
@@ -589,8 +590,8 @@ bool endian_native(void);
 /// GLOBAL STRUCTURES
 ////////////////////////////////////////////////////////////////////////////////
 
-extern Timeline	g_timeline;
-extern Editor	g_editor;
+extern Timeline	*g_timeline;
+extern Editor	*g_editor;
 extern Tracker	*g_module;
 
 #endif

@@ -20,8 +20,8 @@ PatternSource *Timeline::pattern_new(void) {
 	pattern->init();
 	this->pattern_count += 1;
 	/// SELECT NEW PATTERN
-	g_editor.pattern_id = this->pattern_count - 1;
-	g_editor.pattern = pattern;
+	g_editor->pattern_id = this->pattern_count - 1;
+	g_editor->pattern = pattern;
 	/// RETURN NEW PATTERN
 	return pattern;
 }
@@ -38,8 +38,8 @@ PatternSource *Timeline::pattern_new(int note_count, int cv_count,
 	pattern->init(note_count, cv_count, beat_count, lpb);
 	this->pattern_count += 1;
 	/// SELECT NEW PATTERN
-	g_editor.pattern_id = this->pattern_count - 1;
-	g_editor.pattern = pattern;
+	g_editor->pattern_id = this->pattern_count - 1;
+	g_editor->pattern = pattern;
 	/// RETURN NEW PATTERN
 	return pattern;
 }
@@ -62,9 +62,9 @@ void Timeline::pattern_del(PatternSource *pattern) {
 			this->patterns[i].destroy();
 			this->pattern_count -= 1;
 			found = true;
-			if (g_editor.pattern == pattern) {
-				g_editor.pattern_id = -1;
-				g_editor.pattern = NULL;
+			if (g_editor->pattern == pattern) {
+				g_editor->pattern_id = -1;
+				g_editor->pattern = NULL;
 			}
 		}
 		/// PATTERN OFFSET
@@ -72,8 +72,8 @@ void Timeline::pattern_del(PatternSource *pattern) {
 			this->patterns[i] = this->patterns[i + 1];
 	}
 	/// DESELECT
-	g_editor.pattern = NULL;
-	g_editor.pattern_id = -1;
+	g_editor->pattern = NULL;
+	g_editor->pattern_id = -1;
 }
 
 void Timeline::pattern_swap(PatternSource *pat_a, PatternSource *pat_b) {

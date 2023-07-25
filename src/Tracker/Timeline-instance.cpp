@@ -22,8 +22,8 @@ PatternInstance *Timeline::instance_new(PatternSource *source, int row, int beat
 	instance.beat_length = source->beat_count;
 	instance.muted = false;
 
-	it = g_timeline.timeline[row].begin();
-	it_end = g_timeline.timeline[row].end();
+	it = g_timeline->timeline[row].begin();
+	it_end = g_timeline->timeline[row].end();
 	it_next = it_end;
 	/// LOOP INSTANCES
 	while (it != it_end) {
@@ -36,10 +36,10 @@ PatternInstance *Timeline::instance_new(PatternSource *source, int row, int beat
 		it = std::next(it);
 	}
 	/// INSERT INSTANCE
-	it = g_timeline.timeline[row].insert(it_next, instance);
-	g_editor.instance = &(*it);
-	g_editor.instance_row = row;
-	g_editor.instance_beat = beat;
+	it = g_timeline->timeline[row].insert(it_next, instance);
+	g_editor->instance = &(*it);
+	g_editor->instance_row = row;
+	g_editor->instance_beat = beat;
 	return &(*it);
 }
 
@@ -48,11 +48,11 @@ void Timeline::instance_del(PatternInstance *instance) {
 	list<PatternInstance>::iterator	it_end;
 
 	/// FIND INSTANCE
-	it = g_timeline.timeline[instance->row].begin();
-	it_end = g_timeline.timeline[instance->row].end();
+	it = g_timeline->timeline[instance->row].begin();
+	it_end = g_timeline->timeline[instance->row].end();
 	while (it != it_end) {
 		if (&(*it) == instance) {
-			g_timeline.timeline[instance->row].erase(it);
+			g_timeline->timeline[instance->row].erase(it);
 			return;
 		}
 		it = std::next(it);
@@ -65,8 +65,8 @@ void Timeline::instance_move(PatternInstance *instance, int row, int beat) {
 	list<PatternInstance>::iterator	it_end;
 
 	/// FIND INSTANCE
-	it_src = g_timeline.timeline[instance->row].begin();
-	it_end = g_timeline.timeline[instance->row].end();
+	it_src = g_timeline->timeline[instance->row].begin();
+	it_end = g_timeline->timeline[instance->row].end();
 	while (it_src != it_end) {
 		if (&(*it_src) == instance)
 			break;
@@ -75,15 +75,15 @@ void Timeline::instance_move(PatternInstance *instance, int row, int beat) {
 	if (it_src == it_end)
 		return;
 	/// MOVE INSTANCE
-	it_dst = g_timeline.timeline[row].begin();
-	it_end = g_timeline.timeline[row].end();
+	it_dst = g_timeline->timeline[row].begin();
+	it_end = g_timeline->timeline[row].end();
 	while (it_dst != it_end) {
 		if (it_dst->beat >= beat)
 			break;
 		it_dst = std::next(it_dst);
 	}
-	g_timeline.timeline[row].splice(
-	/**/ it_dst, g_timeline.timeline[instance->row], it_src);
+	g_timeline->timeline[row].splice(
+	/**/ it_dst, g_timeline->timeline[instance->row], it_src);
 	instance->row = row;
 	instance->beat = beat;
 }
@@ -91,8 +91,8 @@ void Timeline::instance_move(PatternInstance *instance, int row, int beat) {
 PatternInstance *Timeline::instance_find(int row, int beat) {
 	std::list<PatternInstance>::iterator	it, it_end;
 
-	it = g_timeline.timeline[row].begin();
-	it_end = g_timeline.timeline[row].end();
+	it = g_timeline->timeline[row].begin();
+	it_end = g_timeline->timeline[row].end();
 	/// LOOP INSTANCES
 	while (it != it_end) {
 		/// CHECK INSTANCE

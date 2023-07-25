@@ -155,7 +155,7 @@ void PatternSource::context_menu(Menu *menu) {
 			int	cv_count;
 
 			/// WAIT FOR THREAD FLAG
-			while (g_timeline.thread_flag.test_and_set()) {}
+			while (g_timeline->thread_flag.test_and_set()) {}
 
 			/// GET PATTERN SPECS
 			beat_count = g_module->params[Tracker::PARAM_PATTERN_LENGTH].getValue();
@@ -163,16 +163,16 @@ void PatternSource::context_menu(Menu *menu) {
 			note_count = g_module->params[Tracker::PARAM_PATTERN_NOTE_COUNT].getValue();
 			cv_count = g_module->params[Tracker::PARAM_PATTERN_CV_COUNT].getValue();
 			/// UPDATE PATTERN LENGTH
-			if (beat_count != g_editor.pattern->beat_count
-			|| lpb != g_editor.pattern->lpb
-			|| note_count != g_editor.pattern->note_count
-			|| cv_count != g_editor.pattern->cv_count) {
-				g_editor.pattern->resize(note_count, cv_count, beat_count, lpb);
-				g_editor.pattern_clamp_cursor();
+			if (beat_count != g_editor->pattern->beat_count
+			|| lpb != g_editor->pattern->lpb
+			|| note_count != g_editor->pattern->note_count
+			|| cv_count != g_editor->pattern->cv_count) {
+				g_editor->pattern->resize(note_count, cv_count, beat_count, lpb);
+				g_editor->pattern_clamp_cursor();
 			}
 
 			/// CLEAR THREAD FLAG
-			g_timeline.thread_flag.clear();
+			g_timeline->thread_flag.clear();
 		}
 	));
 

@@ -20,8 +20,8 @@ Synth *Timeline::synth_new(void) {
 	synth->init();
 	this->synth_count += 1;
 	/// SELECT NEW SYNTH
-	g_editor.synth_id = this->synth_count - 1;
-	g_editor.synth = synth;
+	g_editor->synth_id = this->synth_count - 1;
+	g_editor->synth = synth;
 	/// RETURN NEW SYNTH
 	return synth;
 }
@@ -50,9 +50,9 @@ void Timeline::synth_del(Synth *synth) {
 		if (&(this->synths[i]) == synth) {
 			this->synth_count -= 1;
 			found = true;
-			if (g_editor.synth == synth) {
-				g_editor.synth_id = -1;
-				g_editor.synth = NULL;
+			if (g_editor->synth == synth) {
+				g_editor->synth_id = -1;
+				g_editor->synth = NULL;
 			}
 		}
 		/// SYNTH OFFSET

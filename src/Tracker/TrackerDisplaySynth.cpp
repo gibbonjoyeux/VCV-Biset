@@ -22,7 +22,7 @@ void TrackerDisplaySynth::onButton(const ButtonEvent &e) {
 	label->text = "Edit synth";
 	menu->addChild(label);
 
-	synth = &(g_timeline.synths[g_editor.synth_id]);
+	synth = &(g_timeline->synths[g_editor->synth_id]);
 	/// ADD SYNTH MODE LIST
 	menu->addChild(rack::createSubmenuItem("Mode", "",
 		[=](Menu *menu) {
@@ -58,19 +58,19 @@ void TrackerDisplaySynth::onButton(const ButtonEvent &e) {
 			int	i;
 
 			/// WAIT FOR THREAD FLAG
-			while (g_timeline.thread_flag.test_and_set()) {}
+			while (g_timeline->thread_flag.test_and_set()) {}
 
 			/// SET SYNTH MODE
 			mode = g_module->params[Tracker::PARAM_SYNTH_MODE].getValue();
-			g_timeline.synths[g_editor.synth_id].mode = mode;
+			g_timeline->synths[g_editor->synth_id].mode = mode;
 			/// SET SYNTH CHANNEL COUNT
 			channels = g_module->params[Tracker::PARAM_SYNTH_CHANNEL_COUNT].getValue();
-			g_timeline.synths[g_editor.synth_id].channel_count = channels;
+			g_timeline->synths[g_editor->synth_id].channel_count = channels;
 			for (i = channels; i < 16; ++i)
-				g_timeline.synths[g_editor.synth_id].voices[i].stop();
+				g_timeline->synths[g_editor->synth_id].voices[i].stop();
 
 			/// CLEAR THREAD FLAG
-			g_timeline.thread_flag.clear();
+			g_timeline->thread_flag.clear();
 		}
 	));
 }
