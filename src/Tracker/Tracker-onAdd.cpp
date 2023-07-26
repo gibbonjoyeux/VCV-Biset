@@ -198,15 +198,15 @@ static bool compute_save_file(void) {
 	int				color;
 	int				i, j, k, l;
 
-	g_timeline->save_cursor = 1 + 4;						// Endian + file size
+	g_timeline->save_cursor = 1 + 4;					// Endian + file size
 	/// [1] GET EDITOR BASICS
 	g_editor->pattern_jump = read_u8();					// Used jump
 	g_editor->pattern_octave = read_u8();				// Used octave
-	g_editor->switch_view[0].state = read_u8();			// View velocity
-	g_editor->switch_view[1].state = read_u8();			// View panning
-	g_editor->switch_view[2].state = read_u8();			// View delay
-	g_editor->switch_view[3].state = read_u8();			// View glide
-	g_editor->switch_view[4].state = read_u8();			// View effects
+	g_editor->pattern_view_velo = read_u8();			// View velocity
+	g_editor->pattern_view_pan = read_u8();				// View panning
+	g_editor->pattern_view_glide = read_u8();			// View delay
+	g_editor->pattern_view_delay = read_u8();			// View glide
+	g_editor->pattern_view_fx = read_u8();				// View effects
 	/// [2] GET PATTERNS
 	pattern_count = read_u16();
 	for (i = 0; i < pattern_count; ++i) {

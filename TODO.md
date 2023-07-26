@@ -41,6 +41,8 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 
 # TODO
 
+- [ ] Do no use specific params for context but generic params
+
 - [ ] NEW VERSION
 	- [ ] BACKEND
 		- [x] Timeline

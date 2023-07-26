@@ -198,13 +198,13 @@ static void fill_save_buffer() {
 	g_timeline->save_cursor = 0;
 	fill_u8(endian_native());				// Saving endian
 	fill_u32(g_timeline->save_length);		// File size
-	fill_u8(g_editor->pattern_jump);			// Used jump
+	fill_u8(g_editor->pattern_jump);		// Used jump
 	fill_u8(g_editor->pattern_octave);		// Used octave
-	fill_u8(g_editor->switch_view[0].state);	// View velocity
-	fill_u8(g_editor->switch_view[1].state);	// View panning
-	fill_u8(g_editor->switch_view[2].state);	// View delay
-	fill_u8(g_editor->switch_view[3].state);	// View glide
-	fill_u8(g_editor->switch_view[4].state);	// View effects
+	fill_u8(g_editor->pattern_view_velo);	// View velocity
+	fill_u8(g_editor->pattern_view_pan);	// View panning
+	fill_u8(g_editor->pattern_view_glide);	// View delay
+	fill_u8(g_editor->pattern_view_delay);	// View glide
+	fill_u8(g_editor->pattern_view_fx);		// View effects
 	/// [2] ADD PATTERNS
 	fill_u16(g_timeline->pattern_count);
 	for (i = 0; i < g_timeline->pattern_count; ++i) {

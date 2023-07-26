@@ -147,7 +147,7 @@ void PatternSource::context_menu(Menu *menu) {
 	quant_cv_count->defaultValue = cv_count;
 	menu->addChild(new MenuSliderEdit(quant_cv_count, 0));
 	/// ADD PATTERN UPDATE BUTTON
-	menu->addChild(new MenuItemStay("Update pattern", "",
+	menu->addChild(createMenuItem("Update pattern", "",
 		[=]() {
 			int	beat_count;
 			int	lpb;

@@ -458,9 +458,8 @@ void TrackerDisplaySide::onDoubleClick(const DoubleClickEvent &e) {
 			g_editor->pattern_id = index;
 			g_editor->pattern = &(g_timeline->patterns[index]);
 			/// OPEN PATTERN
-			g_module->params[Tracker::PARAM_MODE + 0].setValue(1);
-			g_module->params[Tracker::PARAM_MODE + 1].setValue(0);
-			g_editor->mode = EDITOR_MODE_PATTERN;
+			g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(1);
+			g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(0);
 		}
 	}
 }

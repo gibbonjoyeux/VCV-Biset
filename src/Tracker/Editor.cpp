@@ -58,7 +58,6 @@ Editor::Editor() {
 
 void Editor::process(i64 frame) {
 	Module			*module;
-	int				i;
 
 	if (frame % 256 != 0)
 		return;
@@ -68,12 +67,11 @@ void Editor::process(i64 frame) {
 	// -> On change update edit knobs (Note or CV)
 
 	/// [1] HANDLE VIEW SWITCHES
-	for (i = 0; i < 5; ++i) {
-		if (this->switch_view[i].process(module->params[Tracker::PARAM_VIEW + i].getValue()))
-			module->lights[Tracker::LIGHT_VIEW + i].setBrightness(1.0);
-		else
-			module->lights[Tracker::LIGHT_VIEW + i].setBrightness(0.0);
-	}
+	pattern_view_velo = module->params[Tracker::PARAM_VIEW + 0].getValue();
+	pattern_view_pan = module->params[Tracker::PARAM_VIEW + 1].getValue();
+	pattern_view_glide = module->params[Tracker::PARAM_VIEW + 2].getValue();
+	pattern_view_delay = module->params[Tracker::PARAM_VIEW + 3].getValue();
+	pattern_view_fx = module->params[Tracker::PARAM_VIEW + 4].getValue();
 
 	/// [2] HANDLE PLAY LIGHT
 	if (g_editor->selected == true)
@@ -85,43 +83,34 @@ void Editor::process(i64 frame) {
 	else
 		module->lights[Tracker::LIGHT_PLAY].setBrightness(0.0);
 	/// [2] HANDLE EDITOR MODES
-	if (this->button_mode[0].process(module->params[Tracker::PARAM_MODE + 0].getValue()))
+	if (module->params[Tracker::PARAM_MODE_PATTERN].getValue())
 		this->mode = EDITOR_MODE_PATTERN;
-	if (this->button_mode[1].process(module->params[Tracker::PARAM_MODE + 1].getValue()))
+	else if (module->params[Tracker::PARAM_MODE_TIMELINE].getValue())
 		this->mode = EDITOR_MODE_TIMELINE;
-	if (this->button_mode[2].process(module->params[Tracker::PARAM_MODE + 2].getValue()))
-		this->mode = EDITOR_MODE_PARAMETERS;
-	/// HANDLE EDITOR MODES LIGHTS
-	if (this->mode == EDITOR_MODE_PATTERN) {
-		module->lights[Tracker::LIGHT_MODE].setBrightness(1.0);
-		module->lights[Tracker::LIGHT_MODE + 1].setBrightness(0.0);
-		module->lights[Tracker::LIGHT_MODE + 2].setBrightness(0.0);
-	} else if (this->mode == EDITOR_MODE_TIMELINE) {
-		module->lights[Tracker::LIGHT_MODE].setBrightness(0.0);
-		module->lights[Tracker::LIGHT_MODE + 1].setBrightness(1.0);
-		module->lights[Tracker::LIGHT_MODE + 2].setBrightness(0.0);
-	} else {
-		module->lights[Tracker::LIGHT_MODE].setBrightness(0.0);
-		module->lights[Tracker::LIGHT_MODE + 1].setBrightness(0.0);
-		module->lights[Tracker::LIGHT_MODE + 2].setBrightness(1.0);
-	}
+	else if (module->params[Tracker::PARAM_MODE_MATRIX].getValue())
+		this->mode = EDITOR_MODE_MATRIX;
+	else
+		this->mode = EDITOR_MODE_TUNING;
 
 	/// [3] HANDLE PLAYING BUTTONS
 	/// HANDLE PLAY
 	//// PLAY SONG
-	if (this->button_play[0].process(module->params[Tracker::PARAM_PLAY_SONG].getValue())) {
+	if (this->button_play[0]
+	.process(module->params[Tracker::PARAM_PLAY_SONG].getValue())) {
 		g_timeline->stop();
 		g_timeline->clock.reset();
 		g_timeline->play = TIMELINE_MODE_PLAY_SONG;
 	}
 	//// PLAY PATTERN
-	if (this->button_play[1].process(module->params[Tracker::PARAM_PLAY_PATTERN].getValue())) {
+	if (this->button_play[1]
+	.process(module->params[Tracker::PARAM_PLAY_PATTERN].getValue())) {
 		g_timeline->stop();
 		g_timeline->clock.reset();
 		g_timeline->play = TIMELINE_MODE_PLAY_PATTERN;
 	}
 	//// PLAY
-	if (this->button_play[2].process(module->params[Tracker::PARAM_PLAY].getValue())) {
+	if (this->button_play[2]
+	.process(module->params[Tracker::PARAM_PLAY].getValue())) {
 		if (g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
 			g_timeline->stop();
 			g_timeline->clock.reset();
@@ -131,22 +120,27 @@ void Editor::process(i64 frame) {
 		g_timeline->play = TIMELINE_MODE_PLAY_SONG;
 	}
 	//// STOP
-	if (this->button_play[3].process(module->params[Tracker::PARAM_STOP].getValue())) {
+	if (this->button_play[3]
+	.process(module->params[Tracker::PARAM_STOP].getValue())) {
 		g_timeline->stop();
 		g_timeline->play = TIMELINE_MODE_STOP;
 	}
 	/// HANDLE OCTAVE BUTTONS
-	if (this->button_octave[0].process(module->params[Tracker::PARAM_OCTAVE_UP].getValue()))
+	if (this->button_octave[0]
+	.process(module->params[Tracker::PARAM_OCTAVE_UP].getValue()))
 		if (this->pattern_octave < 9)
 			this->pattern_octave += 1;
-	if (this->button_octave[1].process(module->params[Tracker::PARAM_OCTAVE_DOWN].getValue()))
+	if (this->button_octave[1]
+	.process(module->params[Tracker::PARAM_OCTAVE_DOWN].getValue()))
 		if (this->pattern_octave > 0)
 			this->pattern_octave -= 1;
 	/// HANDLE JUMP BUTTONS
-	if (this->button_jump[0].process(module->params[Tracker::PARAM_JUMP_UP].getValue()))
+	if (this->button_jump[0]
+	.process(module->params[Tracker::PARAM_JUMP_UP].getValue()))
 		if (this->pattern_jump < 16)
 			this->pattern_jump += 1;
-	if (this->button_jump[1].process(module->params[Tracker::PARAM_JUMP_DOWN].getValue()))
+	if (this->button_jump[1]
+	.process(module->params[Tracker::PARAM_JUMP_DOWN].getValue()))
 		if (this->pattern_jump > 0)
 			this->pattern_jump -= 1;
 
@@ -192,36 +186,36 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 		/// TO RIGHT
 		if (delta_x > 0) {
 			//// VELOCITY
-			if (this->pattern_cell == 2 && !g_editor->switch_view[0].state)
+			if (this->pattern_cell == 2 && !g_editor->pattern_view_velo)
 				this->pattern_cell += 1;
 			//// PANNING
-			if (this->pattern_cell == 3 && !g_editor->switch_view[1].state)
+			if (this->pattern_cell == 3 && !g_editor->pattern_view_pan)
 				this->pattern_cell += 1;
 			//// DELAY
-			if (this->pattern_cell == 5 && !g_editor->switch_view[2].state)
+			if (this->pattern_cell == 5 && !g_editor->pattern_view_glide)
 				this->pattern_cell += 1;
 			//// GLIDE
-			if (this->pattern_cell == 6 && !g_editor->switch_view[3].state)
+			if (this->pattern_cell == 6 && !g_editor->pattern_view_delay)
 				this->pattern_cell += 1;
 			//// EFFECT
-			if (this->pattern_cell > 6 && !g_editor->switch_view[4].state)
+			if (this->pattern_cell > 6 && !g_editor->pattern_view_fx)
 				this->pattern_cell = 7 + 2 * note_col ->effect_count;
 		/// TO LEFT
 		} else if (delta_x < 0) {
 			//// EFFECT
-			if (this->pattern_cell > 6 && !g_editor->switch_view[4].state)
+			if (this->pattern_cell > 6 && !g_editor->pattern_view_fx)
 				this->pattern_cell = 6;
 			//// GLIDE
-			if (this->pattern_cell == 6 && !g_editor->switch_view[3].state)
+			if (this->pattern_cell == 6 && !g_editor->pattern_view_delay)
 				this->pattern_cell -= 1;
 			//// DELAY
-			if (this->pattern_cell == 5 && !g_editor->switch_view[2].state)
+			if (this->pattern_cell == 5 && !g_editor->pattern_view_glide)
 				this->pattern_cell -= 1;
 			//// PANNING
-			if (this->pattern_cell == 3 && !g_editor->switch_view[1].state)
+			if (this->pattern_cell == 3 && !g_editor->pattern_view_pan)
 				this->pattern_cell -= 1;
 			//// VELOCITY
-			if (this->pattern_cell == 2 && !g_editor->switch_view[0].state)
+			if (this->pattern_cell == 2 && !g_editor->pattern_view_velo)
 				this->pattern_cell -= 1;
 		}
 	}
@@ -240,29 +234,29 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 					x += 2;
 				if (this->pattern_cell > 1)
 					x += 1;
-				if (this->pattern_cell > 2 && this->switch_view[0].state)
+				if (this->pattern_cell > 2 && this->pattern_view_velo)
 					x += 2;
-				if (this->pattern_cell > 3 && this->switch_view[1].state)
+				if (this->pattern_cell > 3 && this->pattern_view_pan)
 					x += 2;
 				if (this->pattern_cell > 4)
 					x += 2;
-				if (this->pattern_cell > 5 && this->switch_view[2].state)
+				if (this->pattern_cell > 5 && this->pattern_view_glide)
 					x += 2;
-				if (this->pattern_cell > 6 && this->switch_view[3].state)
+				if (this->pattern_cell > 6 && this->pattern_view_delay)
 					x += 2;
-				if (this->pattern_cell > 7 && this->switch_view[4].state) {
+				if (this->pattern_cell > 7 && this->pattern_view_fx) {
 					x += 3 * ((this->pattern_cell - 7) / 2);
 					x += (this->pattern_cell - 7) % 2;
 				}
 				break;
 			}
 			x += (2 + 1
-			/**/ + g_editor->switch_view[0].state * 2
-			/**/ + g_editor->switch_view[1].state * 2
+			/**/ + g_editor->pattern_view_velo * 2
+			/**/ + g_editor->pattern_view_pan * 2
 			/**/ + 2
-			/**/ + g_editor->switch_view[2].state * 2
-			/**/ + g_editor->switch_view[3].state * 2
-			/**/ + g_editor->switch_view[4].state * 3 * note_col->effect_count
+			/**/ + g_editor->pattern_view_glide * 2
+			/**/ + g_editor->pattern_view_delay * 2
+			/**/ + g_editor->pattern_view_fx * 3 * note_col->effect_count
 			/**/ + 1);
 		/// ON CV
 		} else {
@@ -341,15 +335,15 @@ void Editor::pattern_clamp_cursor(void) {
 				this->pattern_cell = 7 + 2 * col_note->effect_count - 1;
 				/// CHECK ON/OFF VIEW MODES
 				//// EFFECT
-				if (g_editor->switch_view[4].state == false)
+				if (g_editor->pattern_view_fx == false)
 					this->pattern_cell = 6;
 				//// GLIDE
 				if (this->pattern_cell == 6
-				&& g_editor->switch_view[3].state == false)
+				&& g_editor->pattern_view_delay == false)
 					this->pattern_cell -= 1;
 				//// DELAY
 				if (this->pattern_cell == 5
-				&& g_editor->switch_view[2].state == false)
+				&& g_editor->pattern_view_glide == false)
 					this->pattern_cell -= 1;
 			/// FALL ON CV COL
 			} else {
@@ -370,15 +364,15 @@ void Editor::pattern_clamp_cursor(void) {
 					this->pattern_cell = 7 + 2 * col_note->effect_count - 1;
 					/// CHECK ON/OFF VIEW MODES
 					//// EFFECT
-					if (g_editor->switch_view[4].state == false)
+					if (g_editor->pattern_view_fx == false)
 						this->pattern_cell = 6;
 					//// GLIDE
 					if (this->pattern_cell == 6
-					&& g_editor->switch_view[3].state == false)
+					&& g_editor->pattern_view_delay == false)
 						this->pattern_cell -= 1;
 					//// DELAY
 					if (this->pattern_cell == 5
-					&& g_editor->switch_view[2].state == false)
+					&& g_editor->pattern_view_glide == false)
 						this->pattern_cell -= 1;
 				/// GOT CV
 				} else {

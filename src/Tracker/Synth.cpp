@@ -129,7 +129,7 @@ void Synth::context_menu(Menu *menu) {
 		}
 	));
 	/// ADD SYNTH UPDATE BUTTON
-	menu->addChild(new MenuItemStay("Update synth", "",
+	menu->addChild(createMenuItem("Update synth", "",
 		[=]() {
 			/// WAIT FOR THREAD FLAG
 			while (g_timeline->thread_flag.test_and_set()) {}

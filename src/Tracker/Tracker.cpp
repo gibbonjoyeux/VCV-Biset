@@ -14,7 +14,8 @@ Tracker			*g_module = NULL;
 ////////////////////////////////////////////////////////////////////////////////
 
 Tracker::Tracker() {
-	int	i;
+	ParamQuantityMode	*switch_mode;
+	int					i;
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
@@ -27,13 +28,29 @@ Tracker::Tracker() {
 	configParam(PARAM_SYNTH, 0.0f, 63.0f, 0.f, "Synth")->snapEnabled = true;
 	configParam(PARAM_PATTERN, 0.0f, 255.0f, 0.f, "Pattern")->snapEnabled = true;
 
+	switch_mode = configSwitch<ParamQuantityMode>(PARAM_MODE_PATTERN,
+	/**/ 0, 1, 1, "Mode pattern");
+	switch_mode->mode_min = PARAM_MODE_PATTERN;
+	switch_mode->mode_max = PARAM_MODE_TUNING;
+	switch_mode = configSwitch<ParamQuantityMode>(PARAM_MODE_TIMELINE,
+	/**/ 0, 1, 0, "Mode timeline");
+	switch_mode->mode_min = PARAM_MODE_PATTERN;
+	switch_mode->mode_max = PARAM_MODE_TUNING;
+	switch_mode = configSwitch<ParamQuantityMode>(PARAM_MODE_MATRIX,
+	/**/ 0, 1, 0, "Mode matrix");
+	switch_mode->mode_min = PARAM_MODE_PATTERN;
+	switch_mode->mode_max = PARAM_MODE_TUNING;
+	switch_mode = configSwitch<ParamQuantityMode>(PARAM_MODE_TUNING,
+	/**/ 0, 1, 0, "Mode tuning");
+	switch_mode->mode_min = PARAM_MODE_PATTERN;
+	switch_mode->mode_max = PARAM_MODE_TUNING;
+
 	configSwitch(PARAM_VIEW, 0, 1, 0, "View Velocity");
 	configSwitch(PARAM_VIEW + 1, 0, 1, 0, "View Panning");
 	configSwitch(PARAM_VIEW + 2, 0, 1, 0, "View Delay");
 	configSwitch(PARAM_VIEW + 3, 0, 1, 0, "View Glide");
 	configSwitch(PARAM_VIEW + 4, 0, 1, 0, "View Effects");
 
-	configParam(PARAM_SONG_LENGTH, 1.0f, 9999.0f, 0.0f, "Song length", " beats")->snapEnabled = true;
 	configParam(PARAM_SYNTH_CHANNEL_COUNT, 1.0f, 16.0f, 0.0f, "Synth channels")->snapEnabled = true;
 	configParam(PARAM_SYNTH_MODE, 0.0f, 2.0f, 0.0f, "Synth mode")->snapEnabled = true;
 	configParam(PARAM_PATTERN_LENGTH, 1.0f, 999.0f, 0.0f, "Pattern length", " beats")->snapEnabled = true;
@@ -52,10 +69,6 @@ Tracker::Tracker() {
 	configParam(PARAM_COLUMN_FX_PANNING, 0.0f, 100.0f, 0.0f, "Random pitch", "%");
 	configParam(PARAM_COLUMN_FX_DELAY, 0.0f, 100.0f, 0.0f, "Random delay", "%");
 	configParam(PARAM_COLUMN_FX_CHANCE, 0.0f, 100.0f, 0.0f, "Random chance", "%");
-
-	configButton(PARAM_MODE + 0, "Mode pattern");
-	configButton(PARAM_MODE + 1, "Mode timeline");
-	configButton(PARAM_MODE + 2, "Mode parameters");
 
 	configButton(PARAM_OCTAVE_UP, "Octave +");
 	configButton(PARAM_OCTAVE_DOWN, "Octave -");

@@ -171,6 +171,28 @@ struct ParamQuantityClock : ParamQuantity {
 	}
 };
 
+/// ParamQuantity for set of connected switches (only one active)
+struct ParamQuantityMode : ParamQuantity {
+	std::vector<std::string>	labels;
+	int							mode_min;
+	int							mode_max;
+
+	void setValue(float value) override {
+		int		i;
+
+		if (value == 1 && this->getValue() == 0) {
+			ParamQuantity::setValue(1);
+			if (this->module) {
+				for (i = this->mode_min; i <= this->mode_max; ++i) {
+					if (i != this->paramId)
+						this->module->paramQuantities[i]
+						/**/ ->ParamQuantity::setValue(0);
+				}
+			}
+		}
+	}
+};
+
 //////////////////////////////
 /// INLET / OUTLET
 //////////////////////////////

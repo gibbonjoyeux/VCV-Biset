@@ -39,7 +39,7 @@ static void get_cell(
 			return;
 		}
 		/// VELOCITY
-		if (g_editor->switch_view[0].state) {
+		if (g_editor->pattern_view_velo) {
 			x += 2;
 			if (x >= x_aim) {
 				cell = 2;
@@ -47,7 +47,7 @@ static void get_cell(
 			}
 		}
 		/// PANNING
-		if (g_editor->switch_view[1].state) {
+		if (g_editor->pattern_view_pan) {
 			x += 2;
 			if (x >= x_aim) {
 				cell = 3;
@@ -61,7 +61,7 @@ static void get_cell(
 			return;
 		}
 		/// DELAY
-		if (g_editor->switch_view[2].state) {
+		if (g_editor->pattern_view_glide) {
 			x += 2;
 			if (x >= x_aim) {
 				cell = 5;
@@ -69,7 +69,7 @@ static void get_cell(
 			}
 		}
 		/// GLIDE
-		if (g_editor->switch_view[3].state) {
+		if (g_editor->pattern_view_delay) {
 			x += 2;
 			if (x >= x_aim) {
 				cell = 6;
@@ -77,7 +77,7 @@ static void get_cell(
 			}
 		}
 		/// EFFECTS
-		if (g_editor->switch_view[4].state) {
+		if (g_editor->pattern_view_fx) {
 			cell = 7;
 			for (j = 0; j < col_note->effect_count; ++j) {
 				/// TYPE
@@ -180,7 +180,7 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 		quant_effect_count->defaultValue = col_note->effect_count;
 		menu->addChild(new MenuSliderEdit(quant_effect_count, 0));
 		/// ADD COLUMN UPDATE BUTTON
-		menu->addChild(new MenuItemStay("Update pattern column", "",
+		menu->addChild(createMenuItem("Update pattern column", "",
 			[=]() {
 				PatternNoteCol	*col_note;
 				int	note_effect;
@@ -237,7 +237,7 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 		quant->defaultValue = col_cv->channel;
 		menu->addChild(new MenuSliderEdit(quant, 0));
 		/// ADD COLUMN UPDATE BUTTON
-		menu->addChild(new MenuItemStay("Update pattern column", "",
+		menu->addChild(createMenuItem("Update pattern column", "",
 			[=]() {
 				PatternCVCol	*col_cv;
 				int				cv_mode;

@@ -87,29 +87,20 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	/**/ module,
 	/**/ Tracker::PARAM_STOP));
 
-	//// MODE BUTTON
-	//// VIEW LIGHT SWITCHES
-	for (i = 0; i < 3; ++i) {
+	//// EDITOR MODE SWITCHES
+	for (i = 0; i < 4; ++i) {
 		addParam(
-		/**/ createParamCentered<LEDButton>(mm2px(Vec(55.0 + 8.0 * i, 123.7)),
+		/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(55.0 + 8.0 * i, 123.7)),
 		/**/ module,
-		/**/ Tracker::PARAM_MODE + i));
-		addChild(
-		/**/ createLightCentered<LargeLight<YellowLight>>(mm2px(Vec(55.0 + 8.0 * i, 123.7)),
-		/**/ module,
-		/**/ Tracker::LIGHT_MODE + i));
+		/**/ Tracker::PARAM_MODE_PATTERN + i));
 	}
 
-	//// VIEW LIGHT SWITCHES
+	//// PATTERN VIEW MODE SWITCHES
 	for (i = 0; i < 5; ++i) {
 		addParam(
-		/**/ createParamCentered<LEDButton>(mm2px(Vec(90.0 + 8.0 * i, 123.7)),
+		/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(90.0 + 8.0 * i, 123.7)),
 		/**/ module,
 		/**/ Tracker::PARAM_VIEW + i));
-		addChild(
-		/**/ createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(90.0 + 8.0 * i, 123.7)),
-		/**/ module,
-		/**/ Tracker::LIGHT_VIEW + i));
 	}
 
 	/// [2] ADD OUTPUT
@@ -243,19 +234,36 @@ void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
 		return;
 
 	/// CHANGE VIEW
-	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_SHIFT)
-	&& (e.key == GLFW_KEY_LEFT || e.key == GLFW_KEY_RIGHT)) {
-		if (g_editor->mode == EDITOR_MODE_PATTERN) {
-			g_module->params[Tracker::PARAM_MODE + 0].setValue(0);
-			g_module->params[Tracker::PARAM_MODE + 1].setValue(1);
-			g_editor->mode = EDITOR_MODE_TIMELINE;
-		} else if (g_editor->mode == EDITOR_MODE_TIMELINE) {
-			g_module->params[Tracker::PARAM_MODE + 0].setValue(1);
-			g_module->params[Tracker::PARAM_MODE + 1].setValue(0);
-			g_editor->mode = EDITOR_MODE_PATTERN;
+	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_SHIFT)) {
+		if (e.key == GLFW_KEY_LEFT) {
+			g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(1);
+			g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(0);
+			g_module->params[Tracker::PARAM_MODE_MATRIX].setValue(0);
+			g_module->params[Tracker::PARAM_MODE_TUNING].setValue(0);
+			e.consume(this);
+			return;
+		} else if (e.key == GLFW_KEY_RIGHT) {
+			g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(0);
+			g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(1);
+			g_module->params[Tracker::PARAM_MODE_MATRIX].setValue(0);
+			g_module->params[Tracker::PARAM_MODE_TUNING].setValue(0);
+			e.consume(this);
+			return;
+		} else if (e.key == GLFW_KEY_UP) {
+			g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(0);
+			g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(0);
+			g_module->params[Tracker::PARAM_MODE_MATRIX].setValue(1);
+			g_module->params[Tracker::PARAM_MODE_TUNING].setValue(0);
+			e.consume(this);
+			return;
+		} else if (e.key == GLFW_KEY_DOWN) {
+			g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(0);
+			g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(0);
+			g_module->params[Tracker::PARAM_MODE_MATRIX].setValue(0);
+			g_module->params[Tracker::PARAM_MODE_TUNING].setValue(1);
+			e.consume(this);
+			return;
 		}
-		e.consume(this);
-		return;
 	}
 	/// EDIT PATTERN & TIMELINE
 	if (g_editor->mode == EDITOR_MODE_PATTERN) {

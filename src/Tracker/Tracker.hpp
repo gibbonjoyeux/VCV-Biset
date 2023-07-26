@@ -10,7 +10,8 @@
 
 #define EDITOR_MODE_PATTERN			0
 #define EDITOR_MODE_TIMELINE		1
-#define EDITOR_MODE_PARAMETERS		2
+#define EDITOR_MODE_MATRIX			2
+#define EDITOR_MODE_TUNING			3
 
 #define PATTERN_EFFECT_NONE			0
 #define PATTERN_EFFECT_RAND_AMP		1	// Axx
@@ -356,8 +357,6 @@ struct EditorTrigger : dsp::BooleanTrigger {
 };
 
 struct Editor {
-	Module						*module;
-
 	int							mode;			// Pattern / Timeline / Param
 	bool						selected;
 	int							pattern_id;		// Active pattern
@@ -402,8 +401,6 @@ struct Editor {
 	int							side_mouse_button;
 	int							side_mouse_action;
 
-	EditorSwitch				switch_view[5];
-	EditorTrigger				button_mode[3];
 	EditorTrigger				button_octave[2];
 	EditorTrigger				button_jump[2];
 	EditorTrigger				button_save;
@@ -441,7 +438,7 @@ struct Tracker : Module {
 								PARAM_OCTAVE_UP,
 								PARAM_OCTAVE_DOWN,
 								/// CONTEXT SONG
-								PARAM_SONG_LENGTH,
+								//PARAM_SONG_LENGTH,
 								/// CONTEXT SYNTH
 								PARAM_SYNTH_CHANNEL_COUNT,
 								PARAM_SYNTH_MODE,
@@ -465,7 +462,11 @@ struct Tracker : Module {
 								PARAM_COLUMN_FX_DELAY,
 								PARAM_COLUMN_FX_CHANCE,
 								/// SCREEN MODE SWITCHES
-								ENUMS(PARAM_MODE, 3),
+								//ENUMS(PARAM_MODE, 3),
+								PARAM_MODE_PATTERN,
+								PARAM_MODE_TIMELINE,
+								PARAM_MODE_MATRIX,
+								PARAM_MODE_TUNING,
 								/// VIEW MODE SWITCHES
 								ENUMS(PARAM_VIEW, 5),
 								/// CONTEXT PROJECT
@@ -488,8 +489,6 @@ struct Tracker : Module {
 	enum LightIds {
 								LIGHT_FOCUS,
 								LIGHT_PLAY,
-								ENUMS(LIGHT_MODE, 3),
-								ENUMS(LIGHT_VIEW, 5),
 								LIGHT_COUNT
 	};
 
