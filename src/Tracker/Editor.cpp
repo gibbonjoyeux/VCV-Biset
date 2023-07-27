@@ -143,18 +143,6 @@ void Editor::process(i64 frame) {
 	.process(module->params[Tracker::PARAM_JUMP_DOWN].getValue()))
 		if (this->pattern_jump > 0)
 			this->pattern_jump -= 1;
-
-	///// [4] HANDLE INFO SCREEN
-	///// HANDLE PATTERN SELECTION
-	//value = module->params[Tracker::PARAM_PATTERN].getValue();
-	//if (value != this->pattern_id)
-	//	if (value >= 0 && value < 256)
-	//		this->set_pattern(value, false);
-	///// HANDLE SYNTH SELECTION
-	//value = module->params[Tracker::PARAM_SYNTH].getValue();
-	//if (value != this->synth_id)
-	//	if (value >= 0 && value < 64)
-	//		this->set_synth(value, false);
 }
 
 void Editor::set_synth(int index) {

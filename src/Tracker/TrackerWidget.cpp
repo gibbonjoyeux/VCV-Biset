@@ -103,12 +103,6 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 		/**/ Tracker::PARAM_VIEW + i));
 	}
 
-	/// [2] ADD OUTPUT
-	addOutput(
-	/**/ createOutputCentered<Outlet>(mm2px(Vec(237.0, 123.00)),
-	/**/ module,
-	/**/ Tracker::OUTPUT_CLOCK));
-
 	/// [3] ADD LIGHTS
 	addChild(
 	/**/ createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(241.25, 3.0)),
@@ -154,39 +148,6 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(KNOB_X + 4.25, KNOB_Y + 10.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_BPM));
-
-	/// SYNTH SELECTOR
-	//// DISPLAY
-	//display_synth = createWidget<TrackerDisplaySynth>(mm2px(Vec(KNOB_X + KNOB_STEP, KNOB_Y)));
-	//display_synth->box.size = mm2px(Vec(8.25, 3.5));
-	//display_synth->module = module;
-	//if (module)
-	//	display_synth->value_quant = module->paramQuantities[Tracker::PARAM_SYNTH];
-	//display_synth->value_length = 2;
-	//display_synth->color_back = colors[15];
-	//display_synth->color_font = colors[4];
-	//addChild(display_synth);
-	//// KNOB
-	addParam(createParamCentered<KnobMedium>(mm2px(Vec(KNOB_X + KNOB_STEP + 4.25, KNOB_Y + 10.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_SYNTH));
-
-	/// PATTERN SELECTOR
-	//// DISPLAY
-	//display_pattern = createWidget<TrackerDisplayPattern>(mm2px(Vec(KNOB_X + KNOB_STEP * 2, KNOB_Y)));
-	//display_pattern->box.size = mm2px(Vec(8.25, 3.5));
-	//display_pattern->module = module;
-	//if (module)
-	//	display_pattern->value_quant = module->paramQuantities[Tracker::PARAM_PATTERN];
-	//display_pattern->value_length = 3;
-	//display_pattern->color_back = colors[15];
-	//display_pattern->color_font = colors[4];
-	//addChild(display_pattern);
-	//// KNOB
-	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(KNOB_X + KNOB_STEP * 2 + 4.25, KNOB_Y + 10.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_PATTERN));
 
 	/// SELECT JUMP
 	//// DISPLAY

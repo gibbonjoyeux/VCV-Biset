@@ -101,17 +101,28 @@ SynthVoice* Synth::add(PatternNoteCol *col, PatternNote *note, int lpb) {
 }
 
 void Synth::context_menu(Menu *menu) {
-	ParamQuantity	*quant_mode;
-	ParamQuantity	*quant_channel;
+	ParamQuantityLink	*quant_channel;
+	ParamQuantityLink	*quant_mode;
 
 	/// ADD SYNTH CHANNEL COUNT
-	quant_channel = g_module->paramQuantities[Tracker::PARAM_SYNTH_CHANNEL_COUNT];
-	quant_channel->setValue(this->channel_count);
+	quant_channel = (ParamQuantityLink*)
+	/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 0];
+	quant_channel->minValue = 1;
+	quant_channel->maxValue = 16;
 	quant_channel->defaultValue = this->channel_count;
+	quant_channel->setValue(this->channel_count);
+	quant_channel->name = "Synth channels";
+	quant_channel->unit = "";
+	quant_channel->precision = 0;
+	quant_channel->setLink(NULL);
 	menu->addChild(new MenuSliderEdit(quant_channel, 0));
 	/// ADD SYNTH MODE
-	quant_mode = g_module->paramQuantities[Tracker::PARAM_SYNTH_MODE];
+	quant_mode = (ParamQuantityLink*)
+	/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 1];
+	quant_mode->minValue = 0;
+	quant_mode->maxValue = 2;
 	quant_mode->setValue(this->mode);
+	quant_mode->setLink(NULL);
 	menu->addChild(rack::createSubmenuItem("Mode", "",
 		[=](Menu *menu) {
 			menu->addChild(new MenuCheckItem("Gate", "",

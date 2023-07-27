@@ -134,6 +134,7 @@ struct KnobMedium : FlatKnob {
 // ParamQuantity that links its value to an external float.
 // Allows to easily use parameters into context menu sliders.
 struct ParamQuantityLink : ParamQuantity {
+	int			precision = 2;
 	float		*link = NULL;
 
 	void setValue(float value) override {
@@ -142,7 +143,15 @@ struct ParamQuantityLink : ParamQuantity {
 			*(this->link) = value;
 	}
 
+	std::string getDisplayValueString() override {
+		if (precision == 0)
+			return rack::string::f("%d", (int)this->getValue());
+		return rack::string::f("%.*f", this->precision, this->getValue());
+	}
+
 	void setLink(float *link) {
+		if (link)
+			*link = this->getValue();
 		this->link = link;
 	}
 };

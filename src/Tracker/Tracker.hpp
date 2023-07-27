@@ -428,51 +428,26 @@ struct Tracker : Module {
 								PARAM_PLAY_PATTERN,
 								PARAM_PLAY,
 								PARAM_STOP,
-								/// BPM / SYNTH / PATTERN KNOBS
+								/// BPM
 								PARAM_BPM,
-								PARAM_SYNTH,
-								PARAM_PATTERN,
 								/// JUMP / OCTAVE BUTTONS
 								PARAM_JUMP_UP,
 								PARAM_JUMP_DOWN,
 								PARAM_OCTAVE_UP,
 								PARAM_OCTAVE_DOWN,
-								/// CONTEXT SONG
-								//PARAM_SONG_LENGTH,
-								/// CONTEXT SYNTH
-								PARAM_SYNTH_CHANNEL_COUNT,
-								PARAM_SYNTH_MODE,
-								/// CONTEXT PATTERN
-								PARAM_PATTERN_LENGTH,
-								PARAM_PATTERN_LPB,
-								PARAM_PATTERN_NOTE_COUNT,
-								PARAM_PATTERN_CV_COUNT,
-								PARAM_PATTERN_COLOR,
-								/// CONTEXT PATTERN COLUMN
-								PARAM_COLUMN_NOTE_EFFECT_COUNT,
-								PARAM_COLUMN_CV_MODE,
-								PARAM_COLUMN_CV_SYNTH,
-								PARAM_COLUMN_CV_CHANNEL,
-								/// CONTEXT PATTERN COLUMN EFFECTS
-								PARAM_COLUMN_FX_VELOCITY,
-								PARAM_COLUMN_FX_PANNING,
-								PARAM_COLUMN_FX_OCTAVE,
-								PARAM_COLUMN_FX_OCTAVE_MODE,
-								PARAM_COLUMN_FX_PITCH,
-								PARAM_COLUMN_FX_DELAY,
-								PARAM_COLUMN_FX_CHANCE,
-								/// SCREEN MODE SWITCHES
-								//ENUMS(PARAM_MODE, 3),
+								/// EDITOR MODE SWITCHES
 								PARAM_MODE_PATTERN,
 								PARAM_MODE_TIMELINE,
 								PARAM_MODE_MATRIX,
 								PARAM_MODE_TUNING,
 								/// VIEW MODE SWITCHES
 								ENUMS(PARAM_VIEW, 5),
-								/// CONTEXT PROJECT
-								PARAM_PITCH_BASE,
+								/// TUNING / PERFORMANCE
 								PARAM_RATE,
+								PARAM_PITCH_BASE,
 								ENUMS(PARAM_TEMPERAMENT, 12),
+								/// CONTEXT MENU
+								ENUMS(PARAM_MENU, 8),
 								/// .
 								PARAM_COUNT
 	};
@@ -480,10 +455,6 @@ struct Tracker : Module {
 								INPUT_COUNT
 	};
 	enum OutputIds {
-								OUTPUT_CLOCK,
-								ENUMS(OUTPUT_CV, 8),
-								ENUMS(OUTPUT_GATE, 8),
-								ENUMS(OUTPUT_VELO, 8),
 								OUTPUT_COUNT
 	};
 	enum LightIds {
@@ -546,18 +517,6 @@ struct TrackerDisplaySide : LedDisplay {
 	void onSelectKey(const SelectKeyEvent &e) override;
 	void draw_list(const DrawArgs &args, Rect rect,
 			int cam_y, std::function<bool(int,char**,int*,bool*)>);
-};
-
-struct TrackerDisplayBPM : LedDisplayDigit {
-	void onButton(const ButtonEvent &e) override;
-};
-
-struct TrackerDisplaySynth : LedDisplayDigit {
-	void onButton(const ButtonEvent &e) override;
-};
-
-struct TrackerDisplayPattern : LedDisplayDigit {
-	void onButton(const ButtonEvent &e) override;
 };
 
 struct TrackerWidget : ModuleWidget {
