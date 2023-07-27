@@ -96,13 +96,13 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 
 	/// [5] PLAY
 	//// MODE PLAY SONG
-	if (g_timeline->play == TIMELINE_MODE_PLAY_SONG) {
+	if (g_timeline->play == TIMELINE_MODE_PLAY_SONG
+	|| g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
 		count = 0;
 		/// COMPUTE ROWS
 		for (i = 0; i < 32; ++i) {
 			it = this->pattern_it[i];
 			it_end = this->timeline[i].end();
-
 			/// FIND PLAYING INSTANCE
 			while (it != it_end
 			&& this->clock.beat >= it->beat + it->beat_length) {
@@ -110,6 +110,15 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 				if (this->pattern_state[i] == true) {
 					this->pattern_state[i] = false;
 					this->pattern_reader[i].stop();
+					if (g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
+						if (&(*it) == g_timeline->pattern_instance) {
+							this->clock.reset();
+							this->clock.beat = g_editor->instance->beat;
+							this->stop();
+							if (g_editor->instance)
+								this->pattern_instance = g_editor->instance;
+						}
+					}
 				}
 				it = std::next(it);
 			}
@@ -142,20 +151,34 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 			/// RESET RUNNING PATTERNS
 			this->stop();
 		}
-	}
 	//// MODE PLAY PATTERN SOLO
-	//} else if (g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
-	//	pattern = g_editor->pattern;
-	//	/// UPDATE PATTERN ON END
-	//	if (this->pattern_source[0] == NULL)
-	//		this->pattern_source[0] = pattern;
-	//	/// COMPUTE PATTERN
-	//	this->pattern_reader[0].process(this->synths,
-	//	/**/ this->pattern_source[0], this->clock,
-	//	/**/ &debug, &debug_2, debug_str);
-	//}
+	} else if (g_timeline->play == TIMELINE_MODE_PLAY_PATTERN_SOLO) {
+		if (g_editor->pattern) {
+			if (this->clock.beat >= g_editor->pattern->beat_count) {
+				//this->pattern_reader[0].stop();
+				this->clock.reset();
+			}
+			/// COMPUTE PATTERN
+			this->pattern_reader[0].process(this->synths,
+			/**/ g_editor->pattern, this->clock);
+		}
 	//// MODE PLAY PATTERN LOOP
-	//// MODE PLAY LIVE
+	} else if (g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
+		//pattern = g_editor->pattern;
+		//if (pattern) {
+		//	if (this->clock.beat >= pattern->beat_count)
+		//		this->clock.reset();
+		//	///// UPDATE PATTERN ON END
+		//	//if (this->pattern_source[0] == NULL)
+		//	//	this->pattern_source[0] = pattern;
+		//	/// COMPUTE PATTERN
+		//	this->pattern_reader[0].process(this->synths,
+		//	/**/ this->pattern_source[0], this->clock,
+		//	/**/ &debug, &debug_2, debug_str);
+		//}
+	//// MODE PLAY MATRIX (LIVE)
+	} else if (g_timeline->play == TIMELINE_MODE_PLAY_MATRIX) {
+	}
 
 	//// -> ! ! ! BOTTLENECK ! ! !
 	//// -> Truncate framerate to run only every 32 / 64 frames

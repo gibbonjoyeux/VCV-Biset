@@ -24,7 +24,8 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 	p = rect.getTopLeft();
 	/// [1] DRAW PAGE
 	/// DRAW ACTIVE BEAT MARKER
-	if (g_timeline->play == TIMELINE_MODE_PLAY_SONG) {
+	if (g_timeline->play == TIMELINE_MODE_PLAY_SONG
+	|| g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
 		x = p.x + 2.0 + CHAR_W * (g_timeline->clock.beat + 2 - g_editor->timeline_cam_x);
 		nvgBeginPath(args.vg);
 		nvgFillColor(args.vg, colors[15]);

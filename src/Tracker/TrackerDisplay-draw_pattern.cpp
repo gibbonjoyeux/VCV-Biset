@@ -210,7 +210,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			}
 			/// EFFECTS
 			if (g_editor->pattern_view_fx) {
-				for (k = 0; k < note_col->effect_count; ++k) {
+				for (k = 0; k < note_col->fx_count; ++k) {
 					effect = &(note->effects[k]);
 					focus_fx = focus_line & ((g_editor->pattern_cell - 7) / 2 == k);
 					/// COMPUTE STRINGS
@@ -245,7 +245,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 		/**/ + 2					  										// SYNTH
 		/**/ + g_editor->pattern_view_glide * 2							// DELAY
 		/**/ + g_editor->pattern_view_delay * 2							// GLIDE
-		/**/ + g_editor->pattern_view_fx * 3 * note_col->effect_count	// EFFECTS
+		/**/ + g_editor->pattern_view_fx * 3 * note_col->fx_count	// EFFECTS
 		/**/ + 1);
 	}
 	/// FOR EACH CV COL

@@ -17,6 +17,8 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 		instance = g_timeline->instance_find(row, beat);
 		/// CREATE INSTANCE
 		if (instance == NULL) {
+			if (g_timeline->play != TIMELINE_MODE_STOP)
+				return;
 			g_timeline->instance_new(g_editor->pattern, row, beat);
 			g_editor->instance_handle = INSTANCE_HANDLE_MIDDLE;
 		/// EDIT INSTANCE
@@ -25,6 +27,8 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 			g_editor->instance = instance;
 			g_editor->instance_row = row;
 			g_editor->instance_beat = instance->beat;
+			if (g_timeline->play != TIMELINE_MODE_STOP)
+				return;
 			/// SELECT INSTANCE MODE
 			if (beat >= instance->beat + instance->beat_length - 1)
 				g_editor->instance_handle = INSTANCE_HANDLE_RIGHT;
@@ -46,6 +50,8 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 	int				row;
 	int				beat;
 
+	if (g_timeline->play != TIMELINE_MODE_STOP)
+		return;
 	if (e.action == GLFW_PRESS) {
 		/// COMPUTE POSITION
 		row = (int)((e.pos.y - 3) / (CHAR_H * 3)) + g_editor->timeline_cam_y - 1;
@@ -68,8 +74,6 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 
 void TrackerDisplay::on_button_timeline(const ButtonEvent &e) {
 	e.consume(this);
-	if (g_timeline->play != TIMELINE_MODE_STOP)
-		return;
 	if (g_editor->pattern == NULL)
 		return;
 	if (e.button == GLFW_MOUSE_BUTTON_LEFT)

@@ -79,7 +79,7 @@ static void get_cell(
 		/// EFFECTS
 		if (g_editor->pattern_view_fx) {
 			cell = 7;
-			for (j = 0; j < col_note->effect_count; ++j) {
+			for (j = 0; j < col_note->fx_count; ++j) {
 				/// TYPE
 				x += 1;
 				if (x >= x_aim) {
@@ -143,7 +143,7 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 	PatternCVCol		*col_cv;
 	Menu				*menu;
 	MenuLabel			*label;
-	ParamQuantityLink	*quant_effect_count;
+	ParamQuantityLink	*quant_fx_count;
 	ParamQuantityLink	*quant_synth;
 	ParamQuantityLink	*quant_channel;
 	ParamQuantityLink	*quant_mode;
@@ -177,17 +177,17 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 	if (g_editor->pattern_col < g_editor->pattern->note_count) {
 		col_note = g_editor->pattern->notes[g_editor->pattern_col];
 		/// ADD COLUMN EFFECT COUNT SLIDER
-		quant_effect_count = (ParamQuantityLink*)
+		quant_fx_count = (ParamQuantityLink*)
 		/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 4];
-		quant_effect_count->minValue = 0;
-		quant_effect_count->maxValue = 16;
-		quant_effect_count->defaultValue = col_note->effect_count;
-		quant_effect_count->setValue(col_note->effect_count);
-		quant_effect_count->name = "Column effects";
-		quant_effect_count->unit = "";
-		quant_effect_count->precision = 0;
-		quant_effect_count->setLink(NULL);
-		menu->addChild(new MenuSliderEdit(quant_effect_count, 0));
+		quant_fx_count->minValue = 0;
+		quant_fx_count->maxValue = 16;
+		quant_fx_count->defaultValue = col_note->fx_count;
+		quant_fx_count->setValue(col_note->fx_count);
+		quant_fx_count->name = "Column effects";
+		quant_fx_count->unit = "";
+		quant_fx_count->precision = 0;
+		quant_fx_count->setLink(NULL);
+		menu->addChild(new MenuSliderEdit(quant_fx_count, 0));
 
 		/// ADD COLUMN UPDATE BUTTON
 		menu->addChild(createMenuItem("Update pattern column", "",
@@ -202,8 +202,8 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 				col_note = g_editor->pattern->notes[g_editor->pattern_col];
 				count = g_module->params[Tracker::PARAM_MENU + 4]
 				/**/ .getValue();
-				if (count != col_note->effect_count)
-					col_note->effect_count = count;
+				if (count != col_note->fx_count)
+					col_note->fx_count = count;
 
 				/// CLEAR THREAD FLAG
 				g_timeline->thread_flag.clear();

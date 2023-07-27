@@ -41,8 +41,6 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 
 # TODO
 
-- [ ] Do no use specific params for context but generic params
-
 - [ ] NEW VERSION
 	- [ ] BACKEND
 		- [x] Timeline
@@ -90,7 +88,9 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 	- [ ] BACKEND
 		- [ ] PLAY
 			- [x] Play song
+			- [x] Play pattern solo
 			- [x] Play pattern
+			- [ ] Play matrix
 		- [x] TIMELINE
 			- [x] Pattern new		(run new pattern)
 			- [x] Pattern keep		(keep active pattern)
@@ -168,16 +168,15 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 		- [ ] ActionPatternColumn	(change pattern column)
 		- [ ] ActionSynth			(change synth)
 		- [ ] ActionSynthOut		(change synth output module)
-- [ ] MODULE TrackerOut
-	- [ ] FRONTEND
-		- [ ] Context menu
+- [x] MODULE TrackerSynth / TrackerDrum
+	- [x] FRONTEND
+		- [x] Context menu
 			- [x] CV mode range
-			- [ ] CV mode mapping
-	- [ ] BACKEND
-		- [ ] CV
+			- [x] CV mode mapping
+	- [x] BACKEND
+		- [x] CV
 			- [x] CV mode range (min / max sliders)
-			- [ ] CV mode mapping
-- [ ] MODULE TrackerDrumOut
+			- [x] CV mode mapping
 - [x] MODULE TrackerClock (mult & div clock)
 - [x] MODULE TrackerPhase (mult & div synced LFO)
 - [ ] MODULE TrackerState (Playing gate & trigger)
@@ -215,18 +214,3 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 [ ] Rxx	Ratchet / Retrigger		(xx: retrigger interval) ? (x: amp fade y: interval)
 		x<5 : decrease | x>5 : increase | x=5 : static
 		y represents the interval between retriggers
-
-# live coding
-
-- pitch
-	- seq
-	- rnd
-	- xrnd
-	- shuf
-	- walk
-	- 0 1 2 seq(3 4 5)	=> 0 1 2 3 | 0 1 2 4 | 0 1 2 5
-	- 0 1 2 rnd(3 4 5)	=> 0 1 2 5 | 0 1 2 3 | 0 1 2 4
-- time
-- octave
-
-xrand(shuf(0.5, 0.25, 0.25)!1 seq(0.125)!4)!1

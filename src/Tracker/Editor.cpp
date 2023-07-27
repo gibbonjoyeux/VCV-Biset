@@ -106,7 +106,17 @@ void Editor::process(i64 frame) {
 	.process(module->params[Tracker::PARAM_PLAY_PATTERN].getValue())) {
 		g_timeline->stop();
 		g_timeline->clock.reset();
-		g_timeline->play = TIMELINE_MODE_PLAY_PATTERN;
+		if (g_editor->mode == EDITOR_MODE_PATTERN) {
+			if (g_editor->pattern)
+				g_timeline->play = TIMELINE_MODE_PLAY_PATTERN_SOLO;
+		} else {
+			if (g_editor->instance) {
+				g_timeline->pattern_instance = g_editor->instance;
+				g_timeline->play = TIMELINE_MODE_PLAY_PATTERN;
+				g_timeline->clock.reset();
+				g_timeline->clock.beat = g_editor->instance->beat;
+			}
+		}
 	}
 	//// PLAY
 	if (this->button_play[2]
@@ -187,7 +197,7 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 				this->pattern_cell += 1;
 			//// EFFECT
 			if (this->pattern_cell > 6 && !g_editor->pattern_view_fx)
-				this->pattern_cell = 7 + 2 * note_col ->effect_count;
+				this->pattern_cell = 7 + 2 * note_col ->fx_count;
 		/// TO LEFT
 		} else if (delta_x < 0) {
 			//// EFFECT
@@ -244,7 +254,7 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 			/**/ + 2
 			/**/ + g_editor->pattern_view_glide * 2
 			/**/ + g_editor->pattern_view_delay * 2
-			/**/ + g_editor->pattern_view_fx * 3 * note_col->effect_count
+			/**/ + g_editor->pattern_view_fx * 3 * note_col->fx_count
 			/**/ + 1);
 		/// ON CV
 		} else {
@@ -301,7 +311,7 @@ void Editor::pattern_clamp_cursor(void) {
 		/// NOTE COL
 		if (this->pattern_col < pattern->note_count) {
 			col_note = pattern->notes[this->pattern_col];
-			this->pattern_cell = 7 + 2 * col_note->effect_count - 1;
+			this->pattern_cell = 7 + 2 * col_note->fx_count - 1;
 		/// CV COL
 		} else { 
 			this->pattern_cell = 2;
@@ -320,7 +330,7 @@ void Editor::pattern_clamp_cursor(void) {
 			/// FALL ON NOTE COL
 			if (this->pattern_col < pattern->note_count) {
 				col_note = pattern->notes[this->pattern_col];
-				this->pattern_cell = 7 + 2 * col_note->effect_count - 1;
+				this->pattern_cell = 7 + 2 * col_note->fx_count - 1;
 				/// CHECK ON/OFF VIEW MODES
 				//// EFFECT
 				if (g_editor->pattern_view_fx == false)
@@ -344,12 +354,12 @@ void Editor::pattern_clamp_cursor(void) {
 	if (this->pattern_col < pattern->note_count) {
 		col_note = pattern->notes[this->pattern_col];
 		/// HANDLE COL NOTE OVERFLOW
-		if (this->pattern_cell >= 7 + 2 * col_note->effect_count) {
+		if (this->pattern_cell >= 7 + 2 * col_note->fx_count) {
 			/// FROM NOTE TO CV
 			if (this->pattern_col == pattern->note_count - 1) {
 				/// GOT NO CV
 				if (pattern->cv_count == 0) {
-					this->pattern_cell = 7 + 2 * col_note->effect_count - 1;
+					this->pattern_cell = 7 + 2 * col_note->fx_count - 1;
 					/// CHECK ON/OFF VIEW MODES
 					//// EFFECT
 					if (g_editor->pattern_view_fx == false)

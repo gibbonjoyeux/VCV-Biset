@@ -38,12 +38,13 @@ TRACKER BINARY SAVE FORMAT:
 			- Column effect count				u8
 			- Column general effects
 				- Fx velocity					u8
+				- Fx panning					u8
+				- Fx delay						u8
+				- Fx chance						u8
+				- Fx chance mode				u8
 				- Fx octave						u8
 				- Fx octave mode				u8
 				- Fx pitch						u8
-				- Fx delay						u8
-				- Fx chance						u8
-				- Fx panning					u8
 			- Column set lines count			u16
 			- Lines (only set lines)
 				- Line number					u16
@@ -218,14 +219,15 @@ static void fill_save_buffer() {
 		/// PATTERN NOTE COLUMNS
 		for (j = 0; j < pattern->note_count; ++j) {
 			note_col = pattern->notes[j];
-			fill_u8(note_col->effect_count);		// Effect count
-			fill_u8(note_col->effect_velocity);		// Fx velocity
-			fill_u8(note_col->effect_octave);		// Fx octave
-			fill_u8(note_col->effect_octave_mode);	// Fx octave_mode
-			fill_u8(note_col->effect_pitch);		// Fx pitch
-			fill_u8(note_col->effect_delay);		// Fx delay
-			fill_u8(note_col->effect_chance);		// Fx chance
-			fill_u8(note_col->effect_panning);		// Fx panning
+			fill_u8(note_col->fx_count);		// Effect count
+			fill_u8(note_col->fx_velocity);		// Fx velocity
+			fill_u8(note_col->fx_panning);		// Fx panning
+			fill_u8(note_col->fx_delay);		// Fx delay
+			fill_u8(note_col->fx_chance);		// Fx chance
+			fill_u8(note_col->fx_chance_mode);	// Fx chance mode
+			fill_u8(note_col->fx_octave);		// Fx octave
+			fill_u8(note_col->fx_octave_mode);	// Fx octave mode
+			fill_u8(note_col->fx_pitch);		// Fx pitch
 			fill_cursor_save(sizeof(u16));			// -> Prepare set lines count
 			count = 0;
 			for (k = 0; k < pattern->line_count; ++k) {
@@ -239,7 +241,7 @@ static void fill_save_buffer() {
 					fill_u8(note->synth);				// Note synth
 					fill_u8(note->delay);				// Note delay
 					fill_u8(note->glide);				// Note glide
-					for (l = 0; l < note_col->effect_count; ++l) {
+					for (l = 0; l < note_col->fx_count; ++l) {
 						fill_u8(note->effects[l].type);	// Effect type
 						fill_u8(note->effects[l].value);// Effect value
 					}

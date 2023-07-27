@@ -43,12 +43,13 @@ TRACKER BINARY SAVE FORMAT:
 			- Column effect count				u8
 			- Column general effects
 				- Fx velocity					u8
+				- Fx panning					u8
+				- Fx delay						u8
+				- Fx chance						u8
+				- Fx chance mode				u8
 				- Fx octave						u8
 				- Fx octave mode				u8
 				- Fx pitch						u8
-				- Fx delay						u8
-				- Fx chance						u8
-				- Fx panning					u8
 			- Column set lines count			u16
 			- Lines (only set lines)
 				- Line number					u16
@@ -223,14 +224,15 @@ static bool compute_save_file(void) {
 		/// PATTERN NOTES
 		for (j = 0; j < note_count; ++j) {
 			note_col = pattern->notes[j];
-			note_col->effect_count = read_u8();			// Column effect count
-			note_col->effect_velocity = read_u8();		// Column fx velocity
-			note_col->effect_octave = read_u8();		// Column fx octave
-			note_col->effect_octave_mode = read_u8();	// Column fx octave mode
-			note_col->effect_pitch = read_u8();			// Column fx pitch
-			note_col->effect_delay = read_u8();			// Column fx delay
-			note_col->effect_chance = read_u8();		// Column fx chance
-			note_col->effect_panning = read_u8();		// Column fx panning
+			note_col->fx_count = read_u8();			// Column effect count
+			note_col->fx_velocity = read_u8();		// Column fx velocity
+			note_col->fx_panning = read_u8();		// Column fx panning
+			note_col->fx_delay = read_u8();			// Column fx delay
+			note_col->fx_chance = read_u8();		// Column fx chance
+			note_col->fx_chance_mode = read_u8();	// Column fx chance mode
+			note_col->fx_octave = read_u8();		// Column fx octave
+			note_col->fx_octave_mode = read_u8();	// Column fx octave mode
+			note_col->fx_pitch = read_u8();			// Column fx pitch
 			count = read_u16();							// Set lines count
 			for (k = 0; k < count; ++k) {
 				note = &(note_col->lines[read_u16()]);	// Line number
@@ -242,7 +244,7 @@ static bool compute_save_file(void) {
 					note->synth = read_u8();			// Note synth
 					note->delay = read_u8();			// Note delay
 					note->glide = read_u8();			// Note glide
-					for (l = 0; l < note_col->effect_count; ++l) {
+					for (l = 0; l < note_col->fx_count; ++l) {
 						note->effects[l].type = read_u8();
 						note->effects[l].value = read_u8();
 					}

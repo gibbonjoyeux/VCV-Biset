@@ -8,58 +8,60 @@
 /// CONSTANTS
 ////////////////////////////////////////////////////////////////////////////////
 
-#define EDITOR_MODE_PATTERN			0
-#define EDITOR_MODE_TIMELINE		1
-#define EDITOR_MODE_MATRIX			2
-#define EDITOR_MODE_TUNING			3
+#define EDITOR_MODE_PATTERN				0
+#define EDITOR_MODE_TIMELINE			1
+#define EDITOR_MODE_MATRIX				2
+#define EDITOR_MODE_TUNING				3
 
-#define PATTERN_EFFECT_NONE			0
-#define PATTERN_EFFECT_RAND_AMP		1	// Axx
-#define PATTERN_EFFECT_RAND_PAN		2	// Pxx
-#define PATTERN_EFFECT_RAND_DELAY	3	// Dxx
-#define PATTERN_EFFECT_RAND_OCT		4	// Oxy
-#define PATTERN_EFFECT_RAND_PITCH	5	// Mxy
-#define PATTERN_EFFECT_RAND_SCALE	6	// Sxy
-#define PATTERN_EFFECT_VIBRATO		7	// Vxy
-#define PATTERN_EFFECT_TREMOLO		8	// Txy
-#define PATTERN_EFFECT_FADE_IN		9	// Fxx
-#define PATTERN_EFFECT_FADE_OUT		10	// fxx
-#define PATTERN_EFFECT_CHANCE		11	// Cxx
-#define PATTERN_EFFECT_CHANCE_STOP	12	// cxx
-#define PATTERN_EFFECT_RACHET		13	// Rxy
+#define PATTERN_EFFECT_NONE				0
+#define PATTERN_EFFECT_RAND_AMP			1	// Axx
+#define PATTERN_EFFECT_RAND_PAN			2	// Pxx
+#define PATTERN_EFFECT_RAND_DELAY		3	// Dxx
+#define PATTERN_EFFECT_RAND_OCT			4	// Oxy
+#define PATTERN_EFFECT_RAND_PITCH		5	// Mxy
+#define PATTERN_EFFECT_RAND_SCALE		6	// Sxy
+#define PATTERN_EFFECT_VIBRATO			7	// Vxy
+#define PATTERN_EFFECT_TREMOLO			8	// Txy
+#define PATTERN_EFFECT_FADE_IN			9	// Fxx
+#define PATTERN_EFFECT_FADE_OUT			10	// fxx
+#define PATTERN_EFFECT_CHANCE			11	// Cxx
+#define PATTERN_EFFECT_CHANCE_STOP		12	// cxx
+#define PATTERN_EFFECT_RACHET			13	// Rxy
 
-#define PATTERN_NOTE_KEEP			0
-#define PATTERN_NOTE_NEW			1
-#define PATTERN_NOTE_GLIDE			2
-#define PATTERN_NOTE_CHANGE			3
-#define PATTERN_NOTE_STOP			4
-#define PATTERN_CV_KEEP				0
-#define PATTERN_CV_SET				1
-#define PATTERN_CV_MODE_CV			0
-#define PATTERN_CV_MODE_GATE		1
-#define PATTERN_CV_MODE_TRIGGER		2
-#define PATTERN_CV_MODE_BPM			3
+#define PATTERN_NOTE_KEEP				0
+#define PATTERN_NOTE_NEW				1
+#define PATTERN_NOTE_GLIDE				2
+#define PATTERN_NOTE_CHANGE				3
+#define PATTERN_NOTE_STOP				4
+#define PATTERN_CV_KEEP					0
+#define PATTERN_CV_SET					1
+#define PATTERN_CV_MODE_CV				0
+#define PATTERN_CV_MODE_GATE			1
+#define PATTERN_CV_MODE_TRIGGER			2
+#define PATTERN_CV_MODE_BPM				3
 
-#define SYNTH_MODE_GATE				0
-#define SYNTH_MODE_TRIGGER			1
-#define SYNTH_MODE_DRUM				2
+#define SYNTH_MODE_GATE					0
+#define SYNTH_MODE_TRIGGER				1
+#define SYNTH_MODE_DRUM					2
 
-#define TIMELINE_CELL_KEEP			0
-#define TIMELINE_CELL_NEW			1
-#define TIMELINE_CELL_STOP			2
+#define TIMELINE_CELL_KEEP				0
+#define TIMELINE_CELL_NEW				1
+#define TIMELINE_CELL_STOP				2
 
-#define TIMELINE_MODE_STOP			0
-#define TIMELINE_MODE_PLAY_SONG		1
-#define TIMELINE_MODE_PLAY_PATTERN	2
+#define TIMELINE_MODE_STOP				0
+#define TIMELINE_MODE_PLAY_SONG			1
+#define TIMELINE_MODE_PLAY_PATTERN		2
+#define TIMELINE_MODE_PLAY_PATTERN_SOLO	3
+#define TIMELINE_MODE_PLAY_MATRIX		4
 
-#define INSTANCE_HANDLE_LEFT		0
-#define INSTANCE_HANDLE_MIDDLE		1
-#define INSTANCE_HANDLE_RIGHT		2
+#define INSTANCE_HANDLE_LEFT			0
+#define INSTANCE_HANDLE_MIDDLE			1
+#define INSTANCE_HANDLE_RIGHT			2
 
-#define CHAR_W						6.302522
-#define CHAR_H						8.5
-#define CHAR_COUNT_X				84
-#define CHAR_COUNT_Y				39
+#define CHAR_W							6.302522
+#define CHAR_H							8.5
+#define CHAR_COUNT_X					84
+#define CHAR_COUNT_Y					39
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -141,14 +143,15 @@ struct PatternCVCol {
 };
 
 struct PatternNoteCol {
-	u8							effect_count;
-	u8							effect_velocity;
-	u8							effect_panning;
-	u8							effect_delay;
-	u8							effect_chance;
-	u8							effect_octave_mode;
-	u8							effect_octave;
-	u8							effect_pitch;
+	u8							fx_count;
+	u8							fx_velocity;
+	u8							fx_panning;
+	u8							fx_delay;
+	u8							fx_chance;
+	u8							fx_chance_mode;
+	u8							fx_octave;
+	u8							fx_octave_mode;
+	u8							fx_pitch;
 	PatternNote					lines[0];	// Notes (memory as struct extension)
 };
 
@@ -302,6 +305,7 @@ struct Timeline {
 	list<PatternInstance>::iterator	pattern_it_end[32];
 	PatternReader					pattern_reader[32];
 	bool							pattern_state[32];
+	PatternInstance					*pattern_instance;
 
 	float						pitch_base_offset;
 	float						pitch_scale[12];
