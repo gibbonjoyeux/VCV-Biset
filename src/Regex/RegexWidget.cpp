@@ -18,7 +18,8 @@ RegexWidget::RegexWidget(Regex* _module, bool _condensed) {
 	int					i;
 
 	this->module = _module;
-	this->module->widget = this;
+	if (this->module)
+		this->module->widget = this;
 	this->condensed = _condensed;
 	setModule(this->module);
 	/// COMPUTE WIDGET TYPE
