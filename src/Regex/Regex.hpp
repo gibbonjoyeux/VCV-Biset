@@ -143,6 +143,7 @@ struct Regex : Module {
 	void process(const ProcessArgs& args) override;
 	json_t *dataToJson(void) override;
 	void dataFromJson(json_t *j_root) override;
+	void onReset(const ResetEvent &e) override;
 };
 
 struct RegexCondensed : Regex {

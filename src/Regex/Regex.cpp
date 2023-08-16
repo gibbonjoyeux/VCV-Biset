@@ -22,6 +22,7 @@ int	table_pitch_midi[] = {
 Regex::Regex(bool condensed) {
 	int						i;
 
+	this->widget = NULL;
 	if (condensed)
 		this->exp_count = 12;
 	else
@@ -97,6 +98,20 @@ void Regex::process(const ProcessArgs& args) {
 
 	/// [4] CLEAR THREAD FLAG
 	this->thread_flag.clear();
+}
+
+void Regex::onReset(const ResetEvent &e) {
+	int		i;
+
+	Module::onReset(e);
+	for (i = 0; i < this->exp_count; ++i) {
+		if (this->widget)
+			this->widget->display[i]->setText("");
+		this->sequences[i].reset(true);
+		this->sequences[i].string_edit = "";
+		this->sequences[i].string_run = "";
+		this->sequences[i].string_run_next = "";
+	}
 }
 
 Model* modelRegex = createModel<Regex, RegexWidget>("Biset-Regex");

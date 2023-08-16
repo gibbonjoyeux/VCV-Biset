@@ -150,25 +150,10 @@ void RegexItem::walk(float bias) {
 }
 
 void RegexItem::shuffle(void) {
-	list<RegexItem>::iterator	it_left;
-	list<RegexItem>::iterator	it_right;
-	int							index;
-	int							i;
-
 	/// SHUFFLE LIST
-	for (i = 0; i < this->sequence.length; ++i) {
-		/// SELECT LEFT
-		index = random::uniform() * (float)this->sequence.length;
-		this->select(index);
-		it_left = this->sequence.it;
-		/// SELECT RIGHT
-		index = random::uniform() * (float)this->sequence.length;
-		this->select(index);
-		it_right = this->sequence.it;
-		/// SWAP LEFT & RIGHT
-		if (it_left != it_right)
-			std::swap(*it_left, *it_right);
-	}
+	this->sequence.sequence.sort([](RegexItem &i1, RegexItem &i2) -> bool {
+		return random::uniform() > 0.5;
+	});
 	/// SELECT FIRST ITEM
 	this->sequence.it = this->sequence.sequence.begin();
 }

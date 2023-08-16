@@ -38,7 +38,12 @@ void Regex::dataFromJson(json_t *j_root) {
 			str = NULL;
 			if (j_str && json_typeof(j_str) == JSON_STRING)
 				str = (char*)json_string_value(j_str);
+			this->sequences[i].reset(true);
 			this->sequences[i].string_edit = (str) ? str : "";
+			this->sequences[i].string_run = "";
+			this->sequences[i].string_run_next = "";
+			if (this->widget)
+				this->widget->display[i]->setText((str) ? str : "");
 		}
 	}
 }

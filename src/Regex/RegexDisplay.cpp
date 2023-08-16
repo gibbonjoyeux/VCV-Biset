@@ -134,7 +134,7 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 	this->char_width = nvgTextBounds(args.vg, 0, 0, "x", NULL, NULL);
 	str = (char*)this->text.c_str();
 	c[1] = 0;
-	/// HANDLE OFFSET
+	/// COMPUTE OFFSET
 	index = 0;
 	if (this->condensed) {
 		count = 32;
@@ -145,6 +145,36 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 		if (this->cursor >= 64)
 			index = ((this->cursor - 32) / 32) * 32;
 	}
+	/// DRAW SELECTION
+	if (this == APP->event->selectedWidget && this->cursor != this->selection) {
+		if (this->sequence->mode == REGEX_MODE_CLOCK)
+			nvgFillColor(args.vg, colors[14]);
+		else
+			nvgFillColor(args.vg, colors[15]);
+		i = 0;
+		while (i < count && str[index + i] != 0) {
+			if ((this->cursor > this->selection
+			&& index + i >= this->selection && index + i < this->cursor)
+			|| (this->cursor < this->selection
+			&& index + i >= this->cursor && index + i < this->selection)) {
+				nvgBeginPath(args.vg);
+				if (this->condensed) {
+					nvgRect(args.vg,
+					/**/ rect.pos.x + (float)i * this->char_width + 2.0,
+					/**/ rect.pos.y + 3.0,
+					/**/ this->char_width + 0.1, 12);
+				} else {
+					nvgRect(args.vg,
+					/**/ rect.pos.x + (float)(i % 32) * this->char_width + 2.0,
+					/**/ rect.pos.y + 3.0 + (float)(i >= 32) * 12.0,
+					/**/ this->char_width + 0.1, 12);
+				}
+				nvgFill(args.vg);
+			}
+			i += 1;
+		}
+	}
+	/// DRAW TEXT
 	i = 0;
 	while (i < count && str[index] != 0) {
 		c[0] = str[index];
