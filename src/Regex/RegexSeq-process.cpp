@@ -17,7 +17,7 @@ void RegexSeq::process(
 	bool			state;
 	bool			clock;
 	bool			clock_reset;
-	int				input;
+	float			input;
 	int				value;
 	int				index;
 
@@ -116,7 +116,7 @@ void RegexSeq::process(
 				if (this->in_2->isConnected())
 					input = this->in_2->getVoltage() * 12.0;
 				else
-					input = 0;
+					input = 0.0;
 				/// COMPUTE SEQUENCE
 				value = 0;
 				index = -1;
@@ -126,7 +126,7 @@ void RegexSeq::process(
 				if (state == true)
 					this->clock_out_eoc_next = true;
 				/// SET VOLTAGE
-				this->out->setVoltage((float)(value + input) / 12.0);
+				this->out->setVoltage(((float)value + input) / 12.0);
 			}
 		}
 		this->out_eoc->setVoltage(this->clock_out_eoc.process(dt) ? 10.0 : 0.0);
