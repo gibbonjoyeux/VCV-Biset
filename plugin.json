@@ -30,7 +30,7 @@
 	{
 		"slug": "Biset-Segfault",
 		"name": "Segfault",
-		"description": "",
+		"description": "Rethink your midi / qwerty keyboard layout",
 		"tags": ["Controller", "Polyphonic"],
 		"keywords": ["piano", "keys"]
 	}
