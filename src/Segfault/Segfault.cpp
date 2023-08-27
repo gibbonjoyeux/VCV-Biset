@@ -51,7 +51,9 @@ void Segfault::process(const ProcessArgs& args) {
 	int		len;
 	int		i;
 
+	/// PITCH CONNECTED
 	if (this->inputs[INPUT_PITCH].isConnected()) {
+		/// GATE CONNECTED
 		if (this->inputs[INPUT_GATE].isConnected()) {
 			len = this->inputs[INPUT_PITCH].getChannels();
 			this->outputs[OUTPUT_GATE].setChannels(len);
@@ -85,7 +87,23 @@ void Segfault::process(const ProcessArgs& args) {
 					this->outputs[OUTPUT_GATE].setVoltage(0.0, i);
 				}
 			}
+		/// GATE NOT CONNECTED
 		} else {
+			len = this->inputs[INPUT_PITCH].getChannels();
+			for (i = 0; i < 12; ++i)
+				this->outputs[OUTPUT_GATE_KEY + i].setVoltage(0.0);
+			for (i = 0; i < len; ++i) {
+				/// GET PITCH
+				pitch = this->inputs[INPUT_PITCH].getVoltage(i);
+				if (pitch >= 0)
+					pitch_oct = fmod(pitch, 1.0) * 12.0;
+				else
+					pitch_oct = (12 + (int)(fmod(pitch, 1.0) * 12.0)) % 12;
+				/// GET BYPASS
+				bypass = this->params[PARAM_BYPASS + pitch_oct].getValue();
+				/// SET KEY GATE
+				this->outputs[OUTPUT_GATE_KEY + pitch_oct].setVoltage(10.0);
+			}
 		}
 	}
 }
