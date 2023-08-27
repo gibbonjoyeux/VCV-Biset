@@ -15,6 +15,7 @@ using				std::unique_ptr;
 //#include "TrackerDrum/TrackerDrum.hpp"
 
 #include "Regex/Regex.hpp"
+#include "Segfault/Segfault.hpp"
 
 extern char		table_pitch[12][3];
 extern char		table_effect[14];
@@ -45,3 +46,4 @@ extern Plugin*		pluginInstance;
 
 extern Model*		modelRegex;
 extern Model*		modelRegexCondensed;
+extern Model*		modelSegfault;
