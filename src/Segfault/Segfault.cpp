@@ -27,7 +27,6 @@ Segfault::Segfault(void) {
 	/// CONFIG INPUTS / OUTPUTS
 	configInput(INPUT_PITCH, "Pitch");
 	configInput(INPUT_GATE, "Gate");
-	configOutput(OUTPUT_PITCH, "Pitch");
 	configOutput(OUTPUT_GATE, "Gate");
 	//// CONFIG OUTPUTS KEYS
 	configOutput(OUTPUT_GATE_KEY + 0, "Gate C");
@@ -61,7 +60,10 @@ void Segfault::process(const ProcessArgs& args) {
 			for (i = 0; i < len; ++i) {
 				/// GET PITCH
 				pitch = this->inputs[INPUT_PITCH].getVoltage(i);
-				pitch_oct = (int)(pitch * 12.0) % 12;
+				if (pitch >= 0)
+					pitch_oct = fmod(pitch, 1.0) * 12.0;
+				else
+					pitch_oct = (12 + (int)(fmod(pitch, 1.0) * 12.0)) % 12;
 				/// GET GATE
 				gate = this->inputs[INPUT_GATE].getVoltage(i);
 				/// GATE ON
@@ -88,8 +90,8 @@ void Segfault::process(const ProcessArgs& args) {
 	}
 }
 
-void Segfault::onReset(const ResetEvent &e) {
-	Module::onReset(e);
-}
+//void Segfault::onReset(const ResetEvent &e) {
+//	Module::onReset(e);
+//}
 
 Model* modelSegfault = createModel<Segfault, SegfaultWidget>("Biset-Segfault");
