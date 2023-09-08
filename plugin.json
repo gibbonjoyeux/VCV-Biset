@@ -33,6 +33,13 @@
 		"description": "Rethink your midi / qwerty keyboard layout",
 		"tags": ["Controller", "Polyphonic"],
 		"keywords": ["piano", "keys"]
+	},
+	{
+		"slug": "Biset-Quant",
+		"name": "Quant",
+		"description": "Advanced MPE quantizer with microtonal capabilities",
+		"tags": ["Quantizer", "Polyphonic"],
+		"keywords": ["microtonal"]
 	}
   ]
 }

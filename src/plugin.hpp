@@ -16,6 +16,7 @@ using				std::unique_ptr;
 
 #include "Regex/Regex.hpp"
 #include "Segfault/Segfault.hpp"
+#include "Quant/Quant.hpp"
 
 extern char		table_pitch[12][3];
 extern char		table_effect[14];
@@ -47,3 +48,4 @@ extern Plugin*		pluginInstance;
 extern Model*		modelRegex;
 extern Model*		modelRegexCondensed;
 extern Model*		modelSegfault;
+extern Model*		modelQuant;

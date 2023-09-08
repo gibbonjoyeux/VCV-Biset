@@ -13,4 +13,5 @@ void init(Plugin* p) {
 	p->addModel(modelRegex);
 	p->addModel(modelRegexCondensed);
 	p->addModel(modelSegfault);
+	p->addModel(modelQuant);
 }

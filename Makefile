@@ -17,6 +17,7 @@ SOURCES += $(wildcard src/*.cpp)
 #SOURCES += $(wildcard src/TrackerDrum/*.cpp)
 SOURCES += $(wildcard src/Regex/*.cpp)
 SOURCES += $(wildcard src/Segfault/*.cpp)
+SOURCES += $(wildcard src/Quant/*.cpp)
 
 # Add files to the ZIP package when running `make dist`
 # The compiled plugin and "plugin.json" are automatically added.
