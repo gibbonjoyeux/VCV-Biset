@@ -191,7 +191,8 @@ struct MenuTextField : ui::TextField {
 	void onSelectKey(const SelectKeyEvent &e) override {
 		if (e.action == GLFW_PRESS
 		&& e.key == GLFW_KEY_ENTER) {
-			this->func((char*)this->getText().c_str());
+			if (this->func)
+				this->func((char*)this->getText().c_str());
 			if (this->close == true)
 				this->parent->requestDelete();
 		} else {

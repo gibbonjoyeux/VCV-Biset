@@ -35,18 +35,21 @@ void Quant::note_add_menu(void) {
 		[=](Menu *menu) {
 			MenuTextField	*field;
 
-			field = new MenuTextField((char*)"0.0",
-				[=](char *value) {
-					float	cent;
-
-					cent = atof(value);
-					this->note_add(cent);
-				}, true
-			);
+			/// ADD TEXT FIELD
+			field = new MenuTextField((char*)"0.0");
 			field->box.size.x = 120.0;
 			menu->addChild(field);
 			APP->event->setSelectedWidget(field);
 			field->selectAll();
+			/// ADD CONFIRM BUTTON
+			menu->addChild(rack::createMenuItem("Create note", "",
+				[=](void) {
+					float	cent;
+
+					cent = atof(field->text.c_str());
+					this->note_add(cent);
+				}
+			));
 		}
 	));
 	/// ADD RATIO SUB-MENU
@@ -54,33 +57,38 @@ void Quant::note_add_menu(void) {
 		[=](Menu *menu) {
 			MenuTextField	*field;
 
-			field = new MenuTextField((char*)"1:1",
-				[=](char *value) {
-					int		numerator;
-					int		denominator;
-					int		i;
-
-					numerator = 0;
-					i = 0;
-					while (value[i] >= '0' && value[i] <= '9') {
-						numerator = numerator * 10 + value[i] - '0';
-						i += 1;
-					}
-					if (value[i] == ':' || value[i] == '/') {
-						i += 1;
-						denominator = 0;
-						while (value[i] >= '0' && value[i] <= '9') {
-							denominator = denominator * 10 + value[i] - '0';
-							i += 1;
-						}
-						this->note_add(numerator, denominator);
-					}
-				}, true
-			);
+			/// ADD TEXT FIELD
+			field = new MenuTextField((char*)"1:1");
 			field->box.size.x = 120.0;
 			menu->addChild(field);
 			APP->event->setSelectedWidget(field);
 			field->selectAll();
+			/// ADD CONFIRM BUTTON
+			menu->addChild(rack::createMenuItem("Create note", "",
+				[=](void) {
+					char	*str;
+					int		numerator;
+					int		denominator;
+					int		i;
+
+					str = (char*)field->text.c_str();
+					numerator = 0;
+					i = 0;
+					while (str[i] >= '0' && str[i] <= '9') {
+						numerator = numerator * 10 + str[i] - '0';
+						i += 1;
+					}
+					if (str[i] == ':' || str[i] == '/') {
+						i += 1;
+						denominator = 0;
+						while (str[i] >= '0' && str[i] <= '9') {
+							denominator = denominator * 10 + str[i] - '0';
+							i += 1;
+						}
+						this->note_add(numerator, denominator);
+					}
+				}
+			));
 		}
 	));
 }
