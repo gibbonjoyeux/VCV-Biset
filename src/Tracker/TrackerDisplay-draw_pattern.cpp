@@ -462,7 +462,8 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			/// VELOCITY
 			if (g_editor->pattern_view_velo) {
 				focus = focus_line & (g_editor->pattern_cell == 2);
-				if (note->mode == PATTERN_NOTE_NEW) {
+				if (note->mode == PATTERN_NOTE_NEW
+				|| note->mode == PATTERN_NOTE_GLIDE) {
 					itoaw(str, note->velocity, 2);
 				} else {
 					str[0] = '.';
@@ -475,7 +476,8 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			/// PANNING
 			if (g_editor->pattern_view_pan) {
 				focus = focus_line & (g_editor->pattern_cell == 3);
-				if (note->mode == PATTERN_NOTE_NEW) {
+				if (note->mode == PATTERN_NOTE_NEW
+				|| note->mode == PATTERN_NOTE_GLIDE) {
 					itoaw(str, note->panning, 2);
 				} else {
 					str[0] = '.';

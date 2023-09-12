@@ -61,13 +61,14 @@ TRACKER BINARY SAVE FORMAT:
 						- Effect value			u8
 				- ? Mode STOP
 					- Note delay				u8
-				- ? Mode CHANGE
-					- Note velocity				u8
-					- Note panning				u8
-					- Note delay				u8
 				- ? Mode GLIDE
 					- Note pitch				u8
+					- Note velocity				u8
+					- Note panning				u8
 					- Note glide				u8
+					- Note effects							x N
+						- Effect type			u8
+						- Effect value			u8
 		- CV columns										x N
 			- Column mode						u8
 			- Column synth						u8
@@ -251,18 +252,17 @@ static void fill_save_buffer() {
 					fill_u8(note->mode);				// Note mode
 					fill_u8(note->delay);				// Note delay
 					count += 1;
-				} else if (note->mode == PATTERN_NOTE_CHANGE) {
-					fill_u16(k);						// Line number
-					fill_u8(note->mode);				// Note mode
-					fill_u8(note->velocity);			// Note velocity
-					fill_u8(note->panning);				// Note panning
-					fill_u8(note->delay);				// Note delay
-					count += 1;
 				} else if (note->mode == PATTERN_NOTE_GLIDE) {
 					fill_u16(k);						// Line number
 					fill_u8(note->mode);				// Note mode
 					fill_u8(note->pitch);				// Note pitch
+					fill_u8(note->velocity);			// Note velocity
+					fill_u8(note->panning);				// Note panning
 					fill_u8(note->glide);				// Note glide
+					for (l = 0; l < note_col->fx_count; ++l) {
+						fill_u8(note->effects[l].type);	// Effect type
+						fill_u8(note->effects[l].value);// Effect value
+					}
 					count += 1;
 				}
 			}

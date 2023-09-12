@@ -26,27 +26,40 @@ void SynthVoice::process(
 
 	/// ON NOTE PLAY
 	if (this->active && this->delay_start <= 0 && this->delay_gate <= 0) {
-		/// COMPUTE CV
-		velocity = (float)this->velocity / 99.0 * 10.0;
-		panning = (float)this->panning / 99.0 * 10.0;
 		/// COMPUTE EFFECTS
 		//// COMPUTE GLIDE
-		if (this->pitch_glide_len > 0) {
-			this->pitch_glide_cur += dt_beat;
+		if (this->glide_len > 0) {
+			this->glide_cur += dt_beat;
 			/// GLIDE ENDED
-			if (this->pitch_glide_cur >= this->pitch_glide_len) {
-				this->pitch_glide_len = 0;
-				this->pitch_glide_cur = 0;
+			if (this->glide_cur >= this->glide_len) {
+				this->glide_len = 0;
+				this->glide_cur = 0;
+				/// GLIDE PITCH
 				this->pitch_from = this->pitch_to;
 				pitch = (float)(this->pitch_from - 69.0) / 12.0f;
+				/// GLIDE VELOCITY
+				this->velocity_from = this->velocity_to;
+				velocity = this->velocity_from;
+				/// GLIDE PANNING
+				this->panning_from = this->panning_to;
+				panning = this->panning_from;
 			/// GLIDE RUNNING
 			} else {
-				mix = this->pitch_glide_cur / this->pitch_glide_len;
+				mix = this->glide_cur / this->glide_len;
+				/// GLIDE PITCH
 				pitch = ((this->pitch_from * (1.0 - mix)
 				/**/ + this->pitch_to * mix) - 69.0) / 12.0f;
+				/// GLIDE VELOCITY
+				velocity = (this->velocity_from * (1.0 - mix))
+				/**/ + (this->velocity_to * mix);
+				/// GLIDE PANNING
+				panning = (this->panning_from * (1.0 - mix))
+				/**/ + (this->panning_to * mix);
 			}
 		} else {
 			pitch = (float)(this->pitch_from - 69) / 12.0f;
+			velocity = this->velocity_from;
+			panning = this->panning_from;
 		}
 		//// COMPUTE VIBRATO
 		if (this->vibrato_amp > 0) {
@@ -93,7 +106,7 @@ bool SynthVoice::start(
 	PatternEffect			*effect;
 	int						i;
 	int						x, y;
-	int						int_1, int_2;
+	int						int_1;
 	int						pitch;
 	float					pitch_real;
 	float					float_1;
@@ -107,8 +120,8 @@ bool SynthVoice::start(
 	|| synth->mode == SYNTH_MODE_DRUM)
 		this->delay_stop = 0.001f;
 	/// SET BASICS
-	this->velocity = note->velocity;
-	this->panning = note->panning;
+	this->velocity_from = (float)note->velocity / 99.0 * 10.0;
+	this->panning_from = (float)note->panning / 99.0 * 10.0 - 5.0;
 	/// SET EFFECTS
 	this->vibrato_amp = 0;
 	this->tremolo_amp = 0;
@@ -119,16 +132,16 @@ bool SynthVoice::start(
 				break;
 			case PATTERN_EFFECT_RAND_AMP:		// Axx
 				float_1 = random::uniform() * (effect->value / 99.0);
-				this->velocity *= 1.0 - float_1;
+				this->velocity_from *= 1.0 - float_1;
 				break;
 			case PATTERN_EFFECT_RAND_PAN:		// Pxx
-				int_1 = (random::uniform() * 2.0 - 1.0) * (effect->value / 2.0);
-				int_2 = (int)this->panning + int_1;
-				if (int_2 < 0)
-					int_2 = 0;
-				if (int_2 > 99)
-					int_2 = 99;
-				this->panning = int_2;
+				float_1 = (random::uniform() * 10.0 - 5.0)
+				/**/ * ((float)effect->value / 99.0);
+				this->panning_from += float_1;
+				if (this->panning_from < -5.0)
+					this->panning_from = -5.0;
+				if (this->panning_from > 5.0)
+					this->panning_from = 5.0;
 				break;
 			case PATTERN_EFFECT_RAND_DELAY:		// Dxx
 				float_1 = random::uniform() * (effect->value / 99.0);
@@ -183,12 +196,15 @@ bool SynthVoice::start(
 				break;
 		}
 	}
+	/// SET VELOCITY + PANNING
+	this->velocity_to = this->velocity_from;
+	this->panning_to = this->panning_from;
 	/// SET PITCH
 	pitch_real = g_timeline->pitch_scale[pitch % 12] + (pitch / 12) * 12;
 	this->pitch_from = pitch_real;
 	this->pitch_to = pitch_real;
-	this->pitch_glide_len = 0;
-	this->pitch_glide_cur = 0;
+	this->glide_len = 0;
+	this->glide_cur = 0;
 	/// ACTIVATE VOICE
 	this->active = true;
 	return true;
@@ -201,20 +217,31 @@ void SynthVoice::glide(
 
 	if (this->active) {
 		/// GLIDE ALREADY RUNNING
-		if (this->pitch_glide_len > 0) {
+		if (this->glide_len > 0) {
 			/// SET GLIDE STARTING PITCH
-			mix = this->pitch_glide_cur / this->pitch_glide_len;
+			mix = this->glide_cur / this->glide_len;
+			/// GLIDE PITCH
 			this->pitch_from = this->pitch_from * (1.0 - mix)
 			/**/ + this->pitch_to * mix;
-		/// GLIDE OFF
-		} else {
+			/// GLIDE VELOCITY
+			this->velocity_from = this->velocity_from * (1.0 - mix)
+			/**/ + this->velocity_to * mix;
+			/// GLIDE PANNING
+			this->panning_from = this->panning_from * (1.0 - mix)
+			/**/ + this->panning_to * mix;
 		}
-		/// SET GLIDE ENDING PITCH
+		/// SET GLIDE DURATION
+		this->glide_len = (1.0 - ((float)note->glide / 100.0));
+		this->glide_cur = 0;
+		/// SET GLIDE ENDING
+		//// PITCH
 		pitch = g_timeline->pitch_scale[note->pitch % 12] 
 		/**/ + (note->pitch / 12) * 12;
 		this->pitch_to = pitch;
-		this->pitch_glide_len = (1.0 - ((float)note->glide / 100.0));
-		this->pitch_glide_cur = 0;
+		//// VELOCITY
+		this->velocity_to = (note->velocity) / 99.0 * 10.0;
+		//// PANNING
+		this->panning_to = (note->panning) / 99.0 * 10.0 - 5.0;
 	}
 }
 
@@ -229,11 +256,14 @@ void SynthVoice::init(int channel) {
 
 void SynthVoice::reset() {
 	this->active = false;
-	this->velocity = 99;
+	this->velocity_from = 10.0;
+	this->velocity_to = 10.0;
+	this->panning_from = 0.0;
+	this->panning_to = 0.0;
 	this->pitch_from = 0.0;
 	this->pitch_to = 0.0;
-	this->pitch_glide_len = 0;
-	this->pitch_glide_cur = 0.0;
+	this->glide_len = 0;
+	this->glide_cur = 0.0;
 	this->delay_start = 0;
 	this->vibrato_amp = 0;
 	this->vibrato_freq = 0;

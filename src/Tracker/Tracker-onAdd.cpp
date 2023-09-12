@@ -66,13 +66,14 @@ TRACKER BINARY SAVE FORMAT:
 						- Effect value			u8
 				- ? Mode STOP
 					- Note delay				u8
-				- ? Mode CHANGE
-					- Note velocity				u8
-					- Note panning				u8
-					- Note delay				u8
 				- ? Mode GLIDE
 					- Note pitch				u8
+					- Note velocity				u8
+					- Note panning				u8
 					- Note glide				u8
+					- Note effects							x N
+						- Effect type			u8
+						- Effect value			u8
 		- CV columns										x N
 			- Column mode						u8
 			- Column synth						u8
@@ -245,18 +246,20 @@ static bool compute_save_file(void) {
 					note->delay = read_u8();			// Note delay
 					note->glide = read_u8();			// Note glide
 					for (l = 0; l < note_col->fx_count; ++l) {
-						note->effects[l].type = read_u8();
-						note->effects[l].value = read_u8();
+						note->effects[l].type = read_u8();	// Note fx type
+						note->effects[l].value = read_u8();	// Note fx value
 					}
 				} else if (note->mode == PATTERN_NOTE_STOP) {
 					note->delay = read_u8();			// Note delay
-				} else if (note->mode == PATTERN_NOTE_CHANGE) {
-					note->velocity = read_u8();			// Note velocity
-					note->panning = read_u8();			// Note panning
-					note->delay = read_u8();			// Note delay
 				} else if (note->mode == PATTERN_NOTE_GLIDE) {
 					note->pitch = read_u8();			// Note pitch
+					note->velocity = read_u8();			// Note velocity
+					note->panning = read_u8();			// Note panning
 					note->glide = read_u8();			// Note glide
+					for (l = 0; l < note_col->fx_count; ++l) {
+						note->effects[l].type = read_u8();	// Note fx type
+						note->effects[l].value = read_u8();	// Note fx value
+					}
 				}
 			}
 		}

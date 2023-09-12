@@ -45,6 +45,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 	PatternSource	*pattern;
 	PatternNoteCol	*col_note;
 	PatternNote		*line_note;
+	PatternNote		*line_note_comp;
 	PatternEffect	*effect;
 	PatternCVCol	*col_cv;
 	PatternCV		*line_cv;
@@ -136,6 +137,20 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 									g_editor->pattern_move_cursor_y(1);
 								}
 							}
+							if (line_note->mode == PATTERN_NOTE_KEEP) {
+								line_note->mode = PATTERN_NOTE_GLIDE;
+								line_note->glide = 99;
+								line_note->pitch = 69;
+								line_note->panning = 50;
+								for (i = g_editor->pattern_line - 1; i >= 0; --i) {
+									line_note_comp = &(col_note->lines[i]);
+									if (line_note_comp->mode != PATTERN_NOTE_KEEP) {
+										line_note->pitch = line_note_comp->pitch;
+										line_note->panning = line_note_comp->panning;
+										break;
+									}
+								}
+							}
 							break;
 						/// PANNING
 						case 3:
@@ -151,6 +166,20 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 									/**/ (line_note->panning / 10) * 10
 									/**/ + key;
 									g_editor->pattern_move_cursor_y(1);
+								}
+							}
+							if (line_note->mode == PATTERN_NOTE_KEEP) {
+								line_note->mode = PATTERN_NOTE_GLIDE;
+								line_note->glide = 99;
+								line_note->pitch = 69;
+								line_note->velocity = 99;
+								for (i = g_editor->pattern_line - 1; i >= 0; --i) {
+									line_note_comp = &(col_note->lines[i]);
+									if (line_note_comp->mode != PATTERN_NOTE_KEEP) {
+										line_note->pitch = line_note_comp->pitch;
+										line_note->velocity = line_note_comp->velocity;
+										break;
+									}
 								}
 							}
 							break;

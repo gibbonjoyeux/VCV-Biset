@@ -59,7 +59,7 @@ void PatternReader::process(
 				delay = (float)note->delay / 100.0f;
 				if (phase > delay) {
 					voice = this->voices[col];
-					/// NOTE CHANGE
+					/// NOTE NEW
 					if (note->mode == PATTERN_NOTE_NEW) {
 						/// CLOSE ACTIVE NOTE
 						if (voice) {

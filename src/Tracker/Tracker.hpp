@@ -31,8 +31,7 @@
 #define PATTERN_NOTE_KEEP				0
 #define PATTERN_NOTE_NEW				1
 #define PATTERN_NOTE_GLIDE				2
-#define PATTERN_NOTE_CHANGE				3
-#define PATTERN_NOTE_STOP				4
+#define PATTERN_NOTE_STOP				3
 #define PATTERN_CV_KEEP					0
 #define PATTERN_CV_SET					1
 #define PATTERN_CV_MODE_CV				0
@@ -209,11 +208,13 @@ struct SynthVoice {
 	bool						active;
 
 	u8							channel;
-	u8							velocity;
-	u8							panning;
+	float						velocity_from;
+	float						velocity_to;
+	float						panning_from;
+	float						panning_to;
 
-	float						pitch_glide_len;
-	float						pitch_glide_cur;
+	float						glide_len;
+	float						glide_cur;
 	float						pitch_from;
 	float						pitch_to;
 
