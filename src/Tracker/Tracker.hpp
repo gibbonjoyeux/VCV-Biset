@@ -450,7 +450,7 @@ struct Tracker : Module {
 								/// TUNING / PERFORMANCE
 								PARAM_RATE,
 								PARAM_PITCH_BASE,
-								ENUMS(PARAM_TEMPERAMENT, 12),
+								ENUMS(PARAM_TUNING, 12),
 								/// CONTEXT MENU
 								ENUMS(PARAM_MENU, 8),
 								/// .

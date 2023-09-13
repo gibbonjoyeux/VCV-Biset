@@ -16,13 +16,34 @@
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
+static void set_temperament(float *table) {
+	float	value;
+	float	note;
+	int		note_round;
+	int		i;
+
+	for (i = 0; i < 12; ++i) {
+		note = g_module->params[Tracker::PARAM_TUNING + i].getValue();
+		note_round = (int)note;
+		if (note - (float)note_round >= 0.5) {
+			if (note_round < 11)
+				value = table[note_round + 1] / 100.0;
+			else
+				value = table[0] / 100.0;
+		} else {
+			value = table[note_round] / 100.0;
+		}
+		g_module->params[Tracker::PARAM_TUNING + i].setValue(value);
+	}
+}
+
 static void set_scale(float *table) {
 	float	value;
 	int		i;
 
 	for (i = 0; i < 12; ++i) {
 		value = table[i] / 100.0;
-		g_module->params[Tracker::PARAM_TEMPERAMENT + i].setValue(value);
+		g_module->params[Tracker::PARAM_TUNING + i].setValue(value);
 	}
 }
 
@@ -350,62 +371,186 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 		}
 	));
 
-	/// [3] TEMPERAMENT
-	menu->addChild(rack::createSubmenuItem("Temperament", "",
+	/// [3] TUNING
+	menu->addChild(rack::createSubmenuItem("Tuning", "",
 		[=](Menu *menu) {
 			MenuSliderEdit	*slider;
 			int				i;
 
 			/// PRESETS
-			//// REGULAR PRESETS
-			menu->addChild(rack::createSubmenuItem("Presets temperament", "",
-				[=](Menu *menu) {
-					menu->addChild(new MenuItemStay("Equal", "default",
-						[=]() { set_scale(table_temp_equal); }
-					));
-					menu->addChild(new MenuItemStay("Just", "",
-						[=]() { set_scale(table_temp_just); }
-					));
-					menu->addChild(new MenuItemStay("Pythagorean", "",
-						[=]() { set_scale(table_temp_pyth); }
-					));
-					menu->addChild(new MenuItemStay("Wendy Carlos Super Just", "",
-						[=]() { set_scale(table_temp_carlos_super_just); }
-					));
-					menu->addChild(new MenuItemStay("Wendy Carlos Harmonic", "",
-						[=]() { set_scale(table_temp_carlos_harmonic); }
-					));
-					menu->addChild(new MenuItemStay("Kirnberger", "",
-						[=]() { set_scale(table_temp_kirnberger); }
-					));
-					menu->addChild(new MenuItemStay("Vallotti Young", "",
-						[=]() { set_scale(table_temp_vallotti_young); }
-					));
-					menu->addChild(new MenuItemStay("Werckmeister III", "",
-						[=]() { set_scale(table_temp_werckmeister_3); }
-					));
-				}
+			menu->addChild(new MenuItemStay("Reset scale", "",
+				[=]() { set_scale(table_temp_equal); }
 			));
 			//// SCALE PRESETS
 			menu->addChild(rack::createSubmenuItem("Presets scale", "",
 				[=](Menu *menu) {
-					menu->addChild(new MenuItemStay("Diatonic", "default",
-						[=]() {
+					/// FAMILY 1 - MAJOR
+					menu->addChild(rack::createSubmenuItem("Major modes", "",
+						[=](Menu *menu) {
+							menu->addChild(new MenuItemStay("Ionian", "Major",
+								[=]() { set_scale(table_scale_ionian); }
+							));
+							menu->addChild(new MenuItemStay("Dorian", "",
+								[=]() { set_scale(table_scale_dorian); }
+							));
+							menu->addChild(new MenuItemStay("Phrygian", "",
+								[=]() { set_scale(table_scale_phrygian); }
+							));
+							menu->addChild(new MenuItemStay("Lydian", "",
+								[=]() { set_scale(table_scale_lydian); }
+							));
+							menu->addChild(new MenuItemStay("Mixolydian", "",
+								[=]() { set_scale(table_scale_mixolydian); }
+							));
+							menu->addChild(new MenuItemStay("Aeolian", "",
+								[=]() { set_scale(table_scale_aeolian); }
+							));
+							menu->addChild(new MenuItemStay("Locrian", "",
+								[=]() { set_scale(table_scale_locrian); }
+							));
 						}
 					));
-					menu->addChild(new MenuItemStay("Major", "",
-						[=]() {
+
+					/// FAMILY 2 - MELODIC MINOR
+					menu->addChild(rack::createSubmenuItem("Melodic minor modes", "",
+						[=](Menu *menu) {
+							menu->addChild(new MenuItemStay("Ionian #1", "Major",
+								[=]() { set_scale(table_scale_ionian_s1); }
+							));
+							menu->addChild(new MenuItemStay("Dorian #7", "",
+								[=]() { set_scale(table_scale_dorian_s7); }
+							));
+							menu->addChild(new MenuItemStay("Phrygian #6", "",
+								[=]() { set_scale(table_scale_phrygian_s6); }
+							));
+							menu->addChild(new MenuItemStay("Lydian #5", "",
+								[=]() { set_scale(table_scale_lydian_s5); }
+							));
+							menu->addChild(new MenuItemStay("Mixolydian #4", "",
+								[=]() { set_scale(table_scale_mixolydian_s4); }
+							));
+							menu->addChild(new MenuItemStay("Aeolian #3", "",
+								[=]() { set_scale(table_scale_aeolian_s3); }
+							));
+							menu->addChild(new MenuItemStay("Locrian #2", "",
+								[=]() { set_scale(table_scale_locrian_s2); }
+							));
 						}
 					));
-					menu->addChild(new MenuItemStay("Minor", "",
-						[=]() {
+
+					/// FAMILY 3 - HARMONIC MINOR
+					menu->addChild(rack::createSubmenuItem("Harmonic minor modes", "",
+						[=](Menu *menu) {
+							menu->addChild(new MenuItemStay("Ionian #5", "Major",
+								[=]() { set_scale(table_scale_ionian_s5); }
+							));
+							menu->addChild(new MenuItemStay("Dorian #4", "",
+								[=]() { set_scale(table_scale_dorian_s4); }
+							));
+							menu->addChild(new MenuItemStay("Phrygian #3", "",
+								[=]() { set_scale(table_scale_phrygian_s3); }
+							));
+							menu->addChild(new MenuItemStay("Lydian #2", "",
+								[=]() { set_scale(table_scale_lydian_s2); }
+							));
+							menu->addChild(new MenuItemStay("Mixolydian #1", "",
+								[=]() { set_scale(table_scale_mixolydian_s1); }
+							));
+							menu->addChild(new MenuItemStay("Aeolian #7", "",
+								[=]() { set_scale(table_scale_aeolian_s7); }
+							));
+							menu->addChild(new MenuItemStay("Locrian #6", "",
+								[=]() { set_scale(table_scale_locrian_s6); }
+							));
 						}
+					));
+
+					/// FAMILY 4 - HARMONIC MAJOR
+					menu->addChild(rack::createSubmenuItem("Harmonic major modes", "",
+						[=](Menu *menu) {
+							menu->addChild(new MenuItemStay("Ionian b6", "Major",
+								[=]() { set_scale(table_scale_ionian_b6); }
+							));
+							menu->addChild(new MenuItemStay("Dorian b5", "",
+								[=]() { set_scale(table_scale_dorian_b5); }
+							));
+							menu->addChild(new MenuItemStay("Phrygian b4", "",
+								[=]() { set_scale(table_scale_phrygian_b4); }
+							));
+							menu->addChild(new MenuItemStay("Lydian b3", "",
+								[=]() { set_scale(table_scale_lydian_b3); }
+							));
+							menu->addChild(new MenuItemStay("Mixolydian b2", "",
+								[=]() { set_scale(table_scale_mixolydian_b2); }
+							));
+							menu->addChild(new MenuItemStay("Aeolian b1", "",
+								[=]() { set_scale(table_scale_aeolian_b1); }
+							));
+							menu->addChild(new MenuItemStay("Locrian b7", "",
+								[=]() { set_scale(table_scale_locrian_b7); }
+							));
+						}
+					));
+
+					/// FAMILY 5 / 6 / 7
+					menu->addChild(rack::createSubmenuItem("Other scales", "",
+						[=](Menu *menu) {
+							/// FAMILY 5 - DIMINISHED MODES
+							menu->addChild(new MenuItemStay("Diminished", "",
+								[=]() { set_scale(table_scale_diminished); }
+							));
+							menu->addChild(new MenuItemStay("Diminished inverted", "",
+								[=]() { set_scale(table_scale_diminished_inverted); }
+							));
+
+							/// FAMILY 6 - AUGMENTED MODES
+							menu->addChild(new MenuItemStay("Augmented", "",
+								[=]() { set_scale(table_scale_augmented); }
+							));
+							menu->addChild(new MenuItemStay("Augmented inverted", "",
+								[=]() { set_scale(table_scale_augmented_inverted); }
+							));
+
+							/// FAMILY 7 - WHOLE TONE
+							menu->addChild(new MenuItemStay("Whole tone", "",
+								[=]() { set_scale(table_scale_whole); }
+							));
+						}
+					));
+				}
+			));
+			//// TEMPERAMENT PRESETS
+			menu->addChild(rack::createSubmenuItem("Presets temperament", "",
+				[=](Menu *menu) {
+					menu->addChild(new MenuItemStay("Equal", "default",
+						[=]() { set_temperament(table_temp_equal); }
+					));
+					menu->addChild(new MenuItemStay("Just", "",
+						[=]() { set_temperament(table_temp_just); }
+					));
+					menu->addChild(new MenuItemStay("Pythagorean", "",
+						[=]() { set_temperament(table_temp_pyth); }
+					));
+					menu->addChild(new MenuItemStay("Wendy Carlos Super Just", "",
+						[=]() { set_temperament(table_temp_carlos_super_just); }
+					));
+					menu->addChild(new MenuItemStay("Wendy Carlos Harmonic", "",
+						[=]() { set_temperament(table_temp_carlos_harmonic); }
+					));
+					menu->addChild(new MenuItemStay("Kirnberger", "",
+						[=]() { set_temperament(table_temp_kirnberger); }
+					));
+					menu->addChild(new MenuItemStay("Vallotti Young", "",
+						[=]() { set_temperament(table_temp_vallotti_young); }
+					));
+					menu->addChild(new MenuItemStay("Werckmeister III", "",
+						[=]() { set_temperament(table_temp_werckmeister_3); }
 					));
 				}
 			));
 			/// MANUAL
 			for (i = 0; i < 12; ++i) {
-				slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_TEMPERAMENT + i]);
+				slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_TUNING + i]);
 				slider->box.size.x = 200.f;
 				menu->addChild(slider);
 			}

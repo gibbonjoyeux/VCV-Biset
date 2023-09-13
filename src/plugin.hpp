@@ -30,6 +30,47 @@ extern float	table_temp_carlos_harmonic[12];
 extern float	table_temp_kirnberger[12];
 extern float	table_temp_vallotti_young[12];
 extern float	table_temp_werckmeister_3[12];
+// MAJOR MODES
+extern float	table_scale_ionian[12];
+extern float	table_scale_dorian[12];
+extern float	table_scale_phrygian[12];
+extern float	table_scale_lydian[12];
+extern float	table_scale_mixolydian[12];
+extern float	table_scale_aeolian[12];
+extern float	table_scale_locrian[12];
+// MELODIC MINOR MODES
+extern float	table_scale_ionian_s1[12];
+extern float	table_scale_dorian_s7[12];
+extern float	table_scale_phrygian_s6[12];
+extern float	table_scale_lydian_s5[12];
+extern float	table_scale_mixolydian_s4[12];
+extern float	table_scale_aeolian_s3[12];
+extern float	table_scale_locrian_s2[12];
+// HARMONIC MINOR MODES
+extern float	table_scale_ionian_s5[12];
+extern float	table_scale_dorian_s4[12];
+extern float	table_scale_phrygian_s3[12];
+extern float	table_scale_lydian_s2[12];
+extern float	table_scale_mixolydian_s1[12];
+extern float	table_scale_aeolian_s7[12];
+extern float	table_scale_locrian_s6[12];
+// HARMONIC MAJOR MODES
+extern float	table_scale_ionian_b6[12];
+extern float	table_scale_dorian_b5[12];
+extern float	table_scale_phrygian_b4[12];
+extern float	table_scale_lydian_b3[12];
+extern float	table_scale_mixolydian_b2[12];
+extern float	table_scale_aeolian_b1[12];
+extern float	table_scale_locrian_b7[12];
+// DIMINISHED MODES
+extern float	table_scale_diminished[12];
+extern float	table_scale_diminished_inverted[12];
+// AUGMENTED MODES
+extern float	table_scale_augmented[12];
+extern float	table_scale_augmented_inverted[12];
+// WHOLE TONE
+extern float	table_scale_whole[12];
+
 extern NVGcolor	colors[16];
 extern NVGcolor	colors_user[8];
 

@@ -86,13 +86,13 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	if (g_timeline->thread_flag.test_and_set())
 		return;
 
-	/// [4] COMPUTE TEMPERAMENT
+	/// [4] COMPUTE TUNING
 	//// BASE PITCH OFFSET (FROM 440Hz)
 	this->pitch_base_offset =
 	/**/ log2(g_module->params[Tracker::PARAM_PITCH_BASE].getValue() / 440.0);
-	//// TEMPERAMENT SCALE
+	//// TUNING SCALE
 	for (i = 0; i < 12; ++i)
-		this->pitch_scale[i] = g_module->params[Tracker::PARAM_TEMPERAMENT + i].getValue();
+		this->pitch_scale[i] = g_module->params[Tracker::PARAM_TUNING + i].getValue();
 
 	/// [5] PLAY
 	//// MODE PLAY SONG

@@ -1,4 +1,10 @@
 
+# BETA TESTERS
+
+@d’Composer
+@CuteFox
+@Sparvnätter
+
 # CONSTRUCTION / DESTRUCTION ORDER
 Construction: [Module - dataFromJson - onAdd] - [Widget]
 Destruction: [dataToJson], [Widget, onRemove, Module]
@@ -48,15 +54,17 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 			- [ ] Play matrix
 		- [x] TIMELINE
 		- [ ] PATTERN
-			- [ ] NOTE
+			- [x] NOTE
 				- [x] Mode gate
 				- [x] Mode trigger
 				- [x] Mode drum
 				- [x] Note new		(run new note)
 				- [x] Note keep		(keep active note)
-				- [ ] Note change	(change active note vel, pan, some effects like pxx)
 				- [x] Note stop		(stop active note)
-				- [x] Note glide	(glide active note to new pitch)
+				- [x] Note glide	(glide note, vel, pan)
+					- [x] Glide pitch
+					- [x] Glide velocity + panning
+					- [ ] Glide effects (only microtonal tuning for MPE)
 				- [x] Pitch temperament scale
 				- [x] Pitch base offset (from 440hz)
 			- [ ] CV
@@ -86,7 +94,6 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 					- [x] Delay
 					- [ ] Curve
 				- [x] Layer user (cursor + beat cursor)
-				- [ ] ? Note type (note or index for microtonal)
 				- [x] Left click (cursor)
 				- [x] Right click
 					- [x] Edit pattern
@@ -100,13 +107,13 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Resize instance (fix negative `beat_start`)
 			- [ ] Screen Matrix
 			- [ ] Screen Tuning
-			- [ ] Context menu general
+			- [x] Context menu general
 				- [x] Frame rate (audio, audio / 2, audio / 4, ...)
 				- [x] Base pitch (default: 440)
-				- [x] Temperaments (can be used as scale)
-					- [x] Temperament manual
-					- [x] Temperament preset (equal, just, ...)
-					- [ ] Temperament scale preset (major, minor, modes, ...)
+				- [x] Tuning
+					- [x] Manual
+					- [x] Presets temperament (equal, just, ...)
+					- [x] Presets scales (major, minor, modes, ...)
 			- [x] Context menu specific
 				- [x] Synth
 					- [x] Synth channel count
@@ -148,8 +155,8 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [ ] Duplicate pattern
 				- [x] Scroll
 	- [ ] SAVE
-		- [ ] Save data ! ! ! Save pitch as note + oct (for microtonal)
-		- [ ] Load data
+		- [x] Save data
+		- [x] Load data
 		- [x] Load template on empty
 	- [ ] HISTORY (UNDO / REDO)
 		- [ ] ActionNote			(replace note cell by another)
