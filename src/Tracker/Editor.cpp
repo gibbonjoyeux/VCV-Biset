@@ -282,6 +282,11 @@ void Editor::pattern_move_cursor_y(int delta_y) {
 		this->pattern_cam_y = this->pattern_line;
 }
 
+void Editor::pattern_jump_cursor(void) {
+	if (this->pattern_jump > 0)
+		this->pattern_move_cursor_y(this->pattern_jump);
+}
+
 void Editor::pattern_clamp_cursor(void) {
 	PatternSource	*pattern;
 	PatternNoteCol	*col_note;

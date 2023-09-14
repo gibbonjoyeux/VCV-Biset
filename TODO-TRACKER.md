@@ -118,9 +118,9 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 					- [ ] Curve
 				- [x] Layer user (cursor + beat cursor)
 				- [ ] Interaction
-					- [ ] Keyboard
+					- [x] Keyboard
 						- [x] Edit pattern
-						- [ ] Jump line
+						- [x] Jump line
 					- [x] Left click (cursor)
 					- [x] Right click
 						- [x] Edit pattern
