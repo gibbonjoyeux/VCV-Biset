@@ -68,7 +68,7 @@ Tracker::Tracker() {
 	configParam(PARAM_PITCH_BASE, 400.0f, 500.0f, 440.0f, "Base Pitch");
 	configParam(PARAM_RATE, 1, 512, 64, "Rate");
 	for (i = 0; i < 12; ++i)
-		configParam(PARAM_TUNING + i, 0.0f, 12.0f, i * 1.0f, table_pitch[i], "", 0, 100.0);
+		configParam(PARAM_TUNING + i, 0.0f, 1200.0f, i * 1.0f, table_pitch[i]);
 
 	/// DEFINE GLOBAL KEYBOARD
 	for (i = 0; i < 128; ++i)

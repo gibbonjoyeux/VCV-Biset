@@ -4,6 +4,9 @@
 #define BTN_PLAY_X			(5.2 + 1.0)
 #define BTN_PLAY_Y			6.0
 #define BTN_PLAY_STEP		6.0
+#define BTN_VIEW_X			BTN_PLAY_X
+#define BTN_VIEW_Y			108
+#define BTN_VIEW_STEP		BTN_PLAY_STEP
 #define KNOB_X				(10.0 + 1.0)
 #define KNOB_Y				18.0
 #define BTN_JUMP_X			(4.75 + 1.0)
@@ -26,15 +29,15 @@ static void set_temperament(float *table) {
 	int		i;
 
 	for (i = 0; i < 12; ++i) {
-		note = g_module->params[Tracker::PARAM_TUNING + i].getValue();
+		note = g_module->params[Tracker::PARAM_TUNING + i].getValue() / 100.0;
 		note_round = (int)note;
 		if (note - (float)note_round >= 0.5) {
 			if (note_round < 11)
-				value = table[note_round + 1] / 100.0;
+				value = table[note_round + 1];
 			else
-				value = table[0] / 100.0;
+				value = table[0];
 		} else {
-			value = table[note_round] / 100.0;
+			value = table[note_round];
 		}
 		g_module->params[Tracker::PARAM_TUNING + i].setValue(value);
 	}
@@ -45,7 +48,7 @@ static void set_scale(float *table) {
 	int		i;
 
 	for (i = 0; i < 12; ++i) {
-		value = table[i] / 100.0;
+		value = table[i];
 		g_module->params[Tracker::PARAM_TUNING + i].setValue(value);
 	}
 }
@@ -114,19 +117,19 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 
 	//// EDITOR MODE SWITCHES
 	addParam(
-	/**/ createParamCentered<ButtonViewPattern>(mm2px(Vec(BTN_PLAY_X, 108)),
+	/**/ createParamCentered<ButtonViewPattern>(mm2px(Vec(BTN_VIEW_X, BTN_VIEW_Y)),
 	/**/ module,
 	/**/ Tracker::PARAM_MODE_PATTERN));
 	addParam(
-	/**/ createParamCentered<ButtonViewTimeline>(mm2px(Vec(BTN_PLAY_X + BTN_PLAY_STEP, 108)),
+	/**/ createParamCentered<ButtonViewTimeline>(mm2px(Vec(BTN_VIEW_X + BTN_VIEW_STEP, BTN_VIEW_Y)),
 	/**/ module,
 	/**/ Tracker::PARAM_MODE_TIMELINE));
 	addParam(
-	/**/ createParamCentered<ButtonViewMatrix>(mm2px(Vec(BTN_PLAY_X + BTN_PLAY_STEP * 2, 108)),
+	/**/ createParamCentered<ButtonViewMatrix>(mm2px(Vec(BTN_VIEW_X + BTN_VIEW_STEP * 2, BTN_VIEW_Y)),
 	/**/ module,
 	/**/ Tracker::PARAM_MODE_MATRIX));
 	addParam(
-	/**/ createParamCentered<ButtonViewTuning>(mm2px(Vec(BTN_PLAY_X + BTN_PLAY_STEP * 3, 108)),
+	/**/ createParamCentered<ButtonViewTuning>(mm2px(Vec(BTN_VIEW_X + BTN_VIEW_STEP * 3, BTN_VIEW_Y)),
 	/**/ module,
 	/**/ Tracker::PARAM_MODE_TUNING));
 
@@ -427,7 +430,7 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 					/// FAMILY 2 - MELODIC MINOR
 					menu->addChild(rack::createSubmenuItem("Melodic minor modes", "",
 						[=](Menu *menu) {
-							menu->addChild(new MenuItemStay("Ionian #1", "Major",
+							menu->addChild(new MenuItemStay("Ionian #1", "",
 								[=]() { set_scale(table_scale_ionian_s1); }
 							));
 							menu->addChild(new MenuItemStay("Dorian #7", "",
@@ -454,7 +457,7 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 					/// FAMILY 3 - HARMONIC MINOR
 					menu->addChild(rack::createSubmenuItem("Harmonic minor modes", "",
 						[=](Menu *menu) {
-							menu->addChild(new MenuItemStay("Ionian #5", "Major",
+							menu->addChild(new MenuItemStay("Ionian #5", "",
 								[=]() { set_scale(table_scale_ionian_s5); }
 							));
 							menu->addChild(new MenuItemStay("Dorian #4", "",
@@ -481,7 +484,7 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 					/// FAMILY 4 - HARMONIC MAJOR
 					menu->addChild(rack::createSubmenuItem("Harmonic major modes", "",
 						[=](Menu *menu) {
-							menu->addChild(new MenuItemStay("Ionian b6", "Major",
+							menu->addChild(new MenuItemStay("Ionian b6", "",
 								[=]() { set_scale(table_scale_ionian_b6); }
 							));
 							menu->addChild(new MenuItemStay("Dorian b5", "",

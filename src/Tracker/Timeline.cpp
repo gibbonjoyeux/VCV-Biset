@@ -91,8 +91,10 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	this->pitch_base_offset =
 	/**/ log2(g_module->params[Tracker::PARAM_PITCH_BASE].getValue() / 440.0);
 	//// TUNING SCALE
-	for (i = 0; i < 12; ++i)
-		this->pitch_scale[i] = g_module->params[Tracker::PARAM_TUNING + i].getValue();
+	for (i = 0; i < 12; ++i) {
+		this->pitch_scale[i] =
+		/**/ g_module->params[Tracker::PARAM_TUNING + i].getValue() / 100.0;
+	}
 
 	/// [5] PLAY
 	//// MODE PLAY SONG & PLAY PATTERN
