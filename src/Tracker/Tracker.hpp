@@ -463,8 +463,6 @@ struct Tracker : Module {
 								OUTPUT_COUNT
 	};
 	enum LightIds {
-								LIGHT_FOCUS,
-								LIGHT_PLAY,
 								LIGHT_COUNT
 	};
 

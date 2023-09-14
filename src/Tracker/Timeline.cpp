@@ -95,7 +95,7 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 		this->pitch_scale[i] = g_module->params[Tracker::PARAM_TUNING + i].getValue();
 
 	/// [5] PLAY
-	//// MODE PLAY SONG
+	//// MODE PLAY SONG & PLAY PATTERN
 	if (g_timeline->play == TIMELINE_MODE_PLAY_SONG
 	|| g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
 		count = 0;
@@ -162,20 +162,6 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 			this->pattern_reader[0].process(this->synths,
 			/**/ g_editor->pattern, this->clock);
 		}
-	//// MODE PLAY PATTERN LOOP
-	} else if (g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
-		//pattern = g_editor->pattern;
-		//if (pattern) {
-		//	if (this->clock.beat >= pattern->beat_count)
-		//		this->clock.reset();
-		//	///// UPDATE PATTERN ON END
-		//	//if (this->pattern_source[0] == NULL)
-		//	//	this->pattern_source[0] = pattern;
-		//	/// COMPUTE PATTERN
-		//	this->pattern_reader[0].process(this->synths,
-		//	/**/ this->pattern_source[0], this->clock,
-		//	/**/ &debug, &debug_2, debug_str);
-		//}
 	//// MODE PLAY MATRIX (LIVE)
 	} else if (g_timeline->play == TIMELINE_MODE_PLAY_MATRIX) {
 	}

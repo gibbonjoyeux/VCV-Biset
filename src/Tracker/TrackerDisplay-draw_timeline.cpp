@@ -31,7 +31,6 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 		nvgFillColor(args.vg, colors[15]);
 		nvgRect(args.vg, x, rect.pos.y, CHAR_W, rect.size.y);
 		nvgFill(args.vg);
-		sprintf(g_timeline->debug_str, "%d", g_timeline->clock.beat);
 	}
 	/// DRAW BEAT / BAR COUNT
 	y = p.y + 11.0;

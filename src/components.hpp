@@ -79,6 +79,38 @@ struct ButtonStop : app::SvgSwitch {
 	}
 };
 
+struct ButtonViewPattern : app::SvgSwitch {
+	ButtonViewPattern() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Pattern-Press.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Pattern.svg")));
+	}
+};
+
+struct ButtonViewTimeline : app::SvgSwitch {
+	ButtonViewTimeline() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Timeline-Press.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Timeline.svg")));
+	}
+};
+
+struct ButtonViewMatrix : app::SvgSwitch {
+	ButtonViewMatrix() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Matrix-Press.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Matrix.svg")));
+	}
+};
+
+struct ButtonViewTuning : app::SvgSwitch {
+	ButtonViewTuning() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Tuning-Press.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Tuning.svg")));
+	}
+};
+
 struct ButtonMinus : app::SvgSwitch {
 	ButtonMinus() {
 		this->momentary = true;

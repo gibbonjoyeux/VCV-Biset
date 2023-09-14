@@ -84,6 +84,29 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [ ] Select keyboard (from context menu)
 				- [ ] Play keyboard
 	- [ ] FRONTEND
+		- [ ] Buttons
+			- [x] Play
+				- [x] Play song
+				- [x] Play pattern
+				- [x] Pause
+				- [x] Stop
+			- [ ] View
+				- [ ] View pattern
+				- [ ] View timeline
+				- [ ] View matrix
+				- [ ] View tuning
+			- [x] Pattern view modes
+				- [x] View velocity
+				- [x] View panning
+				- [x] View delay
+				- [x] View glide
+				- [x] View effects
+			- [x] Pattern values
+				- [x] Change octave
+				- [x] Change line jump
+			- [ ] Play / Write
+				- [ ] Switch play (can play sound with keyboard / midi)
+				- [ ] Switch write (activated via a shortcut)
 		- [ ] Display
 			- [x] Screen mode (Tracker + Timeline + Matrix + Tuning)
 			- [ ] Screen Tracker
@@ -94,12 +117,18 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 					- [x] Delay
 					- [ ] Curve
 				- [x] Layer user (cursor + beat cursor)
-				- [x] Left click (cursor)
-				- [x] Right click
-					- [x] Edit pattern
-					- [x] Edit column
-					- [ ] Edit column effects
+				- [ ] Interaction
+					- [ ] Keyboard
+						- [x] Edit pattern
+						- [ ] Jump line
+					- [x] Left click (cursor)
+					- [x] Right click
+						- [x] Edit pattern
+						- [x] Edit column
+						- [ ] Edit column effects
 			- [x] Screen Timeline
+				- [x] Lines
+				- [ ] Columns (scroll x draw on line counter)
 				- [x] Add instance
 				- [x] Del instance
 				- [x] Select instance
@@ -184,10 +213,10 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 - [x] MODULE TrackerPhase (mult & div synced LFO)
 
 
-- [ ] MODULE TrackerState (Playing gate & trigger)
-
-
 - [ ] MODULE TrackerQuant (quantizer with Tracker pitch & temperament)
+
+
+- [ ] MODULE TrackerState (Playing gate & trigger)
 
 
 # Effects

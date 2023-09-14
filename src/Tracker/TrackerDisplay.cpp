@@ -67,19 +67,9 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 	//nvgRect(args.vg, RECT_ARGS(rect));
 	//nvgFill(args.vg);
 
-	//// TMP DEBUG ! ! !
-	nvgFillColor(args.vg, colors[3]);
-	nvgText(args.vg, rect.pos.x + 100, rect.pos.y + 42.0, g_timeline->debug_str, NULL);
 	// TMP DEBUG ! ! !
-	//char text[1024];
-	//int test = 0x49;
-	//itoa(sizeof(Test), text, 10);
-	////int a1 = (test << 4) >> 4;
-	////int a2 = (test >> 4);
-	//sprintf(text, "%f", char_width);
-	///**/ g_editor->pattern_line, g_editor->pattern_cell);
-	//nvgText(args.vg, p.x + 400, p.y + 11.0, g_editor->pattern_debug, NULL);
-	//nvgText(args.vg, p.x + 400, p.y + 22.0, text, NULL);
+	//nvgFillColor(args.vg, colors[3]);
+	//nvgText(args.vg, rect.pos.x + 100, rect.pos.y + 42.0, g_timeline->debug_str, NULL);
 	// TMP DEBUG ! ! !
 
 	nvgScissor(args.vg, RECT_ARGS(rect));

@@ -70,9 +70,6 @@ Tracker::Tracker() {
 	for (i = 0; i < 12; ++i)
 		configParam(PARAM_TUNING + i, 0.0f, 12.0f, i * 1.0f, table_pitch[i], "", 0, 100.0);
 
-	configLight(LIGHT_FOCUS, "Focus");
-	configLight(LIGHT_PLAY, "Play");
-
 	/// DEFINE GLOBAL KEYBOARD
 	for (i = 0; i < 128; ++i)
 		table_keyboard[i] = -1;
