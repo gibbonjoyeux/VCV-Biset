@@ -41,6 +41,12 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 	to a smaller pattern (both line and column)
 	-> Check on empty pattern !
 
+# THINK ABOUT
+
+- Tuning
+	- Multiple tuning - switch between them (via CV ?)
+	- Tuning view
+
 # TODO
 
 - [] Notes also as index (and not on A5, B5... for microtonal)
@@ -70,16 +76,21 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 			- [ ] CV
 				- [x] Mode CV
 				- [ ] Mode Trigger
-				- [ ] Mode Gate
+				- [x] Mode Gate
 				- [x] Mode BPM
+				- [ ] Mode tuning ?
 				- [ ] CV set		(set cv point)
 					- [x] CV value
 					- [ ] CV curve
 				- [x] CV keep		(continue interpolation)
 			- [ ] FX Column (effects active on entire column, from context menu)
 		- [ ] LIVE
-			- [ ] Mode write (play and write to track column)
-			- [ ] Mode play (create synth voices from user events)
+			- [ ] Play live (with caps lock, write in any case)
+			- [ ] Record live (with play and caps lock on)
+				- [ ] Move cursor (if caps lock)
+				- [ ] Record notes (on available columns)
+				- [ ] Record delays
+				- [ ] Record MPE (with effects)
 			- [ ] External midi keyboard
 				- [ ] Select keyboard (from context menu)
 				- [ ] Play keyboard
@@ -90,11 +101,11 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Play pattern
 				- [x] Pause
 				- [x] Stop
-			- [ ] View
-				- [ ] View pattern
-				- [ ] View timeline
-				- [ ] View matrix
-				- [ ] View tuning
+			- [x] View
+				- [x] View pattern
+				- [x] View timeline
+				- [x] View matrix
+				- [x] View tuning
 			- [x] Pattern view modes
 				- [x] View velocity
 				- [x] View panning
@@ -112,8 +123,8 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 			- [ ] Screen Tracker
 				- [x] View modes (amp + pan + ...)
 				- [x] Layer tracker (text only)
-				- [ ] Layer visual
-					- [x] Interpolation
+				- [ ] Layer visual (CV)
+					- [ ] Interpolation
 					- [x] Delay
 					- [ ] Curve
 				- [x] Layer user (cursor + beat cursor)
@@ -128,7 +139,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 						- [ ] Edit column effects
 			- [x] Screen Timeline
 				- [x] Lines
-				- [ ] Columns (scroll x draw on line counter)
+				- [x] Columns
 				- [x] Add instance
 				- [x] Del instance
 				- [x] Select instance
@@ -184,7 +195,9 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [ ] Duplicate pattern
 				- [x] Scroll
 	- [ ] SAVE
-		- [x] Save data
+		- [ ] Save data
+			- ! Prepare matrix
+			- ! Add midi device
 		- [x] Load data
 		- [x] Load template on empty
 	- [ ] HISTORY (UNDO / REDO)
@@ -228,6 +241,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 [ ] pxx	Pitch (micro) random	(xx: pitch amplitude)
 	- think about microtonal
 	- think about MPE
+	- MPE: a mix of 2 effects ? 1 Macro (note offset) + 1 Micro (inter-note offset)
 [x] Dxx Delay random			(xx: delay amplitude)
 [x] Oxy	Octave random			(x: mode y: amplitude)
 		x = 0 : -+ offset

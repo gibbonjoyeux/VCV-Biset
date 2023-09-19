@@ -36,8 +36,7 @@
 #define PATTERN_CV_SET					1
 #define PATTERN_CV_MODE_CV				0
 #define PATTERN_CV_MODE_GATE			1
-#define PATTERN_CV_MODE_TRIGGER			2
-#define PATTERN_CV_MODE_BPM				3
+#define PATTERN_CV_MODE_BPM				2
 
 #define SYNTH_MODE_GATE					0
 #define SYNTH_MODE_TRIGGER				1

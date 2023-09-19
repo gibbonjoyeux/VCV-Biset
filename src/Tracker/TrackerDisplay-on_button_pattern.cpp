@@ -234,10 +234,6 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 					[=]() { return quant_mode->getValue() == PATTERN_CV_MODE_GATE; },
 					[=]() { quant_mode->setValue(PATTERN_CV_MODE_GATE); }
 				));
-				menu->addChild(new MenuCheckItem("Trigger", "",
-					[=]() { return quant_mode->getValue() == PATTERN_CV_MODE_TRIGGER; },
-					[=]() { quant_mode->setValue(PATTERN_CV_MODE_TRIGGER); }
-				));
 				menu->addChild(new MenuCheckItem("BPM", "",
 					[=]() { return quant_mode->getValue() == PATTERN_CV_MODE_BPM; },
 					[=]() { quant_mode->setValue(PATTERN_CV_MODE_BPM); }

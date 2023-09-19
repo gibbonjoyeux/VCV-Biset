@@ -46,19 +46,6 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 		}
 		nvgTextBox(args.vg, x, y, CHAR_W * 1.5, str, NULL);
 	}
-	/// DRAW ROWS COUNT
-	for (i = 0; i < 12; ++i) {
-		index = i + g_editor->timeline_cam_y;
-		/// COL COUNT
-		x = p.x + 2.0;
-		y = p.y + 11.0 + CHAR_H * ((i * 3) + 3 + 1);
-		if (index % 2 == 0)
-			nvgFillColor(args.vg, colors[14]);
-		else
-			nvgFillColor(args.vg, colors[13]);
-		itoaw(str, index, 2);
-		nvgText(args.vg, x, y, str, NULL);
-	}
 	/// DRAW BAR MARKERS
 	for (i = 4 - (int)g_editor->timeline_cam_x % 4; i < 85; i += 4) {
 		x = p.x + 2.0 + CHAR_W * (i + 2);
@@ -159,5 +146,26 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 			/// NEXT INSTANCE
 			it = std::next(it);
 		}
+	}
+
+	/// [3] DRAW PAGE TOP
+	//// DRAW ROWS COUNT
+	nvgBeginPath(args.vg);
+	nvgFillColor(args.vg, colors[0]);
+	nvgRect(args.vg,
+	/**/ p.x + 0.0, p.y + 6.0 + CHAR_H * 3.0,
+	/**/ p.x + 2.0 + CHAR_W * (2.0), p.y + 6.0 + CHAR_H * (35.0));
+	nvgFill(args.vg);
+	for (i = 0; i < 12; ++i) {
+		index = i + g_editor->timeline_cam_y;
+		/// COL COUNT
+		x = p.x + 2.0;
+		y = p.y + 11.0 + CHAR_H * ((i * 3) + 3 + 1);
+		if (index % 2 == 0)
+			nvgFillColor(args.vg, colors[14]);
+		else
+			nvgFillColor(args.vg, colors[13]);
+		itoaw(str, index, 2);
+		nvgText(args.vg, x, y, str, NULL);
 	}
 }
