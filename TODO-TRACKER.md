@@ -75,7 +75,6 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Pitch base offset (from 440hz)
 			- [ ] CV
 				- [x] Mode CV
-				- [ ] Mode Trigger
 				- [x] Mode Gate
 				- [x] Mode BPM
 				- [ ] Mode tuning ?
@@ -171,7 +170,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 						- [x] Mode
 						- [x] Synth
 						- [x] Index
-		- [ ] Display Side
+		- [x] Display Side
 			- [x] Screen Side Synths (Tracker)
 				- [x] Draw synths
 				- [x] Select synth
@@ -182,7 +181,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Del synth
 				- [x] Move synth (move & replace in patterns)
 				- [x] Scroll
-			- [ ] Screen Side Patterns (Timeline)
+			- [x] Screen Side Patterns (Timeline)
 				- [x] Draw patterns
 				- [x] Select pattern
 				- [x] Double click : open pattern tracker
@@ -192,7 +191,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Add pattern
 				- [x] Del pattern (remove instances)
 				- [x] Move pattern (move & replace in instances)
-				- [ ] Duplicate pattern
+				- [x] Duplicate pattern
 				- [x] Scroll
 	- [ ] SAVE
 		- [ ] Save data

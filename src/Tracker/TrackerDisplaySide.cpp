@@ -83,6 +83,11 @@ static void menu_pattern(PatternSource *pattern) {
 	menu->addChild(rack::createMenuItem("Duplicate", "",
 		[=](void) {
 			PatternSource	*pattern_new;
+			PatternNoteCol	*col_note;
+			PatternNoteCol	*col_note_new;
+			PatternCVCol	*col_cv;
+			PatternCVCol	*col_cv_new;
+			int				i, j;
 
 			/// CREATE NEW PATTERN
 			pattern_new = g_timeline->pattern_new();
@@ -91,6 +96,22 @@ static void menu_pattern(PatternSource *pattern) {
 			pattern_new->rename(pattern->name);
 			pattern_new->color = pattern->color;
 			/// COPY TO NEW PATTERN
+			//// COPY NOTES
+			for (i = 0; i < pattern->note_count; ++i) {
+				col_note = pattern->notes[i];
+				col_note_new = pattern_new->notes[i];
+				*col_note_new = *col_note;
+				for (j = 0; j < pattern->line_count; ++j)
+					col_note_new->lines[j] = col_note->lines[j];
+			}
+			//// COPY CVS
+			for (i = 0; i < pattern->cv_count; ++i) {
+				col_cv = pattern->cvs[i];
+				col_cv_new = pattern_new->cvs[i];
+				*col_cv_new = *col_cv;
+				for (j = 0; j < pattern->line_count; ++j)
+					col_cv_new->lines[j] = col_cv->lines[j];
+			}
 		}
 	));
 	/// ADD RENAME BUTTON
