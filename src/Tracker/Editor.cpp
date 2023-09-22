@@ -100,9 +100,11 @@ void Editor::process(i64 frame) {
 	.process(module->params[Tracker::PARAM_PLAY_PATTERN].getValue())) {
 		g_timeline->stop();
 		g_timeline->clock.reset();
+		/// MODE PATTERN SOLO
 		if (g_editor->mode == EDITOR_MODE_PATTERN) {
 			if (g_editor->pattern)
 				g_timeline->play = TIMELINE_MODE_PLAY_PATTERN_SOLO;
+		/// MODE PATTERN
 		} else {
 			if (g_editor->instance) {
 				g_timeline->pattern_instance = g_editor->instance;

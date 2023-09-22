@@ -467,6 +467,7 @@ struct Tracker : Module {
 	enum LightIds {
 								LIGHT_COUNT
 	};
+	midi::InputQueue				midi_input;
 
 	Tracker();
 	~Tracker();

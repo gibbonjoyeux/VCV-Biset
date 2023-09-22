@@ -60,9 +60,6 @@ static void set_scale(float *table) {
 TrackerWidget::TrackerWidget(Tracker* _module) {
 	TrackerDisplay			*display;
 	TrackerDisplaySide		*display_side;
-	//TrackerDisplayBPM		*display_bpm;
-	//TrackerDisplaySynth		*display_synth;
-	//TrackerDisplayPattern	*display_pattern;
 	LedDisplayDigit			*display_bpm;
 	LedDisplayDigit			*display_jump;
 	LedDisplayDigit			*display_octave;
@@ -235,46 +232,7 @@ void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
 	if (g_module == NULL)
 		return;
 
-	// TODO: Need to use Midi / Keyboard drivers instead of keyboard event
-	/// [1] PLAY KEYBOARD NOTES
-	if (e.mods & GLFW_MOD_CAPS_LOCK
-	&& g_editor->synth
-	&& e.key >= 0 && e.key < 128) {
-		/// COMPUTE NOTE
-		note_midi = table_keyboard[e.key];
-		if (note_midi >= 0) {
-			note_midi += g_editor->pattern_octave * 12;
-			if (note_midi > 127)
-				note_midi = 127;
-			/// [A] NOTE PRESS
-			if (e.action == GLFW_PRESS) {
-				/// BUILD NOTE
-				note.mode = PATTERN_NOTE_NEW;
-				note.glide = 0;
-				note.synth = g_editor->synth_id;
-				note.pitch = note_midi;
-				note.velocity = 99;
-				note.panning = 50;
-				note.delay = 0;
-				for (i = 0; i < 8; ++i)
-					note.effects[i].type = PATTERN_EFFECT_NONE;
-				/// SEND NOTE
-				note_voice = g_editor->synth->add(NULL, &note, 1.0);
-				/// SAVE NOTE
-				if (g_editor->live_voices[note_midi] != NULL)
-					g_editor->live_voices[note_midi]->stop();
-				g_editor->live_voices[note_midi] = note_voice;
-			/// [B] NOTE RELEASE
-			} else if (e.action == GLFW_RELEASE) {
-				if (g_editor->live_voices[note_midi] != NULL) {
-					g_editor->live_voices[note_midi]->stop();
-					g_editor->live_voices[note_midi] = NULL;
-				}
-			}
-		}
-	}
-
-	/// [2] CHANGE VIEW
+	/// [1] CHANGE VIEW
 	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_SHIFT)) {
 		if (e.key == GLFW_KEY_LEFT) {
 			g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(1);
@@ -306,14 +264,12 @@ void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
 			return;
 		}
 	}
-	/// [3] EDIT PATTERN & TIMELINE
+	/// [2] EDIT PATTERN & TIMELINE
 	if (g_editor->mode == EDITOR_MODE_PATTERN) {
 		this->display->on_key_pattern(e);
 	} else if (g_editor->mode == EDITOR_MODE_TIMELINE) {
 		this->display->on_key_timeline(e);
 	}
-
-	e.consume(this);
 }
 
 void TrackerWidget::onHoverScroll(const HoverScrollEvent &e) {
@@ -374,16 +330,24 @@ void TrackerWidget::onHoverScroll(const HoverScrollEvent &e) {
 
 void TrackerWidget::appendContextMenu(Menu *menu) {
 	MenuSeparator	*separator;
+	MenuLabel		*label;
 	MenuSliderEdit	*slider;
 	Param			*param_rate;
 
 	separator = new MenuSeparator();
 	menu->addChild(separator);
 
-	/// [1] BASE PITCH
-	slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
-	slider->box.size.x = 200.f;
-	menu->addChild(slider);
+	label = new MenuLabel();
+	label->text = "Settings";
+	menu->addChild(label);
+
+	/// [1] MIDI / KEYBOARD CHOICE
+	menu->addChild(rack::createSubmenuItem("Midi", "",
+		[=](Menu *menu) {
+			appendMidiMenu(menu, &(this->module->midi_input));
+		}
+	));
+
 	/// [2] RATE
 	param_rate = &(g_module->params[Tracker::PARAM_RATE]);
 	menu->addChild(rack::createSubmenuItem("Rate", "",
@@ -431,7 +395,18 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 		}
 	));
 
-	/// [3] TUNING
+	separator = new MenuSeparator();
+	menu->addChild(separator);
+
+	label = new MenuLabel();
+	label->text = "Tuning";
+	menu->addChild(label);
+
+	/// [3] BASE PITCH
+	slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+	/// [4] TUNING
 	menu->addChild(rack::createSubmenuItem("Tuning", "",
 		[=](Menu *menu) {
 			MenuSliderEdit	*slider;

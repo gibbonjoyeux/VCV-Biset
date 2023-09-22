@@ -93,9 +93,9 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [ ] Record notes (on available columns)
 				- [ ] Record delays
 				- [ ] Record MPE (with effects)
-			- [ ] External midi keyboard
-				- [ ] Select keyboard (from context menu)
-				- [ ] Play keyboard
+			- [x] External midi keyboard
+				- [x] Select keyboard (from context menu)
+				- [x] Play keyboard
 	- [ ] FRONTEND
 		- [ ] Buttons
 			- [x] Play

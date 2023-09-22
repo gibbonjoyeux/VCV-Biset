@@ -64,6 +64,11 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 				[=]() { return instance->muted; },
 				[=]() { instance->muted = !instance->muted; }
 			));
+			menu->addChild(rack::createMenuItem("Delete", "", [=]() {
+					g_timeline->instance_del(g_editor->instance);
+					g_editor->instance = NULL;
+				}
+			));
 		}
 	}
 }

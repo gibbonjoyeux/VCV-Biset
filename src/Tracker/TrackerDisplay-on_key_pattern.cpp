@@ -53,19 +53,23 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 	int				key;
 	int				i;
 
-	e.consume(this);
+	//e.consume(this);
 	if (e.action == GLFW_PRESS
 	|| e.action == GLFW_REPEAT) {
 		if (g_editor->pattern) {
 			/// EVENT CURSOR MOVE
 			if (e.key == GLFW_KEY_LEFT) {
 				g_editor->pattern_move_cursor_x(-1);
+				e.consume(this);
 			} else if (e.key == GLFW_KEY_RIGHT) {
 				g_editor->pattern_move_cursor_x(+1);
+				e.consume(this);
 			} else if (e.key == GLFW_KEY_UP) {
 				g_editor->pattern_move_cursor_y(-1);
+				e.consume(this);
 			} else if (e.key == GLFW_KEY_DOWN) {
 				g_editor->pattern_move_cursor_y(+1);
+				e.consume(this);
 			/// EVENT KEYBOARD
 			} else {
 				pattern = g_editor->pattern;
@@ -123,6 +127,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 								/**/ + key * 12;
 								g_editor->pattern_jump_cursor();
 							}
+							e.consume(this);
 							break;
 						/// VELOCITY
 						case 2:
@@ -154,6 +159,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 									}
 								}
 							}
+							e.consume(this);
 							break;
 						/// PANNING
 						case 3:
@@ -185,6 +191,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 									}
 								}
 							}
+							e.consume(this);
 							break;
 						/// SYNTH
 						case 4:
@@ -202,6 +209,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 									g_editor->pattern_jump_cursor();
 								}
 							}
+							e.consume(this);
 							break;
 						/// DELAY
 						case 5:
@@ -219,6 +227,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 									g_editor->pattern_jump_cursor();
 								}
 							}
+							e.consume(this);
 							break;
 						/// GLIDE
 						case 6:
@@ -247,6 +256,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 									}
 								}
 							}
+							e.consume(this);
 							break;
 						/// EFFECT
 						default:
@@ -294,6 +304,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 									}
 								}
 							}
+							e.consume(this);
 							break;
 					}
 				/// KEY ON CV
@@ -333,6 +344,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 									}
 								}
 							}
+							e.consume(this);
 							break;
 						/// GLIDE
 						case 1:
@@ -351,6 +363,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 									g_editor->pattern_jump_cursor();
 								}
 							}
+							e.consume(this);
 							break;
 						/// DELAY
 						case 2:
@@ -369,6 +382,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 									g_editor->pattern_jump_cursor();
 								}
 							}
+							e.consume(this);
 							break;
 					}
 				}

@@ -108,17 +108,17 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 			/// FIND PLAYING INSTANCE
 			while (it != it_end
 			&& this->clock.beat >= it->beat + it->beat_length) {
-				/// DE-ACTIVATE INSTANCE
+				/// STOP INSTANCE (FINISHED)
 				if (this->pattern_state[i] == true) {
 					this->pattern_state[i] = false;
 					this->pattern_reader[i].stop();
 					if (g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
-						if (&(*it) == g_timeline->pattern_instance) {
-							this->clock.reset();
-							this->clock.beat = g_editor->instance->beat;
-							this->stop();
+						if (&(*it) == this->pattern_instance) {
 							if (g_editor->instance)
 								this->pattern_instance = g_editor->instance;
+							this->clock.reset();
+							this->clock.beat = this->pattern_instance->beat;
+							this->stop();
 						}
 					}
 				}
@@ -146,7 +146,8 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 			}
 		}
 		/// ROWS ALL ENDED
-		if (count >= 32) {
+		if (g_timeline->play == TIMELINE_MODE_PLAY_SONG
+		&& count >= 32) {
 			/// RESET CLOCK
 			//this->clock.beat = 0;
 			this->clock.reset();

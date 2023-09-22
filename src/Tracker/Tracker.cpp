@@ -9,6 +9,84 @@ Tracker			*g_module = NULL;
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
+static void process_midi_message(midi::Message *msg) {
+	PatternNote		note;
+	SynthVoice		*note_voice;
+	int				pitch;
+	int				velocity;
+	int				i;
+
+	switch (msg->getStatus()) {
+		/// NOTE OFF
+		case 0x8: {
+			pitch = msg->getNote();
+			velocity = msg->getValue();
+			if (pitch > 127)
+				return;
+			if (g_editor->live_voices[pitch] != NULL) {
+				g_editor->live_voices[pitch]->stop();
+				g_editor->live_voices[pitch] = NULL;
+			}
+		} break;
+		// NOTE ON
+		case 0x9: {
+			pitch = msg->getNote();
+			velocity = msg->getValue();
+			if (pitch > 127)
+				return;
+			/// VELOCITY > 0
+			if (velocity > 0) {
+				/// BUILD NOTE
+				note.mode = PATTERN_NOTE_NEW;
+				note.glide = 0;
+				note.synth = g_editor->synth_id;
+				note.pitch = pitch;
+				note.velocity = ((float)velocity / 127.0) * 99.0;
+				note.panning = 50;
+				note.delay = 0;
+				for (i = 0; i < 8; ++i)
+					note.effects[i].type = PATTERN_EFFECT_NONE;
+				/// SEND NOTE
+				note_voice = g_editor->synth->add(NULL, &note, 1.0);
+				/// SAVE NOTE
+				if (g_editor->live_voices[pitch] != NULL)
+					g_editor->live_voices[pitch]->stop();
+				g_editor->live_voices[pitch] = note_voice;
+			/// VELOCITY = 0 (NOTE OFF)
+			} else {
+				if (g_editor->live_voices[pitch] != NULL) {
+					g_editor->live_voices[pitch]->stop();
+					g_editor->live_voices[pitch] = NULL;
+				}
+			}
+		} break;
+		// KEY PRESSURE
+		case 0xa: {
+		} break;
+		// CC
+		case 0xb: {
+		} break;
+		// CHANNEL PRESSURE
+		case 0xd: {
+		} break;
+		// PITCH WHEEL
+		case 0xe: {
+		} break;
+		case 0xf: {
+		} break;
+		default: break;
+	}
+}
+
+static void process_midi_input(int frame) {
+	midi::Message	msg;
+
+	if (g_module == NULL)
+		return;
+	while (g_module->midi_input.tryPop(&msg, frame))
+		process_midi_message(&msg);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
@@ -132,6 +210,9 @@ Tracker::~Tracker() {
 void Tracker::process(const ProcessArgs& args) {
 	float	dt_sec, dt_beat;
 	float	bpm;
+
+	/// PROCESS MIDI INPUT
+	process_midi_input(args.frame);
 
 	/// PROCESS EDITOR
 	g_editor->process(args.frame);
