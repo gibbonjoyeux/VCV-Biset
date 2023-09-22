@@ -20,6 +20,11 @@
 TRACKER BINARY SAVE FORMAT:
 - Saving endian									u8
 - File size										u32
+- Midi
+	- Driver id									i32
+	- Device name length						u16
+	- Device name string						chars
+	- Channel									i8
 - Editor
 	- Used jump									u8
 	- Used octave								u8
@@ -109,6 +114,14 @@ TRACKER BINARY SAVE FORMAT:
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
+static i8 read_i8(void) {
+	i8		value;
+
+	value = g_timeline->save_buffer[g_timeline->save_cursor];
+	g_timeline->save_cursor += 1;
+	return value;
+}
+
 static u8 read_u8(void) {
 	u8		value;
 
@@ -126,6 +139,14 @@ static u16 read_u16(void) {
 	return value;
 }
 
+static i32 read_i32(void) {
+	i32		value;
+
+	value = *((i32*)&(g_timeline->save_buffer[g_timeline->save_cursor]));
+	g_timeline->save_cursor += 4;
+	ENDIAN_32(value);
+	return value;
+}
 static void read_name(char *buffer) {
 	u8		len;
 
@@ -137,6 +158,16 @@ static void read_name(char *buffer) {
 	g_timeline->save_cursor += len;
 }
 
+static char *read_long_name(int *len) {
+	char	*pointer;
+
+	/// HANDLE LENGTH
+	*len = read_u16();
+	/// HANDLE STRING
+	pointer = (char*)&(g_timeline->save_buffer[g_timeline->save_cursor]);
+	g_timeline->save_cursor += *len;
+	return pointer;
+}
 static bool load_save_file(void) {
 	u8			*buffer;
 	std::string	path;
@@ -182,6 +213,7 @@ static bool load_save_file(void) {
 
 static bool compute_save_file(void) {
 	char			name[256];
+	char			*str;
 	PatternSource	*pattern;
 	PatternNoteCol	*note_col;
 	PatternNote		*note;
@@ -189,6 +221,7 @@ static bool compute_save_file(void) {
 	PatternCV		*cv;
 	PatternInstance	*instance;
 	Synth			*synth;
+	vector<int>		ids;
 	int				pattern_count;
 	int				synth_count;
 	int				instance_count;
@@ -198,10 +231,28 @@ static bool compute_save_file(void) {
 	int				count;
 	int				row, beat;
 	int				color;
+	int				len;
 	int				i, j, k, l;
 
 	g_timeline->save_cursor = 1 + 4;					// Endian + file size
-	/// [1] GET EDITOR BASICS
+
+	/// [1] MIDI
+	g_module->midi_input.setDriverId(read_i32());		// Midi driver ID
+	str = read_long_name(&len);
+	if (g_module->midi_input.driver) {
+		ids = g_module->midi_input.getDeviceIds();
+		count = ids.size();
+		for (i = 0; i < count; ++i) {
+			if (memcmp(g_module->midi_input.getDeviceName(i).c_str(), str, len)
+			== 0) {
+				g_module->midi_input.setDeviceId(i);	// Midi device name
+				break;
+			}
+		}
+	}
+	g_module->midi_input.channel = read_i8();			// Midi channel
+
+	/// [2] GET EDITOR BASICS
 	g_editor->pattern_jump = read_u8();					// Used jump
 	g_editor->pattern_octave = read_u8();				// Used octave
 	g_editor->pattern_view_velo = read_u8();			// View velocity
@@ -209,7 +260,8 @@ static bool compute_save_file(void) {
 	g_editor->pattern_view_glide = read_u8();			// View delay
 	g_editor->pattern_view_delay = read_u8();			// View glide
 	g_editor->pattern_view_fx = read_u8();				// View effects
-	/// [2] GET PATTERNS
+
+	/// [3] GET PATTERNS
 	pattern_count = read_u16();
 	for (i = 0; i < pattern_count; ++i) {
 		/// PATTERN SIZE
@@ -279,7 +331,8 @@ static bool compute_save_file(void) {
 			}
 		}
 	}
-	/// [3] GET SYNTHS
+
+	/// [4] GET SYNTHS
 	synth_count = read_u8();
 	for (i = 0; i < synth_count; ++i) {
 		synth = g_timeline->synth_new();
@@ -289,7 +342,8 @@ static bool compute_save_file(void) {
 		synth->mode = read_u8();						// Synth mode
 		synth->channel_count = read_u8();				// Synth channel count
 	}
-	/// [4] GET TIMELINE
+
+	/// [5] GET TIMELINE
 	instance_count = read_u16();
 	for (i = 0; i < instance_count; ++i) {
 		row = read_u8();								// Instance row

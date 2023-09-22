@@ -15,6 +15,11 @@
 TRACKER BINARY SAVE FORMAT:
 - Saving endian									u8
 - File size										u32
+- Midi
+	- Driver id									i32
+	- Device name length						u16
+	- Device name string						chars
+	- Channel									i8
 - Editor
 	- Used jump									u8
 	- Used octave								u8
@@ -108,6 +113,14 @@ TRACKER BINARY SAVE FORMAT:
 /// FILL BUFFER
 //////////////////////////////////////////////////
 
+static void fill_i8(i8 number) {
+	/// MODE WRITE
+	if (g_timeline->save_mode == SAVE_MODE_WRITE)
+		g_timeline->save_buffer[g_timeline->save_cursor] = number;
+	/// MODE RECORD & WRITE
+	g_timeline->save_cursor += 1;
+}
+
 static void fill_u8(u8 number) {
 	/// MODE WRITE
 	if (g_timeline->save_mode == SAVE_MODE_WRITE)
@@ -144,12 +157,41 @@ static void fill_u32(u32 number) {
 	g_timeline->save_cursor += 4;
 }
 
+static void fill_i32(i32 number) {
+	u8		*bytes;
+
+	/// MODE WRITE
+	if (g_timeline->save_mode == SAVE_MODE_WRITE) {
+		bytes = (u8*)&number;
+		g_timeline->save_buffer[g_timeline->save_cursor] = bytes[0];
+		g_timeline->save_buffer[g_timeline->save_cursor + 1] = bytes[1];
+		g_timeline->save_buffer[g_timeline->save_cursor + 2] = bytes[2];
+		g_timeline->save_buffer[g_timeline->save_cursor + 3] = bytes[3];
+	}
+	/// MODE RECORD & WRITE
+	g_timeline->save_cursor += 4;
+}
+
 static void fill_name(char *name) {
 	int		len;
 
 	/// HANDLE LENGTH
 	len = strlen(name);
 	fill_u8(len);
+	/// HANDLE STRING
+	//// MODE WRITE
+	if (g_timeline->save_mode == SAVE_MODE_WRITE)
+		memcpy(&(g_timeline->save_buffer[g_timeline->save_cursor]), name, len);
+	//// MODE RECORD & WRITE
+	g_timeline->save_cursor += len;
+}
+
+static void fill_long_name(char *name) {
+	int		len;
+
+	/// HANDLE LENGTH
+	len = strlen(name);
+	fill_u16(len);
 	/// HANDLE STRING
 	//// MODE WRITE
 	if (g_timeline->save_mode == SAVE_MODE_WRITE)
@@ -190,16 +232,29 @@ static void fill_save_buffer() {
 	PatternNote						*note;
 	PatternCVCol					*cv_col;
 	PatternCV						*cv;
+	char							*name;
 	int								i, j, k, l;
 	u32								count;
 
 	if (g_timeline->save_mode == SAVE_MODE_WRITE
 	&& g_timeline->save_buffer == NULL)
 		return;
+
 	/// [1] ADD BASICS
 	g_timeline->save_cursor = 0;
 	fill_u8(endian_native());				// Saving endian
 	fill_u32(g_timeline->save_length);		// File size
+
+	/// [2] MIDI
+	fill_i32(g_module->midi_input.getDriverId());			// Midi driver ID
+	if (g_module->midi_input.device)
+		name = (char*)g_module->midi_input.device->getName().c_str();
+	else
+		name = (char*)"";
+	fill_long_name(name);									// Midi device name
+	fill_i8(g_module->midi_input.getChannel());				// Midi channel
+
+	/// [3] EDITOR
 	fill_u8(g_editor->pattern_jump);		// Used jump
 	fill_u8(g_editor->pattern_octave);		// Used octave
 	fill_u8(g_editor->pattern_view_velo);	// View velocity
@@ -207,6 +262,7 @@ static void fill_save_buffer() {
 	fill_u8(g_editor->pattern_view_glide);	// View delay
 	fill_u8(g_editor->pattern_view_delay);	// View glide
 	fill_u8(g_editor->pattern_view_fx);		// View effects
+
 	/// [2] ADD PATTERNS
 	fill_u16(g_timeline->pattern_count);
 	for (i = 0; i < g_timeline->pattern_count; ++i) {
@@ -290,6 +346,7 @@ static void fill_save_buffer() {
 			fill_cursor_count(sizeof(u16), count);		// -> Fill set lines count
 		}
 	}
+
 	/// [3] SYNTHS
 	fill_u8(g_timeline->synth_count);
 	for (i = 0; i < g_timeline->synth_count; ++i) {
@@ -298,6 +355,7 @@ static void fill_save_buffer() {
 		fill_u8(g_timeline->synths[i].mode);			// Mode (gate / trigger / drum)
 		fill_u8(g_timeline->synths[i].channel_count);	// Channel count
 	}
+
 	/// [4] ADD TIMELINE
 	fill_cursor_save(sizeof(u16));			// -> Prepare set instances count
 	count = 0;

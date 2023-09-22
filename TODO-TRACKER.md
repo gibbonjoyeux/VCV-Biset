@@ -198,8 +198,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Scroll
 	- [ ] SAVE
 		- [ ] Save data
-			- ! Prepare matrix
-			- ! Add midi device
+			- ! Prepare matrix (list of set patterns, length 0 by default)
 		- [x] Load data
 		- [x] Load template on empty
 	- [ ] HISTORY (UNDO / REDO)
