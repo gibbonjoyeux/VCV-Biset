@@ -20,6 +20,10 @@ void TrackerDisplay::draw(const DrawArgs &args) {
 
 	LedDisplay::draw(args);
 
+	/// CAPTURE FOCUS
+	if (this->moduleWidget->hasChild(APP->event->getSelectedWidget()))
+		APP->event->setSelectedWidget(this->moduleWidget);
+
 	/// GET CANVAS FORMAT
 	rect = box.zeroPos();
 	/// BACKGROUND
@@ -68,8 +72,8 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 	//nvgFill(args.vg);
 
 	// TMP DEBUG ! ! !
-	//nvgFillColor(args.vg, colors[3]);
-	//nvgText(args.vg, rect.pos.x + 100, rect.pos.y + 42.0, g_timeline->debug_str, NULL);
+	nvgFillColor(args.vg, colors[3]);
+	nvgText(args.vg, rect.pos.x + 300, rect.pos.y + 42.0, g_timeline->debug_str, NULL);
 	// TMP DEBUG ! ! !
 
 	nvgScissor(args.vg, RECT_ARGS(rect));

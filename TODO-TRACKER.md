@@ -43,6 +43,9 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 
 # THINK ABOUT
 
+- What happens to overriden notes / voices when synth is used with many notes ?
+- Live play
+	- Light notifying caps lock ?
 - Tuning
 	- Multiple tuning - switch between them (via CV ?)
 	- Tuning view
@@ -84,7 +87,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] CV keep		(continue interpolation)
 			- [ ] FX Column (effects active on entire column, from context menu)
 		- [ ] LIVE
-			- [ ] Play live (with caps lock, write in any case)
+			- [x] Play live (with caps lock, write in any case)
 			- [ ] Record live (with play and caps lock on)
 				- [ ] Move cursor (if caps lock)
 				- [ ] Record notes (on available columns)

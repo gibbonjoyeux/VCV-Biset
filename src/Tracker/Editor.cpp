@@ -14,6 +14,8 @@
 //////////////////////////////////////////////////
 
 Editor::Editor() {
+	int		i;
+
 	this->mode = EDITOR_MODE_PATTERN;
 
 	this->selected = false;
@@ -54,6 +56,9 @@ Editor::Editor() {
 
 	this->side_synth_cam_y = 0;
 	this->side_pattern_cam_y = 0;
+
+	for (i = 0; i < sizeof(this->live_voices) / sizeof(SynthVoice*); ++i)
+		this->live_voices[i] = NULL;
 }
 
 void Editor::process(i64 frame) {
@@ -63,8 +68,6 @@ void Editor::process(i64 frame) {
 		return;
 
 	module = g_module;
-	// TODO: check change in g_editor->pattern_col
-	// -> On change update edit knobs (Note or CV)
 
 	/// [1] HANDLE VIEW SWITCHES
 	pattern_view_velo = module->params[Tracker::PARAM_VIEW + 0].getValue();

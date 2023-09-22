@@ -395,6 +395,8 @@ struct Editor {
 	float						timeline_cam_x;
 	float						timeline_cam_y;
 
+	SynthVoice*					live_voices[128];
+
 	Vec							mouse_pos;
 	Vec							mouse_pos_drag;
 	int							mouse_button;

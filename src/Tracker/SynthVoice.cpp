@@ -125,75 +125,77 @@ bool SynthVoice::start(
 	/// SET EFFECTS
 	this->vibrato_amp = 0;
 	this->tremolo_amp = 0;
-	for (i = 0; i < col->fx_count; ++i) {
-		effect = &(note->effects[i]);
-		switch(effect->type) {
-			case PATTERN_EFFECT_NONE:
-				break;
-			case PATTERN_EFFECT_RAND_AMP:		// Axx
-				float_1 = random::uniform() * (effect->value / 99.0);
-				this->velocity_from *= 1.0 - float_1;
-				break;
-			case PATTERN_EFFECT_RAND_PAN:		// Pxx
-				float_1 = (random::uniform() * 10.0 - 5.0)
-				/**/ * ((float)effect->value / 99.0);
-				this->panning_from += float_1;
-				if (this->panning_from < -5.0)
-					this->panning_from = -5.0;
-				if (this->panning_from > 5.0)
-					this->panning_from = 5.0;
-				break;
-			case PATTERN_EFFECT_RAND_DELAY:		// Dxx
-				float_1 = random::uniform() * (effect->value / 99.0);
-				this->delay_start = float_1 / (float)lpb;
-				break;
-			case PATTERN_EFFECT_RAND_OCT:		// Oxy
-				x = effect->value / 10;
-				y = effect->value % 10;
-				if (y > 0) {
-					if (x == 0)					// > -+
-						pitch += (random::u32() % (2 * y) - y) * 12;
-					else if (x == 1)			// > +
-						pitch += (random::u32() % (y + 1)) * 12;
-					else						// > -
-						pitch += -(random::u32() % (y + 1)) * 12;
-				}
-				break;
-			case PATTERN_EFFECT_RAND_PITCH:		// Mxy
-				x = effect->value / 10;
-				y = effect->value % 10;
-				int_1 = random::u32() % 3;
-				if (int_1 == 0)
-					;
-				else if (int_1 == 1)
-					pitch += x;
-				else
-					pitch += y;
-				break;
-			case PATTERN_EFFECT_RAND_SCALE:		// Sxy
-				break;
-			case PATTERN_EFFECT_VIBRATO:		// Vxy
-				this->vibrato_freq =
-				/**/ (float)(effect->value / 10) * M_PI * 2.0f;
-				this->vibrato_amp = (float)(effect->value % 10) / 128.0;
-				break;
-			case PATTERN_EFFECT_TREMOLO:		// Txy
-				this->tremolo_freq =
-				/**/ (float)(effect->value / 10) * M_PI * 2.0f;
-				this->tremolo_amp = (float)(effect->value % 10) / 32.0;
-				break;
-			case PATTERN_EFFECT_FADE_IN:		// Fxx
-				break;
-			case PATTERN_EFFECT_FADE_OUT:		// fxx
-				break;
-			case PATTERN_EFFECT_CHANCE:			// Cxx
-				if (random::uniform() * 99.0 > effect->value)
-					return false;
-				break;
-			case PATTERN_EFFECT_CHANCE_STOP:	// cxx
-				break;
-			case PATTERN_EFFECT_RACHET:
-				break;
+	if (col != NULL) {
+		for (i = 0; i < col->fx_count; ++i) {
+			effect = &(note->effects[i]);
+			switch(effect->type) {
+				case PATTERN_EFFECT_NONE:
+					break;
+				case PATTERN_EFFECT_RAND_AMP:		// Axx
+					float_1 = random::uniform() * (effect->value / 99.0);
+					this->velocity_from *= 1.0 - float_1;
+					break;
+				case PATTERN_EFFECT_RAND_PAN:		// Pxx
+					float_1 = (random::uniform() * 10.0 - 5.0)
+					/**/ * ((float)effect->value / 99.0);
+					this->panning_from += float_1;
+					if (this->panning_from < -5.0)
+						this->panning_from = -5.0;
+					if (this->panning_from > 5.0)
+						this->panning_from = 5.0;
+					break;
+				case PATTERN_EFFECT_RAND_DELAY:		// Dxx
+					float_1 = random::uniform() * (effect->value / 99.0);
+					this->delay_start = float_1 / (float)lpb;
+					break;
+				case PATTERN_EFFECT_RAND_OCT:		// Oxy
+					x = effect->value / 10;
+					y = effect->value % 10;
+					if (y > 0) {
+						if (x == 0)					// > -+
+							pitch += (random::u32() % (2 * y) - y) * 12;
+						else if (x == 1)			// > +
+							pitch += (random::u32() % (y + 1)) * 12;
+						else						// > -
+							pitch += -(random::u32() % (y + 1)) * 12;
+					}
+					break;
+				case PATTERN_EFFECT_RAND_PITCH:		// Mxy
+					x = effect->value / 10;
+					y = effect->value % 10;
+					int_1 = random::u32() % 3;
+					if (int_1 == 0)
+						;
+					else if (int_1 == 1)
+						pitch += x;
+					else
+						pitch += y;
+					break;
+				case PATTERN_EFFECT_RAND_SCALE:		// Sxy
+					break;
+				case PATTERN_EFFECT_VIBRATO:		// Vxy
+					this->vibrato_freq =
+					/**/ (float)(effect->value / 10) * M_PI * 2.0f;
+					this->vibrato_amp = (float)(effect->value % 10) / 128.0;
+					break;
+				case PATTERN_EFFECT_TREMOLO:		// Txy
+					this->tremolo_freq =
+					/**/ (float)(effect->value / 10) * M_PI * 2.0f;
+					this->tremolo_amp = (float)(effect->value % 10) / 32.0;
+					break;
+				case PATTERN_EFFECT_FADE_IN:		// Fxx
+					break;
+				case PATTERN_EFFECT_FADE_OUT:		// fxx
+					break;
+				case PATTERN_EFFECT_CHANCE:			// Cxx
+					if (random::uniform() * 99.0 > effect->value)
+						return false;
+					break;
+				case PATTERN_EFFECT_CHANCE_STOP:	// cxx
+					break;
+				case PATTERN_EFFECT_RACHET:
+					break;
+			}
 		}
 	}
 	/// SET VELOCITY + PANNING
