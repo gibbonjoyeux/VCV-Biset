@@ -92,6 +92,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 								else if (line_note->mode == PATTERN_NOTE_GLIDE)
 									line_note->mode = PATTERN_NOTE_KEEP;
 								g_editor->pattern_jump_cursor();
+								e.consume(this);
 							/// NOTE EDIT
 							} else {
 								key = key_midi(e);

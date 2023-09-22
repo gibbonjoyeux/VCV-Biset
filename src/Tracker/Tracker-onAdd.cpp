@@ -107,6 +107,26 @@ TRACKER BINARY SAVE FORMAT:
 		- Instance beat start					u16
 		- Instance beat length					u16
 		- Muted									u8
+- Matrix
+	- Cell count								u16
+	- Cells
+		- Cell column							u8
+		- Cell line								u8
+		- Cell pattern id						u16
+		- Cell mode								u8
+		- ? Mode LOOP
+		- ? Mode NEXT
+		- ? Mode NEXT CIRCULAR
+		- ? Mode PREV
+		- ? Mode PREV CIRCULAR
+		- ? Mode RAND
+		- ? Mode XRAND
+		- ? Mode GOTO
+			- Cell line							u8
+		- ? Mode RAND AFTER
+			- Cell line							u8
+		- ? Mode RAND BEFORE
+			- Cell line							u8
 
 */
 
@@ -236,7 +256,7 @@ static bool compute_save_file(void) {
 
 	g_timeline->save_cursor = 1 + 4;					// Endian + file size
 
-	/// [1] MIDI
+	/// [1] GET MIDI
 	g_module->midi_input.setDriverId(read_i32());		// Midi driver ID
 	str = read_long_name(&len);
 	if (g_module->midi_input.driver) {
@@ -354,6 +374,10 @@ static bool compute_save_file(void) {
 		instance->beat_length = read_u16();				// Instance beat length
 		instance->muted = read_u8();					// Instance muted
 	}
+
+	/// [6] GET MATRIX
+	count = read_u16();
+
 	return true;
 }
 

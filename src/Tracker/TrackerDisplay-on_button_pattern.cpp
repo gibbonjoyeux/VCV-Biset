@@ -17,7 +17,7 @@ static void get_cell(
 
 	pattern = g_editor->pattern;
 	/// [1] COMPUTE ROW
-	row = (int)((e.pos.y - 3.0) / CHAR_H) - g_editor->pattern_cam_y;
+	row = (int)((e.pos.y - 3.0) / CHAR_H) + g_editor->pattern_cam_y;
 	/// [2] COMPUTE COLUMN
 	cell = 0;
 	col = 0;

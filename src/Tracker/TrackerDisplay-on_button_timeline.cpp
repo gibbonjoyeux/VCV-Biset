@@ -37,9 +37,8 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 			else
 				g_editor->instance_handle = INSTANCE_HANDLE_MIDDLE;
 			/// SELECT INSTANCE PATTERN
-			g_editor->pattern = instance->source;
-			g_editor->pattern_id = ((intptr_t)instance->source
-			/**/ - (intptr_t)g_timeline->patterns) / sizeof(PatternSource);
+			g_editor->set_pattern(((intptr_t)instance->source
+			/**/ - (intptr_t)g_timeline->patterns) / sizeof(PatternSource));
 		}
 	}
 }

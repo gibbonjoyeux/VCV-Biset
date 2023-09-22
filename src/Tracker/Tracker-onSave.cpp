@@ -102,6 +102,26 @@ TRACKER BINARY SAVE FORMAT:
 		- Instance beat start					u16
 		- Instance beat length					u16
 		- Muted									u8
+- Matrix
+	- Cell count								u16
+	- Cells
+		- Cell column							u8
+		- Cell line								u8
+		- Cell pattern id						u16
+		- Cell mode								u8
+		- ? Mode LOOP
+		- ? Mode NEXT
+		- ? Mode NEXT CIRCULAR
+		- ? Mode PREV
+		- ? Mode PREV CIRCULAR
+		- ? Mode RAND
+		- ? Mode XRAND
+		- ? Mode GOTO
+			- Cell line							u8
+		- ? Mode RAND AFTER
+			- Cell line							u8
+		- ? Mode RAND BEFORE
+			- Cell line							u8
 
 */
 
@@ -245,7 +265,7 @@ static void fill_save_buffer() {
 	fill_u8(endian_native());				// Saving endian
 	fill_u32(g_timeline->save_length);		// File size
 
-	/// [2] MIDI
+	/// [2] ADD MIDI
 	fill_i32(g_module->midi_input.getDriverId());			// Midi driver ID
 	if (g_module->midi_input.device)
 		name = (char*)g_module->midi_input.device->getName().c_str();
@@ -254,7 +274,7 @@ static void fill_save_buffer() {
 	fill_long_name(name);									// Midi device name
 	fill_i8(g_module->midi_input.getChannel());				// Midi channel
 
-	/// [3] EDITOR
+	/// [3] ADD EDITOR
 	fill_u8(g_editor->pattern_jump);		// Used jump
 	fill_u8(g_editor->pattern_octave);		// Used octave
 	fill_u8(g_editor->pattern_view_velo);	// View velocity
@@ -347,7 +367,7 @@ static void fill_save_buffer() {
 		}
 	}
 
-	/// [3] SYNTHS
+	/// [3] ADD SYNTHS
 	fill_u8(g_timeline->synth_count);
 	for (i = 0; i < g_timeline->synth_count; ++i) {
 		fill_name(g_timeline->synths[i].name + 5);		// Name
@@ -376,6 +396,9 @@ static void fill_save_buffer() {
 		}
 	}
 	fill_cursor_count(sizeof(u16), count);	// -> Fill set instances count
+
+	/// [5] ADD MATRIX
+	fill_u16(0);
 }
 
 //////////////////////////////////////////////////
