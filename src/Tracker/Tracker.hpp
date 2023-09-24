@@ -157,9 +157,9 @@ struct PatternSource {
 	char						name[256];	// Name
 	u8							color;		// Timelime Color
 	u16							beat_count;	// Beat per pattern
-	u16							line_count;	// Lines per row
-	u16							note_count;	// Note rows
-	u16							cv_count;	// CV rows
+	u16							line_count;	// Lines per column
+	u16							note_count;	// Note columns
+	u16							cv_count;	// CV columns
 	ArrayExt<PatternNoteCol>	notes;		// Col X Note lines
 	ArrayExt<PatternCVCol>		cvs;		// Col X CV lines
 	u8							lpb;		// Lines per beat
@@ -173,6 +173,8 @@ struct PatternSource {
 	void resize(int note_count, int cv_count, int beat_count, int lpb);
 	void rename(char *name);
 	void context_menu(Menu *menu);
+	int cv_prev(int column, int line);
+	int cv_next(int column, int line);
 };
 
 struct PatternInstance {

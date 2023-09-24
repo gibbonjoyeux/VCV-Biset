@@ -43,15 +43,15 @@ static void visual_cv(
 	const Widget::DrawArgs&	args,
 	PatternSource			*pattern,
 	PatternCVCol			*cv_col,
+	int						col,
 	Vec						p,
 	float					x) {
-	PatternCV				*cv_from;
-	PatternCV				*cv_to;
+	PatternCV				*cv_prev;
+	PatternCV				*cv_next;
 	float					sx, sy;
-	int						line, line_from;
+	int						line_prev, line_next;
 	int						value;
 	bool					first_point;
-	int						i;
 
 	/// [1] OFFSET COORD WITH CAMERA
 	x -= g_editor->pattern_cam_x;
@@ -63,102 +63,124 @@ static void visual_cv(
 	sx = p.x + 2.0 + CHAR_W * (x + 3.0);
 	sy = p.y + 11.0 + 2.0;
 	/// [3] DRAW CURVE
+	cv_prev = NULL;
+	cv_next = NULL;
+	line_prev = -1;
+	line_next = -1;
 	//// FIND FIRST VISIBLE CV
-	line = g_editor->pattern_cam_y - 1;
-	while (line >= 0) {
-		if (cv_col->lines[line].mode == PATTERN_CV_SET)
-			break;
-		line -= 1;
-	}
-	if (line >= 0 && cv_col->lines[line].mode == PATTERN_CV_SET) {
-		cv_from = &(cv_col->lines[line]);
-		line_from = line;
-	} else {
-		cv_from = NULL;
-		line_from = 0;
-	}
+	if (cv_col->lines[g_editor->pattern_cam_y].mode == PATTERN_CV_SET)
+		line_prev = g_editor->pattern_cam_y;
+	else
+		line_prev = pattern->cv_prev(col, g_editor->pattern_cam_y);
+	if (line_prev >= 0)
+		cv_prev = &(cv_col->lines[line_prev]);
 	//// START CURVE
 	nvgBeginPath(args.vg);
 	nvgFillColor(args.vg, colors[15]);
 	//// DRAW CURVE
-	cv_to = NULL;
 	first_point = true;
-	for (i = 0; i < CHAR_COUNT_Y; ++i) {
-		line = g_editor->pattern_cam_y + i;
-		if (line >= pattern->line_count)
+	while (true) {
+		/// FIND CV NEXT
+		if (line_prev >= 0)
+			line_next = pattern->cv_next(col, line_prev);
+		else
+			line_next = pattern->cv_next(col, g_editor->pattern_cam_y);
+		if (line_next < 0) {
+			cv_next = NULL;
 			break;
-		/// LINE SET
-		if (cv_col->lines[line].mode == PATTERN_CV_SET) {
-			cv_to = &(cv_col->lines[line]);
-			/// [A] ON FIRST POINT (DRAW CURVE START)
-			if (first_point) {
-				first_point = false;
-				/// WITH PREVIOUS CV
-				if (cv_from != NULL) {
-					value = cv_from->value;
-					if (cv_col->mode == PATTERN_CV_MODE_GATE)
-						value = (value < 1.0) ? 0 : 999;
-					nvgMoveTo(args.vg,
-					/**/ sx,
-					/**/ sy + CHAR_H * (line_from - 1 - g_editor->pattern_cam_y)
-					/**/ + (cv_from->delay / 99.0) * CHAR_H);
-					nvgLineTo(args.vg,
-					/**/ sx + (value / 1000.0) * CHAR_W * 7.0,
-					/**/ sy + CHAR_H * (line_from - 1 - g_editor->pattern_cam_y)
-					/**/ + (cv_from->delay / 99.0) * CHAR_H);
-				/// WITHOUT PREVIOUS CV
-				} else {
-					value = cv_to->value;
-					if (cv_col->mode == PATTERN_CV_MODE_GATE)
-						value = (value < 1.0) ? 0 : 999;
-					nvgMoveTo(args.vg, sx, sy);
-					nvgLineTo(args.vg,
-					/**/ sx + (value / 1000.0) * CHAR_W * 7.0,
-					/**/ sy);
-				}
-			}
-			/// [B] ON EVERY POINT (DRAW CURVE)
-			if (cv_col->mode == PATTERN_CV_MODE_GATE) {
-				/// DRAW PREV GATE
-				if (cv_from) {
-					value = cv_from->value;
+		}
+		cv_next = &(cv_col->lines[line_next]);
+		/// [A] ON FIRST POINT (DRAW CURVE START)
+		if (first_point) {
+			first_point = false;
+			/// WITH PREV CV
+			if (cv_prev != NULL) {
+				value = cv_prev->value;
+				if (cv_col->mode == PATTERN_CV_MODE_GATE)
 					value = (value < 1.0) ? 0 : 999;
-					nvgLineTo(args.vg,
-					/**/ sx + (value / 1000.0) * CHAR_W * 7.0,
-					/**/ sy + CHAR_H * (line - 1 - g_editor->pattern_cam_y)
-					/**/ + (cv_to->delay / 99.0) * CHAR_H);
-				}
-				/// JUMP TO NEXT GATE
-				value = cv_to->value;
+				nvgMoveTo(args.vg,
+				/**/ sx,
+				/**/ sy + CHAR_H * (line_prev - 1 - g_editor->pattern_cam_y)
+				/**/ + (cv_prev->delay / 99.0) * CHAR_H);
+				nvgLineTo(args.vg,
+				/**/ sx + (value / 1000.0) * CHAR_W * 7.0,
+				/**/ sy + CHAR_H * (line_prev - 1 - g_editor->pattern_cam_y)
+				/**/ + (cv_prev->delay / 99.0) * CHAR_H);
+			/// WITHOUT PREV CV
+			} else {
+				// ! ! ! BUG HERE
+				value = cv_next->value;
+				if (cv_col->mode == PATTERN_CV_MODE_GATE)
+					value = (value < 1.0) ? 0 : 999;
+				nvgMoveTo(args.vg, sx, sy - CHAR_H);
+				nvgLineTo(args.vg,
+				/**/ sx + (value / 1000.0) * CHAR_W * 7.0,
+				/**/ sy - CHAR_H);
+			}
+		}
+		/// [B] ON EVERY POINT (DRAW CURVE)
+		if (cv_col->mode == PATTERN_CV_MODE_GATE) {
+			/// DRAW PREV GATE
+			if (cv_prev) {
+				value = cv_prev->value;
 				value = (value < 1.0) ? 0 : 999;
 				nvgLineTo(args.vg,
 				/**/ sx + (value / 1000.0) * CHAR_W * 7.0,
-				/**/ sy + CHAR_H * (line - 1 - g_editor->pattern_cam_y)
-				/**/ + (cv_to->delay / 99.0) * CHAR_H);
-			} else {
-				/// DRAW CURVE
-				value = cv_to->value;
-				nvgLineTo(args.vg,
-				/**/ sx + (value / 1000.0) * CHAR_W * 7.0,
-				/**/ sy + CHAR_H * (line - 1 - g_editor->pattern_cam_y)
-				/**/ + (cv_to->delay / 99.0) * CHAR_H);
+				/**/ sy + CHAR_H * (line_next - 1 - g_editor->pattern_cam_y)
+				/**/ + (cv_next->delay / 99.0) * CHAR_H);
 			}
-			/// SWAP CURVE POINTS
-			cv_from = cv_to;
+			/// JUMP TO NEXT GATE
+			value = cv_next->value;
+			value = (value < 1.0) ? 0 : 999;
+			nvgLineTo(args.vg,
+			/**/ sx + (value / 1000.0) * CHAR_W * 7.0,
+			/**/ sy + CHAR_H * (line_next - 1 - g_editor->pattern_cam_y)
+			/**/ + (cv_next->delay / 99.0) * CHAR_H);
+		} else {
+			/// DRAW CURVE
+			value = cv_next->value;
+			nvgLineTo(args.vg,
+			/**/ sx + (value / 1000.0) * CHAR_W * 7.0,
+			/**/ sy + CHAR_H * (line_next - 1 - g_editor->pattern_cam_y)
+			/**/ + (cv_next->delay / 99.0) * CHAR_H);
 		}
+
+		/// SWAP PREV / NEXT
+		line_prev = line_next;
+		cv_prev = cv_next;
+		if (line_next > g_editor->pattern_cam_y + CHAR_COUNT_Y)
+			break;
 	}
 	//// END CURVE
-	if (cv_to != NULL) {
-		if (cv_from != NULL) {
-			value = cv_to->value;
+	///// WITH NEXT CV
+	if (line_next >= 0) {
+		/// WITH PREV CV
+		if (line_prev >= 0) {
+			value = cv_next->value;
 			if (cv_col->mode == PATTERN_CV_MODE_GATE)
 				value = (value < 1.0) ? 0 : 999;
 			nvgLineTo(args.vg,
 			/**/ sx + (value / 1000.0) * CHAR_W * 7.0,
-			/**/ sy + CHAR_H * (line - 1 - g_editor->pattern_cam_y));
+			/**/ sy + CHAR_H * (line_next - 1 - g_editor->pattern_cam_y));
 			nvgLineTo(args.vg,
 			/**/ sx,
-			/**/ sy + CHAR_H * (line - 1 - g_editor->pattern_cam_y));
+			/**/ sy + CHAR_H * (line_next - 1 - g_editor->pattern_cam_y));
+		/// WITHOUT PREV
+		} else {
+			// ...
+		}
+	///// WITHOUT NEXT
+	} else {
+		/// WITH PREV
+		if (line_prev >= 0) {
+			value = cv_prev->value;
+			nvgLineTo(args.vg,
+			/**/ sx + (value / 1000.0) * CHAR_W * 7.0,
+			/**/ sy + CHAR_H * CHAR_COUNT_Y);
+			nvgLineTo(args.vg,
+			/**/ sx,
+			/**/ sy + CHAR_H * CHAR_COUNT_Y);
+		/// WITHOUT PREV
 		} else {
 			// ...
 		}
@@ -382,9 +404,10 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 		cv_col = pattern->cvs[i];
 		focus_col = (g_editor->pattern_col == pattern->note_count + i);
 
-		visual_cv(args, pattern, cv_col, p, tx);
+		/// DRAW VISUALS
+		visual_cv(args, pattern, cv_col, i, p, tx);
 
-		/// FOR EACH CV COL LINE
+		/// DRAW TEXT
 		for (j = 0; j < CHAR_COUNT_Y; ++j) {
 			line = g_editor->pattern_cam_y + j;
 			if (line >= pattern->line_count)

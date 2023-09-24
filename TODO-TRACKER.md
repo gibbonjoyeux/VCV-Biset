@@ -117,16 +117,16 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 			- [x] Pattern values
 				- [x] Change octave
 				- [x] Change line jump
-			- [ ] Play / Write
-				- [ ] Switch play (can play sound with keyboard / midi)
-				- [ ] Switch write (activated via a shortcut)
 		- [ ] Display
 			- [x] Screen mode (Tracker + Timeline + Matrix + Tuning)
 			- [ ] Screen Tracker
 				- [x] View modes (amp + pan + ...)
 				- [x] Layer tracker (text only)
 				- [ ] Layer visual (CV)
-					- [ ] Interpolation
+					- [x] Mode CV
+					- [x] Mode BPM
+					- [x] Mode Gate
+					- [x] Interpolation
 					- [x] Delay
 					- [ ] Curve
 				- [x] Layer user (cursor + beat cursor)
@@ -135,7 +135,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 						- [x] Edit pattern
 						- [x] Jump line
 					- [x] Left click (cursor)
-					- [x] Right click
+					- [ ] Right click
 						- [x] Edit pattern
 						- [x] Edit column
 						- [ ] Edit column effects
@@ -197,8 +197,9 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Duplicate pattern
 				- [x] Scroll
 	- [ ] SAVE
-		- [ ] Save data
-			- ! Prepare matrix (list of set patterns, length 0 by default)
+		- ? Keep endian ?
+		- [ ] Save file version
+		- [x] Save data
 		- [x] Load data
 		- [x] Load template on empty
 	- [ ] HISTORY (UNDO / REDO)
@@ -240,9 +241,11 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 [x] Pxx	Pan random				(xx: pan amplitude)
 		Add noise to base panning (bipolar noise)
 [ ] pxx	Pitch (micro) random	(xx: pitch amplitude)
-	- think about microtonal
-	- think about MPE
-	- MPE: a mix of 2 effects ? 1 Macro (note offset) + 1 Micro (inter-note offset)
+[ ] txx Tuning (micro) fixed	(xx: pitch amplitude up to 1 semitone)
+		xx = 0  : Note n
+		xx = 99 : Note n + 1
+		Transition from 0 to 99 depends on temperament table
+		Microtonal + MPE
 [x] Dxx Delay random			(xx: delay amplitude)
 [x] Oxy	Octave random			(x: mode y: amplitude)
 		x = 0 : -+ offset
@@ -252,9 +255,6 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 		Peek random note between [base note], [base + x] and [base + y]
 		x & y being semitone offset
 		Can be cumulable
-[ ] Sxy	Note random scale		(x: scale index y: root note)
-		Peek random note in specified scale with root note
-		Major, Dorian, Phrygian, Lydian, Mixolydian, Aeolian, Ionian & Locrian
 [x] Vxy	Vibrato					(x: speed y: amplitude)
 [x] Txy	Tremolo					(x: speed y: amplitude)
 [ ] Fxx	Fade out				(x: speed)

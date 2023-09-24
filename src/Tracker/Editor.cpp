@@ -57,7 +57,7 @@ Editor::Editor() {
 	this->side_synth_cam_y = 0;
 	this->side_pattern_cam_y = 0;
 
-	for (i = 0; i < sizeof(this->live_voices) / sizeof(SynthVoice*); ++i)
+	for (i = 0; i < 128; ++i)
 		this->live_voices[i] = NULL;
 }
 

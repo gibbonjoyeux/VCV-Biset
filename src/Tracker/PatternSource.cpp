@@ -197,3 +197,29 @@ void PatternSource::context_menu(Menu *menu) {
 	));
 
 }
+
+int PatternSource::cv_prev(int column, int line) {
+	PatternCVCol	*col;
+	
+	col = this->cvs[column];
+	line -= 1;
+	while (line >= 0) {
+		if (col->lines[line].mode == PATTERN_CV_SET)
+			return line;
+		line -= 1;
+	}
+	return -1;
+}
+
+int PatternSource::cv_next(int column, int line) {
+	PatternCVCol	*col;
+	
+	col = this->cvs[column];
+	line += 1;
+	while (line < this->line_count) {
+		if (col->lines[line].mode == PATTERN_CV_SET)
+			return line;
+		line += 1;
+	}
+	return -1;
+}

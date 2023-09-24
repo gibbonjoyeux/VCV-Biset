@@ -224,11 +224,6 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 }
 
 void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
-	PatternNote		note;
-	SynthVoice		*note_voice;
-	int				note_midi;
-	int				i;
-
 	if (g_module == NULL)
 		return;
 
