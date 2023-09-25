@@ -18,7 +18,8 @@
 /*
 
 TRACKER BINARY SAVE FORMAT:
-- Saving endian									u8
+- File version									u8
+- File endian									u8
 - File size										u32
 - Midi
 	- Driver id									i32
@@ -192,6 +193,7 @@ static bool load_save_file(void) {
 	u8			*buffer;
 	std::string	path;
 	u8			endian;
+	u8			version;
 	u32			size;
 	int			fd;
 
@@ -203,7 +205,8 @@ static bool load_save_file(void) {
 	fd = open(path.c_str(), O_RDONLY);
 	if (fd < 0)
 		return false;
-	/// [3] LOAD FILE ENDIAN & SIZE
+	/// [3] LOAD FILE VERSION & ENDIAN & SIZE
+	read(fd, &version, sizeof(u8));
 	read(fd, &endian, sizeof(u8));
 	g_timeline->save_endian_reverse = (endian != endian_native());
 	read(fd, &size, sizeof(u32));
@@ -226,7 +229,7 @@ static bool load_save_file(void) {
 	if (buffer == NULL)
 		return false;
 	/// [5] LOAD FILE INTO BUFFER
-	read(fd, g_timeline->save_buffer + 1 + 4, size - 1 - 4);
+	read(fd, g_timeline->save_buffer + 1 + 1 + 4, size - 1 - 1 - 4);
 	close(fd);
 	return true;
 }
@@ -254,7 +257,7 @@ static bool compute_save_file(void) {
 	int				len;
 	int				i, j, k, l;
 
-	g_timeline->save_cursor = 1 + 4;					// Endian + file size
+	g_timeline->save_cursor = 1 + 1 + 4;				// Version + Endian + Size
 
 	/// [1] GET MIDI
 	g_module->midi_input.setDriverId(read_i32());		// Midi driver ID

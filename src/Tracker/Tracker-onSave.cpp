@@ -13,7 +13,8 @@
 /*
 
 TRACKER BINARY SAVE FORMAT:
-- Saving endian									u8
+- File version									u8
+- File endian									u8
 - File size										u32
 - Midi
 	- Driver id									i32
@@ -262,7 +263,8 @@ static void fill_save_buffer() {
 
 	/// [1] ADD BASICS
 	g_timeline->save_cursor = 0;
-	fill_u8(endian_native());				// Saving endian
+	fill_u8(0);								// File version
+	fill_u8(endian_native());				// File endian
 	fill_u32(g_timeline->save_length);		// File size
 
 	/// [2] ADD MIDI

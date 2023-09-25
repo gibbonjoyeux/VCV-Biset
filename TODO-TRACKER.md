@@ -97,7 +97,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Select keyboard (from context menu)
 				- [x] Play keyboard
 	- [ ] FRONTEND
-		- [ ] Buttons
+		- [x] Buttons
 			- [x] Play
 				- [x] Play song
 				- [x] Play pattern
@@ -196,9 +196,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Move pattern (move & replace in instances)
 				- [x] Duplicate pattern
 				- [x] Scroll
-	- [ ] SAVE
-		- ? Keep endian ?
-		- [ ] Save file version
+	- [x] SAVE
 		- [x] Save data
 		- [x] Load data
 		- [x] Load template on empty
