@@ -21,20 +21,6 @@ TRACKER BINARY SAVE FORMAT:
 - File version									u8
 - File endian									u8
 - File size										u32
-- Midi
-	- Driver id									i32
-	- Device name length						u16
-	- Device name string						chars
-	- Channel									i8
-- Editor
-	- Used jump									u8
-	- Used octave								u8
-	- View modes
-		- View velocity							u8
-		- View panning							u8
-		- View delay							u8
-		- View glide							u8
-		- View effects							u8
 - Patterns
 	- Pattern count								u16
 	- Patterns
@@ -135,14 +121,6 @@ TRACKER BINARY SAVE FORMAT:
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-static i8 read_i8(void) {
-	i8		value;
-
-	value = g_timeline->save_buffer[g_timeline->save_cursor];
-	g_timeline->save_cursor += 1;
-	return value;
-}
-
 static u8 read_u8(void) {
 	u8		value;
 
@@ -160,14 +138,6 @@ static u16 read_u16(void) {
 	return value;
 }
 
-static i32 read_i32(void) {
-	i32		value;
-
-	value = *((i32*)&(g_timeline->save_buffer[g_timeline->save_cursor]));
-	g_timeline->save_cursor += 4;
-	ENDIAN_32(value);
-	return value;
-}
 static void read_name(char *buffer) {
 	u8		len;
 
@@ -179,16 +149,6 @@ static void read_name(char *buffer) {
 	g_timeline->save_cursor += len;
 }
 
-static char *read_long_name(int *len) {
-	char	*pointer;
-
-	/// HANDLE LENGTH
-	*len = read_u16();
-	/// HANDLE STRING
-	pointer = (char*)&(g_timeline->save_buffer[g_timeline->save_cursor]);
-	g_timeline->save_cursor += *len;
-	return pointer;
-}
 static bool load_save_file(void) {
 	u8			*buffer;
 	std::string	path;
@@ -236,7 +196,6 @@ static bool load_save_file(void) {
 
 static bool compute_save_file(void) {
 	char			name[256];
-	char			*str;
 	PatternSource	*pattern;
 	PatternNoteCol	*note_col;
 	PatternNote		*note;
@@ -254,37 +213,11 @@ static bool compute_save_file(void) {
 	int				count;
 	int				row, beat;
 	int				color;
-	int				len;
 	int				i, j, k, l;
 
 	g_timeline->save_cursor = 1 + 1 + 4;				// Version + Endian + Size
 
-	/// [1] GET MIDI
-	g_module->midi_input.setDriverId(read_i32());		// Midi driver ID
-	str = read_long_name(&len);
-	if (g_module->midi_input.driver) {
-		ids = g_module->midi_input.getDeviceIds();
-		count = ids.size();
-		for (i = 0; i < count; ++i) {
-			if (memcmp(g_module->midi_input.getDeviceName(i).c_str(), str, len)
-			== 0) {
-				g_module->midi_input.setDeviceId(i);	// Midi device name
-				break;
-			}
-		}
-	}
-	g_module->midi_input.channel = read_i8();			// Midi channel
-
-	/// [2] GET EDITOR BASICS
-	g_editor->pattern_jump = read_u8();					// Used jump
-	g_editor->pattern_octave = read_u8();				// Used octave
-	g_editor->pattern_view_velo = read_u8();			// View velocity
-	g_editor->pattern_view_pan = read_u8();				// View panning
-	g_editor->pattern_view_glide = read_u8();			// View delay
-	g_editor->pattern_view_delay = read_u8();			// View glide
-	g_editor->pattern_view_fx = read_u8();				// View effects
-
-	/// [3] GET PATTERNS
+	/// [1] GET PATTERNS
 	pattern_count = read_u16();
 	for (i = 0; i < pattern_count; ++i) {
 		/// PATTERN SIZE
@@ -355,7 +288,7 @@ static bool compute_save_file(void) {
 		}
 	}
 
-	/// [4] GET SYNTHS
+	/// [2] GET SYNTHS
 	synth_count = read_u8();
 	for (i = 0; i < synth_count; ++i) {
 		synth = g_timeline->synth_new();
@@ -366,7 +299,7 @@ static bool compute_save_file(void) {
 		synth->channel_count = read_u8();				// Synth channel count
 	}
 
-	/// [5] GET TIMELINE
+	/// [3] GET TIMELINE
 	instance_count = read_u16();
 	for (i = 0; i < instance_count; ++i) {
 		row = read_u8();								// Instance row
@@ -378,7 +311,7 @@ static bool compute_save_file(void) {
 		instance->muted = read_u8();					// Instance muted
 	}
 
-	/// [6] GET MATRIX
+	/// [4] GET MATRIX
 	count = read_u16();
 
 	return true;
@@ -440,3 +373,18 @@ void Tracker::onAdd(const AddEvent &e) {
 	g_timeline->thread_flag.clear();
 }
 
+void Tracker::dataFromJson(json_t *root) {
+	json_t		*obj;
+
+	/// RECOVER MIDI (DRIVER + DEVICE + CHANNEL)
+	obj = json_object_get(root, "midi");
+	if (obj)
+		this->midi_input.fromJson(obj);
+	/// RECOVER EDITOR (JUMP + OCTAVE)
+	obj = json_object_get(root, "editor_jump");
+	if (obj)
+		g_editor->pattern_jump = json_integer_value(obj);
+	obj = json_object_get(root, "editor_octave");
+	if (obj)
+		g_editor->pattern_octave = json_integer_value(obj);
+}

@@ -476,6 +476,8 @@ struct Tracker : Module {
 
 	void	onAdd(const AddEvent &e) override;
 	void	onSave(const SaveEvent &e) override;
+	json_t	*dataToJson(void) override;
+	void	dataFromJson(json_t *root) override;
 	void	process(const ProcessArgs& args) override;
 };
 
