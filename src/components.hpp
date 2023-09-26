@@ -337,12 +337,34 @@ struct MenuTextFieldLinked : ui::TextField {
 	}
 
 	void onSelectKey(const SelectKeyEvent &e) override {
-		float	value;
+		char	*str;
+		float	value_1, value_2;
+		int		i;
 
 		if (e.action == GLFW_PRESS
 		&& e.key == GLFW_KEY_ENTER) {
-			value = atof((char*)this->getText().c_str());
-			this->quantity->setValue(value);
+			str = (char*)this->getText().c_str();
+			/// COMPUTE MAIN VALUE
+			value_1 = atof(str);
+			/// CHECK SECONDARY VALUE
+			i = 0;
+			while (str[i] >= '0' && str[i] <= '9')
+				i += 1;
+			while (str[i] == ' ')
+				i += 1;
+			/// VALUE AS RATIO (xx/yy)
+			if (str[i] == '/') {
+				i += 1;
+				while (str[i] == ' ')
+					i += 1;
+				value_2 = (float)atoi(str + i);
+				if (value_2 == 0)
+					value_2 = 1.0;
+				this->quantity->setValue(((value_1 / value_2) - 1.0) * 1200.0);
+			/// VALUE AS FLOAT (xx.xx)
+			} else {
+				this->quantity->setValue(value_1);
+			}
 			this->parent->requestDelete();
 		} else {
 			ui::TextField::onSelectKey(e);
