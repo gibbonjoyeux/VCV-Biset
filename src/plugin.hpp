@@ -70,6 +70,17 @@ extern float	table_scale_augmented[12];
 extern float	table_scale_augmented_inverted[12];
 // WHOLE TONE
 extern float	table_scale_whole[12];
+// EDO
+extern float	table_scale_2edo[12];
+extern float	table_scale_3edo[12];
+extern float	table_scale_4edo[12];
+extern float	table_scale_5edo[12];
+extern float	table_scale_6edo[12];
+extern float	table_scale_7edo[12];
+extern float	table_scale_8edo[12];
+extern float	table_scale_9edo[12];
+extern float	table_scale_10edo[12];
+extern float	table_scale_11edo[12];
 
 extern NVGcolor	colors[16];
 extern NVGcolor	colors_user[8];

@@ -547,6 +547,42 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 							));
 						}
 					));
+
+					/// <12 EDO
+					menu->addChild(rack::createSubmenuItem("EDO", "",
+						[=](Menu *menu) {
+							menu->addChild(new MenuItemStay("2EDO", "",
+								[=]() { set_scale(table_scale_2edo); }
+							));
+							menu->addChild(new MenuItemStay("3EDO", "",
+								[=]() { set_scale(table_scale_3edo); }
+							));
+							menu->addChild(new MenuItemStay("4EDO", "",
+								[=]() { set_scale(table_scale_4edo); }
+							));
+							menu->addChild(new MenuItemStay("5EDO", "",
+								[=]() { set_scale(table_scale_5edo); }
+							));
+							menu->addChild(new MenuItemStay("6EDO", "",
+								[=]() { set_scale(table_scale_6edo); }
+							));
+							menu->addChild(new MenuItemStay("7EDO", "",
+								[=]() { set_scale(table_scale_7edo); }
+							));
+							menu->addChild(new MenuItemStay("8EDO", "",
+								[=]() { set_scale(table_scale_8edo); }
+							));
+							menu->addChild(new MenuItemStay("9EDO", "",
+								[=]() { set_scale(table_scale_9edo); }
+							));
+							menu->addChild(new MenuItemStay("10EDO", "",
+								[=]() { set_scale(table_scale_10edo); }
+							));
+							menu->addChild(new MenuItemStay("11EDO", "",
+								[=]() { set_scale(table_scale_11edo); }
+							));
+						}
+					));
 				}
 			));
 			//// TEMPERAMENT PRESETS

@@ -154,9 +154,13 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Frame rate (audio, audio / 2, audio / 4, ...)
 				- [x] Base pitch (default: 440)
 				- [x] Tuning
-					- [x] Manual
 					- [x] Presets temperament (equal, just, ...)
 					- [x] Presets scales (major, minor, modes, ...)
+					- [x] Presets EDO (2edo, 3edo, ..., 11edo)
+					- [x] Manual
+						- [x] Cent
+						- [x] Ratio
+						- [x] Edo
 			- [x] Context menu specific
 				- [x] Synth
 					- [x] Synth channel count
