@@ -361,6 +361,15 @@ struct MenuTextFieldLinked : ui::TextField {
 				if (value_2 == 0)
 					value_2 = 1.0;
 				this->quantity->setValue(((value_1 / value_2) - 1.0) * 1200.0);
+			/// VALUE AS TET / EDO (xx:yy)
+			} else if (str[i] == ':') {
+				i += 1;
+				while (str[i] == ' ')
+					i += 1;
+				value_2 = (float)atoi(str + i);
+				if (value_2 == 0)
+					value_2 = 12.0;
+				this->quantity->setValue((value_1 / value_2) * 1200.0);
 			/// VALUE AS FLOAT (xx.xx)
 			} else {
 				this->quantity->setValue(value_1);

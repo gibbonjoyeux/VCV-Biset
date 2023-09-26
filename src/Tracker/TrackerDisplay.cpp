@@ -83,6 +83,8 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 		this->draw_pattern(args, rect);
 	} else if (g_editor->mode == EDITOR_MODE_TIMELINE) {
 		this->draw_timeline(args, rect);
+	} else if (g_editor->mode == EDITOR_MODE_TUNING) {
+		this->draw_tuning(args, rect);
 	}
 
 	nvgResetScissor(args.vg);

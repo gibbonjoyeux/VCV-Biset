@@ -503,6 +503,7 @@ struct TrackerDisplay : LedDisplay {
 	void on_button_timeline(const ButtonEvent &e);
 	void draw_pattern(const DrawArgs& args, Rect rect);
 	void draw_timeline(const DrawArgs& args, Rect rect);
+	void draw_tuning(const DrawArgs& args, Rect rect);
 	void on_drag_start_timeline(const DragStartEvent &e);
 	void on_drag_move_timeline(const DragMoveEvent &e);
 	void on_drag_end_timeline(const DragEndEvent &e);

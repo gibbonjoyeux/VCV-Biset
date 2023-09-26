@@ -52,8 +52,6 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 
 # TODO
 
-- [] Notes also as index (and not on A5, B5... for microtonal)
-
 - [ ] MODULE Tracker
 	- [ ] BACKEND
 		- [ ] PLAY
@@ -149,6 +147,9 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Resize instance (fix negative `beat_start`)
 			- [ ] Screen Matrix
 			- [ ] Screen Tuning
+				- [x] Default tuning
+				- [x] User tuning
+				- [ ] Clean ui
 			- [x] Context menu general
 				- [x] Frame rate (audio, audio / 2, audio / 4, ...)
 				- [x] Base pitch (default: 440)
@@ -197,6 +198,13 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Duplicate pattern
 				- [x] Scroll
 	- [x] SAVE
+		- ! ! ! Save MPE mode with driver / device selection
+		- ? ? ? Split data between onSave (.btr) and dataToJson (.json)
+			Save "additional" data to json.
+			- .btr	: Main track data
+			- .json	: Driver / Device selection
+			- .json	: MPE mode
+			- .json	: Theme
 		- [x] Save data
 		- [x] Load data
 		- [x] Load template on empty
