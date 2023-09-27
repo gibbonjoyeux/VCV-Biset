@@ -152,18 +152,25 @@ void Editor::process(i64 frame) {
 }
 
 void Editor::set_synth(int index) {
-	if (index >= g_timeline->synth_count)
+	if (index < 0
+	|| (index == 0 && g_timeline->synth_count == 0)) {
+		this->synth_id = -1;
+		this->synth = NULL;
 		return;
-	g_editor->synth_id = index;
-	g_editor->synth = &(g_timeline->synths[index]);
+	}
+	this->synth_id = index;
+	this->synth = &(g_timeline->synths[index]);
 }
 
 void Editor::set_pattern(int index) {
-	if (index >= g_timeline->pattern_count)
+	if (index < 0
+	|| (index == 0 && g_timeline->pattern_count == 0)) {
+		this->pattern_id = -1;
+		this->pattern = NULL;
 		return;
+	}
 	this->pattern_id = index;
 	this->pattern = &(g_timeline->patterns[index]);
-	//this->pattern_reset_cursor();
 }
 
 void Editor::pattern_move_cursor_x(int delta_x) {

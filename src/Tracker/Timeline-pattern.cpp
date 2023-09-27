@@ -51,6 +51,8 @@ void Timeline::pattern_del(PatternSource *pattern) {
 	/// REMOVE PATTERN (INSTANCES)
 	for (i = 0; i < 32; ++i) {
 		this->timeline[i].remove_if([=](PatternInstance &instance) {
+			if (&instance == g_editor->instance)
+				g_editor->instance = NULL;
 			return (instance.source == pattern);
 		});
 	}

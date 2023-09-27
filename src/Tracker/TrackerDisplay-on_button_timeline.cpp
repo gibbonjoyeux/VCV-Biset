@@ -14,10 +14,16 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 		/// COMPUTE POSITION
 		row = (int)((e.pos.y - 3) / (CHAR_H * 3)) + g_editor->timeline_cam_y - 1;
 		beat = (int)((e.pos.x - 2) / CHAR_W - 2) + g_editor->timeline_cam_x;
+		if (row < 0 || beat < 0) {
+			g_editor->instance = NULL;
+			return;
+		}
 		instance = g_timeline->instance_find(row, beat);
 		/// CREATE INSTANCE
 		if (instance == NULL) {
 			if (g_timeline->play != TIMELINE_MODE_STOP)
+				return;
+			if (g_editor->pattern == NULL)
 				return;
 			g_timeline->instance_new(g_editor->pattern, row, beat);
 			g_editor->instance_handle = INSTANCE_HANDLE_MIDDLE;
@@ -78,8 +84,6 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 
 void TrackerDisplay::on_button_timeline(const ButtonEvent &e) {
 	e.consume(this);
-	if (g_editor->pattern == NULL)
-		return;
 	if (e.button == GLFW_MOUSE_BUTTON_LEFT)
 		on_button_left(e);
 	else if (e.button == GLFW_MOUSE_BUTTON_RIGHT)

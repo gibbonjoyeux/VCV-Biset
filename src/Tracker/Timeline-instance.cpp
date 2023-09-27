@@ -91,6 +91,8 @@ void Timeline::instance_move(PatternInstance *instance, int row, int beat) {
 PatternInstance *Timeline::instance_find(int row, int beat) {
 	std::list<PatternInstance>::iterator	it, it_end;
 
+	if (row < 0 || beat < 0)
+		return NULL;
 	it = g_timeline->timeline[row].begin();
 	it_end = g_timeline->timeline[row].end();
 	/// LOOP INSTANCES
