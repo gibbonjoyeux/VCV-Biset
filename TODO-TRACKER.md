@@ -232,6 +232,11 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 
 
 - [x] MODULE TrackerQuant (quantizer with Tracker pitch & temperament)
+	- [x] Mode note nearest (input searched into scale table)
+	- [x] Mode index (input used to index scale table)
+		- [x] Mode index down
+		- [x] Mode index up
+		- [x] Mode index round
 
 
 - [ ] MODULE TrackerState (Playing gate & trigger)
