@@ -149,7 +149,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 							if (line_note->mode == PATTERN_NOTE_KEEP) {
 								line_note->mode = PATTERN_NOTE_GLIDE;
 								line_note->glide = 99;
-								line_note->pitch = 69;
+								line_note->pitch = 60;
 								line_note->panning = 50;
 								for (i = g_editor->pattern_line - 1; i >= 0; --i) {
 									line_note_comp = &(col_note->lines[i]);
@@ -181,7 +181,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 							if (line_note->mode == PATTERN_NOTE_KEEP) {
 								line_note->mode = PATTERN_NOTE_GLIDE;
 								line_note->glide = 99;
-								line_note->pitch = 69;
+								line_note->pitch = 60;
 								line_note->velocity = 99;
 								for (i = g_editor->pattern_line - 1; i >= 0; --i) {
 									line_note_comp = &(col_note->lines[i]);

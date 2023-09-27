@@ -231,7 +231,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 - [x] MODULE TrackerPhase (mult & div synced LFO)
 
 
-- [ ] MODULE TrackerQuant (quantizer with Tracker pitch & temperament)
+- [x] MODULE TrackerQuant (quantizer with Tracker pitch & temperament)
 
 
 - [ ] MODULE TrackerState (Playing gate & trigger)

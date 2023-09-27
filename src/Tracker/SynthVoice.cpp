@@ -36,7 +36,7 @@ void SynthVoice::process(
 				this->glide_cur = 0;
 				/// GLIDE PITCH
 				this->pitch_from = this->pitch_to;
-				pitch = (float)(this->pitch_from - 69.0) / 12.0f;
+				pitch = (this->pitch_from - 60.0) / 12.0f;
 				/// GLIDE VELOCITY
 				this->velocity_from = this->velocity_to;
 				velocity = this->velocity_from;
@@ -48,7 +48,7 @@ void SynthVoice::process(
 				mix = this->glide_cur / this->glide_len;
 				/// GLIDE PITCH
 				pitch = ((this->pitch_from * (1.0 - mix)
-				/**/ + this->pitch_to * mix) - 69.0) / 12.0f;
+				/**/ + this->pitch_to * mix) - 60.0) / 12.0f;
 				/// GLIDE VELOCITY
 				velocity = (this->velocity_from * (1.0 - mix))
 				/**/ + (this->velocity_to * mix);
@@ -57,7 +57,7 @@ void SynthVoice::process(
 				/**/ + (this->panning_to * mix);
 			}
 		} else {
-			pitch = (float)(this->pitch_from - 69) / 12.0f;
+			pitch = (this->pitch_from - 60.0) / 12.0f;
 			velocity = this->velocity_from;
 			panning = this->panning_from;
 		}
