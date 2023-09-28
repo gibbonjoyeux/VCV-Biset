@@ -23,8 +23,9 @@ void TrackerState::process(const ProcessArgs& args) {
 	bool	trig_stop;
 	bool	trig_both;
 
-	if (g_module == NULL)
+	if (g_module == NULL || g_timeline == NULL)
 		return;
+
 	trig_play = g_timeline->play_trigger.remaining > 0;
 	trig_stop = g_timeline->stop_trigger.remaining > 0;
 	trig_both = trig_play || trig_stop;

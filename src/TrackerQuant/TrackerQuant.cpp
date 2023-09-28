@@ -73,8 +73,9 @@ void TrackerQuant::process(const ProcessArgs& args) {
 	int		mode;
 	int		i, j;
 
-	if (g_module == NULL)
+	if (g_module == NULL || g_timeline == NULL)
 		return;
+
 	/// FOR EACH INPUT
 	for (i = 0; i < 4; ++i) {
 		mode = this->params[PARAM_MODE + i].getValue();

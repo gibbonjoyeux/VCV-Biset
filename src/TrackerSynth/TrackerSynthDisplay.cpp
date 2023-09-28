@@ -27,7 +27,10 @@ void TrackerSynthDisplay::drawLayer(const DrawArgs& args, int layer) {
 		p = rect.getTopLeft();
 		/// GET SYNTH
 		synth = module->params[TrackerSynth::PARAM_SYNTH].getValue();
-		synth_selected = g_editor->synth_id;
+		if (g_module == NULL || g_editor == NULL)
+			synth_selected = -1;
+		else
+			synth_selected = g_editor->synth_id;
 		/// DRAW BACKGROUND
 		nvgBeginPath(args.vg);
 		if (synth == synth_selected)
@@ -58,6 +61,8 @@ void TrackerSynthDisplay::onButton(const ButtonEvent &e) {
 	Param	*param;
 	int		i;
 
+	if (g_module == NULL || g_timeline == NULL)
+		return;
 	if (e.button != GLFW_MOUSE_BUTTON_LEFT || e.action != GLFW_PRESS)
 		return;
 

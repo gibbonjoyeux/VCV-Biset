@@ -61,6 +61,9 @@ TrackerSynthWidget::TrackerSynthWidget(TrackerSynth* _module) {
 void TrackerSynthWidget::onSelect(const SelectEvent &e) {
 	int		synth;
 
+	if (g_module == NULL || g_editor == NULL)
+		return;
+
 	synth = this->module->params[TrackerSynth::PARAM_SYNTH].getValue();
 	g_editor->set_synth(synth);
 }
@@ -68,6 +71,8 @@ void TrackerSynthWidget::onSelect(const SelectEvent &e) {
 void TrackerSynthWidget::onDeselect(const DeselectEvent &e) {
 	ParamWidget		*param;
 
+	if (g_module == NULL)
+		return;
 	if (this->module->map_learn == false)
 		return;
 
@@ -82,6 +87,9 @@ void TrackerSynthWidget::onDeselect(const DeselectEvent &e) {
 
 void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 	int				i;
+
+	if (g_module == NULL)
+		return;
 
 	menu->addChild(new MenuSeparator());
 

@@ -21,13 +21,16 @@ void TrackerDrumDisplay::drawLayer(const DrawArgs& args, int layer) {
 	int					synth_selected;
 
 	font = APP->window->loadFont(font_path);
-	if (layer == 1 && module && font) {
+	if (layer == 1 && this->module && font) {
 		/// GET CANVAS FORMAT
 		rect = box.zeroPos();
 		p = rect.getTopLeft();
 		/// GET SYNTH
 		synth = module->params[TrackerDrum::PARAM_SYNTH].getValue();
-		synth_selected = g_editor->synth_id;
+		if (g_module == NULL || g_editor == NULL)
+			synth_selected = -1;
+		else
+			synth_selected = g_editor->synth_id;
 		/// DRAW BACKGROUND
 		nvgBeginPath(args.vg);
 		if (synth == synth_selected)
@@ -58,6 +61,8 @@ void TrackerDrumDisplay::onButton(const ButtonEvent &e) {
 	Param	*param;
 	int		i;
 
+	if (g_module == NULL || g_timeline == NULL)
+		return;
 	if (e.button != GLFW_MOUSE_BUTTON_LEFT || e.action != GLFW_PRESS)
 		return;
 

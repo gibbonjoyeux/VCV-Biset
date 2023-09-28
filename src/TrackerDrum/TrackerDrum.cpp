@@ -58,7 +58,7 @@ void TrackerDrum::process(const ProcessArgs& args) {
 	float				cv_min, cv_max;
 	int					i, j;
 
-	if (g_module == NULL)
+	if (g_module == NULL || g_timeline == NULL)
 		return;
 
 	synth = &(g_timeline->synths[(int)this->params[PARAM_SYNTH].getValue()]);

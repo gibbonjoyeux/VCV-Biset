@@ -36,7 +36,7 @@ void TrackerClock::process(const ProcessArgs& args) {
 	float	out;
 	int		i;
 
-	if (g_module == NULL)
+	if (g_module == NULL || g_timeline == NULL)
 		return;
 
 	/// [1] CHECK GLOBAL PLAY TRIGGER (RESET)

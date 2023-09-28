@@ -35,10 +35,11 @@ void TrackerStateDisplay::drawLayer(const DrawArgs &args, int layer) {
 	float		width;
 	int			i, j;
 
-	if (g_module == NULL)
+	if (g_module == NULL || g_timeline == NULL)
 		return;
 	if (module == NULL || layer != 1)
 		return;
+
 	/// GET CANVAS FORMAT
 	rect = box.zeroPos();
 	/// DRAW VOICES

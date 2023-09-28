@@ -42,7 +42,7 @@ void TrackerPhase::process(const ProcessArgs& args) {
 	bool	trigger;
 	int		i;
 
-	if (g_module == NULL)
+	if (g_module == NULL || g_timeline == NULL)
 		return;
 
 	/// [1] CHECK GLOBAL PLAY TRIGGER (RESET)

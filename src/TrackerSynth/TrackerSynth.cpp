@@ -57,7 +57,7 @@ void TrackerSynth::process(const ProcessArgs& args) {
 	float				cv_min, cv_max;
 	int					i, j;
 
-	if (g_module == NULL)
+	if (g_module == NULL || g_timeline == NULL)
 		return;
 
 	/// GET SYNTH

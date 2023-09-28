@@ -68,6 +68,9 @@ TrackerDrumWidget::TrackerDrumWidget(TrackerDrum* _module) {
 void TrackerDrumWidget::onSelect(const SelectEvent &e) {
 	int		synth;
 
+	if (g_module == NULL || g_editor == NULL)
+		return;
+
 	synth = this->module->params[TrackerDrum::PARAM_SYNTH].getValue();
 	g_editor->set_synth(synth);
 }
@@ -75,6 +78,8 @@ void TrackerDrumWidget::onSelect(const SelectEvent &e) {
 void TrackerDrumWidget::onDeselect(const DeselectEvent &e) {
 	ParamWidget		*param;
 
+	if (g_module == NULL)
+		return;
 	if (this->module->map_learn == false)
 		return;
 
@@ -89,6 +94,9 @@ void TrackerDrumWidget::onDeselect(const DeselectEvent &e) {
 
 void TrackerDrumWidget::appendContextMenu(Menu *menu) {
 	int				i;
+
+	if (g_module == NULL)
+		return;
 
 	menu->addChild(new MenuSeparator());
 
