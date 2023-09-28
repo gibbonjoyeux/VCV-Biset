@@ -355,6 +355,10 @@ static void load_template(void) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void Tracker::onAdd(const AddEvent &e) {
+
+	if (g_module != this)
+		return;
+
 	/// [1] WAIT FOR THREAD FLAG
 	while (g_timeline->thread_flag.test_and_set()) {}
 
@@ -375,6 +379,9 @@ void Tracker::onAdd(const AddEvent &e) {
 
 void Tracker::dataFromJson(json_t *root) {
 	json_t		*obj;
+
+	if (g_module != this)
+		return;
 
 	/// RECOVER MIDI (DRIVER + DEVICE + CHANNEL)
 	obj = json_object_get(root, "midi");

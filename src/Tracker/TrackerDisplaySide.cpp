@@ -376,8 +376,9 @@ void TrackerDisplaySide::drawLayer(const DrawArgs &args, int layer) {
 	std::shared_ptr<Font>	font;
 	Rect					rect;
 
-	if (module == NULL || layer != 1)
+	if (g_module != this->module || this->module == NULL || layer != 1)
 		return;
+
 	/// GET FONT
 	font = APP->window->loadFont(font_path);
 	if (font == NULL)
@@ -404,16 +405,18 @@ void TrackerDisplaySide::drawLayer(const DrawArgs &args, int layer) {
 
 void TrackerDisplaySide::onHover(const HoverEvent &e) {
 
-	if (g_module == NULL)
+	if (g_module != this->module)
 		return;
 
 	g_editor->side_mouse_pos = e.pos;
+	LedDisplay::onHover(e);
+	e.consume(this);
 }
 
 void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 	int		index;
 
-	if (g_module == NULL)
+	if (g_module != this->module)
 		return;
 
 	g_editor->side_mouse_pos = e.pos;
@@ -467,7 +470,7 @@ void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 void TrackerDisplaySide::onDoubleClick(const DoubleClickEvent &e) {
 	int		index;
 
-	if (g_module == NULL)
+	if (g_module != this->module)
 		return;
 
 	if (g_editor->mode == EDITOR_MODE_TIMELINE) {
@@ -487,7 +490,7 @@ void TrackerDisplaySide::onDoubleClick(const DoubleClickEvent &e) {
 
 void TrackerDisplaySide::onLeave(const LeaveEvent &e) {
 
-	if (g_module == NULL)
+	if (g_module != this->module)
 		return;
 
 	g_editor->side_mouse_pos = {0, 0};
@@ -497,7 +500,7 @@ void TrackerDisplaySide::onHoverScroll(const HoverScrollEvent &e) {
 	int		*count;
 	float	*scroll;
 
-	if (g_module == NULL)
+	if (g_module != this->module)
 		return;
 
 	/// CONSUME EVENT
@@ -524,7 +527,7 @@ void TrackerDisplaySide::onSelectKey(const SelectKeyEvent &e) {
 	PatternSource	*pattern_a;
 	PatternSource	*pattern_b;
 
-	if (g_module == NULL)
+	if (g_module != this->module)
 		return;
 
 	if ((e.action == GLFW_PRESS || e.action == GLFW_REPEAT)

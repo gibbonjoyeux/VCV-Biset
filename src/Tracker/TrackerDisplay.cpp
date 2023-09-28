@@ -33,20 +33,27 @@ void TrackerDisplay::draw(const DrawArgs &args) {
 	nvgRect(args.vg, rect.pos.x, rect.pos.y, rect.size.x, rect.size.y + 1.0);
 	nvgFill(args.vg);
 
-	if (module == NULL) {
+	if (this->module == NULL) {
 		/// GET FONT
 		font = APP->window->loadFont(font_path);
 		if (font == NULL)
 			return;
+		/// BACKGROUND RECT
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, colors[15]);
+		nvgRect(args.vg, rect.pos.x, rect.pos.y + 150.0, rect.size.x, 50.0);
+		nvgFill(args.vg);
 		/// SET FONT
-		nvgFontSize(args.vg, 80);
+		nvgFontSize(args.vg, 16);
+		nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
 		nvgFontFaceId(args.vg, font->handle);
 		/// DRAW TITLE
-		off_x = (rect.size.x / 2) - 195.0;
-		off_y = (rect.size.y / 2) + 30.0;
-		nvgFillColor(args.vg, colors[15]);
-		nvgText(args.vg, rect.pos.x + off_x, rect.pos.y + off_y,
-		/**/ "TRACKER", NULL);
+		off_x = (rect.size.x / 2) - 195.0 - 10.0;
+		off_y = (rect.size.y / 2) + 30.0 - 30.0;
+		nvgFillColor(args.vg, colors[4]);
+		nvgText(args.vg, rect.pos.x + off_x,
+		/**/ rect.pos.y + off_y,
+		/**/ "T  -  R  -  A  -  C  -  K  -  E  -  R", NULL);
 	}
 }
 
@@ -54,7 +61,7 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 	std::shared_ptr<Font>	font;
 	Rect					rect;
 
-	if (module == NULL || layer != 1)
+	if (g_module != this->module || this->module == NULL || layer != 1)
 		return;
 	/// GET FONT
 	font = APP->window->loadFont(font_path);
@@ -93,7 +100,7 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 
 void TrackerDisplay::onSelectKey(const SelectKeyEvent &e) {
 
-	if (g_module == NULL)
+	if (g_module != this->module)
 		return;
 
 	if ((e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL)
@@ -107,7 +114,7 @@ void TrackerDisplay::onSelectKey(const SelectKeyEvent &e) {
 
 void TrackerDisplay::onButton(const ButtonEvent &e) {
 
-	if (g_module == NULL)
+	if (g_module != this->module)
 		return;
 
 	if (g_editor->mode == EDITOR_MODE_PATTERN)
@@ -118,7 +125,7 @@ void TrackerDisplay::onButton(const ButtonEvent &e) {
 
 void TrackerDisplay::onHover(const HoverEvent &e) {
 
-	if (g_module == NULL)
+	if (g_module != this->module)
 		return;
 
 	g_editor->mouse_pos = e.pos;
@@ -126,7 +133,7 @@ void TrackerDisplay::onHover(const HoverEvent &e) {
 
 void TrackerDisplay::onDragStart(const DragStartEvent& e) {
 
-	if (g_module == NULL)
+	if (g_module != this->module)
 		return;
 
 	/// CURSOR LOCK
@@ -144,7 +151,7 @@ void TrackerDisplay::onDragStart(const DragStartEvent& e) {
 void TrackerDisplay::onDragMove(const DragMoveEvent& e) {
 	float		zoom;
 
-	if (g_module == NULL)
+	if (g_module != this->module)
 		return;
 
 	/// COMPUTE DELTA WITH ZOOM
@@ -159,7 +166,7 @@ void TrackerDisplay::onDragMove(const DragMoveEvent& e) {
 }
 void TrackerDisplay::onDragEnd(const DragEndEvent& e) {
 
-	if (g_module == NULL)
+	if (g_module != this->module)
 		return;
 
 	/// CURSOR UNLOCK
@@ -174,7 +181,7 @@ void TrackerDisplay::onDragEnd(const DragEndEvent& e) {
 void TrackerDisplay::onHoverScroll(const HoverScrollEvent &e) {
 	Vec		delta;
 
-	if (g_module == NULL)
+	if (g_module != this->module)
 		return;
 
 	/// CONSUME EVENT

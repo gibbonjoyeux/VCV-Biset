@@ -81,7 +81,7 @@ static void process_midi_message(midi::Message *msg) {
 static void process_midi_input(int frame) {
 	midi::Message	msg;
 
-	if (g_module == NULL)
+	if (g_timeline == NULL || g_editor == NULL || g_editor->synth == NULL)
 		return;
 	while (g_module->midi_input.tryPop(&msg, frame))
 		process_midi_message(&msg);
@@ -129,14 +129,6 @@ Tracker::Tracker() {
 	configSwitch(PARAM_VIEW + 2, 0, 1, 0, "View Delay");
 	configSwitch(PARAM_VIEW + 3, 0, 1, 0, "View Glide");
 	configSwitch(PARAM_VIEW + 4, 0, 1, 0, "View Effects");
-
-	//configParam(PARAM_COLUMN_FX_VELOCITY, 0.0f, 100.0f, 0.0f, "Random velocity", "%");
-	//configParam(PARAM_COLUMN_FX_PANNING, 0.0f, 100.0f, 0.0f, "Random panning", "%");
-	//configParam(PARAM_COLUMN_FX_OCTAVE_MODE, 0.0f, 2.0f, 0.0f, "Random octave mode", "")->snapEnabled = true;
-	//configParam(PARAM_COLUMN_FX_OCTAVE, 0.0f, 4.0f, 0.0f, "Random octave", "")->snapEnabled = true;
-	//configParam(PARAM_COLUMN_FX_PANNING, 0.0f, 100.0f, 0.0f, "Random pitch", "%");
-	//configParam(PARAM_COLUMN_FX_DELAY, 0.0f, 100.0f, 0.0f, "Random delay", "%");
-	//configParam(PARAM_COLUMN_FX_CHANCE, 0.0f, 100.0f, 0.0f, "Random chance", "%");
 
 	configButton(PARAM_OCTAVE_UP, "Octave +");
 	configButton(PARAM_OCTAVE_DOWN, "Octave -");
@@ -210,6 +202,11 @@ Tracker::~Tracker() {
 void Tracker::process(const ProcessArgs& args) {
 	float	dt_sec, dt_beat;
 	float	bpm;
+
+	if (g_module == NULL)
+		g_module = this;
+	if (g_module != this)
+		return;
 
 	/// PROCESS MIDI INPUT
 	process_midi_input(args.frame);

@@ -390,6 +390,10 @@ static void write_save_buffer() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void Tracker::onSave(const SaveEvent &e) {
+
+	if (g_module != this)
+		return;
+
 	/// [1] WAIT FOR THREAD FLAG
 	while (g_timeline->thread_flag.test_and_set()) {}
 
@@ -406,6 +410,9 @@ void Tracker::onSave(const SaveEvent &e) {
 
 json_t *Tracker::dataToJson(void) {
 	json_t		*root;
+
+	if (g_module != this)
+		return NULL;
 
 	/// SAVE MIDI (DRIVER + DEVICE + CHANNEL)
 	root = json_object();
