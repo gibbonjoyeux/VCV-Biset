@@ -25,6 +25,7 @@ struct TrackerState: Module {
 	enum	LightIds {
 		LIGHT_COUNT
 	};
+	float		scale[100 * 4];
 
 	TrackerState();
 
