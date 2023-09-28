@@ -239,7 +239,17 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 		- [x] Mode index round
 
 
-- [ ] MODULE TrackerState (Playing gate & trigger)
+- [x] MODULE TrackerState (Playing gate & trigger)
+	- [x] State outputs
+		- [x] Play gate
+		- [x] Play trigger
+		- [x] Stop trigger
+		- [x] Play + Stop trigger
+	- [x] Visualizer display
+		- [x] Synth voices note		(Y axis)
+		- [x] Synth voices velocity	(width or alpha)
+		- [x] Synth voices panning	(X axis)
+		- [x] Synth voices color
 
 
 # Effects

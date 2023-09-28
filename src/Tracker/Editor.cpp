@@ -91,6 +91,9 @@ void Editor::process(i64 frame) {
 	//// PLAY SONG
 	if (this->button_play[0]
 	.process(module->params[Tracker::PARAM_PLAY_SONG].getValue())) {
+		g_timeline->play_trigger.trigger(0.01);
+		if (g_timeline->play != TIMELINE_MODE_STOP)
+			g_timeline->stop_trigger.trigger(0.01);
 		g_timeline->stop();
 		g_timeline->clock.reset();
 		g_timeline->play = TIMELINE_MODE_PLAY_SONG;
@@ -100,6 +103,9 @@ void Editor::process(i64 frame) {
 	.process(module->params[Tracker::PARAM_PLAY_PATTERN].getValue())) {
 		g_timeline->stop();
 		g_timeline->clock.reset();
+		g_timeline->play_trigger.trigger(0.01);
+		if (g_timeline->play != TIMELINE_MODE_STOP)
+			g_timeline->stop_trigger.trigger(0.01);
 		/// MODE PATTERN SOLO
 		if (g_editor->mode == EDITOR_MODE_PATTERN) {
 			if (g_editor->pattern)
@@ -123,6 +129,9 @@ void Editor::process(i64 frame) {
 		} else if (g_timeline->play == TIMELINE_MODE_STOP) {
 			g_timeline->stop();
 		}
+		g_timeline->play_trigger.trigger(0.01);
+		if (g_timeline->play != TIMELINE_MODE_STOP)
+			g_timeline->stop_trigger.trigger(0.01);
 		g_timeline->play = TIMELINE_MODE_PLAY_SONG;
 	}
 	//// STOP
@@ -130,6 +139,7 @@ void Editor::process(i64 frame) {
 	.process(module->params[Tracker::PARAM_STOP].getValue())) {
 		g_timeline->stop();
 		g_timeline->play = TIMELINE_MODE_STOP;
+		g_timeline->stop_trigger.trigger(0.01);
 	}
 	/// HANDLE OCTAVE BUTTONS
 	if (this->button_octave[0]

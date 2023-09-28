@@ -301,6 +301,7 @@ struct Timeline {
 	std::atomic_flag			thread_flag;
 	u8							play;
 	dsp::PulseGenerator			play_trigger;	// Used by other modules
+	dsp::PulseGenerator			stop_trigger;	// Used by other modules
 	Clock						clock;
 
 	list<PatternInstance>::iterator	pattern_it[32];

@@ -16,6 +16,7 @@ using				std::unique_ptr;
 #include "TrackerClock/TrackerClock.hpp"
 #include "TrackerPhase/TrackerPhase.hpp"
 #include "TrackerQuant/TrackerQuant.hpp"
+#include "TrackerState/TrackerState.hpp"
 
 #include "Regex/Regex.hpp"
 
@@ -96,8 +97,7 @@ extern Model*		modelTrackerDrum;
 extern Model*		modelTrackerClock;
 extern Model*		modelTrackerPhase;
 extern Model*		modelTrackerQuant;
-//extern Model*		modelTrackerState;
-//extern Model*		modelTrackerTemp;
+extern Model*		modelTrackerState;
 
 extern Model*		modelRegex;
 extern Model*		modelRegexCondensed;

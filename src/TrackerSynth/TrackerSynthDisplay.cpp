@@ -64,7 +64,7 @@ void TrackerSynthDisplay::onButton(const ButtonEvent &e) {
 	param = &(this->module->params[TrackerSynth::PARAM_SYNTH]);
 
 	menu = createMenu();
-	/// ADD COLOR SUB-MENU
+	/// ADD SYNTH SELECTION MENU
 	for (i = 0; i < g_timeline->synth_count; ++i) {
 		menu->addChild(new MenuCheckItem(g_timeline->synths[i].name, "",
 			[=]() { return param->getValue() == i; },

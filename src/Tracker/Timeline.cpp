@@ -37,6 +37,7 @@ Timeline::Timeline() {
 	/// [4] INIT TIMELINE
 	this->play = TIMELINE_MODE_STOP;
 	this->play_trigger.reset();
+	this->stop_trigger.reset();
 	/// [5] INIT SAVE BUFFER
 	this->save_buffer = NULL;
 	this->save_length = 0;
@@ -179,6 +180,7 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 		synths[i].process(dt_sec * rate_divider, dt_beat * rate_divider);
 	
 	this->play_trigger.process(dt_sec * rate_divider);
+	this->stop_trigger.process(dt_sec * rate_divider);
 
 	/// [7] CLEAR THREAD FLAG
 	g_timeline->thread_flag.clear();
@@ -187,15 +189,13 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 void Timeline::stop(void) {
 	int		i;
 
-	/// [1] RESET TIMELINE
+	/// RESET TIMELINE
 	for (i = 0; i < 32; ++i) {
 		this->pattern_it[i] = this->timeline[i].begin();
 		this->pattern_it_end[i] = this->timeline[i].end();
 		this->pattern_reader[i].stop();
 		this->pattern_state[i] = false;
 	}
-	/// [2] SEND PLAY TRIGGER
-	this->play_trigger.trigger(1.0);
 }
 
 void Timeline::clear(void) {

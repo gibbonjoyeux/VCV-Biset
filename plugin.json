@@ -50,6 +50,12 @@
 		"tags": ["Sequencer", "Digital", "Quantizer"]
 	},
 	{
+		"slug": "Biset-Tracker-State",
+		"name": "Tracker State",
+		"description": "Tracker state & visualizer",
+		"tags": ["Sequencer", "Digital", "Visual"]
+	},
+	{
 		"slug": "Biset-Regex",
 		"name": "Regex",
 		"description": "A text based pattern sequencer for rythm and pitch",
