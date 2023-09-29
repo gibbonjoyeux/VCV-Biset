@@ -43,6 +43,9 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 
 # THINK ABOUT
 
+- ! ! ! Muted pattern column ?
+- ! ! ! Check for 'TODO:' in files
+
 - What happens to overriden notes / voices when synth is used with many notes ?
 - Live play
 	- Light notifying caps lock ?
@@ -202,6 +205,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Duplicate pattern
 				- [x] Scroll
 	- [x] SAVE
+		- ! ! ! Muted pattern columns
 		- [x] Save data
 		- [x] Load data
 		- [x] Load template on empty
@@ -225,10 +229,14 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 			- [x] CV mode range (min / max sliders)
 			- [x] CV mode mapping
 
-- [x] MODULE TrackerClock (mult & div clock)
+- [] MODULE TrackerClock (mult & div clock)
+	- [ ] Mode like TrackerPhase
 
 
-- [x] MODULE TrackerPhase (mult & div synced LFO)
+- [ ] MODULE TrackerPhase (mult & div synced LFO)
+	- [x] Mode fixed	(Restart on loop)
+	- [ ] Mode Loop		(Keep going on loop)
+	- ! ! ! Useless phase[] table
 
 
 - [x] MODULE TrackerQuant (quantizer with Tracker pitch & temperament)

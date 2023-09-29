@@ -90,8 +90,8 @@ static void menu_pattern(PatternSource *pattern) {
 			int				i, j;
 
 			/// CREATE NEW PATTERN
-			pattern_new = g_timeline->pattern_new();
-			pattern_new->init(pattern->note_count, pattern->cv_count,
+			pattern_new = g_timeline->pattern_new(
+			/**/ pattern->note_count, pattern->cv_count,
 			/**/ pattern->beat_count, pattern->lpb);
 			pattern_new->rename(pattern->name);
 			pattern_new->color = pattern->color;

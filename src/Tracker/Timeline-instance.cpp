@@ -44,21 +44,11 @@ PatternInstance *Timeline::instance_new(PatternSource *source, int row, int beat
 }
 
 void Timeline::instance_del(PatternInstance *instance) {
-	list<PatternInstance>::iterator	it;
-	list<PatternInstance>::iterator	it_end;
-
-	if (instance == NULL)
-		return;
-	/// FIND INSTANCE
-	it = g_timeline->timeline[instance->row].begin();
-	it_end = g_timeline->timeline[instance->row].end();
-	while (it != it_end) {
-		if (&(*it) == instance) {
-			g_timeline->timeline[instance->row].erase(it);
-			return;
+	g_timeline->timeline[instance->row].remove_if(
+		[=](PatternInstance &instance_comp) {
+			return (&instance_comp == instance);
 		}
-		it = std::next(it);
-	}
+	);
 }
 
 void Timeline::instance_move(PatternInstance *instance, int row, int beat) {

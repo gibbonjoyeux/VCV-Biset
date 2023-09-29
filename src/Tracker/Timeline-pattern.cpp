@@ -51,9 +51,17 @@ void Timeline::pattern_del(PatternSource *pattern) {
 	/// REMOVE PATTERN (INSTANCES)
 	for (i = 0; i < 32; ++i) {
 		this->timeline[i].remove_if([=](PatternInstance &instance) {
+			PatternSource	*instance_source;
+
+			instance_source = instance.source;
+			/// INSTANCE SELECTED
 			if (&instance == g_editor->instance)
 				g_editor->instance = NULL;
-			return (instance.source == pattern);
+			/// INSTANCE OF UPPER PATTERN (OFFSET SOURCE)
+			if (instance.source > pattern)
+				instance.source -= 1;
+			/// INSTANCE OF DELETED PATTERN
+			return (instance_source == pattern);
 		});
 	}
 	/// REMOVE PATTERN (TIMELINE)
@@ -64,10 +72,6 @@ void Timeline::pattern_del(PatternSource *pattern) {
 			this->patterns[i].destroy();
 			this->pattern_count -= 1;
 			found = true;
-			if (g_editor->pattern == pattern) {
-				g_editor->pattern_id = -1;
-				g_editor->pattern = NULL;
-			}
 		}
 		/// PATTERN OFFSET
 		if (found == true)
