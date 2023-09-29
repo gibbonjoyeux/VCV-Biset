@@ -47,6 +47,8 @@ void Timeline::instance_del(PatternInstance *instance) {
 	list<PatternInstance>::iterator	it;
 	list<PatternInstance>::iterator	it_end;
 
+	if (instance == NULL)
+		return;
 	/// FIND INSTANCE
 	it = g_timeline->timeline[instance->row].begin();
 	it_end = g_timeline->timeline[instance->row].end();

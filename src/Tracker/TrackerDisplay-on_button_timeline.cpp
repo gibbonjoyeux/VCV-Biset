@@ -33,6 +33,9 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 			g_editor->instance = instance;
 			g_editor->instance_row = row;
 			g_editor->instance_beat = instance->beat;
+			/// SELECT INSTANCE PATTERN
+			g_editor->set_pattern(((intptr_t)instance->source
+			/**/ - (intptr_t)g_timeline->patterns) / sizeof(PatternSource));
 			if (g_timeline->play != TIMELINE_MODE_STOP)
 				return;
 			/// SELECT INSTANCE MODE
@@ -42,9 +45,6 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 				g_editor->instance_handle = INSTANCE_HANDLE_LEFT;
 			else
 				g_editor->instance_handle = INSTANCE_HANDLE_MIDDLE;
-			/// SELECT INSTANCE PATTERN
-			g_editor->set_pattern(((intptr_t)instance->source
-			/**/ - (intptr_t)g_timeline->patterns) / sizeof(PatternSource));
 		}
 	}
 }
@@ -64,6 +64,14 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 		instance = g_timeline->instance_find(row, beat);
 		/// EDIT INSTANCE
 		if (instance != NULL) {
+			/// SELECT INSTANCE
+			g_editor->instance = instance;
+			g_editor->instance_row = row;
+			g_editor->instance_beat = instance->beat;
+			/// SELECT INSTANCE PATTERN
+			g_editor->set_pattern(((intptr_t)instance->source
+			/**/ - (intptr_t)g_timeline->patterns) / sizeof(PatternSource));
+			/// ADD INSTANCE CONTEXT MENU
 			menu = createMenu();
 			menu->addChild(new MenuCheckItem("Mute", "",
 				[=]() { return instance->muted; },
