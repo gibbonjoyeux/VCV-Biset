@@ -47,8 +47,6 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 
 # THINK ABOUT
 
-- ! ! ! Swing for patterns
-- ! ! ! Muted pattern column ?
 - ! ! ! Check for 'TODO:' in files
 
 - What happens to overriden notes / voices when synth is used with many notes ?
@@ -69,6 +67,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 			- [ ] Play matrix
 		- [x] TIMELINE
 		- [ ] PATTERN
+			- [ ] SWING
 			- [x] NOTE
 				- [x] Mode gate
 				- [x] Mode trigger
@@ -179,7 +178,8 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 					- [x] Pattern note column count
 					- [x] Pattern CV column count
 					- [x] Pattern color
-				- [x] Column
+				- [ ] Column
+					- [ ] Mute
 					- [x] Note
 						- [x] Effect count
 					- [x] CV

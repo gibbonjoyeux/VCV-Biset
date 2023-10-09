@@ -20,8 +20,6 @@ Editor::Editor() {
 
 	this->selected = false;
 
-	// TODO: Check pattern cannot be used when no pattern
-	/// TODO: check synth cannot be used when no synth
 	this->pattern_id = -1;
 	this->pattern = NULL;
 	this->synth_id = -1;
@@ -165,6 +163,31 @@ void Editor::process(i64 frame) {
 	.process(module->params[Tracker::PARAM_JUMP_DOWN].getValue()))
 		if (this->pattern_jump > 0)
 			this->pattern_jump -= 1;
+
+	/// [6] HANDLE LIGHTS
+	//// LIGHT PLAY
+	if (g_timeline->play == TIMELINE_MODE_STOP) {
+		g_module->lights[Tracker::LIGHT_PLAY + 0].setBrightness(0);
+		g_module->lights[Tracker::LIGHT_PLAY + 1].setBrightness(0);
+		g_module->lights[Tracker::LIGHT_PLAY + 2].setBrightness(0);
+	} else {
+		/// PLAY
+		if (g_editor->mod_caps == false) {
+			g_module->lights[Tracker::LIGHT_PLAY + 0].setBrightness(0);
+			g_module->lights[Tracker::LIGHT_PLAY + 1].setBrightness(1);
+			g_module->lights[Tracker::LIGHT_PLAY + 2].setBrightness(1);
+		/// PLAY + RECORD
+		} else {
+			g_module->lights[Tracker::LIGHT_PLAY + 0].setBrightness(1);
+			g_module->lights[Tracker::LIGHT_PLAY + 1].setBrightness(0);
+			g_module->lights[Tracker::LIGHT_PLAY + 2].setBrightness(0);
+		}
+	}
+	//// LIGHT FOCUS
+	if (this->selected)
+		g_module->lights[Tracker::LIGHT_FOCUS].setBrightness(1);
+	else
+		g_module->lights[Tracker::LIGHT_FOCUS].setBrightness(0);
 }
 
 void Editor::set_synth(int index) {

@@ -471,6 +471,9 @@ struct Tracker : Module {
 								OUTPUT_COUNT
 	};
 	enum LightIds {
+								LIGHT_FOCUS,
+								LIGHT_RECORD,
+								ENUMS(LIGHT_PLAY, 3),
 								LIGHT_COUNT
 	};
 	midi::InputQueue				midi_input;
@@ -543,8 +546,8 @@ struct TrackerWidget : ModuleWidget {
 
 	void onSelectKey(const SelectKeyEvent &e) override;
 	void onHoverScroll(const HoverScrollEvent &e) override;
-	//void onSelect(const SelectEvent &e) override;
-	//void onDeselect(const DeselectEvent &e) override;
+	void onSelect(const SelectEvent &e) override;
+	void onDeselect(const DeselectEvent &e) override;
 	void appendContextMenu(Menu *menu) override;
 
 	//void onDragStart(const DragStartEvent& e) override;

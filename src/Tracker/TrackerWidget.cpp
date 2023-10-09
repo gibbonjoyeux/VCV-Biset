@@ -93,7 +93,13 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	setModule(module);
 	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker.svg")));
 
-	/// [1] ADD PARAMS
+	/// [1] ADD LIGHTS
+	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(12.5, 12.0)),
+	module, Tracker::LIGHT_FOCUS));
+	addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(18.0, 12.0)),
+	module, Tracker::LIGHT_PLAY));
+
+	/// [2] ADD PARAMS
 	//// PLAY BUTTONS
 	addParam(
 	/**/ createParamCentered<ButtonPlaySong>(mm2px(Vec(BTN_PLAY_X, BTN_PLAY_Y)),
@@ -214,47 +220,49 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 }
 
 void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
+	bool	mode_pattern;
+	bool	mode_timeline;
+	bool	mode_matrix;
+	bool	mode_tuning;
+	bool	mode_tmp;
+
 	if (g_module == NULL)
 		return;
 
-	/// [1] CHANGE VIEW
-	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_SHIFT)) {
+	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_CONTROL))
+		return;
+
+	/// [1] CHANGE VIEW MODE
+	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_SHIFT)
+	&& (e.key == GLFW_KEY_LEFT || e.key == GLFW_KEY_RIGHT)) {
+		e.consume(this);
+		mode_pattern = g_module->params[Tracker::PARAM_MODE_PATTERN].getValue();
+		mode_timeline = g_module->params[Tracker::PARAM_MODE_TIMELINE].getValue();
+		mode_matrix = g_module->params[Tracker::PARAM_MODE_MATRIX].getValue();
+		mode_tuning = g_module->params[Tracker::PARAM_MODE_TUNING].getValue();
 		if (e.key == GLFW_KEY_LEFT) {
-			g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(1);
-			g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(0);
-			g_module->params[Tracker::PARAM_MODE_MATRIX].setValue(0);
-			g_module->params[Tracker::PARAM_MODE_TUNING].setValue(0);
-			e.consume(this);
-			return;
-		} else if (e.key == GLFW_KEY_RIGHT) {
-			g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(0);
-			g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(1);
-			g_module->params[Tracker::PARAM_MODE_MATRIX].setValue(0);
-			g_module->params[Tracker::PARAM_MODE_TUNING].setValue(0);
-			e.consume(this);
-			return;
-		} else if (e.key == GLFW_KEY_UP) {
-			g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(0);
-			g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(0);
-			g_module->params[Tracker::PARAM_MODE_MATRIX].setValue(1);
-			g_module->params[Tracker::PARAM_MODE_TUNING].setValue(0);
-			e.consume(this);
-			return;
-		} else if (e.key == GLFW_KEY_DOWN) {
-			g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(0);
-			g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(0);
-			g_module->params[Tracker::PARAM_MODE_MATRIX].setValue(0);
-			g_module->params[Tracker::PARAM_MODE_TUNING].setValue(1);
-			e.consume(this);
-			return;
+			mode_tmp = mode_pattern;
+			mode_pattern = mode_timeline;
+			mode_timeline = mode_matrix;
+			mode_matrix = mode_tuning;
+			mode_tuning = mode_tmp;
+		} else {
+			mode_tmp = mode_tuning;
+			mode_tuning = mode_matrix;
+			mode_matrix = mode_timeline;
+			mode_timeline = mode_pattern;
+			mode_pattern = mode_tmp;
 		}
+		g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(mode_pattern);
+		g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(mode_timeline);
+		g_module->params[Tracker::PARAM_MODE_MATRIX].setValue(mode_matrix);
+		g_module->params[Tracker::PARAM_MODE_TUNING].setValue(mode_tuning);
 	}
 	/// [2] EDIT PATTERN & TIMELINE
-	if (g_editor->mode == EDITOR_MODE_PATTERN) {
+	if (g_editor->mode == EDITOR_MODE_PATTERN)
 		this->display->on_key_pattern(e);
-	} else if (g_editor->mode == EDITOR_MODE_TIMELINE) {
+	else if (g_editor->mode == EDITOR_MODE_TIMELINE)
 		this->display->on_key_timeline(e);
-	}
 }
 
 void TrackerWidget::onHoverScroll(const HoverScrollEvent &e) {
@@ -285,22 +293,22 @@ void TrackerWidget::onHoverScroll(const HoverScrollEvent &e) {
 	//e.consume(this);
 }
 
-//void TrackerWidget::onSelect(const SelectEvent &e) {
-//	g_editor->selected = true;
-//	//this->module->lights[0].setBrightness(1.0);
-//}
-//
-//void TrackerWidget::onDeselect(const DeselectEvent &e) {
-//	ParamWidget	*pw;
-//	
-//	pw = APP->scene->rack->touchedParam;
-//	if (pw && pw->module == this->module) {
-//		APP->event->setSelectedWidget(this);
-//		return;
-//	}
-//	g_editor->selected = false;
-//	this->module->lights[0].setBrightness(0.0);
-//}
+void TrackerWidget::onSelect(const SelectEvent &e) {
+	g_editor->selected = true;
+	//this->module->lights[0].setBrightness(1.0);
+}
+
+void TrackerWidget::onDeselect(const DeselectEvent &e) {
+	g_editor->selected = false;
+	//ParamWidget	*pw;
+	//
+	//pw = APP->scene->rack->touchedParam;
+	//if (pw && pw->module == this->module) {
+	//	APP->event->setSelectedWidget(this);
+	//	return;
+	//}
+	//this->module->lights[0].setBrightness(0.0);
+}
 
 //void TrackerWidget::onDragStart(const DragStartEvent& e) {
 //	APP->window->cursorLock();
