@@ -12,8 +12,6 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 # BUGS
 
 - ! ! ! Crash: Crash on pattern when play whole song
-- ! ! ! Bug: on ctrl-save with focus, write notes
-- ! ! ! Crash: Crash on quit (deleting scene)
 
 - [ ] Pattern instances can have a negative `beat_start` but should not
 

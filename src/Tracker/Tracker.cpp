@@ -207,6 +207,8 @@ void Tracker::process(const ProcessArgs& args) {
 		g_module = this;
 	if (g_module != this)
 		return;
+	if (APP == NULL || APP->window == NULL)
+		return;
 
 	/// PROCESS MIDI INPUT
 	process_midi_input(args.frame);

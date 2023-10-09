@@ -476,7 +476,7 @@ struct Tracker : Module {
 								ENUMS(LIGHT_PLAY, 3),
 								LIGHT_COUNT
 	};
-	midi::InputQueue				midi_input;
+	midi::InputQueue			midi_input;
 
 	Tracker();
 	~Tracker();

@@ -79,8 +79,8 @@ void TrackerDisplay::drawLayer(const DrawArgs &args, int layer) {
 	//nvgFill(args.vg);
 
 	// TMP DEBUG ! ! !
-	nvgFillColor(args.vg, colors[3]);
-	nvgText(args.vg, rect.pos.x + 300, rect.pos.y + 42.0, g_timeline->debug_str, NULL);
+	//nvgFillColor(args.vg, colors[3]);
+	//nvgText(args.vg, rect.pos.x + 300, rect.pos.y + 42.0, g_timeline->debug_str, NULL);
 	// TMP DEBUG ! ! !
 
 	nvgScissor(args.vg, RECT_ARGS(rect));
@@ -189,7 +189,7 @@ void TrackerDisplay::onHoverScroll(const HoverScrollEvent &e) {
 	/// SCROLL PATTERN
 	if (g_editor->mode == EDITOR_MODE_PATTERN) {
 		/// SCROLL X
-		if (APP->window->getMods() & GLFW_MOD_SHIFT) {
+		if (g_editor->mod_shift) {
 			/// MOVE CURSOR
 			if (e.scrollDelta.y > 0)
 				g_editor->pattern_move_cursor_x(-1);
@@ -206,7 +206,7 @@ void TrackerDisplay::onHoverScroll(const HoverScrollEvent &e) {
 	/// SCROLL TIMELINE
 	} else if (g_editor->mode == EDITOR_MODE_TIMELINE) {
 		/// HANDLE ORIENTION
-		if (APP->window->getMods() & GLFW_MOD_SHIFT) {
+		if (g_editor->mod_shift) {
 			delta.x = e.scrollDelta.y;
 			delta.y = e.scrollDelta.x;
 		} else {
