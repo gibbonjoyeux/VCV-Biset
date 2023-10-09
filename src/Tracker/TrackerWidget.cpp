@@ -156,7 +156,6 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	this->display_side = display_side;
 	addChild(display_side);
 
-	//// BPM / SYNTH / PATTERN KNOBS
 	/// BPM SELECTOR
 	//// DISPLAY
 	display_bpm = createWidget<LedDisplayDigit>(mm2px(Vec(KNOB_X, KNOB_Y)));
@@ -168,15 +167,6 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	display_bpm->color_back = colors[15];
 	display_bpm->color_font = colors[4];
 	addChild(display_bpm);
-	//display_bpm = createWidget<TrackerDisplayBPM>(mm2px(Vec(KNOB_X, KNOB_Y)));
-	//display_bpm->box.size = mm2px(Vec(8.25, 3.5));
-	//display_bpm->module = module;
-	//if (module)
-	//	display_bpm->value_quant = module->paramQuantities[Tracker::PARAM_BPM];
-	//display_bpm->value_length = 3;
-	//display_bpm->color_back = colors[15];
-	//display_bpm->color_font = colors[4];
-	//addChild(display_bpm);
 	//// KNOB
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(KNOB_X + 4.25, KNOB_Y + 10.0)),

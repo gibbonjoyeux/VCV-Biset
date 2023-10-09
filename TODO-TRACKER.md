@@ -11,6 +11,10 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 
 # BUGS
 
+- ! ! ! Crash: Crash on pattern when play whole song
+- ! ! ! Bug: on ctrl-save with focus, write notes
+- ! ! ! Crash: Crash on quit (deleting scene)
+
 - [ ] Pattern instances can have a negative `beat_start` but should not
 
 - [ ] Check if `thread_flag` has a big CPU impact
@@ -43,6 +47,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 
 # THINK ABOUT
 
+- ! ! ! Swing for patterns
 - ! ! ! Muted pattern column ?
 - ! ! ! Check for 'TODO:' in files
 
@@ -205,7 +210,6 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 				- [x] Duplicate pattern
 				- [x] Scroll
 	- [x] SAVE
-		- ! ! ! Muted pattern columns
 		- [x] Save data
 		- [x] Load data
 		- [x] Load template on empty

@@ -123,7 +123,7 @@ void TrackerDisplay::on_drag_move_timeline(const DragMoveEvent& e) {
 		row = (int)((g_editor->mouse_pos.y - 3.0) / (CHAR_H * 3)) + g_editor->timeline_cam_y - 1;
 		beat = g_editor->instance_beat + (delta.x / CHAR_W);
 		/// LOCK AXIS
-		if (APP->window->getMods() & GLFW_MOD_SHIFT) {
+		if (g_editor->mod_shift) {
 			/// ONLY X (BEAT)
 			if (std::abs(delta.x) > std::abs(delta.y))
 				row = g_editor->instance_row;

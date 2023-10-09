@@ -27,21 +27,24 @@ TRACKER BINARY SAVE FORMAT:
 		- Name length							u8
 		- Name string							chars
 		- Color									u8
+		- Swing ratio							u8
+		- Swing signature						u8
 		- Beat count							u16
 		- Note count							u8
 		- CV count								u8
 		- lpb (lines per beat)					u8
 		- Note columns										x N
-			- Column effect count				u8
+			- Column muted						u8	NOT HANDLE YET
 			- Column general effects
-				- Fx velocity					u8
-				- Fx panning					u8
-				- Fx delay						u8
-				- Fx chance						u8
-				- Fx chance mode				u8
-				- Fx octave						u8
-				- Fx octave mode				u8
-				- Fx pitch						u8
+				- Fx velocity					u8	NOT HANDLE YET
+				- Fx panning					u8	NOT HANDLE YET
+				- Fx delay						u8	NOT HANDLE YET
+				- Fx chance						u8	NOT HANDLE YET
+				- Fx chance mode				u8	NOT HANDLE YET
+				- Fx octave						u8	NOT HANDLE YET
+				- Fx octave mode				u8	NOT HANDLE YET
+				- Fx pitch						u8	NOT HANDLE YET
+			- Column effect count				u8
 			- Column set lines count			u16
 			- Lines (only set lines)
 				- Line number					u16
@@ -220,9 +223,12 @@ static bool compute_save_file(void) {
 	/// [1] GET PATTERNS
 	pattern_count = read_u16();
 	for (i = 0; i < pattern_count; ++i) {
-		/// PATTERN SIZE
+		/// PATTERN BASICS
 		read_name(name);								// Name
 		color = read_u8();								// Color
+		read_u8();										// Swing ratio
+		read_u8();										// Swing signature
+		/// PATTERN SIZE
 		beat_count = read_u16();						// Beat count
 		note_count = read_u8();							// Note count
 		cv_count = read_u8();							// CV count
@@ -233,15 +239,16 @@ static bool compute_save_file(void) {
 		/// PATTERN NOTES
 		for (j = 0; j < note_count; ++j) {
 			note_col = pattern->notes[j];
-			note_col->fx_count = read_u8();			// Column effect count
-			note_col->fx_velocity = read_u8();		// Column fx velocity
-			note_col->fx_panning = read_u8();		// Column fx panning
-			note_col->fx_delay = read_u8();			// Column fx delay
-			note_col->fx_chance = read_u8();		// Column fx chance
-			note_col->fx_chance_mode = read_u8();	// Column fx chance mode
-			note_col->fx_octave = read_u8();		// Column fx octave
-			note_col->fx_octave_mode = read_u8();	// Column fx octave mode
-			note_col->fx_pitch = read_u8();			// Column fx pitch
+			read_u8();									// Column muted
+			read_u8();									// Column fx velocity
+			read_u8();									// Column fx panning
+			read_u8();									// Column fx delay
+			read_u8();									// Column fx chance
+			read_u8();									// Column fx chance mode
+			read_u8();									// Column fx octave
+			read_u8();									// Column fx octave mode
+			read_u8();									// Column fx pitch
+			note_col->fx_count = read_u8();				// Column effect count
 			count = read_u16();							// Set lines count
 			for (k = 0; k < count; ++k) {
 				note = &(note_col->lines[read_u16()]);	// Line number

@@ -142,14 +142,15 @@ struct PatternCVCol {
 
 struct PatternNoteCol {
 	u8							fx_count;
-	u8							fx_velocity;
-	u8							fx_panning;
-	u8							fx_delay;
-	u8							fx_chance;
-	u8							fx_chance_mode;
-	u8							fx_octave;
-	u8							fx_octave_mode;
-	u8							fx_pitch;
+	//u8							fx_velocity;
+	//u8							fx_panning;
+	//u8							fx_delay;
+	//u8							fx_chance;
+	//u8							fx_chance_mode;
+	//u8							fx_octave;
+	//u8							fx_octave_mode;
+	//u8							fx_pitch;
+	//u8							muted;
 	PatternNote					lines[0];	// Notes (memory as struct extension)
 };
 
@@ -403,6 +404,8 @@ struct Editor {
 	Vec							mouse_pos;
 	Vec							mouse_pos_drag;
 	int							mouse_button;
+	bool						mod_shift;
+	bool						mod_caps;
 
 	float						side_synth_cam_y;
 	float						side_pattern_cam_y;

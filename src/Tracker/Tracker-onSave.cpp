@@ -22,21 +22,24 @@ TRACKER BINARY SAVE FORMAT:
 		- Name length							u8
 		- Name string							chars
 		- Color									u8
+		- Swing	ratio							u8
+		- Swing	signature						u8
 		- Beat count							u16
 		- Note count							u8
 		- CV count								u8
 		- lpb (lines per beat)					u8
 		- Note columns										x N
-			- Column effect count				u8
+			- Column muted						u8	NOT HANDLED YET
 			- Column general effects
-				- Fx velocity					u8
-				- Fx panning					u8
-				- Fx delay						u8
-				- Fx chance						u8
-				- Fx chance mode				u8
-				- Fx octave						u8
-				- Fx octave mode				u8
-				- Fx pitch						u8
+				- Fx velocity					u8	NOT HANDLED YET
+				- Fx panning					u8	NOT HANDLED YET
+				- Fx delay						u8	NOT HANDLED YET
+				- Fx chance						u8	NOT HANDLED YET
+				- Fx chance mode				u8	NOT HANDLED YET
+				- Fx octave						u8	NOT HANDLED YET
+				- Fx octave mode				u8	NOT HANDLED YET
+				- Fx pitch						u8	NOT HANDLED YET
+			- Column effect count				u8
 			- Column set lines count			u16
 			- Lines (only set lines)
 				- Line number					u16
@@ -221,6 +224,8 @@ static void fill_save_buffer() {
 		pattern = &(g_timeline->patterns[i]);
 		fill_name(pattern->name);			// Name
 		fill_u8(pattern->color);			// Color
+		fill_u8(0);							// Swing ratio
+		fill_u8(0);							// Swing signature
 		fill_u16(pattern->beat_count);		// Beat count
 		fill_u8(pattern->note_count);		// Note count
 		fill_u8(pattern->cv_count);			// CV count
@@ -228,15 +233,16 @@ static void fill_save_buffer() {
 		/// PATTERN NOTE COLUMNS
 		for (j = 0; j < pattern->note_count; ++j) {
 			note_col = pattern->notes[j];
+			fill_u8(0);							// Muted
+			fill_u8(0);							// Fx velocity
+			fill_u8(0);							// Fx panning
+			fill_u8(0);							// Fx delay
+			fill_u8(0);							// Fx chance
+			fill_u8(0);							// Fx chance mode
+			fill_u8(0);							// Fx octave
+			fill_u8(0);							// Fx octave mode
+			fill_u8(0);							// Fx pitch
 			fill_u8(note_col->fx_count);		// Effect count
-			fill_u8(note_col->fx_velocity);		// Fx velocity
-			fill_u8(note_col->fx_panning);		// Fx panning
-			fill_u8(note_col->fx_delay);		// Fx delay
-			fill_u8(note_col->fx_chance);		// Fx chance
-			fill_u8(note_col->fx_chance_mode);	// Fx chance mode
-			fill_u8(note_col->fx_octave);		// Fx octave
-			fill_u8(note_col->fx_octave_mode);	// Fx octave mode
-			fill_u8(note_col->fx_pitch);		// Fx pitch
 			fill_cursor_save(sizeof(u16));			// -> Prepare set lines count
 			count = 0;
 			for (k = 0; k < pattern->line_count; ++k) {

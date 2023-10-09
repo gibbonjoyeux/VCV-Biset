@@ -63,13 +63,19 @@ Editor::Editor() {
 
 void Editor::process(i64 frame) {
 	Module			*module;
+	int				mods;
 
 	if (frame % 256 != 0)
 		return;
 
 	module = g_module;
 
-	/// [1] HANDLE VIEW SWITCHES
+	/// [1] HANDLE MODS
+	mods = APP->window->getMods();
+	this->mod_shift = ((mods & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT);
+	this->mod_caps = ((mods & GLFW_MOD_CAPS_LOCK) == GLFW_MOD_CAPS_LOCK);
+
+	/// [2] HANDLE VIEW SWITCHES
 	pattern_view_velo = module->params[Tracker::PARAM_VIEW + 0].getValue();
 	pattern_view_pan = module->params[Tracker::PARAM_VIEW + 1].getValue();
 	pattern_view_glide = module->params[Tracker::PARAM_VIEW + 2].getValue();
