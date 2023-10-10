@@ -11,6 +11,26 @@ extern Plugin	*pluginInstance;
 /// STRUCTURES
 ////////////////////////////////////////////////////////////////////////////////
 
+/// ParamHandle storing MIN and MAX range values
+struct ParamHandleRange : ParamHandle {
+	float				min;
+	float				max;
+
+	void init(void) {
+		ParamQuantity	*quantity;
+
+		this->min = 0;
+		this->max = 0;
+		if (this->module) {
+			quantity = this->module->getParamQuantity(this->paramId);
+			if (quantity) {
+				this->min = quantity->getMinValue();
+				this->max = quantity->getMaxValue();
+			}
+		}
+	}
+};
+
 //////////////////////////////////////////////////
 /// SVG COMPONENTS
 //////////////////////////////////////////////////
@@ -56,6 +76,38 @@ struct ButtonStop : app::SvgSwitch {
 		this->momentary = true;
 		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Stop.svg")));
 		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-Stop-Press.svg")));
+	}
+};
+
+struct ButtonViewPattern : app::SvgSwitch {
+	ButtonViewPattern() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Pattern-Press.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Pattern.svg")));
+	}
+};
+
+struct ButtonViewTimeline : app::SvgSwitch {
+	ButtonViewTimeline() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Timeline-Press.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Timeline.svg")));
+	}
+};
+
+struct ButtonViewMatrix : app::SvgSwitch {
+	ButtonViewMatrix() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Matrix-Press.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Matrix.svg")));
+	}
+};
+
+struct ButtonViewTuning : app::SvgSwitch {
+	ButtonViewTuning() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Tuning-Press.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Button-View-Tuning.svg")));
 	}
 };
 
@@ -107,11 +159,78 @@ struct KnobMedium : FlatKnob {
 	}
 };
 
+//////////////////////////////
+/// PARAM QUANTITIES
+//////////////////////////////
+
+// ParamQuantity that links its value to an external float.
+// Allows to easily use parameters into context menu sliders.
+struct ParamQuantityLink : ParamQuantity {
+	int			precision = 2;
+	float		*link = NULL;
+
+	void setValue(float value) override {
+		ParamQuantity::setValue(value);
+		if (this->link)
+			*(this->link) = value;
+	}
+
+	std::string getDisplayValueString() override {
+		if (precision == 0)
+			return rack::string::f("%d", (int)this->getValue());
+		return rack::string::f("%.*f", this->precision, this->getValue());
+	}
+
+	void setLink(float *link) {
+		if (link)
+			*link = this->getValue();
+		this->link = link;
+	}
+};
+
+/// ParamQuantity consisting of a set of fixed items.
 struct ParamQuantityOptions : ParamQuantity {
 	vector<std::string>	options;
 
 	std::string getDisplayValueString() override {
 		return options[(int)getValue()];
+	}
+};
+
+/// ParamQuantity for clock mult / div values.
+struct ParamQuantityClock : ParamQuantity {
+	std::string getDisplayValueString() override {
+		int		value;
+
+		value = getValue();
+		if (value > 1)
+			return rack::string::f("x%d", value);
+		else if (value < -1)
+			return rack::string::f("/%d", -value);
+		else
+			return rack::string::f("x1");
+	}
+};
+
+/// ParamQuantity for set of connected switches (only one active)
+struct ParamQuantityMode : ParamQuantity {
+	std::vector<std::string>	labels;
+	int							mode_min;
+	int							mode_max;
+
+	void setValue(float value) override {
+		int		i;
+
+		if (value == 1 && this->getValue() == 0) {
+			ParamQuantity::setValue(1);
+			if (this->module) {
+				for (i = this->mode_min; i <= this->mode_max; ++i) {
+					if (i != this->paramId)
+						this->module->paramQuantities[i]
+						/**/ ->ParamQuantity::setValue(0);
+				}
+			}
+		}
 	}
 };
 
@@ -218,12 +337,43 @@ struct MenuTextFieldLinked : ui::TextField {
 	}
 
 	void onSelectKey(const SelectKeyEvent &e) override {
-		float	value;
+		char	*str;
+		float	value_1, value_2;
+		int		i;
 
 		if (e.action == GLFW_PRESS
 		&& e.key == GLFW_KEY_ENTER) {
-			value = atof((char*)this->getText().c_str());
-			this->quantity->setValue(value);
+			str = (char*)this->getText().c_str();
+			/// COMPUTE MAIN VALUE
+			value_1 = atof(str);
+			/// CHECK SECONDARY VALUE
+			i = 0;
+			while (str[i] >= '0' && str[i] <= '9')
+				i += 1;
+			while (str[i] == ' ')
+				i += 1;
+			/// VALUE AS RATIO (xx/yy)
+			if (str[i] == '/') {
+				i += 1;
+				while (str[i] == ' ')
+					i += 1;
+				value_2 = (float)atoi(str + i);
+				if (value_2 == 0)
+					value_2 = 1.0;
+				this->quantity->setValue(((value_1 / value_2) - 1.0) * 1200.0);
+			/// VALUE AS TET / EDO (xx:yy)
+			} else if (str[i] == ':') {
+				i += 1;
+				while (str[i] == ' ')
+					i += 1;
+				value_2 = (float)atoi(str + i);
+				if (value_2 == 0)
+					value_2 = 12.0;
+				this->quantity->setValue((value_1 / value_2) * 1200.0);
+			/// VALUE AS FLOAT (xx.xx)
+			} else {
+				this->quantity->setValue(value_1);
+			}
 			this->parent->requestDelete();
 		} else {
 			ui::TextField::onSelectKey(e);

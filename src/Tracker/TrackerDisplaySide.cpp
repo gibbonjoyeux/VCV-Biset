@@ -8,11 +8,11 @@
 static bool draw_list_synth(int index, char **name, int *color, bool *state) {
 	Synth			*synth;
 
-	if (index < (int)g_timeline.synth_count) {
-		synth = &(g_timeline.synths[index]);
+	if (index < (int)g_timeline->synth_count) {
+		synth = &(g_timeline->synths[index]);
 		*name = synth->name;
 		*color = synth->color;
-		*state = (g_editor.synth == synth);
+		*state = (g_editor->synth == synth);
 		return true;
 	}
 	return false;
@@ -21,11 +21,11 @@ static bool draw_list_synth(int index, char **name, int *color, bool *state) {
 static bool draw_list_pattern(int index, char **name, int *color, bool *state) {
 	PatternSource	*pattern;
 
-	if (index < (int)g_timeline.pattern_count) {
-		pattern = &(g_timeline.patterns[index]);
+	if (index < (int)g_timeline->pattern_count) {
+		pattern = &(g_timeline->patterns[index]);
 		*name = pattern->name;
 		*color = pattern->color;
-		*state = (g_editor.pattern == pattern);
+		*state = (g_editor->pattern == pattern);
 		return true;
 	}
 	return false;
@@ -36,7 +36,7 @@ static void menu_pattern(PatternSource *pattern) {
 	MenuLabel	*label;
 	bool		play_disable;
 
-	play_disable = (g_timeline.play != TIMELINE_MODE_STOP);
+	play_disable = (g_timeline->play != TIMELINE_MODE_STOP);
 	menu = createMenu();
 	/// ADD LABEL
 	label = new MenuLabel();
@@ -83,14 +83,35 @@ static void menu_pattern(PatternSource *pattern) {
 	menu->addChild(rack::createMenuItem("Duplicate", "",
 		[=](void) {
 			PatternSource	*pattern_new;
+			PatternNoteCol	*col_note;
+			PatternNoteCol	*col_note_new;
+			PatternCVCol	*col_cv;
+			PatternCVCol	*col_cv_new;
+			int				i, j;
 
 			/// CREATE NEW PATTERN
-			pattern_new = g_timeline.pattern_new();
-			pattern_new->init(pattern->note_count, pattern->cv_count,
+			pattern_new = g_timeline->pattern_new(
+			/**/ pattern->note_count, pattern->cv_count,
 			/**/ pattern->beat_count, pattern->lpb);
 			pattern_new->rename(pattern->name);
 			pattern_new->color = pattern->color;
 			/// COPY TO NEW PATTERN
+			//// COPY NOTES
+			for (i = 0; i < pattern->note_count; ++i) {
+				col_note = pattern->notes[i];
+				col_note_new = pattern_new->notes[i];
+				*col_note_new = *col_note;
+				for (j = 0; j < pattern->line_count; ++j)
+					col_note_new->lines[j] = col_note->lines[j];
+			}
+			//// COPY CVS
+			for (i = 0; i < pattern->cv_count; ++i) {
+				col_cv = pattern->cvs[i];
+				col_cv_new = pattern_new->cvs[i];
+				*col_cv_new = *col_cv;
+				for (j = 0; j < pattern->line_count; ++j)
+					col_cv_new->lines[j] = col_cv->lines[j];
+			}
 		}
 	));
 	/// ADD RENAME BUTTON
@@ -142,7 +163,7 @@ static void menu_pattern(PatternSource *pattern) {
 			/// ADD DELETE BUTTON
 			menu->addChild(rack::createMenuItem("Delete", "",
 				[=](void) {
-					g_timeline.pattern_del(pattern);
+					g_timeline->pattern_del(pattern);
 				}
 			));
 		}, play_disable
@@ -159,7 +180,7 @@ static void menu_synth(Synth *synth) {
 	MenuLabel		*label;
 	bool			play_disable;
 
-	play_disable = (g_timeline.play != TIMELINE_MODE_STOP);
+	play_disable = (g_timeline->play != TIMELINE_MODE_STOP);
 	menu = createMenu();
 	/// ADD LABEL
 	label = new MenuLabel();
@@ -251,7 +272,7 @@ static void menu_synth(Synth *synth) {
 			/// ADD DELETE BUTTON
 			menu->addChild(rack::createMenuItem("Delete", "",
 				[=](void) {
-					g_timeline.synth_del(synth);
+					g_timeline->synth_del(synth);
 				}
 			));
 		}, play_disable
@@ -272,7 +293,6 @@ TrackerDisplaySide::TrackerDisplaySide() {
 }
 
 void TrackerDisplaySide::draw(const DrawArgs &args) {
-	std::shared_ptr<Font>	font;
 	Rect					rect;
 
 	LedDisplay::draw(args);
@@ -308,8 +328,8 @@ void TrackerDisplaySide::draw_list(const DrawArgs &args, Rect rect,
 			//// MAIN ROUND RECT
 			nvgBeginPath(args.vg);
 			if (state == true
-			|| (g_editor.side_mouse_pos.y > y
-			&& g_editor.side_mouse_pos.y < y + h))
+			|| (g_editor->side_mouse_pos.y > y
+			&& g_editor->side_mouse_pos.y < y + h))
 				nvgFillColor(args.vg, colors[13]);
 			else
 				nvgFillColor(args.vg, colors[14]);
@@ -335,7 +355,7 @@ void TrackerDisplaySide::draw_list(const DrawArgs &args, Rect rect,
 		} else {
 			/// FILL
 			nvgBeginPath(args.vg);
-			if (g_editor.side_mouse_pos.y > y && g_editor.side_mouse_pos.y < y + h)
+			if (g_editor->side_mouse_pos.y > y && g_editor->side_mouse_pos.y < y + h)
 				nvgFillColor(args.vg, colors[3]);
 			else
 				nvgFillColor(args.vg, colors[2]);
@@ -356,8 +376,9 @@ void TrackerDisplaySide::drawLayer(const DrawArgs &args, int layer) {
 	std::shared_ptr<Font>	font;
 	Rect					rect;
 
-	if (module == NULL || layer != 1)
+	if (g_module != this->module || this->module == NULL || layer != 1)
 		return;
+
 	/// GET FONT
 	font = APP->window->loadFont(font_path);
 	if (font == NULL)
@@ -371,65 +392,76 @@ void TrackerDisplaySide::drawLayer(const DrawArgs &args, int layer) {
 
 	nvgScissor(args.vg, RECT_ARGS(rect));
 	/// DRAW
-	if (g_editor.mode == EDITOR_MODE_PATTERN) {
+	if (g_editor->mode == EDITOR_MODE_PATTERN) {
 		this->draw_list(args, rect,
-		/**/ g_editor.side_synth_cam_y, draw_list_synth);
-	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+		/**/ g_editor->side_synth_cam_y, draw_list_synth);
+	} else if (g_editor->mode == EDITOR_MODE_TIMELINE) {
 		this->draw_list(args, rect,
-		/**/ g_editor.side_pattern_cam_y, draw_list_pattern);
+		/**/ g_editor->side_pattern_cam_y, draw_list_pattern);
 	}
 	nvgResetScissor(args.vg);
 	LedDisplay::drawLayer(args, layer);
 }
 
 void TrackerDisplaySide::onHover(const HoverEvent &e) {
-	g_editor.side_mouse_pos = e.pos;
+
+	if (g_module != this->module)
+		return;
+
+	g_editor->side_mouse_pos = e.pos;
+	LedDisplay::onHover(e);
+	e.consume(this);
 }
 
 void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 	int		index;
 
-	g_editor.side_mouse_pos = e.pos;
-	g_editor.side_mouse_button = e.button;
-	g_editor.side_mouse_action = e.action;
+	if (g_module != this->module)
+		return;
+
+	g_editor->side_mouse_pos = e.pos;
+	g_editor->side_mouse_button = e.button;
+	g_editor->side_mouse_action = e.action;
 	if (e.action != GLFW_PRESS)
 		return;
 	e.consume(this);
-	if (g_editor.mode == EDITOR_MODE_PATTERN) {
-		index = (e.pos.y - 6) / (CHAR_H * 3) + g_editor.side_synth_cam_y;
+	if (g_editor->mode == EDITOR_MODE_PATTERN) {
+		index = (e.pos.y - 6) / (CHAR_H * 3) + g_editor->side_synth_cam_y;
 		/// CLICK ON SYNTH
-		if (index < (int)g_timeline.synth_count) {
+		if (index < (int)g_timeline->synth_count) {
 			/// SELECT SYNTH
-			g_editor.synth_id = index;
-			g_editor.synth = &(g_timeline.synths[index]);
+			g_editor->set_synth(index);
+			//g_editor->synth_id = index;
+			//g_editor->synth = &(g_timeline->synths[index]);
 			/// CLICK RIGHT
 			if (e.button == GLFW_MOUSE_BUTTON_RIGHT)
-				menu_synth(&(g_timeline.synths[index]));
+				menu_synth(&(g_timeline->synths[index]));
 		/// CLICK ON ADD SYNTH
-		} else if (index == (int)g_timeline.synth_count) {
+		} else if (index == (int)g_timeline->synth_count) {
 			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
-				if (g_editor.side_synth_cam_y == g_timeline.synth_count - 12)
-					g_editor.side_synth_cam_y += 1;
-				g_timeline.synth_new();
+				if (g_editor->side_synth_cam_y == g_timeline->synth_count - 12)
+					g_editor->side_synth_cam_y += 1;
+				g_timeline->synth_new();
 			}
 		}
-	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
-		index = (e.pos.y - 6) / (CHAR_H * 3) + g_editor.side_pattern_cam_y;
+	} else if (g_editor->mode == EDITOR_MODE_TIMELINE) {
+		index = (e.pos.y - 6) / (CHAR_H * 3) + g_editor->side_pattern_cam_y;
 		/// CLICK ON PATTERN
-		if (index < (int)g_timeline.pattern_count) {
+		if (index < (int)g_timeline->pattern_count) {
 			/// SELECT PATTERN
-			g_editor.pattern_id = index;
-			g_editor.pattern = &(g_timeline.patterns[index]);
+			g_editor->set_pattern(index);
+			//g_editor->pattern_id = index;
+			//g_editor->pattern = &(g_timeline->patterns[index]);
 			/// CLICK RIGHT
 			if (e.button == GLFW_MOUSE_BUTTON_RIGHT)
-				menu_pattern(&(g_timeline.patterns[index]));
+				menu_pattern(&(g_timeline->patterns[index]));
 		/// CLICK ON ADD PATTERN
-		} else if (index == (int)g_timeline.pattern_count) {
+		} else if (index == (int)g_timeline->pattern_count) {
 			/// CLICK LEFT
 			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
-				if (g_editor.side_pattern_cam_y == g_timeline.pattern_count - 12)
-					g_editor.side_pattern_cam_y += 1;
-				g_timeline.pattern_new();
+				if (g_editor->side_pattern_cam_y == g_timeline->pattern_count - 12)
+					g_editor->side_pattern_cam_y += 1;
+				g_timeline->pattern_new();
 			}
 		}
 	}
@@ -438,39 +470,48 @@ void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 void TrackerDisplaySide::onDoubleClick(const DoubleClickEvent &e) {
 	int		index;
 
-	if (g_editor.mode == EDITOR_MODE_TIMELINE) {
-		index = (g_editor.side_mouse_pos.y - 6) / (CHAR_H * 3)
-		/**/ + g_editor.side_pattern_cam_y;
+	if (g_module != this->module)
+		return;
+
+	if (g_editor->mode == EDITOR_MODE_TIMELINE) {
+		index = (g_editor->side_mouse_pos.y - 6) / (CHAR_H * 3)
+		/**/ + g_editor->side_pattern_cam_y;
 		/// CLICK ON PATTERN
-		if (index < (int)g_timeline.pattern_count) {
+		if (index < (int)g_timeline->pattern_count) {
 			/// SELECT PATTERN
-			g_editor.pattern_id = index;
-			g_editor.pattern = &(g_timeline.patterns[index]);
+			g_editor->pattern_id = index;
+			g_editor->pattern = &(g_timeline->patterns[index]);
 			/// OPEN PATTERN
-			g_module->params[Tracker::PARAM_MODE + 0].setValue(1);
-			g_module->params[Tracker::PARAM_MODE + 1].setValue(0);
-			g_editor.mode = EDITOR_MODE_PATTERN;
+			g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(1);
+			g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(0);
 		}
 	}
 }
 
 void TrackerDisplaySide::onLeave(const LeaveEvent &e) {
-	g_editor.side_mouse_pos = {0, 0};
+
+	if (g_module != this->module)
+		return;
+
+	g_editor->side_mouse_pos = {0, 0};
 }
 
 void TrackerDisplaySide::onHoverScroll(const HoverScrollEvent &e) {
 	int		*count;
 	float	*scroll;
 
+	if (g_module != this->module)
+		return;
+
 	/// CONSUME EVENT
 	e.consume(this);
 	/// POINT CORRESPONDING SCROLL
-	if (g_editor.mode == EDITOR_MODE_PATTERN) {
-		count = &(g_timeline.synth_count);
-		scroll = &(g_editor.side_synth_cam_y);
+	if (g_editor->mode == EDITOR_MODE_PATTERN) {
+		count = &(g_timeline->synth_count);
+		scroll = &(g_editor->side_synth_cam_y);
 	} else {
-		count = &(g_timeline.pattern_count);
-		scroll = &(g_editor.side_pattern_cam_y);
+		count = &(g_timeline->pattern_count);
+		scroll = &(g_editor->side_pattern_cam_y);
 	}
 	/// UPDATE CORRESPONDING SCROLL
 	*scroll -= e.scrollDelta.y / (CHAR_H * 3.0);
@@ -486,52 +527,55 @@ void TrackerDisplaySide::onSelectKey(const SelectKeyEvent &e) {
 	PatternSource	*pattern_a;
 	PatternSource	*pattern_b;
 
+	if (g_module != this->module)
+		return;
+
 	if ((e.action == GLFW_PRESS || e.action == GLFW_REPEAT)
 	&& (e.key == GLFW_KEY_UP || e.key == GLFW_KEY_DOWN)) {
 		e.consume(this);
-		if (g_timeline.play != TIMELINE_MODE_STOP)
+		if (g_timeline->play != TIMELINE_MODE_STOP)
 			return;
 		/// MOVE SYNTH
-		if (g_editor.mode == EDITOR_MODE_PATTERN) {
-			if (g_editor.synth) {
-				synth_a = g_editor.synth;
+		if (g_editor->mode == EDITOR_MODE_PATTERN) {
+			if (g_editor->synth) {
+				synth_a = g_editor->synth;
 				/// MOVE UP
 				if (e.key == GLFW_KEY_UP) {
-					if (g_editor.synth_id <= 0)
+					if (g_editor->synth_id <= 0)
 						return;
-					synth_b = &(g_timeline.synths[g_editor.synth_id - 1]);
-					g_editor.synth_id -= 1;
+					synth_b = &(g_timeline->synths[g_editor->synth_id - 1]);
+					g_editor->synth_id -= 1;
 				/// MOVE DOWN
 				} else {
-					if (g_editor.synth_id >= g_timeline.synth_count - 1)
+					if (g_editor->synth_id >= g_timeline->synth_count - 1)
 						return;
-					synth_b = &(g_timeline.synths[g_editor.synth_id + 1]);
-					g_editor.synth_id += 1;
+					synth_b = &(g_timeline->synths[g_editor->synth_id + 1]);
+					g_editor->synth_id += 1;
 				}
-				g_timeline.synth_swap(synth_a, synth_b);
+				g_timeline->synth_swap(synth_a, synth_b);
 				/// RE-SELECT MOVED SYNTH
-				g_editor.synth = synth_b;
+				g_editor->synth = synth_b;
 			}
 		/// MOVE PATTERN
-		} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
-			if (g_editor.pattern) {
-				pattern_a = g_editor.pattern;
+		} else if (g_editor->mode == EDITOR_MODE_TIMELINE) {
+			if (g_editor->pattern) {
+				pattern_a = g_editor->pattern;
 				/// MOVE UP
 				if (e.key == GLFW_KEY_UP) {
-					if (g_editor.pattern_id <= 0)
+					if (g_editor->pattern_id <= 0)
 						return;
-					pattern_b = &(g_timeline.patterns[g_editor.pattern_id - 1]);
-					g_editor.pattern_id -= 1;
+					pattern_b = &(g_timeline->patterns[g_editor->pattern_id - 1]);
+					g_editor->pattern_id -= 1;
 				/// MOVE DOWN
 				} else {
-					if (g_editor.pattern_id >= g_timeline.pattern_count - 1)
+					if (g_editor->pattern_id >= g_timeline->pattern_count - 1)
 						return;
-					pattern_b = &(g_timeline.patterns[g_editor.pattern_id + 1]);
-					g_editor.pattern_id += 1;
+					pattern_b = &(g_timeline->patterns[g_editor->pattern_id + 1]);
+					g_editor->pattern_id += 1;
 				}
-				g_timeline.pattern_swap(pattern_a, pattern_b);
+				g_timeline->pattern_swap(pattern_a, pattern_b);
 				/// RE-SELECT MOVED SYNTH
-				g_editor.pattern = pattern_b;
+				g_editor->pattern = pattern_b;
 			}
 		}
 	}

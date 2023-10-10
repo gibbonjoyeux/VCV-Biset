@@ -1,28 +1,55 @@
 
 #include "Tracker.hpp"
 
-#define BTN_PLAY_X			17.25
+#define BTN_PLAY_X			(5.2 + 1.0)
 #define BTN_PLAY_Y			6.0
 #define BTN_PLAY_STEP		6.0
-#define KNOB_X				10.0
+#define BTN_VIEW_X			BTN_PLAY_X
+#define BTN_VIEW_Y			108
+#define BTN_VIEW_STEP		BTN_PLAY_STEP
+#define KNOB_X				(10.0 + 1.0)
 #define KNOB_Y				18.0
-#define KNOB_STEP			12.0
-#define BTN_JUMP_X			15.50
+#define BTN_JUMP_X			(4.75 + 1.0)
 #define BTN_JUMP_Y			40.0
-#define BTN_OCTAVE_X		(BTN_JUMP_X + 13.0)
+#define BTN_OCTAVE_X		(BTN_JUMP_X + 12.25)
 #define BTN_OCTAVE_Y		BTN_JUMP_Y
+#define DISPLAY_X			31.25				// 51.5
+#define DISPLAY_Y			5.0
+#define DISPLAY_SIDE_X		(DISPLAY_X + 192.5)	// 244
+#define DISPLAY_SIDE_Y		5.0
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
+
+static void set_temperament(float *table) {
+	float	value;
+	float	note;
+	int		note_round;
+	int		i;
+
+	for (i = 0; i < 12; ++i) {
+		note = g_module->params[Tracker::PARAM_TUNING + i].getValue() / 100.0;
+		note_round = (int)note;
+		if (note - (float)note_round >= 0.5) {
+			if (note_round < 11)
+				value = table[note_round + 1];
+			else
+				value = table[0];
+		} else {
+			value = table[note_round];
+		}
+		g_module->params[Tracker::PARAM_TUNING + i].setValue(value);
+	}
+}
 
 static void set_scale(float *table) {
 	float	value;
 	int		i;
 
 	for (i = 0; i < 12; ++i) {
-		value = table[i] / 100.0;
-		g_module->params[Tracker::PARAM_TEMPERAMENT + i].setValue(value);
+		value = table[i];
+		g_module->params[Tracker::PARAM_TUNING + i].setValue(value);
 	}
 }
 
@@ -33,11 +60,9 @@ static void set_scale(float *table) {
 TrackerWidget::TrackerWidget(Tracker* _module) {
 	TrackerDisplay			*display;
 	TrackerDisplaySide		*display_side;
-	//TrackerDisplayBPM		*display_bpm;
-	//TrackerDisplaySynth		*display_synth;
-	//TrackerDisplayPattern	*display_pattern;
-	//LedDisplayDigit			*display_jump;
-	//LedDisplayDigit			*display_octave;
+	LedDisplayDigit			*display_bpm;
+	LedDisplayDigit			*display_jump;
+	LedDisplayDigit			*display_octave;
 	int						i;
 
 	//
@@ -68,7 +93,13 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	setModule(module);
 	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker.svg")));
 
-	/// [1] ADD PARAMS
+	/// [1] ADD LIGHTS
+	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(12.5, 12.0)),
+	module, Tracker::LIGHT_FOCUS));
+	addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(18.0, 12.0)),
+	module, Tracker::LIGHT_PLAY));
+
+	/// [2] ADD PARAMS
 	//// PLAY BUTTONS
 	addParam(
 	/**/ createParamCentered<ButtonPlaySong>(mm2px(Vec(BTN_PLAY_X, BTN_PLAY_Y)),
@@ -87,50 +118,35 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	/**/ module,
 	/**/ Tracker::PARAM_STOP));
 
-	//// MODE BUTTON
-	//// VIEW LIGHT SWITCHES
-	for (i = 0; i < 3; ++i) {
-		addParam(
-		/**/ createParamCentered<LEDButton>(mm2px(Vec(55.0 + 8.0 * i, 123.7)),
-		/**/ module,
-		/**/ Tracker::PARAM_MODE + i));
-		addChild(
-		/**/ createLightCentered<LargeLight<YellowLight>>(mm2px(Vec(55.0 + 8.0 * i, 123.7)),
-		/**/ module,
-		/**/ Tracker::LIGHT_MODE + i));
-	}
+	//// EDITOR MODE SWITCHES
+	addParam(
+	/**/ createParamCentered<ButtonViewPattern>(mm2px(Vec(BTN_VIEW_X, BTN_VIEW_Y)),
+	/**/ module,
+	/**/ Tracker::PARAM_MODE_PATTERN));
+	addParam(
+	/**/ createParamCentered<ButtonViewTimeline>(mm2px(Vec(BTN_VIEW_X + BTN_VIEW_STEP, BTN_VIEW_Y)),
+	/**/ module,
+	/**/ Tracker::PARAM_MODE_TIMELINE));
+	addParam(
+	/**/ createParamCentered<ButtonViewMatrix>(mm2px(Vec(BTN_VIEW_X + BTN_VIEW_STEP * 2, BTN_VIEW_Y)),
+	/**/ module,
+	/**/ Tracker::PARAM_MODE_MATRIX));
+	addParam(
+	/**/ createParamCentered<ButtonViewTuning>(mm2px(Vec(BTN_VIEW_X + BTN_VIEW_STEP * 3, BTN_VIEW_Y)),
+	/**/ module,
+	/**/ Tracker::PARAM_MODE_TUNING));
 
-	//// VIEW LIGHT SWITCHES
+	//// PATTERN VIEW MODE SWITCHES
 	for (i = 0; i < 5; ++i) {
 		addParam(
-		/**/ createParamCentered<LEDButton>(mm2px(Vec(90.0 + 8.0 * i, 123.7)),
+		/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(90.0 + 7.0 * i, 123.7)),
 		/**/ module,
 		/**/ Tracker::PARAM_VIEW + i));
-		addChild(
-		/**/ createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(90.0 + 8.0 * i, 123.7)),
-		/**/ module,
-		/**/ Tracker::LIGHT_VIEW + i));
 	}
 
-	/// [2] ADD OUTPUT
-	addOutput(
-	/**/ createOutputCentered<Outlet>(mm2px(Vec(237.0, 123.00)),
-	/**/ module,
-	/**/ Tracker::OUTPUT_CLOCK));
-
-	/// [3] ADD LIGHTS
-	addChild(
-	/**/ createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(241.25, 3.0)),
-	/**/ module,
-	/**/ Tracker::LIGHT_FOCUS));
-	addChild(
-	/**/ createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(241.25, 7.5)),
-	/**/ module,
-	/**/ Tracker::LIGHT_PLAY));
-
-	/// [4] ADD DISPLAYS
+	/// [3] ADD DISPLAYS
 	//// MAIN LED DISPLAY
-	display = createWidget<TrackerDisplay>(mm2px(Vec(51.50, 5.0)));
+	display = createWidget<TrackerDisplay>(mm2px(Vec(DISPLAY_X, DISPLAY_Y)));
 	//display->box.size = mm2px(Vec(173.5 + 14.0, 94.5 + 15.0));
 	display->box.size = Vec(CHAR_W * (CHAR_COUNT_X + 3) + 4, CHAR_H * CHAR_COUNT_Y + 5.5);
 	display->module = module;
@@ -139,74 +155,40 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	addChild(display);
 
 	//// SIDE LED DISPLAY
-	display_side = createWidget<TrackerDisplaySide>(mm2px(Vec(244.0, 5.0)));
+	display_side = createWidget<TrackerDisplaySide>(mm2px(Vec(DISPLAY_SIDE_X, DISPLAY_SIDE_Y)));
 	display_side->box.size = Vec(CHAR_W * 26, CHAR_H * CHAR_COUNT_Y + 5.5);
 	display_side->module = module;
 	display_side->moduleWidget = this;
 	this->display_side = display_side;
 	addChild(display_side);
 
-	//// BPM / SYNTH / PATTERN KNOBS
 	/// BPM SELECTOR
 	//// DISPLAY
-	//display_bpm = createWidget<TrackerDisplayBPM>(mm2px(Vec(KNOB_X, KNOB_Y)));
-	//display_bpm->box.size = mm2px(Vec(8.25, 3.5));
-	//display_bpm->module = module;
-	//if (module)
-	//	display_bpm->value_quant = module->paramQuantities[Tracker::PARAM_BPM];
-	//display_bpm->value_length = 3;
-	//display_bpm->color_back = colors[15];
-	//display_bpm->color_font = colors[4];
-	//addChild(display_bpm);
+	display_bpm = createWidget<LedDisplayDigit>(mm2px(Vec(KNOB_X, KNOB_Y)));
+	display_bpm->box.size = mm2px(Vec(8.25, 3.5));
+	display_bpm->module = module;
+	if (module)
+		display_bpm->value_quant = module->paramQuantities[Tracker::PARAM_BPM];
+	display_bpm->value_length = 3;
+	display_bpm->color_back = colors[15];
+	display_bpm->color_font = colors[4];
+	addChild(display_bpm);
 	//// KNOB
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(KNOB_X + 4.25, KNOB_Y + 10.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_BPM));
 
-	/// SYNTH SELECTOR
-	//// DISPLAY
-	//display_synth = createWidget<TrackerDisplaySynth>(mm2px(Vec(KNOB_X + KNOB_STEP, KNOB_Y)));
-	//display_synth->box.size = mm2px(Vec(8.25, 3.5));
-	//display_synth->module = module;
-	//if (module)
-	//	display_synth->value_quant = module->paramQuantities[Tracker::PARAM_SYNTH];
-	//display_synth->value_length = 2;
-	//display_synth->color_back = colors[15];
-	//display_synth->color_font = colors[4];
-	//addChild(display_synth);
-	//// KNOB
-	addParam(createParamCentered<KnobMedium>(mm2px(Vec(KNOB_X + KNOB_STEP + 4.25, KNOB_Y + 10.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_SYNTH));
-
-	/// PATTERN SELECTOR
-	//// DISPLAY
-	//display_pattern = createWidget<TrackerDisplayPattern>(mm2px(Vec(KNOB_X + KNOB_STEP * 2, KNOB_Y)));
-	//display_pattern->box.size = mm2px(Vec(8.25, 3.5));
-	//display_pattern->module = module;
-	//if (module)
-	//	display_pattern->value_quant = module->paramQuantities[Tracker::PARAM_PATTERN];
-	//display_pattern->value_length = 3;
-	//display_pattern->color_back = colors[15];
-	//display_pattern->color_font = colors[4];
-	//addChild(display_pattern);
-	//// KNOB
-	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(KNOB_X + KNOB_STEP * 2 + 4.25, KNOB_Y + 10.0)),
-	/**/ module,
-	/**/ Tracker::PARAM_PATTERN));
-
 	/// SELECT JUMP
 	//// DISPLAY
-	//display_jump = createWidget<LedDisplayDigit>(mm2px(Vec(BTN_JUMP_X, BTN_JUMP_Y)));
-	//display_jump->box.size = mm2px(Vec(8.25, 3.5));
-	//display_jump->module = module;
-	//display_jump->value_link = &(g_editor.pattern_jump);
-	//display_jump->value_length = 2;
-	//display_jump->color_back = colors[15];
-	//display_jump->color_font = colors[4];
-	//addChild(display_jump);
+	display_jump = createWidget<LedDisplayDigit>(mm2px(Vec(BTN_JUMP_X, BTN_JUMP_Y)));
+	display_jump->box.size = mm2px(Vec(8.25, 3.5));
+	display_jump->module = module;
+	display_jump->value_link = &(g_editor->pattern_jump);
+	display_jump->value_length = 2;
+	display_jump->color_back = colors[15];
+	display_jump->color_font = colors[4];
+	addChild(display_jump);
 	//// BUTTONS
 	addParam(
 	/**/ createParamCentered<ButtonPlus>(mm2px(Vec(BTN_JUMP_X + 4.0, BTN_JUMP_Y + 8.0)),
@@ -218,14 +200,14 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	/**/ Tracker::PARAM_JUMP_DOWN));
 	/// SELECT OCTAVE
 	//// DISPLAY
-	//display_octave = createWidget<LedDisplayDigit>(mm2px(Vec(BTN_OCTAVE_X, BTN_OCTAVE_Y)));
-	//display_octave->box.size = mm2px(Vec(8.25, 3.5));
-	//display_octave->module = module;
-	//display_octave->value_link = &(g_editor.pattern_octave);
-	//display_octave->value_length = 2;
-	//display_octave->color_back = colors[15];
-	//display_octave->color_font = colors[4];
-	//addChild(display_octave);
+	display_octave = createWidget<LedDisplayDigit>(mm2px(Vec(BTN_OCTAVE_X, BTN_OCTAVE_Y)));
+	display_octave->box.size = mm2px(Vec(8.25, 3.5));
+	display_octave->module = module;
+	display_octave->value_link = &(g_editor->pattern_octave);
+	display_octave->value_length = 2;
+	display_octave->color_back = colors[15];
+	display_octave->color_font = colors[4];
+	addChild(display_octave);
 	//// BUTTONS
 	addParam(
 	/**/ createParamCentered<ButtonPlus>(mm2px(Vec(BTN_OCTAVE_X + 4.0, BTN_OCTAVE_Y + 8.0)),
@@ -235,74 +217,98 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	/**/ createParamCentered<ButtonMinus>(mm2px(Vec(BTN_OCTAVE_X + 4.0, BTN_OCTAVE_Y + 14.0)),
 	/**/ module,
 	/**/ Tracker::PARAM_OCTAVE_DOWN));
-
 }
 
 void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
-	/// CHANGE VIEW
+	bool	mode_pattern;
+	bool	mode_timeline;
+	bool	mode_matrix;
+	bool	mode_tuning;
+	bool	mode_tmp;
+
+	if (g_module == NULL)
+		return;
+
+	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_CONTROL))
+		return;
+
+	/// [1] CHANGE VIEW MODE
 	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_SHIFT)
 	&& (e.key == GLFW_KEY_LEFT || e.key == GLFW_KEY_RIGHT)) {
-		if (g_editor.mode == EDITOR_MODE_PATTERN) {
-			g_module->params[Tracker::PARAM_MODE + 0].setValue(0);
-			g_module->params[Tracker::PARAM_MODE + 1].setValue(1);
-			g_editor.mode = EDITOR_MODE_TIMELINE;
-		} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
-			g_module->params[Tracker::PARAM_MODE + 0].setValue(1);
-			g_module->params[Tracker::PARAM_MODE + 1].setValue(0);
-			g_editor.mode = EDITOR_MODE_PATTERN;
-		}
 		e.consume(this);
-		return;
+		mode_pattern = g_module->params[Tracker::PARAM_MODE_PATTERN].getValue();
+		mode_timeline = g_module->params[Tracker::PARAM_MODE_TIMELINE].getValue();
+		mode_matrix = g_module->params[Tracker::PARAM_MODE_MATRIX].getValue();
+		mode_tuning = g_module->params[Tracker::PARAM_MODE_TUNING].getValue();
+		if (e.key == GLFW_KEY_LEFT) {
+			mode_tmp = mode_pattern;
+			mode_pattern = mode_timeline;
+			mode_timeline = mode_matrix;
+			mode_matrix = mode_tuning;
+			mode_tuning = mode_tmp;
+		} else {
+			mode_tmp = mode_tuning;
+			mode_tuning = mode_matrix;
+			mode_matrix = mode_timeline;
+			mode_timeline = mode_pattern;
+			mode_pattern = mode_tmp;
+		}
+		g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(mode_pattern);
+		g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(mode_timeline);
+		g_module->params[Tracker::PARAM_MODE_MATRIX].setValue(mode_matrix);
+		g_module->params[Tracker::PARAM_MODE_TUNING].setValue(mode_tuning);
 	}
-	/// EDIT PATTERN & TIMELINE
-	if (g_editor.mode == EDITOR_MODE_PATTERN) {
+	/// [2] EDIT PATTERN & TIMELINE
+	if (g_editor->mode == EDITOR_MODE_PATTERN)
 		this->display->on_key_pattern(e);
-	} else if (g_editor.mode == EDITOR_MODE_TIMELINE) {
+	else if (g_editor->mode == EDITOR_MODE_TIMELINE)
 		this->display->on_key_timeline(e);
-	}
-	e.consume(this);
 }
 
 void TrackerWidget::onHoverScroll(const HoverScrollEvent &e) {
+
+	if (g_module == NULL)
+		return;
+
 	ModuleWidget::onHoverScroll(e);
-	//if (g_editor.selected == false)
+	//if (g_editor->selected == false)
 	//	return;
-	//if (g_editor.pattern) {
+	//if (g_editor->pattern) {
 	//	/// SCROLL X
 	//	if (APP->window->getMods() & GLFW_MOD_SHIFT) {
 	//		/// MOVE CURSOR
 	//		if (e.scrollDelta.y > 0)
-	//			g_editor.pattern_move_cursor_x(-1);
+	//			g_editor->pattern_move_cursor_x(-1);
 	//		else
-	//			g_editor.pattern_move_cursor_x(+1);
+	//			g_editor->pattern_move_cursor_x(+1);
 	//	/// SCROLL Y
 	//	} else {
 	//		/// MOVE CURSOR
 	//		if (e.scrollDelta.y > 0)
-	//			g_editor.pattern_move_cursor_y(-1);
+	//			g_editor->pattern_move_cursor_y(-1);
 	//		else
-	//			g_editor.pattern_move_cursor_y(+1);
+	//			g_editor->pattern_move_cursor_y(+1);
 	//	}
 	//}
 	//e.consume(this);
 }
 
-//void TrackerWidget::onSelect(const SelectEvent &e) {
-//	g_editor.selected = true;
-//	//this->module->lights[0].setBrightness(1.0);
-//}
-//
-//void TrackerWidget::onDeselect(const DeselectEvent &e) {
-//	//ParamWidget	*pw;
-//	//
-//	//pw = APP->scene->rack->touchedParam;
-//	//if (pw && pw->module == this->module) {
-//	//	APP->event->setSelectedWidget(this);
-//	//	return;
-//	//}
-//	g_editor.selected = false;
-//	//this->module->lights[0].setBrightness(0.0);
-//}
+void TrackerWidget::onSelect(const SelectEvent &e) {
+	g_editor->selected = true;
+	//this->module->lights[0].setBrightness(1.0);
+}
+
+void TrackerWidget::onDeselect(const DeselectEvent &e) {
+	g_editor->selected = false;
+	//ParamWidget	*pw;
+	//
+	//pw = APP->scene->rack->touchedParam;
+	//if (pw && pw->module == this->module) {
+	//	APP->event->setSelectedWidget(this);
+	//	return;
+	//}
+	//this->module->lights[0].setBrightness(0.0);
+}
 
 //void TrackerWidget::onDragStart(const DragStartEvent& e) {
 //	APP->window->cursorLock();
@@ -317,16 +323,24 @@ void TrackerWidget::onHoverScroll(const HoverScrollEvent &e) {
 
 void TrackerWidget::appendContextMenu(Menu *menu) {
 	MenuSeparator	*separator;
+	MenuLabel		*label;
 	MenuSliderEdit	*slider;
 	Param			*param_rate;
 
 	separator = new MenuSeparator();
 	menu->addChild(separator);
 
-	/// [1] BASE PITCH
-	slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
-	slider->box.size.x = 200.f;
-	menu->addChild(slider);
+	label = new MenuLabel();
+	label->text = "Settings";
+	menu->addChild(label);
+
+	/// [1] MIDI / KEYBOARD CHOICE
+	menu->addChild(rack::createSubmenuItem("Midi", "",
+		[=](Menu *menu) {
+			appendMidiMenu(menu, &(this->module->midi_input));
+		}
+	));
+
 	/// [2] RATE
 	param_rate = &(g_module->params[Tracker::PARAM_RATE]);
 	menu->addChild(rack::createSubmenuItem("Rate", "",
@@ -374,62 +388,233 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 		}
 	));
 
-	/// [3] TEMPERAMENT
-	menu->addChild(rack::createSubmenuItem("Temperament", "",
+	separator = new MenuSeparator();
+	menu->addChild(separator);
+
+	label = new MenuLabel();
+	label->text = "Tuning";
+	menu->addChild(label);
+
+	/// [3] BASE PITCH
+	slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+	/// [4] TUNING
+	menu->addChild(rack::createSubmenuItem("Tuning", "",
 		[=](Menu *menu) {
 			MenuSliderEdit	*slider;
 			int				i;
 
 			/// PRESETS
-			//// REGULAR PRESETS
-			menu->addChild(rack::createSubmenuItem("Presets temperament", "",
-				[=](Menu *menu) {
-					menu->addChild(new MenuItemStay("Equal", "default",
-						[=]() { set_scale(table_temp_equal); }
-					));
-					menu->addChild(new MenuItemStay("Just", "",
-						[=]() { set_scale(table_temp_just); }
-					));
-					menu->addChild(new MenuItemStay("Pythagorean", "",
-						[=]() { set_scale(table_temp_pyth); }
-					));
-					menu->addChild(new MenuItemStay("Wendy Carlos Super Just", "",
-						[=]() { set_scale(table_temp_carlos_super_just); }
-					));
-					menu->addChild(new MenuItemStay("Wendy Carlos Harmonic", "",
-						[=]() { set_scale(table_temp_carlos_harmonic); }
-					));
-					menu->addChild(new MenuItemStay("Kirnberger", "",
-						[=]() { set_scale(table_temp_kirnberger); }
-					));
-					menu->addChild(new MenuItemStay("Vallotti Young", "",
-						[=]() { set_scale(table_temp_vallotti_young); }
-					));
-					menu->addChild(new MenuItemStay("Werckmeister III", "",
-						[=]() { set_scale(table_temp_werckmeister_3); }
-					));
-				}
+			menu->addChild(new MenuItemStay("Reset scale", "",
+				[=]() { set_scale(table_temp_equal); }
 			));
 			//// SCALE PRESETS
 			menu->addChild(rack::createSubmenuItem("Presets scale", "",
 				[=](Menu *menu) {
-					menu->addChild(new MenuItemStay("Diatonic", "default",
-						[=]() {
+					/// FAMILY 1 - MAJOR
+					menu->addChild(rack::createSubmenuItem("Major modes", "",
+						[=](Menu *menu) {
+							menu->addChild(new MenuItemStay("Ionian", "Major",
+								[=]() { set_scale(table_scale_ionian); }
+							));
+							menu->addChild(new MenuItemStay("Dorian", "",
+								[=]() { set_scale(table_scale_dorian); }
+							));
+							menu->addChild(new MenuItemStay("Phrygian", "",
+								[=]() { set_scale(table_scale_phrygian); }
+							));
+							menu->addChild(new MenuItemStay("Lydian", "",
+								[=]() { set_scale(table_scale_lydian); }
+							));
+							menu->addChild(new MenuItemStay("Mixolydian", "",
+								[=]() { set_scale(table_scale_mixolydian); }
+							));
+							menu->addChild(new MenuItemStay("Aeolian", "",
+								[=]() { set_scale(table_scale_aeolian); }
+							));
+							menu->addChild(new MenuItemStay("Locrian", "",
+								[=]() { set_scale(table_scale_locrian); }
+							));
 						}
 					));
-					menu->addChild(new MenuItemStay("Major", "",
-						[=]() {
+
+					/// FAMILY 2 - MELODIC MINOR
+					menu->addChild(rack::createSubmenuItem("Melodic minor modes", "",
+						[=](Menu *menu) {
+							menu->addChild(new MenuItemStay("Ionian #1", "",
+								[=]() { set_scale(table_scale_ionian_s1); }
+							));
+							menu->addChild(new MenuItemStay("Dorian #7", "",
+								[=]() { set_scale(table_scale_dorian_s7); }
+							));
+							menu->addChild(new MenuItemStay("Phrygian #6", "",
+								[=]() { set_scale(table_scale_phrygian_s6); }
+							));
+							menu->addChild(new MenuItemStay("Lydian #5", "",
+								[=]() { set_scale(table_scale_lydian_s5); }
+							));
+							menu->addChild(new MenuItemStay("Mixolydian #4", "",
+								[=]() { set_scale(table_scale_mixolydian_s4); }
+							));
+							menu->addChild(new MenuItemStay("Aeolian #3", "",
+								[=]() { set_scale(table_scale_aeolian_s3); }
+							));
+							menu->addChild(new MenuItemStay("Locrian #2", "",
+								[=]() { set_scale(table_scale_locrian_s2); }
+							));
 						}
 					));
-					menu->addChild(new MenuItemStay("Minor", "",
-						[=]() {
+
+					/// FAMILY 3 - HARMONIC MINOR
+					menu->addChild(rack::createSubmenuItem("Harmonic minor modes", "",
+						[=](Menu *menu) {
+							menu->addChild(new MenuItemStay("Ionian #5", "",
+								[=]() { set_scale(table_scale_ionian_s5); }
+							));
+							menu->addChild(new MenuItemStay("Dorian #4", "",
+								[=]() { set_scale(table_scale_dorian_s4); }
+							));
+							menu->addChild(new MenuItemStay("Phrygian #3", "",
+								[=]() { set_scale(table_scale_phrygian_s3); }
+							));
+							menu->addChild(new MenuItemStay("Lydian #2", "",
+								[=]() { set_scale(table_scale_lydian_s2); }
+							));
+							menu->addChild(new MenuItemStay("Mixolydian #1", "",
+								[=]() { set_scale(table_scale_mixolydian_s1); }
+							));
+							menu->addChild(new MenuItemStay("Aeolian #7", "",
+								[=]() { set_scale(table_scale_aeolian_s7); }
+							));
+							menu->addChild(new MenuItemStay("Locrian #6", "",
+								[=]() { set_scale(table_scale_locrian_s6); }
+							));
 						}
+					));
+
+					/// FAMILY 4 - HARMONIC MAJOR
+					menu->addChild(rack::createSubmenuItem("Harmonic major modes", "",
+						[=](Menu *menu) {
+							menu->addChild(new MenuItemStay("Ionian b6", "",
+								[=]() { set_scale(table_scale_ionian_b6); }
+							));
+							menu->addChild(new MenuItemStay("Dorian b5", "",
+								[=]() { set_scale(table_scale_dorian_b5); }
+							));
+							menu->addChild(new MenuItemStay("Phrygian b4", "",
+								[=]() { set_scale(table_scale_phrygian_b4); }
+							));
+							menu->addChild(new MenuItemStay("Lydian b3", "",
+								[=]() { set_scale(table_scale_lydian_b3); }
+							));
+							menu->addChild(new MenuItemStay("Mixolydian b2", "",
+								[=]() { set_scale(table_scale_mixolydian_b2); }
+							));
+							menu->addChild(new MenuItemStay("Aeolian b1", "",
+								[=]() { set_scale(table_scale_aeolian_b1); }
+							));
+							menu->addChild(new MenuItemStay("Locrian b7", "",
+								[=]() { set_scale(table_scale_locrian_b7); }
+							));
+						}
+					));
+
+					/// FAMILY 5 / 6 / 7
+					menu->addChild(rack::createSubmenuItem("Other scales", "",
+						[=](Menu *menu) {
+							/// FAMILY 5 - DIMINISHED MODES
+							menu->addChild(new MenuItemStay("Diminished", "",
+								[=]() { set_scale(table_scale_diminished); }
+							));
+							menu->addChild(new MenuItemStay("Diminished inverted", "",
+								[=]() { set_scale(table_scale_diminished_inverted); }
+							));
+
+							/// FAMILY 6 - AUGMENTED MODES
+							menu->addChild(new MenuItemStay("Augmented", "",
+								[=]() { set_scale(table_scale_augmented); }
+							));
+							menu->addChild(new MenuItemStay("Augmented inverted", "",
+								[=]() { set_scale(table_scale_augmented_inverted); }
+							));
+
+							/// FAMILY 7 - WHOLE TONE
+							menu->addChild(new MenuItemStay("Whole tone", "",
+								[=]() { set_scale(table_scale_whole); }
+							));
+						}
+					));
+
+					/// <12 EDO
+					menu->addChild(rack::createSubmenuItem("EDO", "",
+						[=](Menu *menu) {
+							menu->addChild(new MenuItemStay("2EDO", "",
+								[=]() { set_scale(table_scale_2edo); }
+							));
+							menu->addChild(new MenuItemStay("3EDO", "",
+								[=]() { set_scale(table_scale_3edo); }
+							));
+							menu->addChild(new MenuItemStay("4EDO", "",
+								[=]() { set_scale(table_scale_4edo); }
+							));
+							menu->addChild(new MenuItemStay("5EDO", "",
+								[=]() { set_scale(table_scale_5edo); }
+							));
+							menu->addChild(new MenuItemStay("6EDO", "",
+								[=]() { set_scale(table_scale_6edo); }
+							));
+							menu->addChild(new MenuItemStay("7EDO", "",
+								[=]() { set_scale(table_scale_7edo); }
+							));
+							menu->addChild(new MenuItemStay("8EDO", "",
+								[=]() { set_scale(table_scale_8edo); }
+							));
+							menu->addChild(new MenuItemStay("9EDO", "",
+								[=]() { set_scale(table_scale_9edo); }
+							));
+							menu->addChild(new MenuItemStay("10EDO", "",
+								[=]() { set_scale(table_scale_10edo); }
+							));
+							menu->addChild(new MenuItemStay("11EDO", "",
+								[=]() { set_scale(table_scale_11edo); }
+							));
+						}
+					));
+				}
+			));
+			//// TEMPERAMENT PRESETS
+			menu->addChild(rack::createSubmenuItem("Presets temperament", "",
+				[=](Menu *menu) {
+					menu->addChild(new MenuItemStay("Equal", "default",
+						[=]() { set_temperament(table_temp_equal); }
+					));
+					menu->addChild(new MenuItemStay("Just", "",
+						[=]() { set_temperament(table_temp_just); }
+					));
+					menu->addChild(new MenuItemStay("Pythagorean", "",
+						[=]() { set_temperament(table_temp_pyth); }
+					));
+					menu->addChild(new MenuItemStay("Wendy Carlos Super Just", "",
+						[=]() { set_temperament(table_temp_carlos_super_just); }
+					));
+					menu->addChild(new MenuItemStay("Wendy Carlos Harmonic", "",
+						[=]() { set_temperament(table_temp_carlos_harmonic); }
+					));
+					menu->addChild(new MenuItemStay("Kirnberger", "",
+						[=]() { set_temperament(table_temp_kirnberger); }
+					));
+					menu->addChild(new MenuItemStay("Vallotti Young", "",
+						[=]() { set_temperament(table_temp_vallotti_young); }
+					));
+					menu->addChild(new MenuItemStay("Werckmeister III", "",
+						[=]() { set_temperament(table_temp_werckmeister_3); }
 					));
 				}
 			));
 			/// MANUAL
 			for (i = 0; i < 12; ++i) {
-				slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_TEMPERAMENT + i]);
+				slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_TUNING + i]);
 				slider->box.size.x = 200.f;
 				menu->addChild(slider);
 			}

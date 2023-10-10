@@ -8,73 +8,58 @@
 /// CONSTANTS
 ////////////////////////////////////////////////////////////////////////////////
 
-#define EDITOR_MODE_PATTERN			0
-#define EDITOR_MODE_TIMELINE		1
-#define EDITOR_MODE_PARAMETERS		2
+#define EDITOR_MODE_PATTERN				0
+#define EDITOR_MODE_TIMELINE			1
+#define EDITOR_MODE_MATRIX				2
+#define EDITOR_MODE_TUNING				3
 
-#define PATTERN_EFFECT_NONE			0
-#define PATTERN_EFFECT_RAND_AMP		1	// Axx
-#define PATTERN_EFFECT_RAND_PAN		2	// Pxx
-#define PATTERN_EFFECT_RAND_DELAY	3	// Dxx
-#define PATTERN_EFFECT_RAND_OCT		4	// Oxy
-#define PATTERN_EFFECT_RAND_PITCH	5	// Mxy
-#define PATTERN_EFFECT_RAND_SCALE	6	// Sxy
-#define PATTERN_EFFECT_VIBRATO		7	// Vxy
-#define PATTERN_EFFECT_TREMOLO		8	// Txy
-#define PATTERN_EFFECT_FADE_IN		9	// Fxx
-#define PATTERN_EFFECT_FADE_OUT		10	// fxx
-#define PATTERN_EFFECT_CHANCE		11	// Cxx
-#define PATTERN_EFFECT_CHANCE_STOP	12	// cxx
-#define PATTERN_EFFECT_RACHET		13	// Rxy
+#define PATTERN_EFFECT_NONE				0
+#define PATTERN_EFFECT_RAND_AMP			1	// Axx
+#define PATTERN_EFFECT_RAND_PAN			2	// Pxx
+#define PATTERN_EFFECT_RAND_DELAY		3	// Dxx
+#define PATTERN_EFFECT_RAND_OCT			4	// Oxy
+#define PATTERN_EFFECT_RAND_PITCH		5	// Mxy
+#define PATTERN_EFFECT_RAND_SCALE		6	// Sxy
+#define PATTERN_EFFECT_VIBRATO			7	// Vxy
+#define PATTERN_EFFECT_TREMOLO			8	// Txy
+#define PATTERN_EFFECT_FADE_IN			9	// Fxx
+#define PATTERN_EFFECT_FADE_OUT			10	// fxx
+#define PATTERN_EFFECT_CHANCE			11	// Cxx
+#define PATTERN_EFFECT_CHANCE_STOP		12	// cxx
+#define PATTERN_EFFECT_RACHET			13	// Rxy
 
-#define PATTERN_NOTE_KEEP			0
-#define PATTERN_NOTE_NEW			1
-#define PATTERN_NOTE_GLIDE			2
-#define PATTERN_NOTE_CHANGE			3
-#define PATTERN_NOTE_STOP			4
-#define PATTERN_CV_KEEP				0
-#define PATTERN_CV_SET				1
-#define PATTERN_CV_MODE_CV			0
-#define PATTERN_CV_MODE_GATE		1
-#define PATTERN_CV_MODE_TRIGGER		2
-#define PATTERN_CV_MODE_BPM			3
+#define PATTERN_NOTE_KEEP				0
+#define PATTERN_NOTE_NEW				1
+#define PATTERN_NOTE_GLIDE				2
+#define PATTERN_NOTE_STOP				3
+#define PATTERN_CV_KEEP					0
+#define PATTERN_CV_SET					1
+#define PATTERN_CV_MODE_CV				0
+#define PATTERN_CV_MODE_GATE			1
+#define PATTERN_CV_MODE_BPM				2
 
-#define SYNTH_MODE_GATE				0
-#define SYNTH_MODE_TRIGGER			1
-#define SYNTH_MODE_DRUM				2
+#define SYNTH_MODE_GATE					0
+#define SYNTH_MODE_TRIGGER				1
+#define SYNTH_MODE_DRUM					2
 
-#define TIMELINE_CELL_KEEP			0
-#define TIMELINE_CELL_NEW			1
-#define TIMELINE_CELL_STOP			2
+#define TIMELINE_CELL_KEEP				0
+#define TIMELINE_CELL_NEW				1
+#define TIMELINE_CELL_STOP				2
 
-#define TIMELINE_MODE_STOP			0
-#define TIMELINE_MODE_PLAY_SONG		1
-#define TIMELINE_MODE_PLAY_PATTERN	2
+#define TIMELINE_MODE_STOP				0
+#define TIMELINE_MODE_PLAY_SONG			1
+#define TIMELINE_MODE_PLAY_PATTERN		2
+#define TIMELINE_MODE_PLAY_PATTERN_SOLO	3
+#define TIMELINE_MODE_PLAY_MATRIX		4
 
-#define INSTANCE_HANDLE_LEFT		0
-#define INSTANCE_HANDLE_MIDDLE		1
-#define INSTANCE_HANDLE_RIGHT		2
+#define INSTANCE_HANDLE_LEFT			0
+#define INSTANCE_HANDLE_MIDDLE			1
+#define INSTANCE_HANDLE_RIGHT			2
 
-#define CHAR_W						6.302522
-#define CHAR_H						8.5
-#define CHAR_COUNT_X				84
-#define CHAR_COUNT_Y				39
-
-
-//extern char		table_pitch[12][3];
-//extern char		table_effect[14];					// 12
-//extern char		table_hex[17];					// 16
-//extern int		table_keyboard[128];
-//extern float	table_temp_equal[12];
-//extern float	table_temp_just[12];
-//extern float	table_temp_pyth[12];
-//extern float	table_temp_carlos_super_just[12];
-//extern float	table_temp_carlos_harmonic[12];
-//extern float	table_temp_kirnberger[12];
-//extern float	table_temp_vallotti_young[12];
-//extern float	table_temp_werckmeister_3[12];
-//extern NVGcolor	colors[16];
-//extern NVGcolor	colors_user[8];
+#define CHAR_W							6.302522
+#define CHAR_H							8.5
+#define CHAR_COUNT_X					84
+#define CHAR_COUNT_Y					39
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -156,14 +141,16 @@ struct PatternCVCol {
 };
 
 struct PatternNoteCol {
-	u8							effect_count;
-	u8							effect_velocity;
-	u8							effect_panning;
-	u8							effect_delay;
-	u8							effect_chance;
-	u8							effect_octave_mode;
-	u8							effect_octave;
-	u8							effect_pitch;
+	u8							fx_count;
+	//u8							fx_velocity;
+	//u8							fx_panning;
+	//u8							fx_delay;
+	//u8							fx_chance;
+	//u8							fx_chance_mode;
+	//u8							fx_octave;
+	//u8							fx_octave_mode;
+	//u8							fx_pitch;
+	//u8							muted;
 	PatternNote					lines[0];	// Notes (memory as struct extension)
 };
 
@@ -171,9 +158,9 @@ struct PatternSource {
 	char						name[256];	// Name
 	u8							color;		// Timelime Color
 	u16							beat_count;	// Beat per pattern
-	u16							line_count;	// Lines per row
-	u16							note_count;	// Note rows
-	u16							cv_count;	// CV rows
+	u16							line_count;	// Lines per column
+	u16							note_count;	// Note columns
+	u16							cv_count;	// CV columns
 	ArrayExt<PatternNoteCol>	notes;		// Col X Note lines
 	ArrayExt<PatternCVCol>		cvs;		// Col X CV lines
 	u8							lpb;		// Lines per beat
@@ -187,6 +174,8 @@ struct PatternSource {
 	void resize(int note_count, int cv_count, int beat_count, int lpb);
 	void rename(char *name);
 	void context_menu(Menu *menu);
+	int cv_prev(int column, int line);
+	int cv_next(int column, int line);
 };
 
 struct PatternInstance {
@@ -221,11 +210,13 @@ struct SynthVoice {
 	bool						active;
 
 	u8							channel;
-	u8							velocity;
-	u8							panning;
+	float						velocity_from;
+	float						velocity_to;
+	float						panning_from;
+	float						panning_to;
 
-	float						pitch_glide_len;
-	float						pitch_glide_cur;
+	float						glide_len;
+	float						glide_cur;
 	float						pitch_from;
 	float						pitch_to;
 
@@ -308,20 +299,17 @@ struct Timeline {
 	int							debug;
 	int							debug_2;
 
-	u8							play;
 	std::atomic_flag			thread_flag;
+	u8							play;
+	dsp::PulseGenerator			play_trigger;	// Used by other modules
+	dsp::PulseGenerator			stop_trigger;	// Used by other modules
 	Clock						clock;
-	//u16							beat_count;
-	//Array2D<TimelineCell>		timeline;
-	//PatternSource*				pattern_source[12];
-	//TimelineCell*				pattern_cell[12];
-	//u32							pattern_start[12];
-	//PatternReader				pattern_reader[12];
 
 	list<PatternInstance>::iterator	pattern_it[32];
 	list<PatternInstance>::iterator	pattern_it_end[32];
 	PatternReader					pattern_reader[32];
 	bool							pattern_state[32];
+	PatternInstance					*pattern_instance;
 
 	float						pitch_base_offset;
 	float						pitch_scale[12];
@@ -377,8 +365,6 @@ struct EditorTrigger : dsp::BooleanTrigger {
 };
 
 struct Editor {
-	Module						*module;
-
 	int							mode;			// Pattern / Timeline / Param
 	bool						selected;
 	int							pattern_id;		// Active pattern
@@ -413,9 +399,13 @@ struct Editor {
 	float						timeline_cam_x;
 	float						timeline_cam_y;
 
+	SynthVoice*					live_voices[128];
+
 	Vec							mouse_pos;
 	Vec							mouse_pos_drag;
 	int							mouse_button;
+	bool						mod_shift;
+	bool						mod_caps;
 
 	float						side_synth_cam_y;
 	float						side_pattern_cam_y;
@@ -423,8 +413,6 @@ struct Editor {
 	int							side_mouse_button;
 	int							side_mouse_action;
 
-	EditorSwitch				switch_view[5];
-	EditorTrigger				button_mode[3];
 	EditorTrigger				button_octave[2];
 	EditorTrigger				button_jump[2];
 	EditorTrigger				button_save;
@@ -433,13 +421,12 @@ struct Editor {
 	Editor();
 
 	void process(i64 frame);
-	void set_col(int index);
-	void set_song_length(int length, bool mode);
-	void set_synth(int index, bool mode);
-	void set_pattern(int index, bool mode);
+	void set_synth(int index);
+	void set_pattern(int index);
 	void pattern_clamp_cursor(void);
 	void pattern_move_cursor_x(int x);
 	void pattern_move_cursor_y(int y);
+	void pattern_jump_cursor(void);
 	void pattern_reset_cursor(void);
 };
 
@@ -454,47 +441,26 @@ struct Tracker : Module {
 								PARAM_PLAY_PATTERN,
 								PARAM_PLAY,
 								PARAM_STOP,
-								/// BPM / SYNTH / PATTERN KNOBS
+								/// BPM
 								PARAM_BPM,
-								PARAM_SYNTH,
-								PARAM_PATTERN,
 								/// JUMP / OCTAVE BUTTONS
 								PARAM_JUMP_UP,
 								PARAM_JUMP_DOWN,
 								PARAM_OCTAVE_UP,
 								PARAM_OCTAVE_DOWN,
-								/// CONTEXT SONG
-								PARAM_SONG_LENGTH,
-								/// CONTEXT SYNTH
-								PARAM_SYNTH_CHANNEL_COUNT,
-								PARAM_SYNTH_MODE,
-								/// CONTEXT PATTERN
-								PARAM_PATTERN_LENGTH,
-								PARAM_PATTERN_LPB,
-								PARAM_PATTERN_NOTE_COUNT,
-								PARAM_PATTERN_CV_COUNT,
-								PARAM_PATTERN_COLOR,
-								/// CONTEXT PATTERN COLUMN
-								PARAM_COLUMN_NOTE_EFFECT_COUNT,
-								PARAM_COLUMN_CV_MODE,
-								PARAM_COLUMN_CV_SYNTH,
-								PARAM_COLUMN_CV_CHANNEL,
-								/// CONTEXT PATTERN COLUMN EFFECTS
-								PARAM_COLUMN_FX_VELOCITY,
-								PARAM_COLUMN_FX_PANNING,
-								PARAM_COLUMN_FX_OCTAVE,
-								PARAM_COLUMN_FX_OCTAVE_MODE,
-								PARAM_COLUMN_FX_PITCH,
-								PARAM_COLUMN_FX_DELAY,
-								PARAM_COLUMN_FX_CHANCE,
-								/// SCREEN MODE SWITCHES
-								ENUMS(PARAM_MODE, 3),
+								/// EDITOR MODE SWITCHES
+								PARAM_MODE_PATTERN,
+								PARAM_MODE_TIMELINE,
+								PARAM_MODE_MATRIX,
+								PARAM_MODE_TUNING,
 								/// VIEW MODE SWITCHES
 								ENUMS(PARAM_VIEW, 5),
-								/// CONTEXT PROJECT
-								PARAM_PITCH_BASE,
+								/// TUNING / PERFORMANCE
 								PARAM_RATE,
-								ENUMS(PARAM_TEMPERAMENT, 12),
+								PARAM_PITCH_BASE,
+								ENUMS(PARAM_TUNING, 12),
+								/// CONTEXT MENU
+								ENUMS(PARAM_MENU, 8),
 								/// .
 								PARAM_COUNT
 	};
@@ -502,28 +468,23 @@ struct Tracker : Module {
 								INPUT_COUNT
 	};
 	enum OutputIds {
-								OUTPUT_CLOCK,
-								ENUMS(OUTPUT_CV, 8),
-								ENUMS(OUTPUT_GATE, 8),
-								ENUMS(OUTPUT_VELO, 8),
 								OUTPUT_COUNT
 	};
 	enum LightIds {
 								LIGHT_FOCUS,
-								LIGHT_PLAY,
-								ENUMS(LIGHT_MODE, 3),
-								ENUMS(LIGHT_VIEW, 5),
+								LIGHT_RECORD,
+								ENUMS(LIGHT_PLAY, 3),
 								LIGHT_COUNT
 	};
-
-	dsp::TTimer<float>			clock_timer;
-	float						clock_time;
-	float						clock_time_p;
+	midi::InputQueue			midi_input;
 
 	Tracker();
+	~Tracker();
 
 	void	onAdd(const AddEvent &e) override;
 	void	onSave(const SaveEvent &e) override;
+	json_t	*dataToJson(void) override;
+	void	dataFromJson(json_t *root) override;
 	void	process(const ProcessArgs& args) override;
 };
 
@@ -551,6 +512,7 @@ struct TrackerDisplay : LedDisplay {
 	void on_button_timeline(const ButtonEvent &e);
 	void draw_pattern(const DrawArgs& args, Rect rect);
 	void draw_timeline(const DrawArgs& args, Rect rect);
+	void draw_tuning(const DrawArgs& args, Rect rect);
 	void on_drag_start_timeline(const DragStartEvent &e);
 	void on_drag_move_timeline(const DragMoveEvent &e);
 	void on_drag_end_timeline(const DragEndEvent &e);
@@ -575,18 +537,6 @@ struct TrackerDisplaySide : LedDisplay {
 			int cam_y, std::function<bool(int,char**,int*,bool*)>);
 };
 
-struct TrackerDisplayBPM : LedDisplayDigit {
-	void onButton(const ButtonEvent &e) override;
-};
-
-struct TrackerDisplaySynth : LedDisplayDigit {
-	void onButton(const ButtonEvent &e) override;
-};
-
-struct TrackerDisplayPattern : LedDisplayDigit {
-	void onButton(const ButtonEvent &e) override;
-};
-
 struct TrackerWidget : ModuleWidget {
 	Tracker						*module;
 	TrackerDisplay				*display;
@@ -596,8 +546,8 @@ struct TrackerWidget : ModuleWidget {
 
 	void onSelectKey(const SelectKeyEvent &e) override;
 	void onHoverScroll(const HoverScrollEvent &e) override;
-	//void onSelect(const SelectEvent &e) override;
-	//void onDeselect(const DeselectEvent &e) override;
+	void onSelect(const SelectEvent &e) override;
+	void onDeselect(const DeselectEvent &e) override;
 	void appendContextMenu(Menu *menu) override;
 
 	//void onDragStart(const DragStartEvent& e) override;
@@ -616,8 +566,8 @@ bool endian_native(void);
 /// GLOBAL STRUCTURES
 ////////////////////////////////////////////////////////////////////////////////
 
-extern Timeline	g_timeline;
-extern Editor	g_editor;
+extern Timeline	*g_timeline;
+extern Editor	*g_editor;
 extern Tracker	*g_module;
 
 #endif

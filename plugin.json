@@ -1,7 +1,7 @@
 {
   "slug": "Biset",
   "name": "Biset",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "license": "MIT",
   "brand": "Biset",
   "author": "Biset",
@@ -13,25 +13,113 @@
   "donateUrl": "",
   "changelogUrl": "",
   "modules": [
+
+	{
+		"slug": "Biset-Tracker",
+		"name": "Tracker",
+		"description": "An avanced sequencer based on a tracker and a timeline",
+		"tags": [
+			"Sequencer",
+			"Controller",
+			"Polyphonic",
+			"Function generator",
+			"Quantizer",
+			"Tuner",
+			"Digital"
+		]
+	},
+	{
+		"slug": "Biset-Tracker-Synth",
+		"name": "Tracker Synth",
+		"description": "Tracker synth output",
+		"tags": [
+			"Sequencer",
+			"Digital"
+		]
+	},
+	{
+		"slug": "Biset-Tracker-Drum",
+		"name": "Tracker Drum",
+		"description": "Tracker drum output",
+		"tags": [
+			"Sequencer",
+			"Digital"
+		]
+	},
+	{
+		"slug": "Biset-Tracker-Clock",
+		"name": "Tracker Clock",
+		"description": "Tracker clock divider / multiplier",
+		"tags": [
+			"Sequencer",
+			"Clock",
+			"Digital"
+		]
+	},
+	{
+		"slug": "Biset-Tracker-Phase",
+		"name": "Tracker Phase",
+		"description": "Tracker phase / synced LFO output",
+		"tags": [
+			"Sequencer",
+			"Low-frequency oscillator",
+			"Digital"
+		]
+	},
+	{
+		"slug": "Biset-Tracker-Quant",
+		"name": "Tracker Quant",
+		"description": "Tracker quantizer / tuner",
+		"tags": [
+			"Sequencer",
+			"Quantizer",
+			"Tuner",
+			"Digital"
+		]
+	},
+	{
+		"slug": "Biset-Tracker-State",
+		"name": "Tracker State",
+		"description": "Tracker state output & track visualizer",
+		"tags": [
+			"Sequencer",
+			"Visual",
+			"Digital"
+		]
+	},
+
 	{
 		"slug": "Biset-Regex",
 		"name": "Regex",
 		"description": "A text based pattern sequencer for rythm and pitch",
-		"tags": ["Sequencer", "Clock modulator", "Controller", "Digital"],
+		"tags": [
+			"Sequencer",
+			"Clock modulator",
+			"Controller",
+			"Digital"
+		],
 		"keywords": ["live", "code", "coding"]
 	},
 	{
 		"slug": "Biset-Regex-Condensed",
 		"name": "Regex Condensed",
 		"description": "A text based pattern sequencer for rythm and pitch",
-		"tags": ["Sequencer", "Clock modulator", "Controller", "Digital"],
+		"tags": [
+			"Sequencer",
+			"Clock modulator",
+			"Controller",
+			"Digital"
+		],
 		"keywords": ["live", "code", "coding"]
 	},
 	{
 		"slug": "Biset-Segfault",
 		"name": "Segfault",
 		"description": "Rethink your midi / qwerty keyboard layout",
-		"tags": ["Controller", "Polyphonic"],
+		"tags": [
+			"Controller",
+			"Polyphonic"
+		],
 		"keywords": ["piano", "keys"]
 	}
   ]

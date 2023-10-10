@@ -12,9 +12,13 @@ LDFLAGS +=
 
 # Add .cpp files to the build
 SOURCES += $(wildcard src/*.cpp)
-#SOURCES += $(wildcard src/Tracker/*.cpp)
-#SOURCES += $(wildcard src/TrackerSynth/*.cpp)
-#SOURCES += $(wildcard src/TrackerDrum/*.cpp)
+SOURCES += $(wildcard src/Tracker/*.cpp)
+SOURCES += $(wildcard src/TrackerSynth/*.cpp)
+SOURCES += $(wildcard src/TrackerDrum/*.cpp)
+SOURCES += $(wildcard src/TrackerClock/*.cpp)
+SOURCES += $(wildcard src/TrackerPhase/*.cpp)
+SOURCES += $(wildcard src/TrackerQuant/*.cpp)
+SOURCES += $(wildcard src/TrackerState/*.cpp)
 SOURCES += $(wildcard src/Regex/*.cpp)
 SOURCES += $(wildcard src/Segfault/*.cpp)
 

@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 Synth::Synth() {
+	memset(this->name, 0, 256 + 5);
 	strcpy(this->name, "synth");
 	this->color = 1;
 	this->index = 0;
@@ -23,7 +24,7 @@ void Synth::init(void) {
 
 	/// TODO: INIT NAME & COLOR ?
 	/// INIT INDEX
-	index = ((intptr_t)this - (intptr_t)g_timeline.synths) / sizeof(Synth);
+	index = ((intptr_t)this - (intptr_t)g_timeline->synths) / sizeof(Synth);
 	this->index = index;
 	/// INIT NAME
 	this->rename((char*)"synth");
@@ -48,15 +49,22 @@ void Synth::process(float dt_sec, float dt_beat) {
 	// -> ! ! ! BOTTLENECK ! ! !
 	// -> Call only if active ? On de-activation -> set output to 0
 	/// COMPUTE VOICES
-	for (i = 0; i < this->channel_count; ++i)
-		this->voices[i].process(dt_sec, dt_beat, this->out_synth);
+	//// MODE DRUM
+	if (this->mode == SYNTH_MODE_DRUM) {
+		for (i = 0; i < 12; ++i)
+			this->voices[i].process(dt_sec, dt_beat, this->out_synth);
+	//// MODE GATE + TRIGGER
+	} else {
+		for (i = 0; i < this->channel_count; ++i)
+			this->voices[i].process(dt_sec, dt_beat, this->out_synth);
+	}
 }
 
 void Synth::rename(void) {
 	int		index;
 
 	/// UPDATE SYNTH INDEX
-	index = ((intptr_t)this - (intptr_t)g_timeline.synths) / sizeof(Synth);
+	index = ((intptr_t)this - (intptr_t)g_timeline->synths) / sizeof(Synth);
 	itoaw(this->name, index, 2);
 	this->name[2] = ' ';
 }
@@ -65,7 +73,7 @@ void Synth::rename(char *name) {
 	int		index;
 
 	/// UPDATE SYNTH INDEX
-	index = ((intptr_t)this - (intptr_t)g_timeline.synths) / sizeof(Synth);
+	index = ((intptr_t)this - (intptr_t)g_timeline->synths) / sizeof(Synth);
 	itoaw(this->name, index, 2);
 	strcpy(this->name + 2, " - ");
 	strncpy(this->name + 5, name, 255);
@@ -75,7 +83,7 @@ SynthVoice* Synth::add(PatternNoteCol *col, PatternNote *note, int lpb) {
 	Synth			*synth;
 	SynthVoice		*voice;
 
-	synth = &(g_timeline.synths[note->synth]);
+	synth = &(g_timeline->synths[note->synth]);
 	/// MODE DRUM
 	if (synth->mode == SYNTH_MODE_DRUM) {
 		voice = &(this->voices[note->pitch % 12]);
@@ -93,17 +101,28 @@ SynthVoice* Synth::add(PatternNoteCol *col, PatternNote *note, int lpb) {
 }
 
 void Synth::context_menu(Menu *menu) {
-	ParamQuantity	*quant_mode;
-	ParamQuantity	*quant_channel;
+	ParamQuantityLink	*quant_channel;
+	ParamQuantityLink	*quant_mode;
 
 	/// ADD SYNTH CHANNEL COUNT
-	quant_channel = g_module->paramQuantities[Tracker::PARAM_SYNTH_CHANNEL_COUNT];
-	quant_channel->setValue(this->channel_count);
+	quant_channel = (ParamQuantityLink*)
+	/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 0];
+	quant_channel->minValue = 1;
+	quant_channel->maxValue = 16;
 	quant_channel->defaultValue = this->channel_count;
+	quant_channel->setValue(this->channel_count);
+	quant_channel->name = "Synth channels";
+	quant_channel->unit = "";
+	quant_channel->precision = 0;
+	quant_channel->setLink(NULL);
 	menu->addChild(new MenuSliderEdit(quant_channel, 0));
 	/// ADD SYNTH MODE
-	quant_mode = g_module->paramQuantities[Tracker::PARAM_SYNTH_MODE];
+	quant_mode = (ParamQuantityLink*)
+	/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 1];
+	quant_mode->minValue = 0;
+	quant_mode->maxValue = 2;
 	quant_mode->setValue(this->mode);
+	quant_mode->setLink(NULL);
 	menu->addChild(rack::createSubmenuItem("Mode", "",
 		[=](Menu *menu) {
 			menu->addChild(new MenuCheckItem("Gate", "",
@@ -121,16 +140,16 @@ void Synth::context_menu(Menu *menu) {
 		}
 	));
 	/// ADD SYNTH UPDATE BUTTON
-	menu->addChild(new MenuItemStay("Update synth", "",
+	menu->addChild(createMenuItem("Update synth", "",
 		[=]() {
 			/// WAIT FOR THREAD FLAG
-			while (g_timeline.thread_flag.test_and_set()) {}
+			while (g_timeline->thread_flag.test_and_set()) {}
 
 			this->mode = quant_mode->getValue();
 			this->channel_count = quant_channel->getValue();
 
 			/// CLEAR THREAD FLAG
-			g_timeline.thread_flag.clear();
+			g_timeline->thread_flag.clear();
 		}
 	));
 }

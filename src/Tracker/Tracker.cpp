@@ -1,18 +1,104 @@
 
 #include "Tracker.hpp"
 
+Timeline		*g_timeline = NULL;
+Editor			*g_editor = NULL;
+Tracker			*g_module = NULL;
+
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
+
+static void process_midi_message(midi::Message *msg) {
+	PatternNote		note;
+	SynthVoice		*note_voice;
+	int				pitch;
+	int				velocity;
+	int				i;
+
+	switch (msg->getStatus()) {
+		/// NOTE OFF
+		case 0x8: {
+			pitch = msg->getNote();
+			velocity = msg->getValue();
+			if (pitch > 127)
+				return;
+			if (g_editor->live_voices[pitch] != NULL) {
+				g_editor->live_voices[pitch]->stop();
+				g_editor->live_voices[pitch] = NULL;
+			}
+		} break;
+		// NOTE ON
+		case 0x9: {
+			pitch = msg->getNote();
+			velocity = msg->getValue();
+			if (pitch > 127)
+				return;
+			/// VELOCITY > 0
+			if (velocity > 0) {
+				/// BUILD NOTE
+				note.mode = PATTERN_NOTE_NEW;
+				note.glide = 0;
+				note.synth = g_editor->synth_id;
+				note.pitch = pitch;
+				note.velocity = ((float)velocity / 127.0) * 99.0;
+				note.panning = 50;
+				note.delay = 0;
+				for (i = 0; i < 8; ++i)
+					note.effects[i].type = PATTERN_EFFECT_NONE;
+				/// SEND NOTE
+				note_voice = g_editor->synth->add(NULL, &note, 1.0);
+				/// SAVE NOTE
+				if (g_editor->live_voices[pitch] != NULL)
+					g_editor->live_voices[pitch]->stop();
+				g_editor->live_voices[pitch] = note_voice;
+			/// VELOCITY = 0 (NOTE OFF)
+			} else {
+				if (g_editor->live_voices[pitch] != NULL) {
+					g_editor->live_voices[pitch]->stop();
+					g_editor->live_voices[pitch] = NULL;
+				}
+			}
+		} break;
+		// KEY PRESSURE
+		case 0xa: {
+		} break;
+		// CC
+		case 0xb: {
+		} break;
+		// CHANNEL PRESSURE
+		case 0xd: {
+		} break;
+		// PITCH WHEEL
+		case 0xe: {
+		} break;
+		case 0xf: {
+		} break;
+		default: break;
+	}
+}
+
+static void process_midi_input(int frame) {
+	midi::Message	msg;
+
+	if (g_timeline == NULL || g_editor == NULL || g_editor->synth == NULL)
+		return;
+	while (g_module->midi_input.tryPop(&msg, frame))
+		process_midi_message(&msg);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
 Tracker::Tracker() {
-	int	i;
+	ParamQuantityMode	*switch_mode;
+	int					i;
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
+
+	for (i = 0; i < 8; ++i)
+		configParam<ParamQuantityLink>(PARAM_MENU + i, 0, 1, 0);
 
 	configButton(PARAM_PLAY_SONG, "Play song");
 	configButton(PARAM_PLAY_PATTERN, "Play pattern");
@@ -20,38 +106,29 @@ Tracker::Tracker() {
 	configButton(PARAM_STOP, "Stop");
 
 	configParam(PARAM_BPM, 30.0f, 300.0f, 120.f, "BPM");
-	configParam(PARAM_SYNTH, 0.0f, 63.0f, 0.f, "Synth")->snapEnabled = true;
-	configParam(PARAM_PATTERN, 0.0f, 255.0f, 0.f, "Pattern")->snapEnabled = true;
+
+	switch_mode = configSwitch<ParamQuantityMode>(PARAM_MODE_PATTERN,
+	/**/ 0, 1, 1, "Mode pattern");
+	switch_mode->mode_min = PARAM_MODE_PATTERN;
+	switch_mode->mode_max = PARAM_MODE_TUNING;
+	switch_mode = configSwitch<ParamQuantityMode>(PARAM_MODE_TIMELINE,
+	/**/ 0, 1, 0, "Mode timeline");
+	switch_mode->mode_min = PARAM_MODE_PATTERN;
+	switch_mode->mode_max = PARAM_MODE_TUNING;
+	switch_mode = configSwitch<ParamQuantityMode>(PARAM_MODE_MATRIX,
+	/**/ 0, 1, 0, "Mode matrix");
+	switch_mode->mode_min = PARAM_MODE_PATTERN;
+	switch_mode->mode_max = PARAM_MODE_TUNING;
+	switch_mode = configSwitch<ParamQuantityMode>(PARAM_MODE_TUNING,
+	/**/ 0, 1, 0, "Mode tuning");
+	switch_mode->mode_min = PARAM_MODE_PATTERN;
+	switch_mode->mode_max = PARAM_MODE_TUNING;
 
 	configSwitch(PARAM_VIEW, 0, 1, 0, "View Velocity");
 	configSwitch(PARAM_VIEW + 1, 0, 1, 0, "View Panning");
 	configSwitch(PARAM_VIEW + 2, 0, 1, 0, "View Delay");
 	configSwitch(PARAM_VIEW + 3, 0, 1, 0, "View Glide");
 	configSwitch(PARAM_VIEW + 4, 0, 1, 0, "View Effects");
-
-	configParam(PARAM_SONG_LENGTH, 1.0f, 9999.0f, 0.0f, "Song length", " beats")->snapEnabled = true;
-	configParam(PARAM_SYNTH_CHANNEL_COUNT, 1.0f, 16.0f, 0.0f, "Synth channels")->snapEnabled = true;
-	configParam(PARAM_SYNTH_MODE, 0.0f, 2.0f, 0.0f, "Synth mode")->snapEnabled = true;
-	configParam(PARAM_PATTERN_LENGTH, 1.0f, 999.0f, 0.0f, "Pattern length", " beats")->snapEnabled = true;
-	configParam(PARAM_PATTERN_LPB, 1.0f, 32.0f, 0.0f, "Pattern lpb", " lines / beat")->snapEnabled = true;
-	configParam(PARAM_PATTERN_NOTE_COUNT, 0.0f, 32.0f, 0.0f, "Pattern notes", " columns")->snapEnabled = true;
-	configParam(PARAM_PATTERN_CV_COUNT, 0.0f, 32.0f, 0.0f, "Pattern cv", " columns")->snapEnabled = true;
-	configParam(PARAM_COLUMN_NOTE_EFFECT_COUNT, 0.0f, 16.0f, 0.0f, "Column effects", "")->snapEnabled = true;
-	configParam(PARAM_COLUMN_CV_MODE, 0.0f, 3.0f, 0.0f, "Column mode", "")->snapEnabled = true;
-	configParam(PARAM_COLUMN_CV_SYNTH, 0.0f, 63.0f, 0.0f, "Column synth", "")->snapEnabled = true;
-	configParam(PARAM_COLUMN_CV_CHANNEL, 0.0f, 7.0f, 0.0f, "Column channel", "")->snapEnabled = true;
-
-	configParam(PARAM_COLUMN_FX_VELOCITY, 0.0f, 100.0f, 0.0f, "Random velocity", "%");
-	configParam(PARAM_COLUMN_FX_PANNING, 0.0f, 100.0f, 0.0f, "Random panning", "%");
-	configParam(PARAM_COLUMN_FX_OCTAVE_MODE, 0.0f, 2.0f, 0.0f, "Random octave mode", "")->snapEnabled = true;
-	configParam(PARAM_COLUMN_FX_OCTAVE, 0.0f, 4.0f, 0.0f, "Random octave", "")->snapEnabled = true;
-	configParam(PARAM_COLUMN_FX_PANNING, 0.0f, 100.0f, 0.0f, "Random pitch", "%");
-	configParam(PARAM_COLUMN_FX_DELAY, 0.0f, 100.0f, 0.0f, "Random delay", "%");
-	configParam(PARAM_COLUMN_FX_CHANCE, 0.0f, 100.0f, 0.0f, "Random chance", "%");
-
-	configButton(PARAM_MODE + 0, "Mode pattern");
-	configButton(PARAM_MODE + 1, "Mode timeline");
-	configButton(PARAM_MODE + 2, "Mode parameters");
 
 	configButton(PARAM_OCTAVE_UP, "Octave +");
 	configButton(PARAM_OCTAVE_DOWN, "Octave -");
@@ -61,12 +138,7 @@ Tracker::Tracker() {
 	configParam(PARAM_PITCH_BASE, 400.0f, 500.0f, 440.0f, "Base Pitch");
 	configParam(PARAM_RATE, 1, 512, 64, "Rate");
 	for (i = 0; i < 12; ++i)
-		configParam(PARAM_TEMPERAMENT + i, 0.0f, 12.0f, i * 1.0f, table_pitch[i]);
-
-	configLight(LIGHT_FOCUS, "Focus");
-	configLight(LIGHT_PLAY, "Play");
-
-	configOutput(OUTPUT_CLOCK, "Clock");
+		configParam(PARAM_TUNING + i, 0.0f, 1200.0f, i * 100.0f, table_pitch[i]);
 
 	/// DEFINE GLOBAL KEYBOARD
 	for (i = 0; i < 128; ++i)
@@ -113,43 +185,44 @@ Tracker::Tracker() {
 		table_keyboard['='] = 30;	// F#
 	table_keyboard[']'] = 31;		// G
 
+	/// SET GLOBAL STRUCTURES
+	if (g_module == NULL)
+		g_module = this;
+	if (g_timeline == NULL) {
+		g_timeline = new Timeline();
+		g_editor = new Editor();
+	}
+}
 
-	clock_timer.reset();
-
-	/// SET ACTIVE SYNTH & PATTERN
-	g_module = this;
+Tracker::~Tracker() {
+	if (g_module == this)
+		g_module = NULL;
 }
 
 void Tracker::process(const ProcessArgs& args) {
 	float	dt_sec, dt_beat;
 	float	bpm;
 
+	if (g_module == NULL)
+		g_module = this;
+	if (g_module != this)
+		return;
+	if (APP == NULL || APP->window == NULL)
+		return;
+
+	/// PROCESS MIDI INPUT
+	process_midi_input(args.frame);
+
 	/// PROCESS EDITOR
-	g_editor.process(args.frame);
+	g_editor->process(args.frame);
 
 	/// COMPUTE CLOCK
 	bpm = params[PARAM_BPM].getValue();
 	dt_sec = args.sampleTime;
 	dt_beat = (bpm * dt_sec) / 60.0f;
-	clock_time_p = clock_timer.time;
-	clock_timer.process(dt_beat);
-	if (clock_timer.time >= 64.0f)
-		clock_timer.time -= 64.0f;
-	clock_time = clock_timer.time;
-	/// OUTPUT CLOCK
-	if (clock_time_p - (int)clock_time_p > clock_time - (int)clock_time)
-		outputs[OUTPUT_CLOCK].setVoltage(10.0f);
-	else
-		outputs[OUTPUT_CLOCK].setVoltage(0.0f);
 
 	/// PROCESS TIMELINE
-	g_timeline.process(args.frame, dt_sec, dt_beat);
-
-
-	/// USE / MODIFY EXPANDERS
-	//if (rightExpander.module) {
-	//	rightExpander.module->params[0].setValue(0);
-	//}
+	g_timeline->process(args.frame, dt_sec, dt_beat);
 }
 
 Model* modelTracker = createModel<Tracker, TrackerWidget>("Biset-Tracker");

@@ -24,18 +24,18 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 	p = rect.getTopLeft();
 	/// [1] DRAW PAGE
 	/// DRAW ACTIVE BEAT MARKER
-	if (g_timeline.play == TIMELINE_MODE_PLAY_SONG) {
-		x = p.x + 2.0 + CHAR_W * (g_timeline.clock.beat + 2 - g_editor.timeline_cam_x);
+	if (g_timeline->play == TIMELINE_MODE_PLAY_SONG
+	|| g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
+		x = p.x + 2.0 + CHAR_W * (g_timeline->clock.beat + 2 - g_editor->timeline_cam_x);
 		nvgBeginPath(args.vg);
 		nvgFillColor(args.vg, colors[15]);
 		nvgRect(args.vg, x, rect.pos.y, CHAR_W, rect.size.y);
 		nvgFill(args.vg);
-		sprintf(g_timeline.debug_str, "%d", g_timeline.clock.beat);
 	}
 	/// DRAW BEAT / BAR COUNT
 	y = p.y + 11.0;
 	for (i = 0; i < 85; ++i) {
-		index = i + g_editor.timeline_cam_x;
+		index = i + g_editor->timeline_cam_x;
 		x = p.x + 2.0 + CHAR_W * (i + 2);
 		if (index % 4 == 0) {
 			nvgFillColor(args.vg, colors[13]);
@@ -46,21 +46,8 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 		}
 		nvgTextBox(args.vg, x, y, CHAR_W * 1.5, str, NULL);
 	}
-	/// DRAW ROWS COUNT
-	for (i = 0; i < 12; ++i) {
-		index = i + g_editor.timeline_cam_y;
-		/// COL COUNT
-		x = p.x + 2.0;
-		y = p.y + 11.0 + CHAR_H * ((i * 3) + 3 + 1);
-		if (index % 2 == 0)
-			nvgFillColor(args.vg, colors[14]);
-		else
-			nvgFillColor(args.vg, colors[13]);
-		itoaw(str, index, 2);
-		nvgText(args.vg, x, y, str, NULL);
-	}
 	/// DRAW BAR MARKERS
-	for (i = 4 - (int)g_editor.timeline_cam_x % 4; i < 85; i += 4) {
+	for (i = 4 - (int)g_editor->timeline_cam_x % 4; i < 85; i += 4) {
 		x = p.x + 2.0 + CHAR_W * (i + 2);
 		y = p.y + 13.0 + CHAR_H * 2;
 		nvgBeginPath(args.vg);
@@ -73,20 +60,20 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 	//// FOR EACH ROW
 	h = CHAR_H * 3 - 4;
 	for (i = 0; i < 12; ++i) {
-		index = i + g_editor.timeline_cam_y;
+		index = i + g_editor->timeline_cam_y;
 		y = p.y + 13.0 + CHAR_H * (i * 3 + 2);
-		it = g_timeline.timeline[index].begin();
-		it_end = g_timeline.timeline[index].end();
+		it = g_timeline->timeline[index].begin();
+		it_end = g_timeline->timeline[index].end();
 		while (it != it_end) {
 			/// CHECK VISIBILITY
 			//// PATTERN BEFORE
-			if (it->beat < g_editor.timeline_cam_x) {
-				if (it->beat + it->beat_length >= (int)g_editor.timeline_cam_x)
+			if (it->beat < g_editor->timeline_cam_x) {
+				if (it->beat + it->beat_length >= (int)g_editor->timeline_cam_x)
 					visible = true;
 				else
 					visible = false;
 			//// PATTERN INSIDE
-			} else if (it->beat < (int)g_editor.timeline_cam_x + 85) {
+			} else if (it->beat < (int)g_editor->timeline_cam_x + 85) {
 				visible = true;
 			//// PATTERN AFTER
 			} else {
@@ -94,7 +81,7 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 			}
 			/// DRAW IF VISIBLE
 			if (visible == true) {
-				inst_x = it->beat - (int)g_editor.timeline_cam_x;
+				inst_x = it->beat - (int)g_editor->timeline_cam_x;
 				inst_w = it->beat_length;
 				x = p.x + 2.0 + CHAR_W * (inst_x + 2);
 				w = CHAR_W * inst_w - 1;
@@ -141,7 +128,7 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 					}
 				}
 				/// STROKE (ON SELECT)
-				if (&(*it) == g_editor.instance) {
+				if (&(*it) == g_editor->instance) {
 					nvgBeginPath(args.vg);
 					nvgStrokeColor(args.vg, colors[12]);
 					nvgStrokeWidth(args.vg, 1);
@@ -159,5 +146,26 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 			/// NEXT INSTANCE
 			it = std::next(it);
 		}
+	}
+
+	/// [3] DRAW PAGE TOP
+	//// DRAW ROWS COUNT
+	nvgBeginPath(args.vg);
+	nvgFillColor(args.vg, colors[0]);
+	nvgRect(args.vg,
+	/**/ p.x + 0.0, p.y + 6.0 + CHAR_H * 3.0,
+	/**/ p.x + 2.0 + CHAR_W * (2.0), p.y + 6.0 + CHAR_H * (35.0));
+	nvgFill(args.vg);
+	for (i = 0; i < 12; ++i) {
+		index = i + g_editor->timeline_cam_y;
+		/// COL COUNT
+		x = p.x + 2.0;
+		y = p.y + 11.0 + CHAR_H * ((i * 3) + 3 + 1);
+		if (index % 2 == 0)
+			nvgFillColor(args.vg, colors[14]);
+		else
+			nvgFillColor(args.vg, colors[13]);
+		itoaw(str, index, 2);
+		nvgText(args.vg, x, y, str, NULL);
 	}
 }

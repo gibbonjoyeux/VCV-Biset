@@ -1,4 +1,8 @@
 
+# PARAM HANDLES
+- https://github.com/VCVRack/Rack/blob/f1576e2bb870da297789300117accb9d5fe44c5e/src/core/MIDIMap.cpp#L11
+	- onDeselect()
+
 # FONTS
 - https://www.velvetyne.fr/fonts/degheest/ FT88 Regular + FT88 Gothic
 

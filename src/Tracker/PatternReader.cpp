@@ -29,12 +29,12 @@ void PatternReader::process(
 	int						line, col;
 	Synth					*synth;
 	PatternCVCol			*col_cv;
-	PatternCV				*cv_line, *cv_from, *cv_to;
+	PatternCV				*cv_line, *cv_prev, *cv_next;
 	PatternNoteCol			*col_note;
 	PatternNote				*note;
 	SynthVoice				*voice;
-	int						line_from, line_to;
-	float					phase, phase_from, phase_to;
+	int						line_prev, line_next;
+	float					phase, phase_prev, phase_next;
 	float					cv_phase;
 	float					cv_value;
 	float					delay;
@@ -59,7 +59,7 @@ void PatternReader::process(
 				delay = (float)note->delay / 100.0f;
 				if (phase > delay) {
 					voice = this->voices[col];
-					/// NOTE CHANGE
+					/// NOTE NEW
 					if (note->mode == PATTERN_NOTE_NEW) {
 						/// CLOSE ACTIVE NOTE
 						if (voice) {
@@ -95,78 +95,90 @@ void PatternReader::process(
 		col_cv = pattern->cvs[col];
 		/// [A] COMPUTE KEY CV INTERPOLATION LINES
 		cv_line = &(col_cv->lines[line]);
-		cv_from = NULL;
-		cv_to = NULL;
-		line_from = 0;
-		line_to = 0;
-		//// ON ACTIVE LINE
+		cv_prev = NULL;
+		cv_next = NULL;
+		line_prev = 0;
+		line_next = 0;
+		//// HANDLE LINE CURRENT
 		if (cv_line->mode == PATTERN_CV_SET) {
 			/// AFTER DELAY
 			if (phase * 99.0 >= cv_line->delay) {
-				cv_from = cv_line;
-				line_from = line;
+				cv_prev = cv_line;
+				line_prev = line;
 			/// BEFORE DELAY
 			} else {
-				cv_to = cv_line;
-				line_to = line;
+				cv_next = cv_line;
+				line_next = line;
 			}
-		//// ON PASSIVE LINE
-		} else {
 		}
-		//// FIND LINE FROM
-		if (cv_from == NULL) {
-			line_from = line - 1;
-			while (line_from >= 0
-			&& pattern->cvs[col]->lines[line_from].mode != PATTERN_CV_SET)
-				line_from -= 1;
-			if (line_from >= 0)
-				cv_from = &(pattern->cvs[col]->lines[line_from]);
+		//// HANDLE LINE PREV
+		if (cv_prev == NULL) {
+			line_prev = pattern->cv_prev(col, line);
+			if (line_prev >= 0)
+				cv_prev = &(col_cv->lines[line_prev]);
 		}
-		//// FIND LINE TO
-		if (cv_to == NULL) {
-			line_to = line + 1;
-			while (line_to < pattern->line_count
-			&& pattern->cvs[col]->lines[line_to].mode != PATTERN_CV_SET)
-				line_to += 1;
-			if (line_to < pattern->line_count)
-				cv_to = &(pattern->cvs[col]->lines[line_to]);
+		//// HANDLE LINE NEXT
+		if (cv_next == NULL) {
+			line_next = pattern->cv_next(col, line);
+			if (line_next >= 0)
+				cv_next = &(col_cv->lines[line_next]);
 		}
 		/// [B] COMPUTE CV
 		//// WITH BOTH INTERPOLATION LINES
-		if (cv_from && cv_to) {
-			/// COMPUTE CV PHASE
-			if (line_from == line_to) {
-				cv_phase = 0;
+		if (col_cv->mode == PATTERN_CV_MODE_CV
+		|| col_cv->mode == PATTERN_CV_MODE_BPM) {
+			if (cv_prev && cv_next) {
+				/// COMPUTE CV PHASE
+				if (line_prev == line_next) {
+					cv_phase = 0;
+				} else {
+					phase_prev = (float)line_prev
+					/**/ + (float)cv_prev->delay / 99.0;
+					phase_next = (float)line_next
+					/**/ + (float)cv_next->delay / 99.0;
+					cv_phase = (((float)line + phase) - phase_prev)
+					/**/ / (phase_next - phase_prev);
+				}
+				/// COMPUTE CV VALUE
+				cv_value = (float)cv_prev->value +
+				/**/ ((float)cv_next->value - (float)cv_prev->value)
+				/**/ * cv_phase;
+			//// WITHOUT BOTH INTERPOLATION LINES
 			} else {
-				phase_from = (float)line_from + (float)cv_from->delay / 99.0;
-				phase_to = (float)line_to + (float)cv_to->delay / 99.0;
-				cv_phase = (((float)line + phase) - phase_from)
-				/**/ / (phase_to - phase_from);
+				if (cv_prev) {
+					cv_value = cv_prev->value;
+				} else if (cv_next) {
+					cv_value = cv_next->value;
+				} else {
+					if (col_cv->mode == PATTERN_CV_MODE_CV)
+						cv_value = 500.0;
+					else if (col_cv->mode == PATTERN_CV_MODE_BPM)
+						cv_value = 120.0;
+				}
 			}
-			/// COMPUTE CV VALUE
-			cv_value = (float)cv_from->value +
-			/**/ ((float)cv_to->value - (float)cv_from->value)
-			/**/ * cv_phase;
-		//// WITHOUT BOTH INTERPOLATION LINES
-		} else {
-			if (cv_from) {
-				cv_value = cv_from->value;
-			} else if (cv_to) {
-				cv_value = cv_to->value;
-			} else {
-				if (col_cv->mode == PATTERN_CV_MODE_CV)
-					cv_value = 500.0;
-				else if (col_cv->mode == PATTERN_CV_MODE_BPM)
-					cv_value = 120.0;
-			}
+		} else if (col_cv->mode == PATTERN_CV_MODE_GATE) {
+			if (cv_prev)
+				cv_value = cv_prev->value;
+			else if (cv_next)
+				cv_value = cv_next->value;
+			else
+				cv_value = 0.0;
 		}
 		/// [D] OUTPUT CV
+		//// MODE CV
 		if (col_cv->mode == PATTERN_CV_MODE_CV) {
-			/// REMAP CV FROM [0:999] TO [0:1]
+			/// REMAP CV PREV [0:999] TO [0:1]
 			cv_value /= 1000.0;
 			/// OUTPUT CV
 			synth = &(synths[pattern->cvs[col]->synth]);
 			synth->out_cv[pattern->cvs[col]->channel] = cv_value;
+		//// MODE GATE
+		} else if (col_cv->mode == PATTERN_CV_MODE_GATE) {
+			cv_value = (cv_value < 1.0) ? 0.0 : 1.0;
+			/// OUTPUT CV
+			synth = &(synths[pattern->cvs[col]->synth]);
+			synth->out_cv[pattern->cvs[col]->channel] = cv_value;
+		//// MODE BPM
 		} else if (col_cv->mode == PATTERN_CV_MODE_BPM) {
 			/// CLAMP CV ON [30:300]
 			if (cv_value < 30)
