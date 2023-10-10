@@ -14,8 +14,8 @@ TrackerClock::TrackerClock() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
-	this->global_phase = 0;
-	this->global_trigger.reset();
+	this->phase_play = 0;
+	this->trigger_restart.reset();
 	for (i = 0; i < 4; ++i) {
 		this->count[i] = 0;
 		this->phase[i] = 0.0;
@@ -23,6 +23,7 @@ TrackerClock::TrackerClock() {
 		configParam(PARAM_PHASE + i, 0, 1, 0, "Phase");
 		configParam(PARAM_PW + i, 0, 1, 0.5, "Pulse Width");
 	}
+	configParam(PARAM_MODE, 0, 1, 0)->snapEnabled = true;
 }
 
 void TrackerClock::process(const ProcessArgs& args) {
@@ -33,24 +34,27 @@ void TrackerClock::process(const ProcessArgs& args) {
 	int		multiplier;
 	float	phase;
 	bool	trigger;
+	bool	mode;
 	float	out;
 	int		i;
 
 	if (g_module == NULL || g_timeline == NULL)
 		return;
 
+	mode = this->params[PARAM_MODE].getValue();
+
 	/// [1] CHECK GLOBAL PLAY TRIGGER (RESET)
-	if (this->global_trigger.process(g_timeline->play_trigger.remaining > 0.0)) {
+	if (this->trigger_restart.process(g_timeline->play_trigger.remaining > 0.0)) {
 		for (i = 0; i < 4; ++i) {
 			this->count[i] = 0;
 			this->phase[i] = 0.0;
 		}
-		this->global_phase = g_timeline->clock.phase;
+		this->phase_play = g_timeline->clock.phase;
 	}
 
 	/// [2] CHECK GLOBAL CLOCK TRIGGER
-	trigger = (g_timeline->clock.phase < this->global_phase);
-	this->global_phase = g_timeline->clock.phase;
+	trigger = (g_timeline->clock.phase < this->phase_play);
+	this->phase_play = g_timeline->clock.phase;
 
 	for (i = 0; i < 4; ++i) {
 		
@@ -78,8 +82,17 @@ void TrackerClock::process(const ProcessArgs& args) {
 			/// COMPUTE PHASE
 			if (trigger)
 				this->count[i] += 1;
-			phase = ((float)this->count[i] + g_timeline->clock.phase)
-			/**/ / (float)divider + knob_phase;
+			/// COMPUTE PHASE
+			//// MODE FIXED (RESTART ON LOOP)
+			if (mode == TCLOCK_MODE_FIXED) {
+				phase = ((float)g_timeline->clock.beat + g_timeline->clock.phase)
+				/**/ / (float)divider + knob_phase;
+			//// MODE LOOP (KEEP GOING ON LOOP)
+			} else {
+				// TODO: Fix double increment phase
+				phase = ((float)this->count[i] + g_timeline->clock.phase)
+				/**/ / (float)divider + knob_phase;
+			}
 			phase = phase - (int)phase;
 			/// COMPUTE TRIGGER
 			out = (phase < knob_pw);

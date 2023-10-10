@@ -4,6 +4,9 @@
 
 #include "../plugin.hpp"
 
+#define TPHASE_MODE_FIXED	0
+#define TPHASE_MODE_LOOP	1
+
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,6 +20,7 @@ struct TrackerPhase: Module {
 		ENUMS(PARAM_INVERT, 4),
 		ENUMS(PARAM_OFFSET, 4),
 		ENUMS(PARAM_SCALE, 4),
+		PARAM_MODE,
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -29,10 +33,10 @@ struct TrackerPhase: Module {
 	enum	LightIds {
 		LIGHT_COUNT
 	};
-	dsp::TSchmittTrigger<float>	global_trigger;
-	float						global_phase;
-	int							count[4];
+	dsp::TSchmittTrigger<float>	trigger_restart;
+	float						phase_play;
 	float						phase[4];
+	int							count[4];
 
 	TrackerPhase();
 
@@ -55,9 +59,7 @@ struct TrackerPhaseWidget : ModuleWidget {
 	TrackerPhase			*module;
 
 	TrackerPhaseWidget(TrackerPhase* _module);
-	//void onSelect(const SelectEvent &e) override;
-	//void onDeselect(const DeselectEvent &e) override;
-	//void appendContextMenu(Menu *menu) override;
+	void appendContextMenu(Menu *menu) override;
 };
 
 #endif

@@ -13,7 +13,6 @@ TrackerPhase::TrackerPhase() {
 	int		i;
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
-
 	for (i = 0; i < 4; ++i) {
 		this->count[i] = 0;
 		this->phase[i] = 0.0;
@@ -25,6 +24,7 @@ TrackerPhase::TrackerPhase() {
 		configParam(PARAM_SCALE + i, -100, 100, 100, "Scale", "%");
 		configSwitch(PARAM_INVERT + i, 0, 1, 0, "Invert", {"Off", "On"});
 	}
+	configParam(PARAM_MODE, 0, 1, 0)->snapEnabled = true;
 }
 
 void TrackerPhase::process(const ProcessArgs& args) {
@@ -34,6 +34,7 @@ void TrackerPhase::process(const ProcessArgs& args) {
 	float	knob_warp;
 	float	knob_offset;
 	float	knob_scale;
+	bool	mode;
 	int		switch_invert;
 	int		multiplier;
 	int		divider;
@@ -45,18 +46,20 @@ void TrackerPhase::process(const ProcessArgs& args) {
 	if (g_module == NULL || g_timeline == NULL)
 		return;
 
+	mode = this->params[PARAM_MODE].getValue();
+
 	/// [1] CHECK GLOBAL PLAY TRIGGER (RESET)
-	if (this->global_trigger.process(g_timeline->play_trigger.remaining > 0.0)) {
+	if (this->trigger_restart.process(g_timeline->play_trigger.remaining > 0.0)) {
 		for (i = 0; i < 4; ++i) {
 			this->count[i] = 0;
 			this->phase[i] = 0.0;
 		}
-		this->global_phase = g_timeline->clock.phase;
+		this->phase_play = g_timeline->clock.phase;
 	}
 
-	/// [2] CHECK GLOBAL CLOCK TRIGGER
-	trigger = (g_timeline->clock.phase < this->global_phase);
-	this->global_phase = g_timeline->clock.phase;
+	/// [2] CHECK GLOBAL CLOCK TRIGGER (ON BEATS)
+	trigger = (g_timeline->clock.phase < this->phase_play);
+	this->phase_play = g_timeline->clock.phase;
 
 	for (i = 0; i < 4; ++i) {
 		
@@ -82,14 +85,25 @@ void TrackerPhase::process(const ProcessArgs& args) {
 		} else {
 			/// COMPUTE FREQ
 			divider = -knob_freq;
-			/// COMPUTE PHASE
-			if (trigger)
+			/// COMPUTE PHASE INC
+			if (trigger) {
 				this->count[i] += 1;
-			phase = ((float)this->count[i] + g_timeline->clock.phase)
-			/**/ / (float)divider + knob_phase;
+				if (this->count[i] >= divider)
+					this->count[i] = 0;
+			}
+			/// COMPUTE PHASE
+			//// MODE FIXED (RESTART ON LOOP)
+			if (mode == TPHASE_MODE_FIXED) {
+				phase = ((float)g_timeline->clock.beat + g_timeline->clock.phase)
+				/**/ / (float)divider + knob_phase;
+			//// MODE LOOP (KEEP GOING ON LOOP)
+			} else {
+				// TODO: Fix double increment phase
+				phase = ((float)this->count[i] + this->phase_play)
+				/**/ / (float)divider + knob_phase;
+			}
 			phase = phase - (int)phase;
 		}
-		this->phase[i] = phase;
 
 		/// [4] COMPUTE WAVE
 		//// WAVE RAMP UP

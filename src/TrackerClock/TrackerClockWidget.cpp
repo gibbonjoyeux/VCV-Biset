@@ -58,3 +58,25 @@ TrackerClockWidget::TrackerClockWidget(TrackerClock* _module) {
 	}
 }
 
+void TrackerClockWidget::appendContextMenu(Menu *menu) {
+	MenuSeparator	*separator;
+	Param			*param_mode;
+
+	separator = new MenuSeparator();
+	menu->addChild(separator);
+
+
+	param_mode = &(this->module->params[TrackerClock::PARAM_MODE]);
+	menu->addChild(rack::createSubmenuItem("Mode", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuCheckItem("Fixed", "restart on loop",
+				[=]() { return param_mode->getValue() == TCLOCK_MODE_FIXED; },
+				[=]() { param_mode->setValue(TCLOCK_MODE_FIXED); }
+			));
+			menu->addChild(new MenuCheckItem("Loop", "keep on loop",
+				[=]() { return param_mode->getValue() == TCLOCK_MODE_LOOP; },
+				[=]() { param_mode->setValue(TCLOCK_MODE_LOOP); }
+			));
+		}
+	));
+}

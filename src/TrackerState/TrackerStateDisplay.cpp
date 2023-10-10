@@ -19,7 +19,7 @@ void TrackerStateDisplay::draw(const DrawArgs &args) {
 	rect = box.zeroPos();
 	/// RECT BACKGROUND
 	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[15]);
+	nvgFillColor(args.vg, colors[0]);
 	nvgRect(args.vg, RECT_ARGS(rect));
 	nvgFill(args.vg);
 }
@@ -56,12 +56,12 @@ void TrackerStateDisplay::drawLayer(const DrawArgs &args, int layer) {
 				pan = synth->out_synth[j * 4 + 3];
 				/// COMPUTE X AXIS
 				x = rect.pos.x + rect.size.x / 2.0
-				/**/ + ((pan / 5.0) * (rect.size.x / 2.0 - 10.0));
+				/**/ + ((pan / 5.0) * (rect.size.x / 2.0 - TSTATE_MAX));
 				/// COMPUTE Y AXIS
 				y = rect.pos.y + rect.size.y / 2.0
-				/**/ - ((pitch / 5.0) * (rect.size.y / 2.0 - 10.0));
+				/**/ - ((pitch / 5.0) * (rect.size.y / 2.0 - TSTATE_MAX));
 				/// COMPUTE WIDTH
-				width = (1.0 + velo / 10.0 * 9.0) * scale;
+				width = (TSTATE_MIN + velo / 10.0 * TSTATE_RANGE) * scale;
 				/// DRAW VOICE
 				nvgBeginPath(args.vg);
 				nvgCircle(args.vg, x, y, width);

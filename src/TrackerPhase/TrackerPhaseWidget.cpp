@@ -77,3 +77,25 @@ TrackerPhaseWidget::TrackerPhaseWidget(TrackerPhase* _module) {
 	}
 }
 
+void TrackerPhaseWidget::appendContextMenu(Menu *menu) {
+	MenuSeparator	*separator;
+	Param			*param_mode;
+
+	separator = new MenuSeparator();
+	menu->addChild(separator);
+
+
+	param_mode = &(this->module->params[TrackerPhase::PARAM_MODE]);
+	menu->addChild(rack::createSubmenuItem("Mode", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuCheckItem("Fixed", "restart on loop",
+				[=]() { return param_mode->getValue() == TPHASE_MODE_FIXED; },
+				[=]() { param_mode->setValue(TPHASE_MODE_FIXED); }
+			));
+			menu->addChild(new MenuCheckItem("Loop", "keep on loop",
+				[=]() { return param_mode->getValue() == TPHASE_MODE_LOOP; },
+				[=]() { param_mode->setValue(TPHASE_MODE_LOOP); }
+			));
+		}
+	));
+}

@@ -4,6 +4,9 @@
 
 #include "../plugin.hpp"
 
+#define TCLOCK_MODE_FIXED	0
+#define TCLOCK_MODE_LOOP	1
+
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
@@ -13,6 +16,7 @@ struct TrackerClock: Module {
 		ENUMS(PARAM_FREQ, 4),
 		ENUMS(PARAM_PHASE, 4),
 		ENUMS(PARAM_PW, 4),
+		PARAM_MODE,
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -25,8 +29,8 @@ struct TrackerClock: Module {
 	enum	LightIds {
 		LIGHT_COUNT
 	};
-	dsp::TSchmittTrigger<float>	global_trigger;
-	float						global_phase;
+	dsp::TSchmittTrigger<float>	trigger_restart;
+	float						phase_play;
 	int							count[4];
 	float						phase[4];
 
@@ -53,7 +57,7 @@ struct TrackerClockWidget : ModuleWidget {
 	TrackerClockWidget(TrackerClock* _module);
 	//void onSelect(const SelectEvent &e) override;
 	//void onDeselect(const DeselectEvent &e) override;
-	//void appendContextMenu(Menu *menu) override;
+	void appendContextMenu(Menu *menu) override;
 };
 
 #endif
