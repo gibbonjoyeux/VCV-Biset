@@ -212,7 +212,18 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 		return;
 	p = rect.getTopLeft();
 
-	/// [1] LAYER 1 (MARKERS + NOTES + CURVES)
+	/// [1] HANDLE CAMERA (RECORD)
+	if (g_timeline->play != TIMELINE_MODE_STOP && g_editor->mod_caps) {
+		g_editor->pattern_line = pattern->line_play;
+		if (g_editor->pattern_line < (CHAR_COUNT_Y / 2)) {
+			g_editor->pattern_cam_y = 0;
+		} else {
+			g_editor->pattern_cam_y = g_editor->pattern_line
+			/**/ - (CHAR_COUNT_Y) / 2;
+		}
+	}
+
+	/// [2] LAYER 1 (MARKERS + NOTES + CURVES)
 	/// DRAW BEAT CURSOR
 	if (g_timeline->play != TIMELINE_MODE_STOP) {
 		nvgBeginPath(args.vg);
@@ -248,7 +259,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 		nvgText(args.vg, x, y, str, NULL);
 	}
 
-	/// [2] LAYER 2 (TRACKER)
+	/// [3] LAYER 2 (TRACKER)
 	/// FOR EACH NOTE COL	
 	tx = 0;
 	for (i = 0; i < pattern->note_count; ++i) {
