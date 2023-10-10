@@ -15,7 +15,6 @@ TrackerPhase::TrackerPhase() {
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 	for (i = 0; i < 4; ++i) {
 		this->count[i] = 0;
-		this->phase[i] = 0.0;
 		configParam(PARAM_TYPE + i, 0, 3, 0, "Wave")->snapEnabled = true;
 		configParam<ParamQuantityClock>(PARAM_FREQ + i, -32, 32, 0, "Frequency")->snapEnabled = true;
 		configParam(PARAM_PHASE + i, 0, 1, 0, "Phase");
@@ -52,7 +51,6 @@ void TrackerPhase::process(const ProcessArgs& args) {
 	if (this->trigger_restart.process(g_timeline->play_trigger.remaining > 0.0)) {
 		for (i = 0; i < 4; ++i) {
 			this->count[i] = 0;
-			this->phase[i] = 0.0;
 		}
 		this->phase_play = g_timeline->clock.phase;
 	}

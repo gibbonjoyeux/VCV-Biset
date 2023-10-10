@@ -18,7 +18,6 @@ TrackerClock::TrackerClock() {
 	this->trigger_restart.reset();
 	for (i = 0; i < 4; ++i) {
 		this->count[i] = 0;
-		this->phase[i] = 0.0;
 		configParam(PARAM_FREQ + i, -96, 96, 0, "Frequency")->snapEnabled = true;
 		configParam(PARAM_PHASE + i, 0, 1, 0, "Phase");
 		configParam(PARAM_PW + i, 0, 1, 0.5, "Pulse Width");
@@ -47,7 +46,6 @@ void TrackerClock::process(const ProcessArgs& args) {
 	if (this->trigger_restart.process(g_timeline->play_trigger.remaining > 0.0)) {
 		for (i = 0; i < 4; ++i) {
 			this->count[i] = 0;
-			this->phase[i] = 0.0;
 		}
 		this->phase_play = g_timeline->clock.phase;
 	}
@@ -74,7 +72,6 @@ void TrackerClock::process(const ProcessArgs& args) {
 			phase = phase - (int)phase;
 			/// COMPUTE TRIGGER
 			out = (phase < knob_pw);
-			this->phase[i] = phase;
 		//// CLOCK DIV
 		} else {
 			/// COMPUTE FREQ
@@ -96,7 +93,6 @@ void TrackerClock::process(const ProcessArgs& args) {
 			phase = phase - (int)phase;
 			/// COMPUTE TRIGGER
 			out = (phase < knob_pw);
-			this->phase[i] = phase;
 		}
 		
 		/// [4] OUTPUT TRIGGERS

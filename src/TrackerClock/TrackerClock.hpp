@@ -32,7 +32,6 @@ struct TrackerClock: Module {
 	dsp::TSchmittTrigger<float>	trigger_restart;
 	float						phase_play;
 	int							count[4];
-	float						phase[4];
 
 	TrackerClock();
 

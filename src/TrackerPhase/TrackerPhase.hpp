@@ -35,7 +35,6 @@ struct TrackerPhase: Module {
 	};
 	dsp::TSchmittTrigger<float>	trigger_restart;
 	float						phase_play;
-	float						phase[4];
 	int							count[4];
 
 	TrackerPhase();
