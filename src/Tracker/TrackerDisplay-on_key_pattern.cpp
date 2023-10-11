@@ -82,14 +82,12 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 							/// NOTE DELETE
 							if (e.key == GLFW_KEY_DELETE
 							|| e.key == GLFW_KEY_BACKSPACE) {
-								if (line_note->mode == PATTERN_NOTE_NEW)
-									line_note->mode = PATTERN_NOTE_KEEP;
-								else if (line_note->mode == PATTERN_NOTE_KEEP)
-									line_note->mode = PATTERN_NOTE_STOP;
-								else if (line_note->mode == PATTERN_NOTE_STOP)
-									line_note->mode = PATTERN_NOTE_KEEP;
-								else if (line_note->mode == PATTERN_NOTE_GLIDE)
-									line_note->mode = PATTERN_NOTE_KEEP;
+								line_note->mode = PATTERN_NOTE_KEEP;
+								g_editor->pattern_jump_cursor();
+								e.consume(this);
+							/// NOTE STOP
+							} else if (e.key == '`') {
+								line_note->mode = PATTERN_NOTE_STOP;
 								g_editor->pattern_jump_cursor();
 								e.consume(this);
 							/// NOTE EDIT

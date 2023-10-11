@@ -5,10 +5,6 @@
 @CuteFox
 @Sparvnätter
 
-# CONSTRUCTION / DESTRUCTION ORDER
-Construction: [Module - dataFromJson - onAdd] - [Widget]
-Destruction: [dataToJson], [Widget, onRemove, Module]
-
 # BUGS
 
 - ! ! ! Crash: Crash on pattern when play whole song
@@ -45,7 +41,6 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 
 # THINK ABOUT
 
-- ! ! ! Tilde instead of Delete for stop note
 - ! ! ! Check for 'TODO:' in files
 
 - What happens to overriden notes / voices when synth is used with many notes ?

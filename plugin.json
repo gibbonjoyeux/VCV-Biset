@@ -17,7 +17,7 @@
 	{
 		"slug": "Biset-Tracker",
 		"name": "Tracker",
-		"description": "An avanced sequencer based on a tracker and a timeline",
+		"description": "An advanced sequencer based on a tracker and a timeline",
 		"tags": [
 			"Sequencer",
 			"Controller",
