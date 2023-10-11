@@ -16,6 +16,7 @@ struct TrackerClock: Module {
 		ENUMS(PARAM_FREQ, 4),
 		ENUMS(PARAM_PHASE, 4),
 		ENUMS(PARAM_PW, 4),
+		ENUMS(PARAM_SWING, 4),
 		PARAM_MODE,
 		PARAM_COUNT
 	};

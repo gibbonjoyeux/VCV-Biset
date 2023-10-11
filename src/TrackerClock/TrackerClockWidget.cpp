@@ -21,14 +21,11 @@ TrackerClockWidget::TrackerClockWidget(TrackerClock* _module) {
 
 	x = 8.0;
 	y = 11.85;// + 10.5;
-	x_step = 11.0;
+	x_step = 8.5;
 	y_step = 30.0 - 2.9;
-	//y_step = 30.0 - 3.5;
-	//y_step = 30.0 - 12.0;
-	//y_step = 30.0 - 8.5;
 	for (i = 0; i < 4; ++i) {
 
-		/// FREQ + PHASE + PULSE WIDTH
+		/// FREQ + PHASE + PULSE WIDTH + SWING
 		addParam(
 		/**/ createParamCentered<KnobMedium>(mm2px(Vec(x, y + y_step * i)),
 		/**/ module,
@@ -38,9 +35,13 @@ TrackerClockWidget::TrackerClockWidget(TrackerClock* _module) {
 		/**/ module,
 		/**/ TrackerClock::PARAM_PHASE + i));
 		addParam(
-		/**/ createParamCentered<KnobSmall>(mm2px(Vec(x + 8.5, y + y_step * i + 8.0)),
+		/**/ createParamCentered<KnobSmall>(mm2px(Vec(x + x_step, y + y_step * i + 8.0)),
 		/**/ module,
 		/**/ TrackerClock::PARAM_PW + i));
+		addParam(
+		/**/ createParamCentered<KnobSmall>(mm2px(Vec(x + x_step * 2.0, y + y_step * i + 8.0)),
+		/**/ module,
+		/**/ TrackerClock::PARAM_SWING + i));
 
 		/// FREQ DISPLAY
 		display = createWidget<TrackerClockDisplay>(mm2px(Vec(x + 11.0 + 3.0 - 5.25, y + y_step * i - 3.0)));

@@ -45,6 +45,7 @@ Destruction: [dataToJson], [Widget, onRemove, Module]
 
 # THINK ABOUT
 
+- ! ! ! Tilde instead of Delete for stop note
 - ! ! ! Check for 'TODO:' in files
 
 - What happens to overriden notes / voices when synth is used with many notes ?
