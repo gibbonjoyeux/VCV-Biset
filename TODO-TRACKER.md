@@ -41,6 +41,7 @@
 
 # THINK ABOUT
 
+- ! ! ! T-Quant to T-Tuner ?
 - ! ! ! Check for 'TODO:' in files
 
 - What happens to overriden notes / voices when synth is used with many notes ?

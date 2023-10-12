@@ -133,6 +133,7 @@ static void on_button_left(const rack::Widget::ButtonEvent &e) {
 	g_editor->pattern_line = row;
 	g_editor->pattern_col = col;
 	g_editor->pattern_cell = cell;
+	g_editor->pattern_char = 0;
 	/// [4] CLAMP CURSOR
 	g_editor->pattern_clamp_cursor();
 }

@@ -13,12 +13,55 @@ TrackerSynthDisplay::TrackerSynthDisplay() {
 	font_path = std::string(asset::plugin(pluginInstance, "res/FT88-Regular.ttf"));
 }
 
+void TrackerSynthDisplay::draw(const DrawArgs &args) {
+	std::shared_ptr<Font>	font;
+	Rect					rect;
+	int						synth;
+	int						synth_selected;
+	Vec						p;
+
+	/// [1] DRAW BACKGROUND
+	//// GET SYNTH
+	if (module) {
+		synth = module->params[TrackerSynth::PARAM_SYNTH].getValue();
+		if (g_module == NULL || g_editor == NULL)
+			synth_selected = -1;
+		else
+			synth_selected = g_editor->synth_id;
+	} else {
+		synth = -1;
+		synth_selected = -2;
+	}
+	//// DRAW RECT
+	rect = box.zeroPos();
+	p = rect.getTopLeft();
+	nvgBeginPath(args.vg);
+	if (synth == synth_selected)
+		nvgFillColor(args.vg, colors[14]);
+	else
+		nvgFillColor(args.vg, colors[15]);
+	nvgRect(args.vg, RECT_ARGS(rect));
+	nvgFill(args.vg);
+
+	/// [2] DRAW SEARCH VIEW
+	if (module == NULL) {
+		/// GET FONT
+		font = APP->window->loadFont(font_path);
+		if (font == NULL)
+			return;
+		nvgFontSize(args.vg, 16);
+		nvgFontFaceId(args.vg, font->handle);
+		nvgFillColor(args.vg, colors[4]);
+		nvgText(args.vg, p.x + 35.0 / 2 - 13.5, p.y + 40.0 / 2 - 1.0,
+		/**/ "SYNTH", NULL);
+	}
+}
+
 void TrackerSynthDisplay::drawLayer(const DrawArgs& args, int layer) {
 	std::shared_ptr<Font>	font;
-	Rect				rect;
-	Vec					p;
-	int					synth;
-	int					synth_selected;
+	Rect					rect;
+	int						synth;
+	Vec						p;
 
 	font = APP->window->loadFont(font_path);
 	if (layer == 1 && module && font) {
@@ -27,18 +70,6 @@ void TrackerSynthDisplay::drawLayer(const DrawArgs& args, int layer) {
 		p = rect.getTopLeft();
 		/// GET SYNTH
 		synth = module->params[TrackerSynth::PARAM_SYNTH].getValue();
-		if (g_module == NULL || g_editor == NULL)
-			synth_selected = -1;
-		else
-			synth_selected = g_editor->synth_id;
-		/// DRAW BACKGROUND
-		nvgBeginPath(args.vg);
-		if (synth == synth_selected)
-			nvgFillColor(args.vg, colors[14]);
-		else
-			nvgFillColor(args.vg, colors[15]);
-		nvgRect(args.vg, RECT_ARGS(rect));
-		nvgFill(args.vg);
 		/// DRAW SYNTH
 		itoaw(this->str_synth, synth, 2);
 		nvgFontSize(args.vg, 21);

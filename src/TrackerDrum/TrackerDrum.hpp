@@ -52,7 +52,7 @@ struct TrackerDrumDisplay : LedDisplay {
 	char					str_synth[4];
 
 	TrackerDrumDisplay();
-	void draw(const DrawArgs &args) override {};
+	void draw(const DrawArgs &args) override;
 	void drawLayer(const DrawArgs &args, int layer) override;
 	void onButton(const ButtonEvent &e) override;
 };
