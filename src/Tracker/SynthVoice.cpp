@@ -160,7 +160,7 @@ bool SynthVoice::start(
 							pitch += -(random::u32() % (y + 1)) * 12;
 					}
 					break;
-				case PATTERN_EFFECT_RAND_PITCH:		// Mxy
+				case PATTERN_EFFECT_RAND_NOTE:		// Nxy
 					x = effect->value / 10;
 					y = effect->value % 10;
 					int_1 = random::u32() % 3;
@@ -171,30 +171,42 @@ bool SynthVoice::start(
 					else
 						pitch += y;
 					break;
-				case PATTERN_EFFECT_RAND_SCALE:		// Sxy
-					break;
 				case PATTERN_EFFECT_VIBRATO:		// Vxy
 					this->vibrato_freq =
 					/**/ (float)(effect->value / 10) * M_PI * 2.0f;
-					this->vibrato_amp = (float)(effect->value % 10) / 128.0;
+					this->vibrato_amp =
+					/**/ (float)(effect->value % 10) / 128.0;
+					break;
+				case PATTERN_EFFECT_VIBRATO_RAND:	// vxy
+					this->vibrato_freq =
+					/**/ (float)(effect->value / 10) * M_PI * 2.0f
+					/**/ * random::uniform();
+					this->vibrato_amp =
+					/**/ (float)(effect->value % 10) / 128.0
+					/**/ * random::uniform();
 					break;
 				case PATTERN_EFFECT_TREMOLO:		// Txy
 					this->tremolo_freq =
 					/**/ (float)(effect->value / 10) * M_PI * 2.0f;
-					this->tremolo_amp = (float)(effect->value % 10) / 32.0;
+					this->tremolo_amp =
+					/**/ (float)(effect->value % 10) / 32.0;
 					break;
-				case PATTERN_EFFECT_FADE_IN:		// Fxx
-					break;
-				case PATTERN_EFFECT_FADE_OUT:		// fxx
+				case PATTERN_EFFECT_TREMOLO_RAND:	// txy
+					this->tremolo_freq =
+					/**/ (float)(effect->value / 10) * M_PI * 2.0f
+					/**/ * random::uniform();
+					this->tremolo_amp =
+					/**/ (float)(effect->value % 10) / 32.0
+					/**/ * random::uniform();
 					break;
 				case PATTERN_EFFECT_CHANCE:			// Cxx
 					if (random::uniform() * 99.0 > effect->value)
 						return false;
 					break;
-				case PATTERN_EFFECT_CHANCE_STOP:	// cxx
-					break;
-				case PATTERN_EFFECT_RACHET:
-					break;
+				//case PATTERN_EFFECT_CHANCE_STOP:	// cxx
+				//	break;
+				//case PATTERN_EFFECT_RACHET:
+				//	break;
 			}
 		}
 	}

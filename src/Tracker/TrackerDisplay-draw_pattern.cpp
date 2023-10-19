@@ -385,7 +385,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 						str[3] = '.';
 						str[4] = 0;
 					} else {
-						str[0] = table_effect[effect->type - 1];
+						str[0] = effect->type;
 						str[1] = 0;
 						itoaw(str + 2, note->effects[k].value, 2);
 					}
@@ -401,12 +401,12 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			}
 		}
 		/// OFFSET X
-		tx += (2 + 1														// PITCH
-		/**/ + g_editor->pattern_view_velo * 2							// VELOCITY
-		/**/ + g_editor->pattern_view_pan * 2							// PANNING
-		/**/ + 2					  										// SYNTH
-		/**/ + g_editor->pattern_view_glide * 2							// DELAY
-		/**/ + g_editor->pattern_view_delay * 2							// GLIDE
+		tx += (2 + 1												// PITCH
+		/**/ + g_editor->pattern_view_velo * 2						// VELOCITY
+		/**/ + g_editor->pattern_view_pan * 2						// PANNING
+		/**/ + 2					  								// SYNTH
+		/**/ + g_editor->pattern_view_glide * 2						// DELAY
+		/**/ + g_editor->pattern_view_delay * 2						// GLIDE
 		/**/ + g_editor->pattern_view_fx * 3 * note_col->fx_count	// EFFECTS
 		/**/ + 1);
 	}

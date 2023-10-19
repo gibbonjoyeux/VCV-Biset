@@ -14,19 +14,18 @@
 #define EDITOR_MODE_TUNING				3
 
 #define PATTERN_EFFECT_NONE				0
-#define PATTERN_EFFECT_RAND_AMP			1	// Axx
-#define PATTERN_EFFECT_RAND_PAN			2	// Pxx
-#define PATTERN_EFFECT_RAND_DELAY		3	// Dxx
-#define PATTERN_EFFECT_RAND_OCT			4	// Oxy
-#define PATTERN_EFFECT_RAND_PITCH		5	// Mxy
-#define PATTERN_EFFECT_RAND_SCALE		6	// Sxy
-#define PATTERN_EFFECT_VIBRATO			7	// Vxy
-#define PATTERN_EFFECT_TREMOLO			8	// Txy
-#define PATTERN_EFFECT_FADE_IN			9	// Fxx
-#define PATTERN_EFFECT_FADE_OUT			10	// fxx
-#define PATTERN_EFFECT_CHANCE			11	// Cxx
-#define PATTERN_EFFECT_CHANCE_STOP		12	// cxx
-#define PATTERN_EFFECT_RACHET			13	// Rxy
+#define PATTERN_EFFECT_RAND_AMP			'A'	// Axx
+#define PATTERN_EFFECT_RAND_PAN			'P'	// Pxx
+#define PATTERN_EFFECT_RAND_DELAY		'D'	// Dxx
+#define PATTERN_EFFECT_RAND_OCT			'O'	// Oxy
+#define PATTERN_EFFECT_RAND_NOTE		'N'	// Nxy
+#define PATTERN_EFFECT_VIBRATO			'V'	// Vxy
+#define PATTERN_EFFECT_TREMOLO			'T'	// Txy
+#define PATTERN_EFFECT_VIBRATO_RAND		'v'	// vxy
+#define PATTERN_EFFECT_TREMOLO_RAND		't'	// txy
+#define PATTERN_EFFECT_CHANCE			'C'	// Cxx
+//#define PATTERN_EFFECT_CHANCE_STOP	'c'	// cxx
+//#define PATTERN_EFFECT_RACHET			'R'	// Rxy
 
 #define PATTERN_NOTE_KEEP				0
 #define PATTERN_NOTE_NEW				1
@@ -537,7 +536,7 @@ struct TrackerDisplaySide : LedDisplay {
 	void onDoubleClick(const DoubleClickEvent &e) override;
 	void onLeave(const LeaveEvent &e) override;
 	void onHoverScroll(const HoverScrollEvent &e) override;
-	void onSelectKey(const SelectKeyEvent &e) override;
+	//void onSelectKey(const SelectKeyEvent &e) override;
 	void draw_list(const DrawArgs &args, Rect rect,
 			int cam_y, std::function<bool(int,char**,int*,bool*)>);
 };

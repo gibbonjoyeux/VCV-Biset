@@ -26,7 +26,8 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 	/// DRAW ACTIVE BEAT MARKER
 	if (g_timeline->play == TIMELINE_MODE_PLAY_SONG
 	|| g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
-		x = p.x + 2.0 + CHAR_W * (g_timeline->clock.beat + 2 - g_editor->timeline_cam_x);
+		x = p.x + 2.0 + CHAR_W * (g_timeline->clock.beat + 2
+		/**/ - (int)g_editor->timeline_cam_x);
 		nvgBeginPath(args.vg);
 		nvgFillColor(args.vg, colors[15]);
 		nvgRect(args.vg, x, rect.pos.y, CHAR_W, rect.size.y);
@@ -35,7 +36,7 @@ void TrackerDisplay::draw_timeline(const DrawArgs &args, Rect rect) {
 	/// DRAW BEAT / BAR COUNT
 	y = p.y + 11.0;
 	for (i = 0; i < 85; ++i) {
-		index = i + g_editor->timeline_cam_x;
+		index = i + (int)g_editor->timeline_cam_x;
 		x = p.x + 2.0 + CHAR_W * (i + 2);
 		if (index % 4 == 0) {
 			nvgFillColor(args.vg, colors[13]);

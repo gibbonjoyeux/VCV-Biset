@@ -16,8 +16,6 @@
 			-> Bitwig 1 octave layout
 -> See: https://github.com/VCVRack/Rack/blob/8c6f41b778b4bf8860b89b36d5503fd37924077f/src/keyboard.cpp#L210
 
-- ! ! ! Should use MIDI input to write notes
-		-> Unless `g_module->midi_input.getDriver()` is NULL
 - ! ! ! Check for 'TODO:' in files
 - ! ! ! Crash: Crash on pattern when play whole song
 
@@ -29,11 +27,12 @@
 		place in `g_module`. If the new one is removed, issue.
 - ! ! ! Sometimes, on multi channels synth, gate / trigger got issue and
 		miss lot of notes.
+		-> Due to external bug blocking a single polyphonic channel ?
 
 # THINK ABOUT
 
 - Glide allowing effects ?
-	-> Useful to have random note or octave
+	-> Useful to have chance or random note / octave
 - What happens to overriden notes / voices when synth is used with many notes ?
 - Live play
 	- Light notifying caps lock ?
@@ -219,13 +218,13 @@
 			- [x] CV mode mapping
 
 - [ ] MODULE TrackerClock (mult & div clock)
-	- [ ] Mode like TrackerPhase
+	- [x] Mode fixed	(Restart on loop)
+	- [ ] Mode Loop		(Keep going on loop)
 
 
 - [ ] MODULE TrackerPhase (mult & div synced LFO)
 	- [x] Mode fixed	(Restart on loop)
 	- [ ] Mode Loop		(Keep going on loop)
-	- ! ! ! Useless phase[] table
 
 
 - [x] MODULE TrackerQuant (quantizer with Tracker pitch & temperament)

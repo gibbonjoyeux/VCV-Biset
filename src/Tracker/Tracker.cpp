@@ -109,6 +109,10 @@ Tracker::Tracker() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
+	configLight(LIGHT_FOCUS, "Focus");
+	configLight(LIGHT_PLAY, "Play");
+	configLight(LIGHT_RECORD, "Record");
+
 	for (i = 0; i < 8; ++i)
 		configParam<ParamQuantityLink>(PARAM_MENU + i, 0, 1, 0);
 

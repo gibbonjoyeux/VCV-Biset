@@ -18,7 +18,7 @@ It can be used to build complex **tracks** or for **live performance**.
 **Regex** and **Regex-Condensed** are **live coding** modules. They can generate
 **clock** (rythm), **pitch** and **modulation** sequences.
 
-[Regex manual](./Manual-Regex.pdf)
+[Regex manual](./doc/Manual-Regex.pdf)
 
 ![Regex modules](./doc/Biset-Regex.png)
 

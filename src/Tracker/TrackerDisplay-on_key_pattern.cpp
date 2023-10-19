@@ -236,11 +236,13 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 									if (key > 0) {
 										i = 0;
 										/// FIND EFFECT TYPE
+										i = 0;
 										while (i < (int)sizeof(table_effect)) {
 											/// MATCH EFFECT TYPE
 											if (key == table_effect[i]) {
-												effect->type = i + 1;
+												effect->type = key;
 												g_editor->pattern_jump_cursor();
+												break;
 											}
 											i += 1;
 										}

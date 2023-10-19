@@ -38,6 +38,36 @@ static void menu_pattern(PatternSource *pattern) {
 
 	play_disable = (g_timeline->play != TIMELINE_MODE_STOP);
 	menu = createMenu();
+
+	/// ADD MOVE BUTTONS
+	menu->addChild(rack::createMenuItem("Move up", "",
+		[=](void) {
+			PatternSource		*pattern_a;
+			PatternSource		*pattern_b;
+
+			pattern_a = g_editor->pattern;
+			pattern_b = &(g_timeline->patterns[g_editor->pattern_id - 1]);
+			g_editor->pattern_id -= 1;
+			g_timeline->pattern_swap(pattern_a, pattern_b);
+			g_editor->pattern = pattern_b;
+		},
+		!(g_editor->pattern_id > 0)
+	));
+	menu->addChild(rack::createMenuItem("Move down", "",
+		[=](void) {
+			PatternSource		*pattern_a;
+			PatternSource		*pattern_b;
+
+			pattern_a = g_editor->pattern;
+			pattern_b = &(g_timeline->patterns[g_editor->pattern_id + 1]);
+			g_editor->pattern_id += 1;
+			g_timeline->pattern_swap(pattern_a, pattern_b);
+			g_editor->pattern = pattern_b;
+		},
+		!(g_editor->pattern_id < g_timeline->pattern_count - 1)
+	));
+	menu->addChild(new MenuSeparator());
+
 	/// ADD LABEL
 	label = new MenuLabel();
 	label->text = "Edit pattern";
@@ -182,6 +212,36 @@ static void menu_synth(Synth *synth) {
 
 	play_disable = (g_timeline->play != TIMELINE_MODE_STOP);
 	menu = createMenu();
+
+	/// ADD MOVE BUTTONS
+	menu->addChild(rack::createMenuItem("Move up", "",
+		[=](void) {
+			Synth		*synth_a;
+			Synth		*synth_b;
+
+			synth_a = g_editor->synth;
+			synth_b = &(g_timeline->synths[g_editor->synth_id - 1]);
+			g_editor->synth_id -= 1;
+			g_timeline->synth_swap(synth_a, synth_b);
+			g_editor->synth = synth_b;
+		},
+		!(g_editor->synth_id > 0)
+	));
+	menu->addChild(rack::createMenuItem("Move down", "",
+		[=](void) {
+			Synth		*synth_a;
+			Synth		*synth_b;
+
+			synth_a = g_editor->synth;
+			synth_b = &(g_timeline->synths[g_editor->synth_id + 1]);
+			g_editor->synth_id += 1;
+			g_timeline->synth_swap(synth_a, synth_b);
+			g_editor->synth = synth_b;
+		},
+		!(g_editor->synth_id < g_timeline->synth_count - 1)
+	));
+	menu->addChild(new MenuSeparator());
+
 	/// ADD LABEL
 	label = new MenuLabel();
 	label->text = "Edit synth";
@@ -431,8 +491,6 @@ void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 		if (index < (int)g_timeline->synth_count) {
 			/// SELECT SYNTH
 			g_editor->set_synth(index);
-			//g_editor->synth_id = index;
-			//g_editor->synth = &(g_timeline->synths[index]);
 			/// CLICK RIGHT
 			if (e.button == GLFW_MOUSE_BUTTON_RIGHT)
 				menu_synth(&(g_timeline->synths[index]));
@@ -450,8 +508,6 @@ void TrackerDisplaySide::onButton(const ButtonEvent &e) {
 		if (index < (int)g_timeline->pattern_count) {
 			/// SELECT PATTERN
 			g_editor->set_pattern(index);
-			//g_editor->pattern_id = index;
-			//g_editor->pattern = &(g_timeline->patterns[index]);
 			/// CLICK RIGHT
 			if (e.button == GLFW_MOUSE_BUTTON_RIGHT)
 				menu_pattern(&(g_timeline->patterns[index]));
@@ -521,62 +577,62 @@ void TrackerDisplaySide::onHoverScroll(const HoverScrollEvent &e) {
 		*scroll = 0;
 }
 
-void TrackerDisplaySide::onSelectKey(const SelectKeyEvent &e) {
-	Synth			*synth_a;
-	Synth			*synth_b;
-	PatternSource	*pattern_a;
-	PatternSource	*pattern_b;
-
-	if (g_module != this->module)
-		return;
-
-	if ((e.action == GLFW_PRESS || e.action == GLFW_REPEAT)
-	&& (e.key == GLFW_KEY_UP || e.key == GLFW_KEY_DOWN)) {
-		e.consume(this);
-		if (g_timeline->play != TIMELINE_MODE_STOP)
-			return;
-		/// MOVE SYNTH
-		if (g_editor->mode == EDITOR_MODE_PATTERN) {
-			if (g_editor->synth) {
-				synth_a = g_editor->synth;
-				/// MOVE UP
-				if (e.key == GLFW_KEY_UP) {
-					if (g_editor->synth_id <= 0)
-						return;
-					synth_b = &(g_timeline->synths[g_editor->synth_id - 1]);
-					g_editor->synth_id -= 1;
-				/// MOVE DOWN
-				} else {
-					if (g_editor->synth_id >= g_timeline->synth_count - 1)
-						return;
-					synth_b = &(g_timeline->synths[g_editor->synth_id + 1]);
-					g_editor->synth_id += 1;
-				}
-				g_timeline->synth_swap(synth_a, synth_b);
-				/// RE-SELECT MOVED SYNTH
-				g_editor->synth = synth_b;
-			}
-		/// MOVE PATTERN
-		} else if (g_editor->mode == EDITOR_MODE_TIMELINE) {
-			if (g_editor->pattern) {
-				pattern_a = g_editor->pattern;
-				/// MOVE UP
-				if (e.key == GLFW_KEY_UP) {
-					if (g_editor->pattern_id <= 0)
-						return;
-					pattern_b = &(g_timeline->patterns[g_editor->pattern_id - 1]);
-					g_editor->pattern_id -= 1;
-				/// MOVE DOWN
-				} else {
-					if (g_editor->pattern_id >= g_timeline->pattern_count - 1)
-						return;
-					pattern_b = &(g_timeline->patterns[g_editor->pattern_id + 1]);
-					g_editor->pattern_id += 1;
-				}
-				g_timeline->pattern_swap(pattern_a, pattern_b);
-				/// RE-SELECT MOVED SYNTH
-				g_editor->pattern = pattern_b;
-			}
-		}
-	}
-}
+//void TrackerDisplaySide::onSelectKey(const SelectKeyEvent &e) {
+//	Synth			*synth_a;
+//	Synth			*synth_b;
+//	PatternSource	*pattern_a;
+//	PatternSource	*pattern_b;
+//
+//	if (g_module != this->module)
+//		return;
+//
+//	if ((e.action == GLFW_PRESS || e.action == GLFW_REPEAT)
+//	&& (e.key == GLFW_KEY_UP || e.key == GLFW_KEY_DOWN)) {
+//		e.consume(this);
+//		if (g_timeline->play != TIMELINE_MODE_STOP)
+//			return;
+//		/// MOVE SYNTH
+//		if (g_editor->mode == EDITOR_MODE_PATTERN) {
+//			if (g_editor->synth) {
+//				synth_a = g_editor->synth;
+//				/// MOVE UP
+//				if (e.key == GLFW_KEY_UP) {
+//					if (g_editor->synth_id <= 0)
+//						return;
+//					synth_b = &(g_timeline->synths[g_editor->synth_id - 1]);
+//					g_editor->synth_id -= 1;
+//				/// MOVE DOWN
+//				} else {
+//					if (g_editor->synth_id >= g_timeline->synth_count - 1)
+//						return;
+//					synth_b = &(g_timeline->synths[g_editor->synth_id + 1]);
+//					g_editor->synth_id += 1;
+//				}
+//				g_timeline->synth_swap(synth_a, synth_b);
+//				/// RE-SELECT MOVED SYNTH
+//				g_editor->synth = synth_b;
+//			}
+//		/// MOVE PATTERN
+//		} else if (g_editor->mode == EDITOR_MODE_TIMELINE) {
+//			if (g_editor->pattern) {
+//				pattern_a = g_editor->pattern;
+//				/// MOVE UP
+//				if (e.key == GLFW_KEY_UP) {
+//					if (g_editor->pattern_id <= 0)
+//						return;
+//					pattern_b = &(g_timeline->patterns[g_editor->pattern_id - 1]);
+//					g_editor->pattern_id -= 1;
+//				/// MOVE DOWN
+//				} else {
+//					if (g_editor->pattern_id >= g_timeline->pattern_count - 1)
+//						return;
+//					pattern_b = &(g_timeline->patterns[g_editor->pattern_id + 1]);
+//					g_editor->pattern_id += 1;
+//				}
+//				g_timeline->pattern_swap(pattern_a, pattern_b);
+//				/// RE-SELECT MOVED SYNTH
+//				g_editor->pattern = pattern_b;
+//			}
+//		}
+//	}
+//}

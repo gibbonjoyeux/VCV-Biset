@@ -8,7 +8,7 @@
 char	table_pitch[12][3] = {
 	"C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"
 };
-char	table_effect[] = "APDOMSVTFfCcR";
+char	table_effect[] = "APDONVTvtC";
 char	table_hex[] = "0123456789ABCDEF";
 int		table_keyboard[128];
 
