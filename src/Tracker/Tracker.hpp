@@ -120,7 +120,7 @@ struct PatternCV {
 	i8							mode;		// PATTERN_CV_xxx
 	u16							value;
 	u8							delay;
-	u8							glide;
+	u8							curve;
 
 	PatternCV();
 };

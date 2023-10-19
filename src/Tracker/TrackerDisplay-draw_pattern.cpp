@@ -439,7 +439,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 			}
 			ptext(args, p, tx_col, j, str, 3, focus);
 			tx_col += 3;
-			/// GLIDE
+			/// CURVE
 			focus = focus_line & (g_editor->pattern_cell == 1);
 			nvgFillColor(args.vg, colors[5]);
 			if (cv->mode == PATTERN_CV_KEEP) {
@@ -447,7 +447,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 				str[1] = '.';
 				str[2] = 0;
 			} else {
-				itoaw(str, cv->glide, 2);
+				itoaw(str, cv->curve, 2);
 			}
 			ptext(args, p, tx_col, j, str, 5, focus);
 			tx_col += 2;

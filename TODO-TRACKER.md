@@ -7,9 +7,6 @@
 
 # BUGS
 
-- ! ! ! Default CV curve is 0 while it should be 4 or 5
-- ! ! ! T-Clock & T-Phase should output 0 if not playing
-
 - ! ! ! Need to build Tracker's own driver / device
 		-> Allows to link with tracker octave
 		-> Allows to change octave -/+ buttons
@@ -21,8 +18,6 @@
 
 - ! ! ! Should use MIDI input to write notes
 		-> Unless `g_module->midi_input.getDriver()` is NULL
-		-> Are the octave buttons needed ? ? ? Useful without drivers
-- ! ! ! T-Quant to T-Tuner ?
 - ! ! ! Check for 'TODO:' in files
 - ! ! ! Crash: Crash on pattern when play whole song
 
@@ -223,7 +218,7 @@
 			- [x] CV mode range (min / max sliders)
 			- [x] CV mode mapping
 
-- [] MODULE TrackerClock (mult & div clock)
+- [ ] MODULE TrackerClock (mult & div clock)
 	- [ ] Mode like TrackerPhase
 
 
@@ -256,33 +251,31 @@
 
 # Effects
 
-[x] Axx	Amplitude random		(xx: noise amplitude)
+- [x] Axx	Amplitude random		(xx: noise amplitude)
 		Multiply base amplitude by noise (noise can only make it lower)
-[x] Pxx	Pan random				(xx: pan amplitude)
+- [x] Pxx	Pan random				(xx: pan amplitude)
 		Add noise to base panning (bipolar noise)
-[ ] pxx	Pitch (micro) random	(xx: pitch amplitude)
-[ ] txx Tuning (micro) fixed	(xx: pitch amplitude up to 1 semitone)
+- [ ] pxx	Pitch (micro) random	(xx: pitch amplitude)
+- [ ] txx Tuning (micro) fixed	(xx: pitch amplitude up to 1 semitone)
 		xx = 0  : Note n
 		xx = 99 : Note n + 1
 		Transition from 0 to 99 depends on temperament table
 		Microtonal + MPE
-[x] Dxx Delay random			(xx: delay amplitude)
-[x] Oxy	Octave random			(x: mode y: amplitude)
+- [x] Dxx Delay random			(xx: delay amplitude)
+- [x] Oxy	Octave random			(x: mode y: amplitude)
 		x = 0 : -+ offset
 		x = 1 : + offset
 		x = 2 : - offset
-[x] Mxy	Note random semitone	(x: semitone tone 1st offset y: 2nd offset)
+- [x] Mxy	Note random semitone	(x: semitone tone 1st offset y: 2nd offset)
 		Peek random note between [base note], [base + x] and [base + y]
 		x & y being semitone offset
 		Can be cumulable
-[x] Vxy	Vibrato					(x: speed y: amplitude)
-[x] Txy	Tremolo					(x: speed y: amplitude)
-[ ] Fxx	Fade out				(x: speed)
-[ ] fxx	Fade in					(x: speed)
-[x] Cxx	Chance keep				(xx: chance)
+- [x] Vxy	Vibrato					(x: speed y: amplitude)
+- [x] Txy	Tremolo					(x: speed y: amplitude)
+- [x] Cxx	Chance keep				(xx: chance)
 		Keep previous running note on if chance does not occur
-[ ] cxx	Chance stop				(xx: chance)
+- [ ] cxx	Chance stop				(xx: chance)
 		Stop previous running note even if chance does not occur
-[ ] Rxx	Ratchet / Retrigger		(xx: retrigger interval) ? (x: amp fade y: interval)
+- [ ] Rxx	Ratchet / Retrigger		(xx: retrigger interval) ? (x: amp fade y: interval)
 		x<5 : decrease | x>5 : increase | x=5 : static
 		y represents the interval between retriggers

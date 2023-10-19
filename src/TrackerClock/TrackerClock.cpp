@@ -56,6 +56,13 @@ void TrackerClock::process(const ProcessArgs& args) {
 	trigger = (g_timeline->clock.phase < this->phase_play);
 	this->phase_play = g_timeline->clock.phase;
 
+	//// TIMELINE STOP
+	if (g_timeline->play == TIMELINE_MODE_STOP) {
+		for (i = 0; i < 4; ++i)
+			this->outputs[OUTPUT_CLOCK + i].setVoltage(0.0);
+		return;
+	}
+	//// TIMELINE PLAY
 	for (i = 0; i < 4; ++i) {
 		
 		knob_freq = this->params[PARAM_FREQ + i].getValue();

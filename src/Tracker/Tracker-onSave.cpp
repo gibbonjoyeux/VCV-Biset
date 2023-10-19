@@ -297,7 +297,7 @@ static void fill_save_buffer() {
 					fill_u8(cv->mode);					// CV mode
 					fill_u16(cv->value);				// CV value
 					fill_u8(cv->delay);					// CV delay
-					fill_u8(cv->glide);					// CV curve
+					fill_u8(cv->curve);					// CV curve
 					count += 1;
 				}
 			}

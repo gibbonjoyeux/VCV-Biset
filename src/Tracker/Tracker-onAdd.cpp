@@ -290,7 +290,7 @@ static bool compute_save_file(void) {
 				cv->mode = read_u8();					// CV mode
 				cv->value = read_u16();					// CV value
 				cv->delay = read_u8();					// CV delay
-				cv->glide = read_u8();					// CV curve
+				cv->curve = read_u8();					// CV curve
 			}
 		}
 	}

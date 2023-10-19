@@ -282,8 +282,10 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 							} else {
 								key = key_dec(e);
 								if (key >= 0) {
-									if (line_cv->mode == PATTERN_CV_KEEP)
+									if (line_cv->mode == PATTERN_CV_KEEP) {
 										line_cv->mode = PATTERN_CV_SET;
+										line_cv->curve = 50;
+									}
 									if (g_editor->pattern_char == 0) {
 										line_cv->value =
 										/**/ key * 100
@@ -310,13 +312,13 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 							key = key_dec(e);
 							if (key >= 0) {
 								if (g_editor->pattern_char == 0) {
-									line_cv->glide =
-									/**/ line_cv->glide % 10
+									line_cv->curve =
+									/**/ line_cv->curve % 10
 									/**/ + key * 10;
 									g_editor->pattern_char += 1;
 								} else {
-									line_cv->glide =
-									/**/ (line_cv->glide / 10) * 10
+									line_cv->curve =
+									/**/ (line_cv->curve / 10) * 10
 									/**/ + key;
 									g_editor->pattern_char = 0;
 									g_editor->pattern_jump_cursor();

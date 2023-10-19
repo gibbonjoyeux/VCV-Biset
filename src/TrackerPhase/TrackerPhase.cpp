@@ -59,6 +59,15 @@ void TrackerPhase::process(const ProcessArgs& args) {
 	trigger = (g_timeline->clock.phase < this->phase_play);
 	this->phase_play = g_timeline->clock.phase;
 
+	/// TIMELINE STOP
+	if (g_timeline->play == TIMELINE_MODE_STOP) {
+		for (i = 0; i < 4; ++i) {
+			knob_offset = this->params[PARAM_OFFSET + i].getValue();
+			this->outputs[OUTPUT_PHASE + i].setVoltage(knob_offset);
+		}
+		return;
+	}
+	//// TIMELINE PLAY
 	for (i = 0; i < 4; ++i) {
 		
 		knob_type = this->params[PARAM_TYPE + i].getValue();

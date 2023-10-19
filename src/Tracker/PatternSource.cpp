@@ -17,7 +17,7 @@ PatternEffect::PatternEffect() {
 PatternCV::PatternCV() {
 	this->mode = PATTERN_CV_KEEP;
 	this->value = 0;
-	this->glide = 0;
+	this->curve = 50;
 }
 
 PatternNote::PatternNote() {

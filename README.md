@@ -9,24 +9,24 @@
 **patterns** arranged in a **timeline**.
 It can be used to build complex **tracks** or for **live performance**.
 
-![Tracker modules](./doc/Biset-Tracker.png)
+[Tracker manual](./doc/Manual-Tracker.pdf)
 
-[Tracker modules](./doc/Manual-Tracker.pdf)
+![Tracker modules](./doc/Biset-Tracker.png)
 
 ## Regex
 
 **Regex** and **Regex-Condensed** are **live coding** modules. They can generate
 **clock** (rythm), **pitch** and **modulation** sequences.
 
-![Regex modules](./doc/Biset-Regex.png)
+[Regex manual](./Manual-Regex.pdf)
 
-[Regex modules](./Manual-Regex.pdf)
+![Regex modules](./doc/Biset-Regex.png)
 
 ## Other modules
 
 ### Segfault
 
-![Segfault](./doc/shot-segfault.png)
+![Segfault](./doc/Biset-Segfault.png)
 
 **Segfault** is designed to be used with **VCV - Midi to CV** module while
 performing on your Qwerty or Midi keyboard.
