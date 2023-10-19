@@ -10,8 +10,9 @@ static int key_midi(const Widget::SelectKeyEvent &e) {
 
 	if (e.key < 0 || e.key >= 128)
 		return -2;
-	if (e.keyName[0] == 'o')
-		return -1;
+	// TODO: What was that for ?
+	//if (e.keyName[0] == 'o')
+	//	return -1;
 	midi = table_keyboard[e.key];
 	if (midi < 0)
 		return -2;
@@ -95,20 +96,8 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 								key = key_midi(e);
 								/// NOTE NEW
 								if (key >= 0) {
-									line_note->pitch = key;
-									if (g_editor->synth_id >= 0)
-										line_note->synth = g_editor->synth_id;
-									else
-										line_note->synth = 0;
-									if (line_note->mode == PATTERN_NOTE_KEEP
-									|| line_note->mode == PATTERN_NOTE_STOP) {
-										line_note->mode = PATTERN_NOTE_NEW;
-										line_note->velocity = 99;
-										line_note->panning = 50;
-									}
-									strcpy(g_editor->pattern_debug,
-									/**/ table_pitch[key % 12]);
-									g_editor->pattern_jump_cursor();
+									g_editor->live_states[key] = NOTE_STATE_START;
+									e.consume(this);
 								/// NOTE STOP
 								} else if (key == -1) {
 									line_note->mode = PATTERN_NOTE_STOP;

@@ -5,6 +5,60 @@
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
+static inline void	handle_midi(void) {
+	PatternSource	*pattern;
+	PatternNoteCol	*column;
+	PatternNote		*line;
+	int				i;
+
+	// TODO: check if recording
+	// -> on record, behave in a different way
+	// -> No jumping
+	// -> No set to NONE when is ON
+
+	if (g_editor->pattern == NULL)
+		return;
+	/// FOR EACH MIDI NOTE
+	for (i = 0; i < 128; ++i) {
+		switch (g_editor->live_states[i]) {
+			/// NOTE OFF
+			case NOTE_STATE_OFF:
+				break;
+			/// NOTE START
+			case NOTE_STATE_START:
+				pattern = g_editor->pattern;
+				if (g_editor->pattern_col >= pattern->note_count)
+					continue;
+				column = pattern->notes[g_editor->pattern_col];
+				line = &(column->lines[g_editor->pattern_line]);
+				if (g_editor->pattern_cell == 0) {
+					line->pitch = i;
+					if (g_editor->synth_id >= 0)
+						line->synth = g_editor->synth_id;
+					else
+						line->synth = 0;
+					if (line->mode == PATTERN_NOTE_KEEP
+					|| line->mode == PATTERN_NOTE_STOP) {
+						/// WRITE NOTE
+						line->mode = PATTERN_NOTE_NEW;
+						line->velocity = 99;
+						line->panning = 50;
+					}
+				}
+				g_editor->pattern_jump_cursor();
+				g_editor->live_states[i] = NOTE_STATE_ON;
+				break;
+			/// NOTE ON (RUNNING)
+			case NOTE_STATE_ON:
+				break;
+			/// NOTE STOP
+			case NOTE_STATE_STOP:
+				g_editor->live_states[i] = NOTE_STATE_OFF;
+				break;
+		}
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,8 +97,6 @@ Editor::Editor() {
 	this->pattern_octave = 4;
 	this->pattern_jump = 1;
 
-	this->pattern_debug[0] = 0;
-
 	this->timeline_column = 0;
 	this->timeline_line = 0;
 	this->timeline_cell = 0;
@@ -55,8 +107,10 @@ Editor::Editor() {
 	this->side_synth_cam_y = 0;
 	this->side_pattern_cam_y = 0;
 
-	for (i = 0; i < 128; ++i)
+	for (i = 0; i < 128; ++i) {
 		this->live_voices[i] = NULL;
+		this->live_states[i] = false;
+	}
 }
 
 void Editor::process(i64 frame) {
@@ -71,16 +125,19 @@ void Editor::process(i64 frame) {
 	/// [1] HANDLE MODS
 	mods = APP->window->getMods();
 	this->mod_shift = ((mods & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT);
-	this->mod_caps = ((mods & GLFW_MOD_CAPS_LOCK) == GLFW_MOD_CAPS_LOCK);
+	//this->mod_caps = ((mods & GLFW_MOD_CAPS_LOCK) == GLFW_MOD_CAPS_LOCK);
 
-	/// [2] HANDLE VIEW SWITCHES
+	/// [2] HANDLE MIDI / KEYBOARD
+	handle_midi();
+
+	/// [3] HANDLE VIEW SWITCHES
 	pattern_view_velo = module->params[Tracker::PARAM_VIEW + 0].getValue();
 	pattern_view_pan = module->params[Tracker::PARAM_VIEW + 1].getValue();
 	pattern_view_glide = module->params[Tracker::PARAM_VIEW + 2].getValue();
 	pattern_view_delay = module->params[Tracker::PARAM_VIEW + 3].getValue();
 	pattern_view_fx = module->params[Tracker::PARAM_VIEW + 4].getValue();
 
-	/// [3] HANDLE EDITOR MODES
+	/// [4] HANDLE EDITOR MODES
 	if (module->params[Tracker::PARAM_MODE_PATTERN].getValue())
 		this->mode = EDITOR_MODE_PATTERN;
 	else if (module->params[Tracker::PARAM_MODE_TIMELINE].getValue())
@@ -90,7 +147,7 @@ void Editor::process(i64 frame) {
 	else
 		this->mode = EDITOR_MODE_TUNING;
 
-	/// [4] HANDLE PLAYING BUTTONS
+	/// [5] HANDLE PLAYING BUTTONS
 	/// HANDLE PLAY
 	//// PLAY SONG
 	if (this->button_play[0]
@@ -165,29 +222,21 @@ void Editor::process(i64 frame) {
 			this->pattern_jump -= 1;
 
 	/// [6] HANDLE LIGHTS
-	//// LIGHT PLAY
-	if (g_timeline->play == TIMELINE_MODE_STOP) {
-		g_module->lights[Tracker::LIGHT_PLAY + 0].setBrightness(0);
-		g_module->lights[Tracker::LIGHT_PLAY + 1].setBrightness(0);
-		g_module->lights[Tracker::LIGHT_PLAY + 2].setBrightness(0);
-	} else {
-		/// PLAY
-		if (g_editor->mod_caps == false) {
-			g_module->lights[Tracker::LIGHT_PLAY + 0].setBrightness(0);
-			g_module->lights[Tracker::LIGHT_PLAY + 1].setBrightness(1);
-			g_module->lights[Tracker::LIGHT_PLAY + 2].setBrightness(1);
-		/// PLAY + RECORD
-		} else {
-			g_module->lights[Tracker::LIGHT_PLAY + 0].setBrightness(1);
-			g_module->lights[Tracker::LIGHT_PLAY + 1].setBrightness(0);
-			g_module->lights[Tracker::LIGHT_PLAY + 2].setBrightness(0);
-		}
-	}
 	//// LIGHT FOCUS
 	if (this->selected)
 		g_module->lights[Tracker::LIGHT_FOCUS].setBrightness(1);
 	else
 		g_module->lights[Tracker::LIGHT_FOCUS].setBrightness(0);
+	//// LIGHT PLAY
+	if (g_timeline->play != TIMELINE_MODE_STOP)
+		g_module->lights[Tracker::LIGHT_PLAY].setBrightness(1);
+	else
+		g_module->lights[Tracker::LIGHT_PLAY].setBrightness(0);
+	//// LIGHT RECORD
+	if (g_editor->mod_caps == true)
+		g_module->lights[Tracker::LIGHT_RECORD].setBrightness(1);
+	else
+		g_module->lights[Tracker::LIGHT_RECORD].setBrightness(0);
 }
 
 void Editor::set_synth(int index) {

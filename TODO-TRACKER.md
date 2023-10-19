@@ -7,43 +7,38 @@
 
 # BUGS
 
+- ! ! ! Default CV curve is 0 while it should be 4 or 5
+- ! ! ! T-Clock & T-Phase should output 0 if not playing
+
+- ! ! ! Need to build Tracker's own driver / device
+		-> Allows to link with tracker octave
+		-> Allows to change octave -/+ buttons
+		-> Allows to detect SPACE for play
+		-> Allows to have different layout
+			-> Sunvox / VCV 2 octaves layout
+			-> Bitwig 1 octave layout
+-> See: https://github.com/VCVRack/Rack/blob/8c6f41b778b4bf8860b89b36d5503fd37924077f/src/keyboard.cpp#L210
+
+- ! ! ! Should use MIDI input to write notes
+		-> Unless `g_module->midi_input.getDriver()` is NULL
+		-> Are the octave buttons needed ? ? ? Useful without drivers
+- ! ! ! T-Quant to T-Tuner ?
+- ! ! ! Check for 'TODO:' in files
 - ! ! ! Crash: Crash on pattern when play whole song
 
-- [ ] Pattern instances can have a negative `beat_start` but should not
+- Pattern instances can have a negative `beat_start` but should not
 
-- [ ] Check if `thread_flag` has a big CPU impact
+- Check if `thread_flag` has a big CPU impact
 
-- [x] Drum synth should always have 12 "channels" (on process, the synth
-		should process the 12 channels).
-- [ ] If clone Tracker module accidentaly, the last module takes previous one
+- If clone Tracker module accidentaly, the last module takes previous one
 		place in `g_module`. If the new one is removed, issue.
-- [x] On saved and then modified file, if re-open saved filed without saving
-		last changes, theses changes seems to stay with weird behaviour.
-- [ ] ! ! ! Sometimes, on multi channels synth, gate / trigger got issue and
+- ! ! ! Sometimes, on multi channels synth, gate / trigger got issue and
 		miss lot of notes.
-- [x] Reduced frame rate on main process cause effects to be ultra slow
-		-> Reduce main computation but keep SynthVoice
-- [x] Synth gate never comming back to 0
-- [x] Crash: on start when lot of note are added:
-		-> Issue from onSave()
-		-> File size starts to be wrong after few lines added.
-		-> Seems that the file is completely offseted by one byte.
-		-> One byte (0x0d) is added at 3nd byte position after 1st byte of
-		   u32 file size.
-		-> Buffer stays good even after write() and close() so issue does not
-		   come from buffer filling.
-- [x] Crash: Cursor on CV column, change CV column count to 0.
-- [ ] Crash: On start / On add with template (due to template ?)
-- [ ] Crash: once on pattern change (via knob)
-	-> Might be due to cursor position that gets out of bound on pattern change
-	to a smaller pattern (both line and column)
-	-> Check on empty pattern !
 
 # THINK ABOUT
 
-- ! ! ! T-Quant to T-Tuner ?
-- ! ! ! Check for 'TODO:' in files
-
+- Glide allowing effects ?
+	-> Useful to have random note or octave
 - What happens to overriden notes / voices when synth is used with many notes ?
 - Live play
 	- Light notifying caps lock ?

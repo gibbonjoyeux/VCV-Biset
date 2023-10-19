@@ -23,10 +23,14 @@ static void process_midi_message(midi::Message *msg) {
 			velocity = msg->getValue();
 			if (pitch > 127)
 				return;
+			/// STOP LIVE NOTE
 			if (g_editor->live_voices[pitch] != NULL) {
 				g_editor->live_voices[pitch]->stop();
 				g_editor->live_voices[pitch] = NULL;
 			}
+			/// WRITE NOTE STOP
+			if (g_editor->live_states[pitch] == NOTE_STATE_ON)
+				g_editor->live_states[pitch] = NOTE_STATE_STOP;
 		} break;
 		// NOTE ON
 		case 0x9: {
@@ -36,7 +40,7 @@ static void process_midi_message(midi::Message *msg) {
 				return;
 			/// VELOCITY > 0
 			if (velocity > 0) {
-				/// BUILD NOTE
+				/// BUILD LIVE NOTE
 				note.mode = PATTERN_NOTE_NEW;
 				note.glide = 0;
 				note.synth = g_editor->synth_id;
@@ -46,18 +50,25 @@ static void process_midi_message(midi::Message *msg) {
 				note.delay = 0;
 				for (i = 0; i < 8; ++i)
 					note.effects[i].type = PATTERN_EFFECT_NONE;
-				/// SEND NOTE
+				/// SEND LIVE NOTE
 				note_voice = g_editor->synth->add(NULL, &note, 1.0);
-				/// SAVE NOTE
+				/// SAVE LIVE NOTE
 				if (g_editor->live_voices[pitch] != NULL)
 					g_editor->live_voices[pitch]->stop();
 				g_editor->live_voices[pitch] = note_voice;
+				/// WRITE NOTE START
+				if (g_editor->selected)
+					g_editor->live_states[pitch] = NOTE_STATE_START;
 			/// VELOCITY = 0 (NOTE OFF)
 			} else {
+				/// STOP LIVE NOTE
 				if (g_editor->live_voices[pitch] != NULL) {
 					g_editor->live_voices[pitch]->stop();
 					g_editor->live_voices[pitch] = NULL;
 				}
+				/// WRITE NOTE STOP
+				if (g_editor->live_states[pitch] == NOTE_STATE_ON)
+					g_editor->live_states[pitch] = NOTE_STATE_STOP;
 			}
 		} break;
 		// KEY PRESSURE
@@ -81,10 +92,11 @@ static void process_midi_message(midi::Message *msg) {
 static void process_midi_input(int frame) {
 	midi::Message	msg;
 
-	if (g_timeline == NULL || g_editor == NULL || g_editor->synth == NULL)
+	if (g_timeline == NULL || g_editor == NULL)
 		return;
 	while (g_module->midi_input.tryPop(&msg, frame))
-		process_midi_message(&msg);
+		if (g_editor->synth)
+			process_midi_message(&msg);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

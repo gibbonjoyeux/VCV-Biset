@@ -94,10 +94,12 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker.svg")));
 
 	/// [1] ADD LIGHTS
-	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(12.5, 12.0)),
+	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(10.0, 12.0)),
 	module, Tracker::LIGHT_FOCUS));
-	addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(18.0, 12.0)),
+	addChild(createLightCentered<MediumLight<BlueLight>>(mm2px(Vec(15.5, 12.0)),
 	module, Tracker::LIGHT_PLAY));
+	addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(21.0, 12.0)),
+	module, Tracker::LIGHT_RECORD));
 
 	/// [2] ADD PARAMS
 	//// PLAY BUTTONS
@@ -226,7 +228,7 @@ void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
 	bool	mode_tuning;
 	bool	mode_tmp;
 
-	if (g_module == NULL)
+	if (g_module == NULL || g_editor == NULL)
 		return;
 
 	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_CONTROL))

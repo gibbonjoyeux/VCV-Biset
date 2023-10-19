@@ -56,6 +56,11 @@
 #define INSTANCE_HANDLE_MIDDLE			1
 #define INSTANCE_HANDLE_RIGHT			2
 
+#define NOTE_STATE_OFF					0
+#define NOTE_STATE_START				1
+#define NOTE_STATE_ON					2
+#define NOTE_STATE_STOP					3
+
 #define CHAR_W							6.302522
 #define CHAR_H							8.5
 #define CHAR_COUNT_X					84
@@ -383,7 +388,6 @@ struct Editor {
 	int							pattern_char;
 	int							pattern_cam_x;
 	int							pattern_cam_y;
-	char						pattern_debug[4];
 	bool						pattern_view_velo;
 	bool						pattern_view_pan;
 	bool						pattern_view_glide;
@@ -399,7 +403,8 @@ struct Editor {
 	float						timeline_cam_x;
 	float						timeline_cam_y;
 
-	SynthVoice*					live_voices[128];
+	SynthVoice*					live_voices[128];	// Stores live voices
+	u8							live_states[128];	// Stores midi or keyboard events
 
 	Vec							mouse_pos;
 	Vec							mouse_pos_drag;
@@ -472,8 +477,8 @@ struct Tracker : Module {
 	};
 	enum LightIds {
 								LIGHT_FOCUS,
+								LIGHT_PLAY,
 								LIGHT_RECORD,
-								ENUMS(LIGHT_PLAY, 3),
 								LIGHT_COUNT
 	};
 	midi::InputQueue			midi_input;
