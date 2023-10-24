@@ -21,6 +21,7 @@ static inline void	handle_midi(void) {
 				break;
 			/// NOTE START
 			case NOTE_STATE_START:
+				/// WRITE NOTE TO PATTERN
 				pattern = g_editor->pattern;
 				if (g_editor->pattern_col < pattern->note_count) {
 					column = pattern->notes[g_editor->pattern_col];
@@ -33,7 +34,6 @@ static inline void	handle_midi(void) {
 							line->synth = 0;
 						if (line->mode == PATTERN_NOTE_KEEP
 						|| line->mode == PATTERN_NOTE_STOP) {
-							/// WRITE NOTE
 							line->mode = PATTERN_NOTE_NEW;
 							line->velocity = 99;
 							line->panning = 50;
@@ -41,7 +41,9 @@ static inline void	handle_midi(void) {
 						}
 					}
 				}
+				/// JUMP CURSOR
 				g_editor->pattern_jump_cursor();
+				/// SAVE STATE
 				g_editor->live_states[i] = NOTE_STATE_ON;
 				break;
 			/// NOTE ON (RUNNING)
@@ -50,19 +52,34 @@ static inline void	handle_midi(void) {
 			/// NOTE STOP
 			case NOTE_STATE_STOP:
 				if (g_editor->recording) {
+					/// WRITE NOTE STOP
 					pattern = g_editor->pattern;
 					if (g_editor->pattern_col < pattern->note_count) {
 						column = pattern->notes[g_editor->pattern_col];
 						line = &(column->lines[g_editor->pattern_line]);
 						if (g_editor->pattern_cell == 0) {
-							/// WRITE NOTE STOP
+							/// ON CELL EMPTY
 							if (line->mode == PATTERN_NOTE_KEEP) {
 								line->mode = PATTERN_NOTE_STOP;
 								line->delay = 99 * pattern->line_phase;
+							/// ON CELL TAKEN
+							} else if (line->mode == PATTERN_NOTE_NEW) {
+								if (line->pitch == i
+								&& (g_editor->pattern_line + 1
+								< pattern->line_count)) {
+									line = &(column->lines
+									/**/ [g_editor->pattern_line + 1]);
+									/// ON CELL EMPTY
+									if (line->mode == PATTERN_NOTE_KEEP) {
+										line->mode = PATTERN_NOTE_STOP;
+										line->delay = 0;
+									}
+								}
 							}
 						}
 					}
 				}
+				/// SAVE STATE
 				g_editor->live_states[i] = NOTE_STATE_OFF;
 				break;
 		}
