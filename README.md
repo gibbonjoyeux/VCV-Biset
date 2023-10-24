@@ -3,6 +3,8 @@
 
 **Biset** sequencing / performing modules.
 
+[Donations are welcome](https://www.paypal.com/paypalme/bisousbiset)
+
 ## Tracker
 
 **Tracker** is a series of modules building a complex sequencer based on

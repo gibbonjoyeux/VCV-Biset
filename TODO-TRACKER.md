@@ -7,15 +7,6 @@
 
 # BUGS
 
-- ! ! ! Need to build Tracker's own driver / device
-		-> Allows to link with tracker octave
-		-> Allows to change octave -/+ buttons
-		-> Allows to detect SPACE for play
-		-> Allows to have different layout
-			-> Sunvox / VCV 2 octaves layout
-			-> Bitwig 1 octave layout
--> See: https://github.com/VCVRack/Rack/blob/8c6f41b778b4bf8860b89b36d5503fd37924077f/src/keyboard.cpp#L210
-
 - ! ! ! Check for 'TODO:' in files
 - ! ! ! Crash: Crash on pattern when play whole song
 
@@ -35,12 +26,9 @@
 	-> https://vcvrack.com/docs-v2/structrack_1_1widget_1_1EventState#aa6bf4a0628b3cabdffc769419d47f649
 	-> https://github.com/VCVRack/Rack/blob/8c6f41b778b4bf8860b89b36d5503fd37924077f/src/window/Window.cpp#L229
 
-- Record button ? Can be switched with a shortcut
 - Glide allowing effects ?
 	-> Useful to have chance or random note / octave
 - What happens to overriden notes / voices when synth is used with many notes ?
-- Live play
-	- Light notifying caps lock ?
 - Tuning
 	- Multiple tuning - switch between them (via CV ?)
 	- Tuning view
