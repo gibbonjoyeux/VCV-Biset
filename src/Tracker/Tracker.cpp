@@ -25,10 +25,7 @@ static void process_midi_message(midi::Message *msg) {
 			if (pitch > 127)
 				return;
 			/// STOP LIVE NOTE
-			if (g_editor->live_voices[pitch] != NULL) {
-				g_editor->live_voices[pitch]->stop();
-				g_editor->live_voices[pitch] = NULL;
-			}
+			g_editor->live_stop(pitch);
 			/// WRITE NOTE STOP
 			if (g_editor->live_states[pitch] == NOTE_STATE_ON)
 				g_editor->live_states[pitch] = NOTE_STATE_STOP;
@@ -41,32 +38,15 @@ static void process_midi_message(midi::Message *msg) {
 				return;
 			/// VELOCITY > 0
 			if (velocity > 0) {
-				/// BUILD LIVE NOTE
-				note.mode = PATTERN_NOTE_NEW;
-				note.glide = 0;
-				note.synth = g_editor->synth_id;
-				note.pitch = pitch;
-				note.velocity = ((float)velocity / 127.0) * 99.0;
-				note.panning = 50;
-				note.delay = 0;
-				for (i = 0; i < 8; ++i)
-					note.effects[i].type = PATTERN_EFFECT_NONE;
-				/// SEND LIVE NOTE
-				note_voice = g_editor->synth->add(NULL, &note, 1.0, &state);
-				/// SAVE LIVE NOTE
-				if (g_editor->live_voices[pitch] != NULL)
-					g_editor->live_voices[pitch]->stop();
-				g_editor->live_voices[pitch] = note_voice;
+				/// STOP LIVE NOTE
+				g_editor->live_play(pitch, ((float)velocity / 127.0) * 99.0);
 				/// WRITE NOTE START
 				if (g_editor->selected)
 					g_editor->live_states[pitch] = NOTE_STATE_START;
 			/// VELOCITY = 0 (NOTE OFF)
 			} else {
 				/// STOP LIVE NOTE
-				if (g_editor->live_voices[pitch] != NULL) {
-					g_editor->live_voices[pitch]->stop();
-					g_editor->live_voices[pitch] = NULL;
-				}
+				g_editor->live_stop(pitch);
 				/// WRITE NOTE STOP
 				if (g_editor->live_states[pitch] == NOTE_STATE_ON)
 					g_editor->live_states[pitch] = NOTE_STATE_STOP;
@@ -146,6 +126,8 @@ Tracker::Tracker() {
 	configSwitch(PARAM_VIEW + 2, 0, 1, 0, "View Delay");
 	configSwitch(PARAM_VIEW + 3, 0, 1, 0, "View Glide");
 	configSwitch(PARAM_VIEW + 4, 0, 1, 0, "View Effects");
+
+	configSwitch(PARAM_RECORD, 0, 1, 0, "Record");
 
 	configButton(PARAM_OCTAVE_UP, "Octave +");
 	configButton(PARAM_OCTAVE_DOWN, "Octave -");

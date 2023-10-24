@@ -43,6 +43,7 @@ void PatternSource::init(void) {
 	this->line_count = 0;
 	this->lpb = 0;
 	this->line_play = 0;
+	this->line_phase = 0.0;
 	/// COLUMNS
 	this->note_count = 0;
 	this->cv_count = 0;
@@ -61,6 +62,7 @@ void PatternSource::init(int note_count, int cv_count, int beat_count,
 	this->line_count = 0;
 	this->lpb = 0;
 	this->line_play = 0;
+	this->line_phase = 0.0;
 	/// COLUMNS
 	this->note_count = 0;
 	this->cv_count = 0;

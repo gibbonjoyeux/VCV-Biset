@@ -213,7 +213,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 	p = rect.getTopLeft();
 
 	/// [1] HANDLE CAMERA (RECORD)
-	if (g_timeline->play != TIMELINE_MODE_STOP && g_editor->mod_caps) {
+	if (g_timeline->play != TIMELINE_MODE_STOP && g_editor->recording) {
 		g_editor->pattern_line = pattern->line_play;
 		if (g_editor->pattern_line < (CHAR_COUNT_Y / 2)) {
 			g_editor->pattern_cam_y = 0;

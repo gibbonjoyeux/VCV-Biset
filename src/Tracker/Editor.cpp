@@ -11,11 +11,6 @@ static inline void	handle_midi(void) {
 	PatternNote		*line;
 	int				i;
 
-	// TODO: check if recording
-	// -> on record, behave in a different way
-	// -> No jumping
-	// -> No set to NONE when is ON
-
 	if (g_editor->pattern == NULL)
 		return;
 	/// FOR EACH MIDI NOTE
@@ -27,22 +22,23 @@ static inline void	handle_midi(void) {
 			/// NOTE START
 			case NOTE_STATE_START:
 				pattern = g_editor->pattern;
-				if (g_editor->pattern_col >= pattern->note_count)
-					continue;
-				column = pattern->notes[g_editor->pattern_col];
-				line = &(column->lines[g_editor->pattern_line]);
-				if (g_editor->pattern_cell == 0) {
-					line->pitch = i;
-					if (g_editor->synth_id >= 0)
-						line->synth = g_editor->synth_id;
-					else
-						line->synth = 0;
-					if (line->mode == PATTERN_NOTE_KEEP
-					|| line->mode == PATTERN_NOTE_STOP) {
-						/// WRITE NOTE
-						line->mode = PATTERN_NOTE_NEW;
-						line->velocity = 99;
-						line->panning = 50;
+				if (g_editor->pattern_col < pattern->note_count) {
+					column = pattern->notes[g_editor->pattern_col];
+					line = &(column->lines[g_editor->pattern_line]);
+					if (g_editor->pattern_cell == 0) {
+						line->pitch = i;
+						if (g_editor->synth_id >= 0)
+							line->synth = g_editor->synth_id;
+						else
+							line->synth = 0;
+						if (line->mode == PATTERN_NOTE_KEEP
+						|| line->mode == PATTERN_NOTE_STOP) {
+							/// WRITE NOTE
+							line->mode = PATTERN_NOTE_NEW;
+							line->velocity = 99;
+							line->panning = 50;
+							line->delay = 99 * pattern->line_phase;
+						}
 					}
 				}
 				g_editor->pattern_jump_cursor();
@@ -53,6 +49,20 @@ static inline void	handle_midi(void) {
 				break;
 			/// NOTE STOP
 			case NOTE_STATE_STOP:
+				if (g_editor->recording) {
+					pattern = g_editor->pattern;
+					if (g_editor->pattern_col < pattern->note_count) {
+						column = pattern->notes[g_editor->pattern_col];
+						line = &(column->lines[g_editor->pattern_line]);
+						if (g_editor->pattern_cell == 0) {
+							/// WRITE NOTE STOP
+							if (line->mode == PATTERN_NOTE_KEEP) {
+								line->mode = PATTERN_NOTE_STOP;
+								line->delay = 99 * pattern->line_phase;
+							}
+						}
+					}
+				}
 				g_editor->live_states[i] = NOTE_STATE_OFF;
 				break;
 		}
@@ -137,7 +147,14 @@ void Editor::process(i64 frame) {
 	pattern_view_delay = module->params[Tracker::PARAM_VIEW + 3].getValue();
 	pattern_view_fx = module->params[Tracker::PARAM_VIEW + 4].getValue();
 
-	/// [4] HANDLE EDITOR MODES
+	/// [4] HANDLE RECORD SWITCH
+	if (module->params[Tracker::PARAM_RECORD].getValue()
+	&& g_timeline->play == TIMELINE_MODE_PLAY_PATTERN_SOLO)
+		recording = true;
+	else
+		recording = false;
+
+	/// [5] HANDLE EDITOR MODES
 	if (module->params[Tracker::PARAM_MODE_PATTERN].getValue())
 		this->mode = EDITOR_MODE_PATTERN;
 	else if (module->params[Tracker::PARAM_MODE_TIMELINE].getValue())
@@ -147,7 +164,7 @@ void Editor::process(i64 frame) {
 	else
 		this->mode = EDITOR_MODE_TUNING;
 
-	/// [5] HANDLE PLAYING BUTTONS
+	/// [6] HANDLE PLAYING BUTTONS
 	/// HANDLE PLAY
 	//// PLAY SONG
 	if (this->button_play[0]
@@ -221,7 +238,7 @@ void Editor::process(i64 frame) {
 		if (this->pattern_jump > 0)
 			this->pattern_jump -= 1;
 
-	/// [6] HANDLE LIGHTS
+	/// [7] HANDLE LIGHTS
 	//// LIGHT FOCUS
 	if (this->selected)
 		g_module->lights[Tracker::LIGHT_FOCUS].setBrightness(1);
@@ -233,7 +250,7 @@ void Editor::process(i64 frame) {
 	else
 		g_module->lights[Tracker::LIGHT_PLAY].setBrightness(0);
 	//// LIGHT RECORD
-	if (g_editor->mod_caps == true)
+	if (g_editor->recording == true)
 		g_module->lights[Tracker::LIGHT_RECORD].setBrightness(1);
 	else
 		g_module->lights[Tracker::LIGHT_RECORD].setBrightness(0);
@@ -383,6 +400,8 @@ void Editor::pattern_move_cursor_y(int delta_y) {
 }
 
 void Editor::pattern_jump_cursor(void) {
+	if (this->recording)
+		return;
 	if (this->pattern_jump > 0)
 		this->pattern_move_cursor_y(this->pattern_jump);
 }
@@ -503,6 +522,38 @@ void Editor::pattern_reset_cursor(void) {
 	this->pattern_char = 0;
 	this->pattern_cam_x = 0;
 	this->pattern_cam_y = 0;
+}
+
+void Editor::live_play(int pitch, int velocity) {
+	PatternNote		note;
+	SynthVoice		*note_voice;
+	int				state;
+	int				i;
+	
+	/// BUILD LIVE NOTE
+	note.mode = PATTERN_NOTE_NEW;
+	note.glide = 0;
+	note.synth = g_editor->synth_id;
+	note.pitch = pitch;
+	note.velocity = velocity;
+	note.panning = 50;
+	note.delay = 0;
+	for (i = 0; i < 8; ++i)
+		note.effects[i].type = PATTERN_EFFECT_NONE;
+	/// SEND LIVE NOTE
+	note_voice = g_editor->synth->add(NULL, &note, 1.0, &state);
+	/// SAVE LIVE NOTE
+	if (g_editor->live_voices[pitch] != NULL)
+		g_editor->live_voices[pitch]->stop();
+	g_editor->live_voices[pitch] = note_voice;
+}
+
+void Editor::live_stop(int pitch) {
+	/// STOP LIVE NOTE
+	if (g_editor->live_voices[pitch] != NULL) {
+		g_editor->live_voices[pitch]->stop();
+		g_editor->live_voices[pitch] = NULL;
+	}
 }
 
 //////////////////////////////////////////////////

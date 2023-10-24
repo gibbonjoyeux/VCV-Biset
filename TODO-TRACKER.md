@@ -83,9 +83,11 @@
 		- [ ] LIVE
 			- [x] Play live (with caps lock, write in any case)
 			- [ ] Record live (with play and caps lock on)
-				- [ ] Move cursor (if caps lock)
-				- [ ] Record notes (on available columns)
-				- [ ] Record delays
+				- [x] Move cursor (when record is on)
+				- [ ] Record notes
+					- [x] Single column
+					- [ ] Multiple columns
+				- [x] Record delays
 				- [ ] Record MPE (with effects)
 			- [x] External midi keyboard
 				- [x] Select keyboard (from context menu)

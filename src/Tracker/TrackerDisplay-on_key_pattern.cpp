@@ -53,7 +53,26 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 	int				key;
 	int				i;
 
-	//e.consume(this);
+	/// ON RELEASE
+	if (e.action == GLFW_RELEASE) {
+		pattern = g_editor->pattern;
+		/// KEY ON NOTE
+		if (g_editor->pattern_col < pattern->note_count) {
+			col_note = pattern->notes[g_editor->pattern_col];
+			line_note = &(col_note->lines[g_editor->pattern_line]);
+			if (g_editor->pattern_cell == 0) {
+				key = key_midi(e);
+				/// NOTE STOP
+				if (key >= 0) {
+					g_editor->live_stop(key);
+					g_editor->live_states[key] = NOTE_STATE_STOP;
+					e.consume(this);
+				}
+			}
+		}
+	}
+
+	/// ON PRESS / REPEAT
 	if (e.action == GLFW_PRESS
 	|| e.action == GLFW_REPEAT) {
 		if (g_editor->pattern) {
@@ -96,6 +115,12 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 								key = key_midi(e);
 								/// NOTE NEW
 								if (key >= 0) {
+									if (e.action == GLFW_REPEAT
+									&& g_editor->recording == true) {
+										e.consume(this);
+										return;
+									}
+									g_editor->live_play(key, 99);
 									g_editor->live_states[key] = NOTE_STATE_START;
 									e.consume(this);
 								/// NOTE STOP

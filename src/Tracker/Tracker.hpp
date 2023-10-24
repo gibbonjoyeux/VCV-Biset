@@ -173,6 +173,7 @@ struct PatternSource {
 	ArrayExt<PatternCVCol>		cvs;		// Col X CV lines
 	u8							lpb;		// Lines per beat
 	u16							line_play;	// Playing line
+	float						line_phase;	// Playing line phase
 
 	PatternSource();
 
@@ -374,6 +375,7 @@ struct EditorTrigger : dsp::BooleanTrigger {
 
 struct Editor {
 	int							mode;			// Pattern / Timeline / Param
+	bool						recording;
 	bool						selected;
 	int							pattern_id;		// Active pattern
 	PatternSource				*pattern;
@@ -423,7 +425,6 @@ struct Editor {
 
 	EditorTrigger				button_octave[2];
 	EditorTrigger				button_jump[2];
-	EditorTrigger				button_save;
 	EditorTrigger				button_play[4];
 
 	Editor();
@@ -436,6 +437,8 @@ struct Editor {
 	void pattern_move_cursor_y(int y);
 	void pattern_jump_cursor(void);
 	void pattern_reset_cursor(void);
+	void live_play(int pitch, int velocity);
+	void live_stop(int pitch);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -456,6 +459,8 @@ struct Tracker : Module {
 								PARAM_JUMP_DOWN,
 								PARAM_OCTAVE_UP,
 								PARAM_OCTAVE_DOWN,
+								/// RECORD
+								PARAM_RECORD,
 								/// EDITOR MODE SWITCHES
 								PARAM_MODE_PATTERN,
 								PARAM_MODE_TIMELINE,

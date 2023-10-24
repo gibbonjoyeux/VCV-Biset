@@ -146,6 +146,12 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 		/**/ Tracker::PARAM_VIEW + i));
 	}
 
+	//// RECORD SWITCH
+	addParam(
+	/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(15.5, 67.5)),
+	/**/ module,
+	/**/ Tracker::PARAM_RECORD));
+
 	/// [3] ADD DISPLAYS
 	//// MAIN LED DISPLAY
 	display = createWidget<TrackerDisplay>(mm2px(Vec(DISPLAY_X, DISPLAY_Y)));

@@ -45,6 +45,7 @@ void PatternReader::process(
 	phase = clock.phase * pattern->lpb;
 	phase -= (int)phase;
 	pattern->line_play = line;
+	pattern->line_phase = phase;
 
 	/// [1] COMPUTE PATTERN NOTE COLS
 	for (col = 0; col < pattern->note_count; ++col) {
