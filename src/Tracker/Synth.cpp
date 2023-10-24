@@ -79,7 +79,8 @@ void Synth::rename(char *name) {
 	strncpy(this->name + 5, name, 255);
 }
 
-SynthVoice* Synth::add(PatternNoteCol *col, PatternNote *note, int lpb) {
+SynthVoice* Synth::add(PatternNoteCol *col, PatternNote *note, int lpb,
+	int *state) {
 	Synth			*synth;
 	SynthVoice		*voice;
 
@@ -87,12 +88,14 @@ SynthVoice* Synth::add(PatternNoteCol *col, PatternNote *note, int lpb) {
 	/// MODE DRUM
 	if (synth->mode == SYNTH_MODE_DRUM) {
 		voice = &(this->voices[note->pitch % 12]);
-		if (voice->start(synth, col, note, lpb) == true)
+		*state = voice->start(synth, col, note, lpb);
+		if (*state == VOICE_ADD_ADD)
 			return voice;
 	/// MODE GATE + TRIGGER
 	} else {
 		voice = &(this->voices[this->channel_cur]);
-		if (voice->start(synth, col, note, lpb) == true) {
+		*state = voice->start(synth, col, note, lpb);
+		if (*state == VOICE_ADD_ADD) {
 			this->channel_cur = (this->channel_cur + 1) % this->channel_count;
 			return voice;
 		}

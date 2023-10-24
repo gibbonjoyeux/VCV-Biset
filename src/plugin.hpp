@@ -22,7 +22,7 @@ using				std::unique_ptr;
 #include "Segfault/Segfault.hpp"
 
 extern char		table_pitch[12][3];
-extern char		table_effect[11];
+extern char		table_effect[12];
 extern char		table_hex[17];
 extern int		table_keyboard[128];
 extern float	table_temp_equal[12];

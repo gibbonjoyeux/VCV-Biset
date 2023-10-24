@@ -24,7 +24,7 @@
 #define PATTERN_EFFECT_VIBRATO_RAND		'v'	// vxy
 #define PATTERN_EFFECT_TREMOLO_RAND		't'	// txy
 #define PATTERN_EFFECT_CHANCE			'C'	// Cxx
-//#define PATTERN_EFFECT_CHANCE_STOP	'c'	// cxx
+#define PATTERN_EFFECT_CHANCE_STOP	'c'	// cxx
 //#define PATTERN_EFFECT_RACHET			'R'	// Rxy
 
 #define PATTERN_NOTE_KEEP				0
@@ -40,6 +40,10 @@
 #define SYNTH_MODE_GATE					0
 #define SYNTH_MODE_TRIGGER				1
 #define SYNTH_MODE_DRUM					2
+
+#define VOICE_ADD_ADD					0
+#define VOICE_ADD_KEEP					1
+#define VOICE_ADD_STOP					2
 
 #define TIMELINE_CELL_KEEP				0
 #define TIMELINE_CELL_NEW				1
@@ -238,7 +242,7 @@ struct SynthVoice {
 	SynthVoice();
 
 	void process(float dt_sec, float dt_beat, float *output);
-	bool start(Synth *synth, PatternNoteCol *row, PatternNote *note, int lpb);
+	int start(Synth *synth, PatternNoteCol *row, PatternNote *note, int lpb);
 	void stop(void);
 	void init(int channel);
 	void reset();
@@ -263,7 +267,7 @@ struct Synth {
 	void rename(void);
 	void rename(char *name);
 	void context_menu(Menu *menu);
-	SynthVoice* add(PatternNoteCol *row, PatternNote *note, int lpb);
+	SynthVoice* add(PatternNoteCol *row, PatternNote *note, int lpb, int *state);
 };
 
 //////////////////////////////////////////////////

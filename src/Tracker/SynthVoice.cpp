@@ -98,7 +98,7 @@ void SynthVoice::process(
 	}
 }
 
-bool SynthVoice::start(
+int SynthVoice::start(
 	Synth					*synth,
 	PatternNoteCol			*col,
 	PatternNote				*note,
@@ -201,10 +201,12 @@ bool SynthVoice::start(
 					break;
 				case PATTERN_EFFECT_CHANCE:			// Cxx
 					if (random::uniform() * 99.0 > effect->value)
-						return false;
+						return VOICE_ADD_KEEP;
 					break;
-				//case PATTERN_EFFECT_CHANCE_STOP:	// cxx
-				//	break;
+				case PATTERN_EFFECT_CHANCE_STOP:	// cxx
+					if (random::uniform() * 99.0 > effect->value)
+						return VOICE_ADD_STOP;
+					break;
 				//case PATTERN_EFFECT_RACHET:
 				//	break;
 			}
@@ -221,7 +223,7 @@ bool SynthVoice::start(
 	this->glide_cur = 0;
 	/// ACTIVATE VOICE
 	this->active = true;
-	return true;
+	return VOICE_ADD_ADD;
 }
 
 void SynthVoice::glide(

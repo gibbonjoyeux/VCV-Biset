@@ -15,6 +15,7 @@ static void process_midi_message(midi::Message *msg) {
 	int				pitch;
 	int				velocity;
 	int				i;
+	int				state;
 
 	switch (msg->getStatus()) {
 		/// NOTE OFF
@@ -51,7 +52,7 @@ static void process_midi_message(midi::Message *msg) {
 				for (i = 0; i < 8; ++i)
 					note.effects[i].type = PATTERN_EFFECT_NONE;
 				/// SEND LIVE NOTE
-				note_voice = g_editor->synth->add(NULL, &note, 1.0);
+				note_voice = g_editor->synth->add(NULL, &note, 1.0, &state);
 				/// SAVE LIVE NOTE
 				if (g_editor->live_voices[pitch] != NULL)
 					g_editor->live_voices[pitch]->stop();

@@ -33,11 +33,13 @@ void PatternReader::process(
 	PatternNoteCol			*col_note;
 	PatternNote				*note;
 	SynthVoice				*voice;
+	SynthVoice				*voice_new;
 	int						line_prev, line_next;
 	float					phase, phase_prev, phase_next;
 	float					cv_phase;
 	float					cv_value;
 	float					delay;
+	int						state;
 
 	line = clock.beat * pattern->lpb + clock.phase * pattern->lpb;
 	phase = clock.phase * pattern->lpb;
@@ -61,16 +63,15 @@ void PatternReader::process(
 					voice = this->voices[col];
 					/// NOTE NEW
 					if (note->mode == PATTERN_NOTE_NEW) {
-						/// CLOSE ACTIVE NOTE
-						if (voice) {
-							voice->stop();
-							this->voices[col] = NULL;
-						}
 						/// ADD NEW NOTE
-						if (note->synth < 64) {
-							voice = synths[note->synth]
-							/**/ .add(col_note, note, pattern->lpb);
-							this->voices[col] = voice;
+						voice_new = synths[note->synth]
+						/**/ .add(col_note, note, pattern->lpb, &state);
+						if (state == VOICE_ADD_ADD
+						|| state == VOICE_ADD_STOP) {
+							/// CLOSE ACTIVE NOTE
+							if (voice)
+								voice->stop();
+							this->voices[col] = voice_new;
 						}
 					/// NOTE GLIDE
 					} else if (note->mode == PATTERN_NOTE_GLIDE) {

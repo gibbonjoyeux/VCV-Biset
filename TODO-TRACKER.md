@@ -31,6 +31,11 @@
 
 # THINK ABOUT
 
+- Try to use `APP->event->heldKeys`
+	-> https://vcvrack.com/docs-v2/structrack_1_1widget_1_1EventState#aa6bf4a0628b3cabdffc769419d47f649
+	-> https://github.com/VCVRack/Rack/blob/8c6f41b778b4bf8860b89b36d5503fd37924077f/src/window/Window.cpp#L229
+
+- Record button ? Can be switched with a shortcut
 - Glide allowing effects ?
 	-> Useful to have chance or random note / octave
 - What happens to overriden notes / voices when synth is used with many notes ?
@@ -52,17 +57,17 @@
 		- [x] TIMELINE
 		- [ ] PATTERN
 			- [ ] SWING
-			- [x] NOTE
+			- [ ] NOTE
 				- [x] Mode gate
 				- [x] Mode trigger
 				- [x] Mode drum
 				- [x] Note new		(run new note)
 				- [x] Note keep		(keep active note)
 				- [x] Note stop		(stop active note)
-				- [x] Note glide	(glide note, vel, pan)
+				- [ ] Note glide	(glide note, vel, pan)
 					- [x] Glide pitch
 					- [x] Glide velocity + panning
-					- [ ] Glide effects (only microtonal tuning for MPE)
+					- [ ] Glide effects (chance, note, etc)
 				- [x] Pitch temperament scale
 				- [x] Pitch base offset (from 440hz)
 			- [ ] CV
@@ -273,7 +278,7 @@
 - [x] Txy	Tremolo					(x: speed y: amplitude)
 - [x] Cxx	Chance keep				(xx: chance)
 		Keep previous running note on if chance does not occur
-- [ ] cxx	Chance stop				(xx: chance)
+- [x] cxx	Chance stop				(xx: chance)
 		Stop previous running note even if chance does not occur
 - [ ] Rxx	Ratchet / Retrigger		(xx: retrigger interval) ? (x: amp fade y: interval)
 		x<5 : decrease | x>5 : increase | x=5 : static
