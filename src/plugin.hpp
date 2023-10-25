@@ -21,6 +21,8 @@ using				std::unique_ptr;
 #include "Regex/Regex.hpp"
 #include "Segfault/Segfault.hpp"
 
+#include "Tree/Tree.hpp"
+
 extern char		table_pitch[12][3];
 extern char		table_effect[12];
 extern char		table_hex[17];
@@ -103,3 +105,5 @@ extern Model*		modelTrackerState;
 extern Model*		modelRegex;
 extern Model*		modelRegexCondensed;
 extern Model*		modelSegfault;
+
+extern Model*		modelTree;

@@ -15,6 +15,14 @@
   "modules": [
 
 	{
+		"slug": "Biset-Tree",
+		"name": "Tree",
+		"description": "test",
+		"tags": [
+		]
+	},
+
+	{
 		"slug": "Biset-Tracker",
 		"name": "Tracker",
 		"description": "An advanced sequencer based on a tracker and a timeline",
