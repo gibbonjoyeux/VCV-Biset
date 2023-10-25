@@ -28,12 +28,14 @@ void TreeBranch::grow(Tree *tree, int index) {
 
 	/// [1] COMPUTE ENERGY
 	if (this->parent < 0)
-		this->energy = 1.0;														// !
+		this->energy = (tree->branch_count < TREE_BRANCH_MAX) ? 1.0 : 0.0;		// !
 	else
 		this->energy = tree->branches[this->parent].energy / (float)this->level;
 	/// [2] GROW BRANCH
 	this->energy_total += energy;
-	this->length = std::log10(1.0 + this->energy_total);
+	this->length = std::log(1.0 + this->energy_total);
+	//this->width = std::log10(1.0 + this->energy_total);
+	this->width = std::exp(this->energy_total / 1000.0);
 	/// [3] COMPUTE BRANCH POSITION
 	if (this->parent < 0)
 		this->pos_root = {0, 0};
@@ -43,7 +45,7 @@ void TreeBranch::grow(Tree *tree, int index) {
 	this->pos_tail.x = this->pos_root.x + vec.x * this->length;
 	this->pos_tail.y = this->pos_root.y + vec.y * this->length;
 	/// [4] GIVE BIRTH
-	if (this->is_parent == false && tree->branch_count < TREE_MAX)
+	if (this->is_parent == false && tree->branch_count < TREE_BRANCH_MAX)
 		if (random::uniform() * 1000.0 < this->length)							// !
 			this->birth(tree, index);
 }
@@ -69,7 +71,7 @@ void TreeBranch::birth(Tree *tree, int index) {
 	/// BIRTH TO MULTI BRANCHES (SPLIT)
 	} else {
 		for (i = 0; i < 2; ++i) {												// !
-			if (tree->branch_count >= TREE_MAX)
+			if (tree->branch_count >= TREE_BRANCH_MAX)
 				return;
 			branch = &(tree->branches[tree->branch_count]);
 			branch->init();

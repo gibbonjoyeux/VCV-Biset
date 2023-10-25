@@ -4,7 +4,7 @@
 
 #include "../plugin.hpp"
 
-#define TREE_MAX	1024
+#define TREE_BRANCH_MAX		1024
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -18,6 +18,7 @@ struct TreeBranch {
 	Vec		pos_root;		// Start position
 	Vec		pos_tail;		// End position
 	float	length;			// Length
+	float	width;			// Width
 	float	energy;			// Available energy
 	float	energy_total;	// Used energy
 	int		parent;			// Parent index
@@ -38,13 +39,14 @@ struct Tree : Module {
 		INPUT_COUNT
 	};
 	enum	OutputIds {
-		OUTPUT_MAIN,
+		OUTPUT_LEFT,
+		OUTPUT_RIGHT,
 		OUTPUT_COUNT
 	};
 	enum	LightIds {
 		LIGHT_COUNT
 	};
-	TreeBranch		branches[TREE_MAX];
+	TreeBranch		branches[TREE_BRANCH_MAX];
 	int				branch_count;
 	int				branch_index;
 
