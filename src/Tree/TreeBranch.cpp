@@ -18,9 +18,12 @@ void TreeBranch::init(void) {
 	this->energy = 0.0;
 	this->energy_total = 0.0;
 	this->parent = -1;
+	this->children_count = 0;
+	this->children_read = 0;
 	this->index = 0;
 	this->level = 1;
-	this->is_parent = false;
+
+	this->phase = 0.0;
 }
 
 void TreeBranch::grow(Tree *tree, int index) {
@@ -36,6 +39,8 @@ void TreeBranch::grow(Tree *tree, int index) {
 	this->length = std::log(1.0 + this->energy_total);
 	//this->width = std::log10(1.0 + this->energy_total);
 	this->width = std::exp(this->energy_total / 1000.0);
+	if (this->width > 10.0)
+		this->width = 10.0;
 	/// [3] COMPUTE BRANCH POSITION
 	if (this->parent < 0)
 		this->pos_root = {0, 0};
@@ -45,7 +50,7 @@ void TreeBranch::grow(Tree *tree, int index) {
 	this->pos_tail.x = this->pos_root.x + vec.x * this->length;
 	this->pos_tail.y = this->pos_root.y + vec.y * this->length;
 	/// [4] GIVE BIRTH
-	if (this->is_parent == false && tree->branch_count < TREE_BRANCH_MAX)
+	if (this->children_count == 0 && tree->branch_count < TREE_BRANCH_MAX)
 		if (random::uniform() * 1000.0 < this->length)							// !
 			this->birth(tree, index);
 }
@@ -54,9 +59,12 @@ void TreeBranch::birth(Tree *tree, int index) {
 	TreeBranch	*branch;
 	int			i;
 
-	this->is_parent = true;
 	/// BIRTH TO SINGLE BRANCH (CONTINUOUS)
 	if (random::uniform() * 3.0 < this->index) {								// !
+		/// ADD CHILDREN TO PARENT
+		this->children_count = 1;
+		this->childrens[0] = tree->branch_count;
+		/// INIT BRANCH
 		branch = &(tree->branches[tree->branch_count]);
 		branch->init();
 		branch->parent = index;
@@ -73,6 +81,10 @@ void TreeBranch::birth(Tree *tree, int index) {
 		for (i = 0; i < 2; ++i) {												// !
 			if (tree->branch_count >= TREE_BRANCH_MAX)
 				return;
+			/// ADD CHILDREN TO PARENT
+			this->children_count += 1;
+			this->childrens[i] = tree->branch_count;
+			/// INIT BRANCH
 			branch = &(tree->branches[tree->branch_count]);
 			branch->init();
 			branch->parent = index;

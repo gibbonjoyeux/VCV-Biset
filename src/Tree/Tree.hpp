@@ -22,9 +22,13 @@ struct TreeBranch {
 	float	energy;			// Available energy
 	float	energy_total;	// Used energy
 	int		parent;			// Parent index
+	int		childrens[3];	// Children indexes
+	int		children_count;	// Children count
+	int		children_read;	// Reading children index
 	int		index;			// Count single branching from multi branching
 	int		level;			// Branch type (1: single, 2: two branch, 3: tree ...)
-	bool	is_parent;		// Is branch parent
+
+	float	phase;			// Playing phase
 
 	void init(void);
 	void grow(Tree *tree, int index);
@@ -46,9 +50,16 @@ struct Tree : Module {
 	enum	LightIds {
 		LIGHT_COUNT
 	};
+	float			sine[4096];
 	TreeBranch		branches[TREE_BRANCH_MAX];
 	int				branch_count;
 	int				branch_index;
+
+	float			phase_l;
+	float			phase_r;
+
+	float			wind_phase;
+	float			wind_force;
 
 	Tree();
 
