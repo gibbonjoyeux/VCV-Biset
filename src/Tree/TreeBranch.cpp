@@ -62,19 +62,18 @@ void TreeBranch::grow(Tree *tree, int index) {
 		this->angle_wind = tree->branches[this->parent].angle_wind
 		/**/ + this->angle_rel;
 	}
-	/// COMPUTE WIND ANGLE IMPACT
-	//// OFFSET
-	angle = this->angle_wind - M_PI / 2.0;
-	//// COMPUTE FORCE
+	/// COMPUTE WIND DEFORMATION
+	//// ANGLE OFFSET
+	angle = this->angle_wind - tree->wind_angle;
+	//// ANGLE DEFORMATION
 	angle = fmod(fmod(angle, 2.0 * M_PI) + 2.0 * M_PI, 2.0 * M_PI);
 	if (angle > M_PI)
 		angle -= 2.0 * M_PI;
-	angle *= 1.0 - (tree->wind_force * 0.2 / (0.01 + this->width * 1.0));
-	//// RE-OFFSET
-	this->angle_wind = angle + M_PI / 2.0;
+	angle *= 1.0 - (tree->wind_force * 0.2 / (1.0 + this->width * 1.0));
+	//angle += tree->wind_force * 0.2 / (1.0 + this->width * 1.0);
+	//// ANGLE RE-OFFSET
+	this->angle_wind = angle + tree->wind_angle;
 
-	//this->angle_wind *= 1.0 -
-	///**/ (tree->wind_force * 0.2 / (0.01 + this->width * 1.0));
 
 	vec = {std::cos(this->angle_wind), std::sin(angle_wind)};
 	this->wpos_tail.x = this->wpos_root.x + vec.x * this->length;

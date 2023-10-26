@@ -63,6 +63,7 @@ struct Tree : Module {
 
 	float			wind_phase;
 	float			wind_force;
+	float			wind_angle;
 
 	Tree();
 
