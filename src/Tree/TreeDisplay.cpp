@@ -56,8 +56,8 @@ void TreeDisplay::drawLayer(const DrawArgs &args, int layer) {
 		branch = &(this->module->branches[i]);
 		nvgStrokeWidth(args.vg, branch->width * 0.2);
 		nvgBeginPath(args.vg);
-		nvgMoveTo(args.vg, branch->pos_root.x, branch->pos_root.y);
-		nvgLineTo(args.vg, branch->pos_tail.x, branch->pos_tail.y);
+		nvgMoveTo(args.vg, branch->wpos_root.x, branch->wpos_root.y);
+		nvgLineTo(args.vg, branch->wpos_tail.x, branch->wpos_tail.y);
 		nvgStroke(args.vg);
 		nvgClosePath(args.vg);
 	}

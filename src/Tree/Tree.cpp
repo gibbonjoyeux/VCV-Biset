@@ -21,7 +21,7 @@ Tree::Tree() {
 	this->phase_l = 0.0;
 	this->phase_r = 0.0;
 
-	this->wind_phase = 0.0;
+	this->wind_phase = random::uniform() * 10000.0;
 	this->wind_force = 0.0;
 
 	for (i = 0; i < 4096; ++i)
@@ -44,13 +44,33 @@ void Tree::process(const ProcessArgs& args) {
 		this->branch_index = 0;
 
 	/// [2] PROCESS WIND
-	this->wind_phase += 1.0 / args.sampleRate;
+	//
+	// Source: https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry
+	// /chapter-6-gpu-generated-procedural-wind-animations-trees
+	//
+	// Elastic tree :
+	//   cos(t * PI) * cos(t * 3PI) * cos(t * 5PI) * cos(t * 7PI)
+	//   + sin(t * 25PI) * 0.1
+	//
+	// Rigid tree :
+	//   cos(t * PI)^2 * cos(t * 3PI) * cos(t * 5PI) * 0.5
+	//   + sin(t * 25PI) * 0.02
+	//
+	this->wind_phase += 0.05 / args.sampleRate;
+	this->wind_phase -= (int)this->wind_phase;
 	this->wind_force =
-	/**/ std::cos(this->wind_phase * M_PI)
-	/**/ * std::cos(this->wind_phase * 3.0 * M_PI)
-	/**/ * std::cos(this->wind_phase * 5.0 * M_PI)
-	/**/ * std::cos(this->wind_phase * 7.0 * M_PI)
-	/**/ + std::sin(this->wind_phase * 25.0 * M_PI) * 0.1;
+	/**/   this->sine[(int)(this->wind_phase * 4096)]
+	/**/ * this->sine[(int)(this->wind_phase * 3.0 * 4096)]
+	/**/ * this->sine[(int)(this->wind_phase * 5.0 * 4096)]
+	/**/ * this->sine[(int)(this->wind_phase * 7.0 * 4096)]
+	/**/ + this->sine[(int)(this->wind_phase * 25.0 * 4096 + 2048) % 4096] * 0.1;
+	//this->wind_force =
+	///**/   this->sine[(int)(this->wind_phase * 4096)]
+	///**/ * this->sine[(int)(this->wind_phase * 4096)]
+	///**/ * this->sine[(int)(this->wind_phase * 3.0 * 4096)]
+	///**/ * this->sine[(int)(this->wind_phase * 5.0 * 4096)]
+	///**/ * 0.5
+	///**/ + this->sine[(int)(this->wind_phase * 25.0 * 4096 + 2048) % 4096] * 0.02;
 
 	/// [2] PROCESS SOUND ALGORITHM
 
@@ -66,15 +86,15 @@ void Tree::process(const ProcessArgs& args) {
 	//}
 
 	/// ALGO SAW SWARM
-	freq_base = 110.0;
-	freq = freq_base;
-	for (i = 0; i < this->branch_count; ++i) {
-		branch = &(this->branches[i]);
-		branch->phase += (freq + branch->angle_rel * 5.0) / args.sampleRate;
-		branch->phase -= (int)branch->phase;
-		out.x += (branch->phase * 2.0 - 1.0)
-		/**/ * branch->length * 0.01;
-	}
+	//freq_base = 110.0;
+	//freq = freq_base;
+	//for (i = 0; i < this->branch_count; ++i) {
+	//	branch = &(this->branches[i]);
+	//	branch->phase += (freq + branch->angle_rel * 5.0) / args.sampleRate;
+	//	branch->phase -= (int)branch->phase;
+	//	out.x += (branch->phase * 2.0 - 1.0)
+	//	/**/ * branch->length * 0.01;
+	//}
 
 	/// ALGO FM
 	//freq_base = 110.0;
@@ -128,11 +148,11 @@ void Tree::process(const ProcessArgs& args) {
 	///// SAW
 	//out.x += (this->branches[0].phase * 2.0 - 1.0) * 5.0;
 
-	if (out.x > 5.0)
-		out.x = 5.0;
-	if (out.x < -5.0)
-		out.x = -5.0;
-	this->outputs[OUTPUT_LEFT].setVoltage(out.x);
+	//if (out.x > 5.0)
+	//	out.x = 5.0;
+	//if (out.x < -5.0)
+	//	out.x = -5.0;
+	//this->outputs[OUTPUT_LEFT].setVoltage(out.x);
 	//this->outputs[OUTPUT_RIGHT].setVoltage(out.y);
 }
 

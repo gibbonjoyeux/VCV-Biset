@@ -13,10 +13,13 @@
 struct Tree;
 
 struct TreeBranch {
-	float	angle_abs;		// Absolute angle
-	float	angle_rel;		// Relative angle (from parent)
-	Vec		pos_root;		// Start position
-	Vec		pos_tail;		// End position
+	float	angle_abs;		// Fixed absolute angle
+	float	angle_rel;		// Fixed relative angle (from parent)
+	float	angle_wind;		// Absolute angle pushed by wind
+	Vec		fpos_root;		// Fixed start position
+	Vec		fpos_tail;		// Fixed end position
+	Vec		wpos_root;		// Wind pushed start position
+	Vec		wpos_tail;		// Wind pushed end position
 	float	length;			// Length
 	float	width;			// Width
 	float	energy;			// Available energy
