@@ -15,7 +15,8 @@ struct Tree;
 struct TreeBranch {
 	float	angle_abs;		// Fixed absolute angle
 	float	angle_rel;		// Fixed relative angle (from parent)
-	float	angle_wind;		// Absolute angle pushed by wind
+	float	angle_wind_abs;	// Absolute angle pushed by wind
+	float	angle_wind_rel;	// Relative angle pushed by wind (eased)
 	Vec		fpos_root;		// Fixed start position
 	Vec		fpos_tail;		// Fixed end position
 	Vec		wpos_root;		// Wind pushed start position
