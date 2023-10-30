@@ -301,7 +301,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 				str[0] = '-';
 				str[1] = 0;
 			} else {
-				itoa(note->pitch / 12, str, 10);
+				itoaw(str, note->pitch / 12, 1);
 			}
 			ptext(args, p, tx_col, j, str, 2, focus);
 			tx_col += 1;

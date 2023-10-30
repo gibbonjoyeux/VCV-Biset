@@ -11,11 +11,8 @@ Tracker			*g_module = NULL;
 
 static void process_midi_message(midi::Message *msg) {
 	PatternNote		note;
-	SynthVoice		*note_voice;
 	int				pitch;
 	int				velocity;
-	int				i;
-	int				state;
 
 	switch (msg->getStatus()) {
 		/// NOTE OFF

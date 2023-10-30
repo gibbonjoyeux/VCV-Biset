@@ -549,7 +549,8 @@ void TrackerDisplaySide::onLeave(const LeaveEvent &e) {
 	if (g_module != this->module)
 		return;
 
-	g_editor->side_mouse_pos = {0, 0};
+	g_editor->side_mouse_pos.x = 0;
+	g_editor->side_mouse_pos.y = 0;
 }
 
 void TrackerDisplaySide::onHoverScroll(const HoverScrollEvent &e) {
