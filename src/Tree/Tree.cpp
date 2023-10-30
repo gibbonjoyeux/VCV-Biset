@@ -94,6 +94,20 @@ void Tree::process(const ProcessArgs& args) {
 	if (this->outputs[OUTPUT_LEFT].isConnected() == false)
 		return;
 
+	int	j;
+	j = 0;
+	this->outputs[OUTPUT_LEFT].setChannels(16);
+	out.x = 0.0;
+	for (i = 0; i < this->branch_count; ++i) {
+		branch = &(this->branches[i]);
+		if (branch->children_count == 0) {
+			this->outputs[OUTPUT_LEFT].setVoltage(branch->wpos_tail.y / 10.0, j);
+			j += 1;
+			if (j >= 16)
+				break;
+		}
+	}
+
 	/// ALGO SAW PHASE JUMP CONTINUOUS
 	//float phase;
 	//branch = &(this->branches[this->branch_index]);
