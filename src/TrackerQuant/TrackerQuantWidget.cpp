@@ -52,7 +52,7 @@ void TrackerQuantWidget::appendContextMenu(Menu *menu) {
 
 	for (i = 0; i < 4; ++i) {
 		param_mode = &(this->module->params[TrackerQuant::PARAM_MODE + i]);
-		menu->addChild(rack::createSubmenuItem(string::f("Mode %d", i + 1), "",
+		menu->addChild(rack::createSubmenuItem(rack::string::f("Mode %d", i + 1), "",
 			[=](Menu *menu) {
 				menu->addChild(new MenuCheckItem("Index down", "",
 					[=]() { return param_mode->getValue() == TQUANT_MODE_INDEX_DOWN; },

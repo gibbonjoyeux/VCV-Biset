@@ -513,8 +513,6 @@ struct LedDisplayDigit : LedDisplay {
 		this->value_quant = NULL;
 		this->value_link = NULL;
 		this->value_length = 3;
-		this->color_back = {{1, 1, 1, 1}};
-		this->color_font = {{0, 0, 0, 1}};
 	}
 
 	void draw(const DrawArgs &args) override {

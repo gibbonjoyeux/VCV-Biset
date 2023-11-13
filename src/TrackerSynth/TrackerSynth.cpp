@@ -28,7 +28,7 @@ TrackerSynth::TrackerSynth() {
 	configOutput(OUTPUT_VELOCITY, "Velocity");
 	configOutput(OUTPUT_PANNING, "Panning");
 	for (i = 0; i < 8; ++i)
-		configOutput(OUTPUT_CV + i, string::f("CV %d", i + 1));
+		configOutput(OUTPUT_CV + i, rack::string::f("CV %d", i + 1));
 	/// CONFIG PARAM HANDLES
 	for (i = 0; i < 8; i++) {
 		for (j = 0; j < 4; ++j) {

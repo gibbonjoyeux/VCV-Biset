@@ -24,12 +24,12 @@ TrackerDrum::TrackerDrum() {
 		configParam<ParamQuantityLink>(PARAM_MENU + i, 0, 1, 0);
 	/// CONFIG OUTPUTS
 	for (i = 0; i < 12; ++i) {
-		configOutput(OUTPUT_TRIGGER + i, string::f("Trigger %d", i + 1));
-		configOutput(OUTPUT_VELOCITY + i, string::f("Velocity %d", i + 1));
-		configOutput(OUTPUT_PANNING + i, string::f("Panning %d", i + 1));
+		configOutput(OUTPUT_TRIGGER + i, rack::string::f("Trigger %d", i + 1));
+		configOutput(OUTPUT_VELOCITY + i, rack::string::f("Velocity %d", i + 1));
+		configOutput(OUTPUT_PANNING + i, rack::string::f("Panning %d", i + 1));
 	}
 	for (i = 0; i < 8; ++i)
-		configOutput(OUTPUT_CV + i, string::f("CV %d", i + 1));
+		configOutput(OUTPUT_CV + i, rack::string::f("CV %d", i + 1));
 	/// CONFIG PARAM HANDLES
 	for (i = 0; i < 8; i++) {
 		for (j = 0; j < 4; ++j) {

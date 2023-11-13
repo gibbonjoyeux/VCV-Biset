@@ -57,9 +57,9 @@ TrackerQuant::TrackerQuant() {
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
 	for (i = 0; i < 4; ++i) {
-		configParam(PARAM_OCTAVE + i, -4, +4, 0, string::f("Octave %d", i + 1))->snapEnabled = true;
-		configInput(INPUT_QUANT + i, string::f("%d", i + 1));
-		configOutput(OUTPUT_QUANT + i, string::f("%d", i + 1));
+		configParam(PARAM_OCTAVE + i, -4, +4, 0, rack::string::f("Octave %d", i + 1))->snapEnabled = true;
+		configInput(INPUT_QUANT + i, rack::string::f("%d", i + 1));
+		configOutput(OUTPUT_QUANT + i, rack::string::f("%d", i + 1));
 		configParam(PARAM_MODE + i, 0, 3, 0, "Mode")->snapEnabled = true;
 	}
 }

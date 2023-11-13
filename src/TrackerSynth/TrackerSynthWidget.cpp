@@ -94,7 +94,7 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 	menu->addChild(new MenuSeparator());
 
 	for (i = 0; i < 8; ++i) {
-		menu->addChild(rack::createSubmenuItem(string::f("CV %d", i + 1), "",
+		menu->addChild(rack::createSubmenuItem(rack::string::f("CV %d", i + 1), "",
 			[=](Menu *menu) {
 				ParamHandleRange	*handle;
 				MenuSliderEdit		*slider;
@@ -217,7 +217,7 @@ void TrackerSynthWidget::appendContextMenu(Menu *menu) {
 				/// [2] CV MAP
 				for (j = 0; j < 4; ++j) {
 					handle = &(this->module->map_handles[i][j]);
-					menu->addChild(rack::createSubmenuItem(string::f("Map %d", j + 1),
+					menu->addChild(rack::createSubmenuItem(rack::string::f("Map %d", j + 1),
 						(handle->module != NULL) ? "Mapped" : "",
 						[=](Menu *menu) {
 							MenuLabel			*label;
