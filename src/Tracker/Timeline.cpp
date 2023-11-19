@@ -42,9 +42,7 @@ Timeline::Timeline() {
 	this->save_buffer = NULL;
 	this->save_length = 0;
 
-	debug = 0;
-	debug_2 = 0;
-	debug_str[0] = 0;
+	//debug_str[0] = 0;
 }
 
 void Timeline::process(i64 frame, float dt_sec, float dt_beat) {

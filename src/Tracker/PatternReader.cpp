@@ -70,7 +70,7 @@ void PatternReader::process(
 						if (state == VOICE_ADD_ADD
 						|| state == VOICE_ADD_STOP) {
 							/// CLOSE ACTIVE NOTE
-							if (voice)
+							if (voice && voice != voice_new)
 								voice->stop();
 							this->voices[col] = voice_new;
 						}

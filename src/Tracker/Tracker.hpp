@@ -304,9 +304,9 @@ struct PatternReader {
 };
 
 struct Timeline {
-	char						debug_str[4096];
-	int							debug;
-	int							debug_2;
+	//char						debug_str[4096];
+	//int						debug;
+	//int						debug_2;
 
 	std::atomic_flag			thread_flag;
 	u8							play;
