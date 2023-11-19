@@ -37,7 +37,10 @@ static inline void	handle_midi(void) {
 							line->mode = PATTERN_NOTE_NEW;
 							line->velocity = 99;
 							line->panning = 50;
-							line->delay = 99 * pattern->line_phase;
+							if (g_editor->recording)
+								line->delay = 99 * pattern->line_phase;
+							else
+								line->delay = 0;
 						}
 					}
 				}
