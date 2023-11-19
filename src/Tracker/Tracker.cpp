@@ -118,11 +118,11 @@ Tracker::Tracker() {
 	switch_mode->mode_min = PARAM_MODE_PATTERN;
 	switch_mode->mode_max = PARAM_MODE_TUNING;
 
-	configSwitch(PARAM_VIEW, 0, 1, 0, "View Velocity");
-	configSwitch(PARAM_VIEW + 1, 0, 1, 0, "View Panning");
-	configSwitch(PARAM_VIEW + 2, 0, 1, 0, "View Delay");
-	configSwitch(PARAM_VIEW + 3, 0, 1, 0, "View Glide");
-	configSwitch(PARAM_VIEW + 4, 0, 1, 0, "View Effects");
+	configSwitch(PARAM_VIEW, 0, 1, 1, "View Velocity");
+	configSwitch(PARAM_VIEW + 1, 0, 1, 1, "View Panning");
+	configSwitch(PARAM_VIEW + 2, 0, 1, 1, "View Delay");
+	configSwitch(PARAM_VIEW + 3, 0, 1, 1, "View Glide");
+	configSwitch(PARAM_VIEW + 4, 0, 1, 1, "View Effects");
 
 	configSwitch(PARAM_RECORD, 0, 1, 0, "Record");
 

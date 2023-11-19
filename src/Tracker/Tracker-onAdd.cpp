@@ -328,9 +328,8 @@ static void load_template(void) {
 	PatternInstance	*instance;
 	PatternSource	*pattern;
 
+	/// [1] CREATE PATTERN
 	pattern = g_timeline->pattern_new(2, 0, 8, 4);
-
-	/// FILL PATTERN SOURCE NOTES
 	pattern->notes[0]->lines[0].mode = PATTERN_NOTE_NEW;
 	pattern->notes[0]->lines[0].synth = 0;
 	pattern->notes[0]->lines[0].pitch = 63;
@@ -352,9 +351,13 @@ static void load_template(void) {
 	pattern->notes[0]->lines[24].velocity = 99;
 	pattern->notes[0]->lines[24].panning = 50;
 
+	/// [2] CREATE PATTERN INSTANCE
 	instance = g_timeline->instance_new(pattern, 0, 0);
 	instance->beat_start = 0;
 	instance->beat_length = pattern->beat_count;
+
+	/// [3] CREATE SYNTH
+	g_timeline->synth_new();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
