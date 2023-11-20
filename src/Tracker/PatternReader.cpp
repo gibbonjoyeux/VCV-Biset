@@ -69,9 +69,13 @@ void PatternReader::process(
 						/**/ .add(col_note, note, pattern->lpb, &state);
 						if (state == VOICE_ADD_ADD
 						|| state == VOICE_ADD_STOP) {
-							/// CLOSE ACTIVE NOTE
-							if (voice && voice != voice_new)
+							/// STOP ACTIVE NOTE
+							if (state == VOICE_ADD_ADD) {
+								if (voice && voice != voice_new)
+									voice->stop();
+							} else {
 								voice->stop();
+							}
 							this->voices[col] = voice_new;
 						}
 					/// NOTE GLIDE

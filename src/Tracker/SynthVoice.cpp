@@ -109,22 +109,27 @@ int SynthVoice::start(
 	int						int_1;
 	int						pitch;
 	float					pitch_real;
+	float					delay_start;
+	float					velocity_from;
+	float					panning_from;
+	float					vibrato_amp;
+	float					vibrato_freq;
+	float					tremolo_amp;
+	float					tremolo_freq;
 	float					float_1;
 
 	pitch = note->pitch;
-	/// SET DELAY
-	this->delay_gate = 0.001f;
-	this->delay_start = 0.0f;
-	this->delay_stop = 0;
-	if (synth->mode == SYNTH_MODE_TRIGGER
-	|| synth->mode == SYNTH_MODE_DRUM)
-		this->delay_stop = 0.001f;
-	/// SET BASICS
-	this->velocity_from = (float)note->velocity / 99.0 * 10.0;
-	this->panning_from = (float)note->panning / 99.0 * 10.0 - 5.0;
-	/// SET EFFECTS
-	this->vibrato_amp = 0;
-	this->tremolo_amp = 0;
+	/// INIT DELAY
+	delay_start = 0.0f;
+	/// INIT BASICS
+	velocity_from = (float)note->velocity / 99.0 * 10.0;
+	panning_from = (float)note->panning / 99.0 * 10.0 - 5.0;
+	/// INIT MODULATIONS
+	vibrato_amp = 0;
+	vibrato_freq = 0;
+	tremolo_amp = 0;
+	tremolo_freq = 0;
+	/// COMPUTE EFFECTS
 	if (col != NULL) {
 		for (i = 0; i < col->fx_count; ++i) {
 			effect = &(note->effects[i]);
@@ -133,20 +138,20 @@ int SynthVoice::start(
 					break;
 				case PATTERN_EFFECT_RAND_AMP:		// Axx
 					float_1 = random::uniform() * (effect->value / 99.0);
-					this->velocity_from *= 1.0 - float_1;
+					velocity_from *= 1.0 - float_1;
 					break;
 				case PATTERN_EFFECT_RAND_PAN:		// Pxx
 					float_1 = (random::uniform() * 10.0 - 5.0)
 					/**/ * ((float)effect->value / 99.0);
-					this->panning_from += float_1;
-					if (this->panning_from < -5.0)
-						this->panning_from = -5.0;
-					if (this->panning_from > 5.0)
-						this->panning_from = 5.0;
+					panning_from += float_1;
+					if (panning_from < -5.0)
+						panning_from = -5.0;
+					if (panning_from > 5.0)
+						panning_from = 5.0;
 					break;
 				case PATTERN_EFFECT_RAND_DELAY:		// Dxx
 					float_1 = random::uniform() * (effect->value / 99.0);
-					this->delay_start = float_1 / (float)lpb;
+					delay_start = float_1 / (float)lpb;
 					break;
 				case PATTERN_EFFECT_RAND_OCT:		// Oxy
 					x = effect->value / 10;
@@ -172,30 +177,30 @@ int SynthVoice::start(
 						pitch += y;
 					break;
 				case PATTERN_EFFECT_VIBRATO:		// Vxy
-					this->vibrato_freq =
+					vibrato_freq =
 					/**/ (float)(effect->value / 10) * M_PI * 2.0f;
-					this->vibrato_amp =
+					vibrato_amp =
 					/**/ (float)(effect->value % 10) / 128.0;
 					break;
 				case PATTERN_EFFECT_VIBRATO_RAND:	// vxy
-					this->vibrato_freq =
+					vibrato_freq =
 					/**/ (float)(effect->value / 10) * M_PI * 2.0f
 					/**/ * random::uniform();
-					this->vibrato_amp =
+					vibrato_amp =
 					/**/ (float)(effect->value % 10) / 128.0
 					/**/ * random::uniform();
 					break;
 				case PATTERN_EFFECT_TREMOLO:		// Txy
-					this->tremolo_freq =
+					tremolo_freq =
 					/**/ (float)(effect->value / 10) * M_PI * 2.0f;
-					this->tremolo_amp =
+					tremolo_amp =
 					/**/ (float)(effect->value % 10) / 32.0;
 					break;
 				case PATTERN_EFFECT_TREMOLO_RAND:	// txy
-					this->tremolo_freq =
+					tremolo_freq =
 					/**/ (float)(effect->value / 10) * M_PI * 2.0f
 					/**/ * random::uniform();
-					this->tremolo_amp =
+					tremolo_amp =
 					/**/ (float)(effect->value % 10) / 32.0
 					/**/ * random::uniform();
 					break;
@@ -212,9 +217,23 @@ int SynthVoice::start(
 			}
 		}
 	}
-	/// SET VELOCITY + PANNING
-	this->velocity_to = this->velocity_from;
-	this->panning_to = this->panning_from;
+	/// SET DELAY
+	this->delay_gate = 0.001f;
+	this->delay_start = delay_start;
+	this->delay_stop = 0;
+	if (synth->mode == SYNTH_MODE_TRIGGER
+	|| synth->mode == SYNTH_MODE_DRUM)
+		this->delay_stop = 0.001f;
+	/// SET BASICS
+	this->velocity_from = velocity_from;
+	this->velocity_to = velocity_from;
+	this->panning_from = panning_from;
+	this->panning_to = panning_from;
+	/// SET MODULATIONS
+	this->vibrato_amp = vibrato_amp;
+	this->vibrato_freq = vibrato_freq;
+	this->tremolo_amp = tremolo_amp;
+	this->tremolo_freq = tremolo_freq;
 	/// SET PITCH
 	pitch_real = g_timeline->pitch_scale[pitch % 12] + (pitch / 12) * 12;
 	this->pitch_from = pitch_real;
