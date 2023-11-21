@@ -550,6 +550,8 @@ void Editor::live_play(int pitch, int velocity) {
 	int				state;
 	int				i;
 	
+	if (g_editor->synth == NULL)
+		return;
 	/// BUILD LIVE NOTE
 	note.mode = PATTERN_NOTE_NEW;
 	note.glide = 0;
