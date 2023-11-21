@@ -257,7 +257,7 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 		quant_channel = (ParamQuantityLink*)
 		/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 6];
 		quant_channel->minValue = 0;
-		quant_channel->maxValue = 99;
+		quant_channel->maxValue = 7;
 		quant_channel->defaultValue = col_cv->channel;
 		quant_channel->setValue(col_cv->channel);
 		quant_channel->name = "Column synth channel";
