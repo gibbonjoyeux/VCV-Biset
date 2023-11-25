@@ -136,7 +136,17 @@ void TreeBranch::grow(Tree *tree, int index) {
 
 void TreeBranch::birth(Tree *tree, int index) {
 	TreeBranch	*branch;
+	float		angle_variation;
+	float		angle_division;
+	float		angle_sun_force;
 	int			i;
+
+	angle_variation = (M_PI / 8.0)
+	/**/ * tree->params[Tree::PARAM_BRANCH_ANGLE_VARIATION].getValue();
+	angle_division = (M_PI / 3.0)
+	/**/ * tree->params[Tree::PARAM_BRANCH_ANGLE_DIVISION].getValue();
+	angle_sun_force = 1.0
+	/**/ - tree->params[Tree::PARAM_BRANCH_ANGLE_SUN_FORCE].getValue();
 
 	/// BIRTH TO SINGLE BRANCH (CONTINUOUS)
 	if (random::uniform() * 3.0 < this->index) {								// !
@@ -149,10 +159,11 @@ void TreeBranch::birth(Tree *tree, int index) {
 		branch->parent = index;
 		branch->index = 1;
 		/// COMPUTE BRANCH ANGLE
-		branch->angle_rel = ((random::uniform() * 2.0) - 1.0) * (M_PI / 8.0);	// !
+		//branch->angle_rel = ((random::uniform() * 2.0) - 1.0) * (M_PI / 8.0);	// !
+		branch->angle_rel = ((random::uniform() * 2.0) - 1.0) * angle_variation;
 		branch->angle_abs = this->angle_abs + branch->angle_rel;
 		/// COMPUTE BRANCH SUN ATTRACTION
-		branch->angle_abs *= 0.8;												// !
+		branch->angle_abs *= angle_sun_force;									// !
 		branch->angle_rel = branch->angle_abs - this->angle_abs;
 		/// INIT WIND ANGLES
 		branch->angle_wind_abs = branch->angle_abs;
@@ -172,10 +183,11 @@ void TreeBranch::birth(Tree *tree, int index) {
 			branch->parent = index;
 			branch->index = 2;													// !
 			/// COMPUTE BRANCH ANGLE
-			branch->angle_rel = ((random::uniform() * 2.0) - 1.0) * (M_PI / 3.0);	// !
+			//branch->angle_rel = ((random::uniform() * 2.0) - 1.0) * (M_PI / 3.0);	// !
+			branch->angle_rel = ((random::uniform() * 2.0) - 1.0) * angle_division;
 			branch->angle_abs = this->angle_abs + branch->angle_rel;
 			/// COMPUTE BRANCH SUN ATTRACTION
-			branch->angle_abs *= 0.8;												// !
+			branch->angle_abs *= angle_sun_force;							// !
 			branch->angle_rel = branch->angle_abs - this->angle_abs;
 			/// INIT WIND ANGLES
 			branch->angle_wind_abs = branch->angle_abs;

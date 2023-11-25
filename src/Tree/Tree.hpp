@@ -41,30 +41,34 @@ struct TreeBranch {
 
 struct Tree : Module {
 	enum	ParamIds {
+		PARAM_BRANCH_ANGLE_VARIATION,	// angle variation on single branching
+		PARAM_BRANCH_ANGLE_DIVISION,	// angle variation on multi branching
+		PARAM_BRANCH_ANGLE_SUN_FORCE,	// branch attraction to sun
+		PARAM_BRANCH_DIVISION,			// number of new branches on division
 		PARAM_COUNT
 	};
 	enum	InputIds {
+		INPUT_RESET,
 		INPUT_COUNT
 	};
 	enum	OutputIds {
-		OUTPUT_LEFT,
-		OUTPUT_RIGHT,
 		OUTPUT_COUNT
 	};
 	enum	LightIds {
 		LIGHT_COUNT
 	};
-	float			sine[4096];
-	TreeBranch		branches[TREE_BRANCH_MAX];
-	int				branch_count;
-	int				branch_index;
+	dsp::TSchmittTrigger<float>	trigger_reset;
+	float						sine[4096];
+	TreeBranch					branches[TREE_BRANCH_MAX];
+	int							branch_count;
+	int							branch_index;
 
-	float			phase_l;
-	float			phase_r;
+	float						phase_l;
+	float						phase_r;
 
-	float			wind_phase;
-	float			wind_force;
-	float			wind_angle;
+	float						wind_phase;
+	float						wind_force;
+	float						wind_angle;
 
 	Tree();
 
