@@ -10,6 +10,7 @@
 
 struct Gbu: Module {
 	enum	ParamIds {
+		PARAM_FREQ_GLOBAL,
 		PARAM_FREQ_1,
 		PARAM_FREQ_2,
 		PARAM_FREQ_3,

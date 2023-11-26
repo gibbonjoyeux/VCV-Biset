@@ -12,6 +12,7 @@
 Gbu::Gbu() {
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
+	configParam(PARAM_FREQ_GLOBAL, -9, +9, 0, "Freq");//->snapEnabled = true;
 	configParam(PARAM_FREQ_1, -9, +9, 0, "Freq Good");//->snapEnabled = true;
 	configParam(PARAM_FREQ_2, -9, +9, 0, "Freq Bad");//->snapEnabled = true;
 	configParam(PARAM_FREQ_3, -9, +9, 0, "Freq Ugly");//->snapEnabled = true;
@@ -51,6 +52,7 @@ void Gbu::process(const ProcessArgs& args) {
 	float	mod_feedback_1;
 	float	mod_feedback_2;
 	float	mod_feedback_3;
+	float	pitch_global;
 	float	pitch_1;
 	float	pitch_2;
 	float	pitch_3;
@@ -79,6 +81,7 @@ void Gbu::process(const ProcessArgs& args) {
 	mod_feedback_2 = this->params[PARAM_FEEDBACK_2].getValue();
 	mod_feedback_3 = this->params[PARAM_FEEDBACK_3].getValue();
 	//// PITCH
+	pitch_global = this->params[PARAM_FREQ_GLOBAL].getValue();
 	pitch_1 = this->inputs[INPUT_PITCH_1].getVoltage();
 	if (this->inputs[INPUT_PITCH_2].isConnected())
 		pitch_2 = this->inputs[INPUT_PITCH_2].getVoltage();
@@ -88,9 +91,9 @@ void Gbu::process(const ProcessArgs& args) {
 		pitch_3 = this->inputs[INPUT_PITCH_3].getVoltage();
 	else
 		pitch_3 = pitch_1;
-	pitch_1 += this->params[PARAM_FREQ_1].getValue();
-	pitch_2 += this->params[PARAM_FREQ_2].getValue();
-	pitch_3 += this->params[PARAM_FREQ_3].getValue();
+	pitch_1 += pitch_global + this->params[PARAM_FREQ_1].getValue();
+	pitch_2 += pitch_global + this->params[PARAM_FREQ_2].getValue();
+	pitch_3 += pitch_global + this->params[PARAM_FREQ_3].getValue();
 
 	/// [2] COMPUTE GOOD
 	//// COMPUTE FREQUENCY (Hz)

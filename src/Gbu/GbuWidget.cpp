@@ -16,6 +16,11 @@ GbuWidget::GbuWidget(Gbu* _module) {
 
 	/// PARAMS
 	addParam(
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(40.0, 10.0)),
+	/**/ module,
+	/**/ Gbu::PARAM_FREQ_GLOBAL));
+
+	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(10.0, 10.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_FREQ_1));
@@ -47,13 +52,14 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	/**/ module,
 	/**/ Gbu::PARAM_FM_1_2));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(15.0, 25.0)),
-	/**/ module,
-	/**/ Gbu::PARAM_RM_1_2_1));
-	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(10.0, 30.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_FM_2_1));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(15.0, 28.5)),
+	/**/ module,
+	/**/ Gbu::PARAM_RM_1_2_1));
+
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(10.0, 40.0)),
 	/**/ module,
