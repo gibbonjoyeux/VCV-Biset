@@ -19,10 +19,14 @@ Gbu::Gbu() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
-	configParam(PARAM_FREQ_GLOBAL, -9, +9, 0, "Freq");//->snapEnabled = true;
-	configParam(PARAM_FREQ_1, -9, +9, 0, "Freq Good");//->snapEnabled = true;
-	configParam(PARAM_FREQ_2, -9, +9, 0, "Freq Bad");//->snapEnabled = true;
-	configParam(PARAM_FREQ_3, -9, +9, 0, "Freq Ugly");//->snapEnabled = true;
+	configParam(PARAM_FREQ_GLOBAL, -9, +9, 0, "Freq");
+	configParam(PARAM_FREQ_1, -9, +9, 0, "Freq Good");
+	configParam(PARAM_FREQ_2, -9, +9, 0, "Freq Bad");
+	configParam(PARAM_FREQ_3, -9, +9, 0, "Freq Ugly");
+
+	configParam(PARAM_LEVEL_1, 0, 1, 1, "Level Good");
+	configParam(PARAM_LEVEL_2, 0, 1, 0, "Level Bad");
+	configParam(PARAM_LEVEL_3, 0, 1, 0, "Level Ugly");
 
 	configParam(PARAM_FEEDBACK_1, 0, 1, 0, "Feedback Good");
 	configParam(PARAM_FEEDBACK_2, 0, 1, 0, "Feedback Bad");
@@ -86,10 +90,13 @@ void Gbu::process(const ProcessArgs& args) {
 	float	pitch_1;			// value on knob + input
 	float	pitch_2;
 	float	pitch_3;
+	float	level_1;
+	float	level_2;
+	float	level_3;
 	float	freq;
 	float	phase;
-	bool	connected_2;
-	bool	connected_3;
+	float	out;
+	float	out_level;
 	int		channel_count;
 	int		i;
 
@@ -117,6 +124,10 @@ void Gbu::process(const ProcessArgs& args) {
 	mod_feedback_1 = this->params[PARAM_FEEDBACK_1].getValue();
 	mod_feedback_2 = this->params[PARAM_FEEDBACK_2].getValue();
 	mod_feedback_3 = this->params[PARAM_FEEDBACK_3].getValue();
+	//// LEVEL
+	level_1 = this->params[PARAM_LEVEL_1].getValue();
+	level_2 = this->params[PARAM_LEVEL_2].getValue();
+	level_3 = this->params[PARAM_LEVEL_3].getValue();
 	//// PITCH
 	pitch_global = this->params[PARAM_FREQ_GLOBAL].getValue();
 	p_pitch_1 = pitch_global + this->params[PARAM_FREQ_1].getValue();
@@ -131,28 +142,22 @@ void Gbu::process(const ProcessArgs& args) {
 	follow_friction = (1.0 - this->params[PARAM_FOLLOW_FRICTION].getValue())
 	/**/ * (0.9999 - 0.999) + 0.999;
 
-	channel_count = this->inputs[INPUT_PITCH_1].getChannels();
+	channel_count = this->inputs[INPUT_PITCH].getChannels();
 	if (channel_count == 0)
 		channel_count = 1;
-	this->outputs[OUTPUT_LEFT].setChannels(channel_count);
-	this->outputs[OUTPUT_RIGHT].setChannels(channel_count);
-	connected_2 = this->inputs[INPUT_PITCH_2].isConnected();
-	connected_3 = this->inputs[INPUT_PITCH_3].isConnected();
+	this->outputs[OUTPUT_MIX].setChannels(channel_count);
+	out_level = level_1 + level_2 + level_3;
 
 	/// FOR EACH CHANNEL
 	for (i = 0; i < channel_count; ++i) {
 
+		out = 0.0;
+
 		/// [2] COMPUTE PITCH
-		pitch_main = this->inputs[INPUT_PITCH_1].getVoltage(i);
+		pitch_main = this->inputs[INPUT_PITCH].getVoltage(i);
 		pitch_1 = p_pitch_1 + pitch_main;
-		if (connected_2)
-			pitch_2 = p_pitch_2 + this->inputs[INPUT_PITCH_2].getVoltage(i);
-		else
-			pitch_2 = p_pitch_2 + pitch_main;
-		if (connected_3)
-			pitch_3 = p_pitch_3 + this->inputs[INPUT_PITCH_3].getVoltage(i);
-		else
-			pitch_3 = p_pitch_3 + pitch_main;
+		pitch_2 = p_pitch_2 + pitch_main;
+		pitch_3 = p_pitch_3 + pitch_main;
 
 		/// [3] COMPUTE GOOD
 		//// COMPUTE FREQUENCY (Hz)
@@ -180,7 +185,8 @@ void Gbu::process(const ProcessArgs& args) {
 		/**/ * ((1.0 - mod_rm_3_1)
 		/**/ + ((this->out_3[i] * mod_rm_mul + mod_rm_add) * mod_rm_3_1));
 		//// SEND OUTPUT
-		this->outputs[OUTPUT_LEFT].setVoltage(this->out_1[i] * 5.0, i);
+		out += this->out_1[i] * level_1;
+		//this->outputs[OUTPUT_LEFT].setVoltage(this->out_1[i] * 5.0, i);
 
 		/// [4] COMPUTE BAD
 		//// COMPUTE FREQUENCY (Hz)
@@ -208,7 +214,8 @@ void Gbu::process(const ProcessArgs& args) {
 		/**/ * ((1.0 - mod_rm_3_2)
 		/**/ + ((this->out_3[i] * mod_rm_mul + mod_rm_add) * mod_rm_3_2));
 		//// SEND OUTPUT
-		this->outputs[OUTPUT_RIGHT].setVoltage(this->out_2[i] * 5.0, i);
+		out += this->out_2[i] * level_2;
+		//this->outputs[OUTPUT_RIGHT].setVoltage(this->out_2[i] * 5.0, i);
 
 		/// [5] COMPUTE UGLY
 		//// COMPUTE PITCH MOVEMENT
@@ -239,8 +246,12 @@ void Gbu::process(const ProcessArgs& args) {
 		//// COMPUTE OUTPUT
 		this->out_3[i] = GBU_WAVE(phase);
 		//// SEND OUTPUT
+		out += this->out_3[i] * level_3;
 		this->outputs[OUTPUT_DEBUG].setVoltage(pitch_3);
 
+		if (out_level > 1.0)
+			out /= out_level;
+		this->outputs[OUTPUT_MIX].setVoltage(out * 5.0, i);
 	}
 }
 
