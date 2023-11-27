@@ -12,11 +12,11 @@
 GbuWidget::GbuWidget(Gbu* _module) {
 	module = _module;
 	setModule(module);
-	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker-State.svg")));
+	setPanel(createPanel(asset::plugin(pluginInstance, "res/Gbu.svg")));
 
 	/// PARAMS
 	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(40.0, 10.0)),
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(45.0, 10.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_FREQ_GLOBAL));
 
@@ -76,6 +76,23 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(25.0, 40.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_RM_3_2));
+
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(10.0, 55.0)),
+	/**/ module,
+	/**/ Gbu::PARAM_NOISE_SPEED));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(15.0, 55.0)),
+	/**/ module,
+	/**/ Gbu::PARAM_NOISE_AMP));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(25.0, 55.0)),
+	/**/ module,
+	/**/ Gbu::PARAM_FOLLOW_ATTRACTION));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(30.0, 55.0)),
+	/**/ module,
+	/**/ Gbu::PARAM_FOLLOW_FRICTION));
 
 	/// INPUTS
 	addInput(
