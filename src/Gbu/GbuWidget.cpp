@@ -94,6 +94,11 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	/**/ module,
 	/**/ Gbu::PARAM_FOLLOW_FRICTION));
 
+	addParam(
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(27.5, 70.0)),
+	/**/ module,
+	/**/ Gbu::PARAM_RM_MODE));
+
 	/// INPUTS
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(10.0, 90.0)),

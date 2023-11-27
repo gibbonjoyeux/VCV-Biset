@@ -26,6 +26,7 @@ struct Gbu: Module {
 		PARAM_RM_1_2_1,				// RM Good and Bad
 		PARAM_RM_3_1,				// RM Ugly to Good
 		PARAM_RM_3_2,				// RM Ugly to Bad
+		PARAM_RM_MODE,				// RM / AM mix
 		PARAM_NOISE_SPEED,			// Ugly noise speed
 		PARAM_NOISE_AMP,			// Ugly noise amplitude
 		PARAM_FOLLOW_ATTRACTION,	// Ugly pitch following attraction force

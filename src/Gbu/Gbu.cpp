@@ -28,6 +28,7 @@ Gbu::Gbu() {
 	configParam(PARAM_FEEDBACK_2, 0, 1, 0, "Feedback Bad");
 	configParam(PARAM_FEEDBACK_3, 0, 1, 0, "Feedback Ugly");
 
+	configParam(PARAM_RM_MODE, 0, 1, 0, "RM / AM");
 	configParam(PARAM_FM_1_2, 0, 1, 0, "FM Good -> Bad");
 	configParam(PARAM_FM_2_1, 0, 1, 0, "FM Bad -> Good");
 	configParam(PARAM_FM_3_1, 0, 1, 0, "FM Ugly -> Good");
@@ -61,6 +62,9 @@ void Gbu::process(const ProcessArgs& args) {
 	float	mod_fm_3_1;
 	float	mod_fm_3_2;
 	float	mod_rm;
+	float	mod_rm_mode;
+	float	mod_rm_mul;
+	float	mod_rm_add;
 	float	mod_rm_1_2;
 	float	mod_rm_2_1;
 	float	mod_rm_3_1;
@@ -91,6 +95,9 @@ void Gbu::process(const ProcessArgs& args) {
 	}
 	mod_rm_3_1 = this->params[PARAM_RM_3_1].getValue();
 	mod_rm_3_2 = this->params[PARAM_RM_3_2].getValue();
+	mod_rm_mode = this->params[PARAM_RM_MODE].getValue();
+	mod_rm_mul = (1.0 - mod_rm_mode * 0.5);
+	mod_rm_add = mod_rm_mode * 0.5;
 	//// MODULATION FREQUENCY
 	mod_fm_2_1 = this->params[PARAM_FM_2_1].getValue();
 	mod_fm_3_1 = this->params[PARAM_FM_3_1].getValue();
@@ -142,10 +149,12 @@ void Gbu::process(const ProcessArgs& args) {
 	this->out_1 = GBU_WAVE(phase);
 	//// COMPUTE AMPLITUDE MODULATION
 	this->out_1 *=
-	///// MODULATION RING (FROM BAD)
-	/**/ ((1.0 - mod_rm_2_1) + (this->out_2 * mod_rm_2_1))
-	///// MODULATION RING (FROM UGLY)
-	/**/ * ((1.0 - mod_rm_3_1) + (this->out_3 * mod_rm_3_1));
+	///// MODULATION AMPLITUDE / RING (FROM BAD)
+	/**/ ((1.0 - mod_rm_2_1)
+	/**/ + ((this->out_2 * mod_rm_mul + mod_rm_add) * mod_rm_2_1))
+	///// MODULATION AMPLITUDE / RING (FROM UGLY)
+	/**/ * ((1.0 - mod_rm_3_1)
+	/**/ + ((this->out_3 * mod_rm_mul + mod_rm_add) * mod_rm_3_1));
 	//// SEND OUTPUT
 	this->outputs[OUTPUT_LEFT].setVoltage(this->out_1 * 5.0);
 
@@ -169,9 +178,11 @@ void Gbu::process(const ProcessArgs& args) {
 	//// COMPUTE AMPLITUDE MODULATION
 	this->out_2 *=
 	///// MODULATION RING (FROM BAD)
-	/**/ ((1.0 - mod_rm_1_2) + (this->out_1 * mod_rm_1_2))
+	/**/ ((1.0 - mod_rm_1_2)
+	/**/ + ((this->out_1 * mod_rm_mul + mod_rm_add) * mod_rm_1_2))
 	///// MODULATION RING (FROM UGLY)
-	/**/ * ((1.0 - mod_rm_3_2) + (this->out_3 * mod_rm_3_2));
+	/**/ * ((1.0 - mod_rm_3_2)
+	/**/ + ((this->out_3 * mod_rm_mul + mod_rm_add) * mod_rm_3_2));
 	//// SEND OUTPUT
 	this->outputs[OUTPUT_RIGHT].setVoltage(this->out_2 * 5.0);
 
