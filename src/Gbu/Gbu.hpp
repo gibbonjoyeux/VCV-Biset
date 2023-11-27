@@ -50,15 +50,15 @@ struct Gbu: Module {
 	};
 
 	float	wave[GBU_RESOLUTION];
-	float	phase_1;
-	float	phase_2;
-	float	phase_3;
-	float	out_1;
-	float	out_2;
-	float	out_3;
-	float	pitch_3;
-	float	pitch_3_acc;
-	float	pitch_3_noise_phase;
+	float	phase_1[16];
+	float	phase_2[16];
+	float	phase_3[16];
+	float	out_1[16];
+	float	out_2[16];
+	float	out_3[16];
+	float	pitch_3[16];
+	float	pitch_3_acc[16];
+	float	pitch_3_noise_phase[16];
 
 	Gbu();
 
