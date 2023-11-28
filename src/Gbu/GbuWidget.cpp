@@ -28,6 +28,7 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	float	dist_rm;
 	float	dist_rm_in;
 	float	dist_fm_in;
+	float	dist_big;
 	Vec		p;
 	int		i;
 
@@ -39,14 +40,23 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	p.y = 53.5;	// 53.5 or 59.0
 
 	/// PARAMS
+	dist_big = 38.0;
 	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(triangle(p, -0.5/6.0, 40.0)),
+	/**/ createParamCentered<KnobMedium>(mm2px(triangle(p, -0.5/6.0, dist_big)),
 	/**/ module,
 	/**/ Gbu::PARAM_FREQ_GLOBAL));
 	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(triangle(p, -1.5/6.0, 40.0)),
+	/**/ createParamCentered<KnobMedium>(mm2px(triangle(p, -1.5/6.0, dist_big)),
 	/**/ module,
 	/**/ Gbu::PARAM_RM_MODE));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(triangle(p, -0.5/6.0, dist_big, 0, 9.0)),
+	/**/ module,
+	/**/ Gbu::INPUT_PITCH));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(triangle(p, -1.5/6.0, dist_big, 0, 9.0)),
+	/**/ module,
+	/**/ Gbu::INPUT_RM_MODE));
 
 	for (i = 0; i < 3; ++i) {
 		addParam(
@@ -78,11 +88,11 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -1.0/6.0, dist_fm, -3.0)),
 	/**/ module,
-	/**/ Gbu::PARAM_FM_1_2));
+	/**/ Gbu::PARAM_PM_1_2));
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -1.0/6.0, dist_fm, +3.0)),
 	/**/ module,
-	/**/ Gbu::PARAM_FM_2_1));
+	/**/ Gbu::PARAM_PM_2_1));
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -1.0/6.0, dist_rm)),
 	/**/ module,
@@ -94,11 +104,11 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(triangle(p, -1.0/6.0, dist_fm_in, -3.5)),
 	/**/ module,
-	/**/ Gbu::INPUT_FM_1_2));
+	/**/ Gbu::INPUT_PM_1_2));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(triangle(p, -1.0/6.0, dist_fm_in, +3.5)),
 	/**/ module,
-	/**/ Gbu::INPUT_FM_2_1));
+	/**/ Gbu::INPUT_PM_2_1));
 
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -1.0/6.0-2.0/3.0, dist_rm)),
@@ -111,11 +121,11 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -1.0/6.0-2.0/3.0, dist_fm)),
 	/**/ module,
-	/**/ Gbu::PARAM_FM_3_1));
+	/**/ Gbu::PARAM_PM_3_1));
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -1.0/6.0-1.0/3.0, dist_fm)),
 	/**/ module,
-	/**/ Gbu::PARAM_FM_3_2));
+	/**/ Gbu::PARAM_PM_3_2));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(triangle(p, -1.0/6.0-2.0/3.0, dist_rm_in)),
 	/**/ module,
@@ -127,47 +137,36 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(triangle(p, -1.0/6.0-2.0/3.0, dist_fm_in)),
 	/**/ module,
-	/**/ Gbu::INPUT_FM_3_1));
+	/**/ Gbu::INPUT_PM_3_1));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(triangle(p, -1.0/6.0-1.0/3.0, dist_fm_in)),
 	/**/ module,
-	/**/ Gbu::INPUT_FM_3_2));
+	/**/ Gbu::INPUT_PM_3_2));
 
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -2.0/3.0, 28.5, -8.0, -6.0)),
+	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -2.0/3.0, 28.5, -14.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_NOISE_SPEED));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -2.0/3.0, 28.5, -10.0)),
+	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -2.0/3.0, 28.5, -10.5, -6.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_NOISE_AMP));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -2.0/3.0, 28.5, +10.0)),
+	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -2.0/3.0, 28.5, +14.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_FOLLOW_ATTRACTION));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -2.0/3.0, 28.5, +8.0, -6.0)),
+	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -2.0/3.0, 28.5, +10.5, -6.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_FOLLOW_FRICTION));
 
-
-
-
-
-	/// INPUTS
-	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(45.7 - 5.25, 103.75)),
-	/**/ module,
-	/**/ Gbu::INPUT_PITCH));
-
 	/// OUTPUTS
 	addOutput(
-	/**/ createOutputCentered<Outlet>(mm2px(Vec(45.7 + 5.25, 103.75)),
+	/**/ createOutputCentered<Outlet>(mm2px(Vec(45.7 - 5.30, 103.75)),
 	/**/ module,
 	/**/ Gbu::OUTPUT_MIX));
-
 	addOutput(
-	/**/ createOutputCentered<Outlet>(mm2px(Vec(80.0, 110.0)),
+	/**/ createOutputCentered<Outlet>(mm2px(Vec(45.7 + 5.30, 103.75)),
 	/**/ module,
-	/**/ Gbu::OUTPUT_DEBUG));
+	/**/ Gbu::OUTPUT_EXTRA));
 }

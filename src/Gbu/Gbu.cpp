@@ -19,6 +19,25 @@ Gbu::Gbu() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
+	configInput(INPUT_PITCH, "V/Oct");
+	configInput(INPUT_LEVEL_1, "Level Good");
+	configInput(INPUT_LEVEL_2, "Level Bad");
+	configInput(INPUT_LEVEL_3, "Level Ugly");
+	configInput(INPUT_FEEDBACK_1, "Feedback Good");
+	configInput(INPUT_FEEDBACK_2, "Feedback Bad");
+	configInput(INPUT_FEEDBACK_3, "Feedback Ugly");
+	configInput(INPUT_PM_1_2, "PM Good -> Bad");
+	configInput(INPUT_PM_2_1, "PM Bad -> Good");
+	configInput(INPUT_PM_3_1, "PM Ugly -> Good");
+	configInput(INPUT_PM_3_2, "PM Ugly -> Bad");
+	configInput(INPUT_RM_1_2_1, "AM Good <-> Bad");
+	configInput(INPUT_RM_3_1, "AM Ugly -> Good");
+	configInput(INPUT_RM_3_2, "AM Ugly -> Bad");
+	configInput(INPUT_RM_MODE, "RM / AM");
+
+	configOutput(OUTPUT_MIX, "Mix");
+	configOutput(OUTPUT_EXTRA, "Extra");
+
 	configParam(PARAM_FREQ_GLOBAL, -9, +9, 0, "Freq");
 	configParam(PARAM_FREQ_1, -9, +9, 0, "Freq Good");
 	configParam(PARAM_FREQ_2, -9, +9, 0, "Freq Bad");
@@ -32,11 +51,11 @@ Gbu::Gbu() {
 	configParam(PARAM_FEEDBACK_2, 0, 1, 0, "Feedback Bad");
 	configParam(PARAM_FEEDBACK_3, 0, 1, 0, "Feedback Ugly");
 
-	configParam(PARAM_RM_MODE, 0, 1, 0, "RM / AM");
-	configParam(PARAM_FM_1_2, 0, 1, 0, "FM Good -> Bad");
-	configParam(PARAM_FM_2_1, 0, 1, 0, "FM Bad -> Good");
-	configParam(PARAM_FM_3_1, 0, 1, 0, "FM Ugly -> Good");
-	configParam(PARAM_FM_3_2, 0, 1, 0, "FM Ugly -> Bad");
+	configParam(PARAM_RM_MODE, 0, 1, 1, "RM / AM");
+	configParam(PARAM_PM_1_2, 0, 1, 0, "PM Good -> Bad");
+	configParam(PARAM_PM_2_1, 0, 1, 0, "PM Bad -> Good");
+	configParam(PARAM_PM_3_1, 0, 1, 0, "PM Ugly -> Good");
+	configParam(PARAM_PM_3_2, 0, 1, 0, "PM Ugly -> Bad");
 	configParam(PARAM_RM_1_2_1, -1, +1, 0, "RM Good <-> Bad");
 	configParam(PARAM_RM_3_1, 0, 1, 0, "RM Ugly -> Good");
 	configParam(PARAM_RM_3_2, 0, 1, 0, "RM Ugly -> Bad");
@@ -63,10 +82,10 @@ Gbu::Gbu() {
 }
 
 void Gbu::process(const ProcessArgs& args) {
-	float	mod_fm_1_2;
-	float	mod_fm_2_1;
-	float	mod_fm_3_1;
-	float	mod_fm_3_2;
+	float	mod_pm_1_2;
+	float	mod_pm_2_1;
+	float	mod_pm_3_1;
+	float	mod_pm_3_2;
 	float	mod_rm;
 	float	mod_rm_mode;
 	float	mod_rm_mul;
@@ -90,6 +109,7 @@ void Gbu::process(const ProcessArgs& args) {
 	float	pitch_1;			// value on knob + input
 	float	pitch_2;
 	float	pitch_3;
+	float	pitch_3_aim;
 	float	level_1;
 	float	level_2;
 	float	level_3;
@@ -116,10 +136,10 @@ void Gbu::process(const ProcessArgs& args) {
 	mod_rm_mul = (1.0 - mod_rm_mode * 0.5);
 	mod_rm_add = mod_rm_mode * 0.5;
 	//// MODULATION FREQUENCY
-	mod_fm_2_1 = this->params[PARAM_FM_2_1].getValue();
-	mod_fm_3_1 = this->params[PARAM_FM_3_1].getValue();
-	mod_fm_1_2 = this->params[PARAM_FM_1_2].getValue();
-	mod_fm_3_2 = this->params[PARAM_FM_3_2].getValue();
+	mod_pm_2_1 = this->params[PARAM_PM_2_1].getValue();
+	mod_pm_3_1 = this->params[PARAM_PM_3_1].getValue();
+	mod_pm_1_2 = this->params[PARAM_PM_1_2].getValue();
+	mod_pm_3_2 = this->params[PARAM_PM_3_2].getValue();
 	//// MODULATION FEEDBACK
 	mod_feedback_1 = this->params[PARAM_FEEDBACK_1].getValue();
 	mod_feedback_2 = this->params[PARAM_FEEDBACK_2].getValue();
@@ -146,6 +166,7 @@ void Gbu::process(const ProcessArgs& args) {
 	if (channel_count == 0)
 		channel_count = 1;
 	this->outputs[OUTPUT_MIX].setChannels(channel_count);
+	this->outputs[OUTPUT_EXTRA].setChannels(channel_count);
 	out_level = level_1 + level_2 + level_3;
 
 	/// FOR EACH CHANNEL
@@ -169,9 +190,9 @@ void Gbu::process(const ProcessArgs& args) {
 		//// COMPUTE PHASE MODULATION
 		phase = this->phase_1[i]
 		///// MODULATION FREQUENCY (FROM BAD)
-		/**/ + (this->out_2[i] * 0.5 + 0.5) * mod_fm_2_1 * 5.0
+		/**/ + (this->out_2[i] * 0.5 + 0.5) * mod_pm_2_1 * 5.0
 		///// MODULATION FREQUENCY (FROM UGLY)
-		/**/ + (this->out_3[i] * 0.5 + 0.5) * mod_fm_3_1 * 5.0
+		/**/ + (this->out_3[i] * 0.5 + 0.5) * mod_pm_3_1 * 5.0
 		///// MODULATION FEEDBACK
 		/**/ + (this->out_1[i] * 0.5 + 0.5) * mod_feedback_1;
 		//// COMPUTE OUTPUT
@@ -186,7 +207,6 @@ void Gbu::process(const ProcessArgs& args) {
 		/**/ + ((this->out_3[i] * mod_rm_mul + mod_rm_add) * mod_rm_3_1));
 		//// SEND OUTPUT
 		out += this->out_1[i] * level_1;
-		//this->outputs[OUTPUT_LEFT].setVoltage(this->out_1[i] * 5.0, i);
 
 		/// [4] COMPUTE BAD
 		//// COMPUTE FREQUENCY (Hz)
@@ -198,9 +218,9 @@ void Gbu::process(const ProcessArgs& args) {
 		//// COMPUTE PHASE MODULATION
 		phase = this->phase_2[i]
 		///// MODULATION FREQUENCY (FROM GOOD)
-		/**/ + (this->out_1[i] * 0.5 + 0.5) * mod_fm_1_2 * 5.0
+		/**/ + (this->out_1[i] * 0.5 + 0.5) * mod_pm_1_2 * 5.0
 		///// MODULATION FREQUENCY (FROM UGLY)
-		/**/ + (this->out_3[i] * 0.5 + 0.5) * mod_fm_3_2 * 5.0
+		/**/ + (this->out_3[i] * 0.5 + 0.5) * mod_pm_3_2 * 5.0
 		///// MODULATION FEEDBACK
 		/**/ + (this->out_2[i] * 0.5 + 0.5) * mod_feedback_2;
 		//// COMPUTE OUTPUT
@@ -215,15 +235,15 @@ void Gbu::process(const ProcessArgs& args) {
 		/**/ + ((this->out_3[i] * mod_rm_mul + mod_rm_add) * mod_rm_3_2));
 		//// SEND OUTPUT
 		out += this->out_2[i] * level_2;
-		//this->outputs[OUTPUT_RIGHT].setVoltage(this->out_2[i] * 5.0, i);
 
 		/// [5] COMPUTE UGLY
 		//// COMPUTE PITCH MOVEMENT
+		pitch_3_aim = pitch_3;
 		if (this->pitch_3[i] > pitch_3)
-			this->pitch_3_acc[i] -= args.sampleTime * follow_attraction;//0.05
+			this->pitch_3_acc[i] -= args.sampleTime * follow_attraction;
 		else
 			this->pitch_3_acc[i] += args.sampleTime * follow_attraction;
-		this->pitch_3_acc[i] *= follow_friction;//0.999
+		this->pitch_3_acc[i] *= follow_friction;
 		this->pitch_3[i] += this->pitch_3_acc[i];
 		pitch_3 = this->pitch_3[i];
 		//// COMPUTE PITCH RANDOM MOVEMENT
@@ -247,7 +267,7 @@ void Gbu::process(const ProcessArgs& args) {
 		this->out_3[i] = GBU_WAVE(phase);
 		//// SEND OUTPUT
 		out += this->out_3[i] * level_3;
-		this->outputs[OUTPUT_DEBUG].setVoltage(pitch_3);
+		this->outputs[OUTPUT_EXTRA].setVoltage(pitch_3_aim - pitch_3, i);
 
 		if (out_level > 1.0)
 			out /= out_level;

@@ -22,10 +22,10 @@ struct Gbu: Module {
 		PARAM_FEEDBACK_1,
 		PARAM_FEEDBACK_2,
 		PARAM_FEEDBACK_3,
-		PARAM_FM_1_2,				// FM Good to Bad
-		PARAM_FM_2_1,				// FM Bad to Good
-		PARAM_FM_3_1,				// FM Ugly to Good
-		PARAM_FM_3_2,				// FM Ugly to Bad
+		PARAM_PM_1_2,				// PM Good to Bad
+		PARAM_PM_2_1,				// PM Bad to Good
+		PARAM_PM_3_1,				// PM Ugly to Good
+		PARAM_PM_3_2,				// PM Ugly to Bad
 		PARAM_RM_1_2_1,				// RM Good and Bad
 		PARAM_RM_3_1,				// RM Ugly to Good
 		PARAM_RM_3_2,				// RM Ugly to Bad
@@ -44,10 +44,10 @@ struct Gbu: Module {
 		INPUT_FEEDBACK_1,
 		INPUT_FEEDBACK_2,
 		INPUT_FEEDBACK_3,
-		INPUT_FM_1_2,
-		INPUT_FM_2_1,
-		INPUT_FM_3_1,
-		INPUT_FM_3_2,
+		INPUT_PM_1_2,
+		INPUT_PM_2_1,
+		INPUT_PM_3_1,
+		INPUT_PM_3_2,
 		INPUT_RM_1_2_1,
 		INPUT_RM_3_1,
 		INPUT_RM_3_2,
@@ -56,7 +56,7 @@ struct Gbu: Module {
 	};
 	enum	OutputIds {
 		OUTPUT_MIX,
-		OUTPUT_DEBUG,
+		OUTPUT_EXTRA,
 		OUTPUT_COUNT
 	};
 	enum	LightIds {
