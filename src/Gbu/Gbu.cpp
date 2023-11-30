@@ -38,6 +38,9 @@ Gbu::Gbu() {
 	configOutput(OUTPUT_MIX, "Mix");
 	configOutput(OUTPUT_EXTRA, "Extra");
 
+	configSwitch(PARAM_ALGO_SWITCH, 0, GBU_ALGO_MAX, 0, "Algorithm",
+	/**/ {"Ugly", "Ugliest", "Queen"});
+
 	configParam(PARAM_FREQ_GLOBAL, -9, +9, 0, "Freq");
 	configParam(PARAM_FREQ_1, -9, +9, 0, "Freq Good");
 	configParam(PARAM_FREQ_2, -9, +9, 0, "Freq Bad");
@@ -65,16 +68,23 @@ Gbu::Gbu() {
 	configParam(PARAM_FOLLOW_ATTRACTION, 0, 1, 0.5, "Ugly attraction");
 	configParam(PARAM_FOLLOW_FRICTION, 0, 1, 0.5, "Ugly friction");
 
+	this->algo = GBU_ALGO_UGLY;	// TODO: should be saved (as a parameter ?)
+
 	for (i = 0; i < 16; ++i) {
 		this->phase_1[i] = 0.0;
 		this->phase_2[i] = 0.0;
 		this->phase_3[i] = 0.0;
+		this->phase_4[i] = 0.0;
 		this->out_1[i] = 0.0;
 		this->out_2[i] = 0.0;
 		this->out_3[i] = 0.0;
+		this->out_4[i] = 0.0;
 		this->pitch_3[i] = 0.0;
 		this->pitch_3_acc[i] = 0.0;
 		this->pitch_3_noise_phase[i] = (float)i * 12.345;
+		this->pitch_4[i] = 0.0;
+		this->pitch_4_acc[i] = 0.0;
+		this->pitch_4_noise_phase[i] = (float)(i + 16) * 12.345;
 	}
 
 	for (i = 0; i < GBU_RESOLUTION; ++i)
@@ -115,6 +125,8 @@ void Gbu::process(const ProcessArgs& args) {
 	float	noise_amp;
 	float	follow_attraction;
 	float	follow_friction;
+	float	follow_attraction_4;
+	float	follow_friction_4;
 	float	pitch_global;
 	float	pitch_main;
 	float	p_pitch_1;
@@ -123,6 +135,7 @@ void Gbu::process(const ProcessArgs& args) {
 	float	pitch_1;
 	float	pitch_2;
 	float	pitch_3;
+	float	pitch_4;
 	float	pitch_3_aim;
 	float	p_level_1;
 	float	p_level_2;
@@ -137,7 +150,10 @@ void Gbu::process(const ProcessArgs& args) {
 	int		channel_count;
 	int		i;
 
-	/// [1] GET PARAMETERS
+	/// [1] CHECK ALGORITHM CHANGE
+	this->algo = this->params[PARAM_ALGO_SWITCH].getValue();
+
+	/// [2] GET PARAMETERS
 	//// MODULATION RING
 	mod_rm = this->params[PARAM_RM_1_2_1].getValue();
 	if (mod_rm >= 0) {
@@ -176,6 +192,8 @@ void Gbu::process(const ProcessArgs& args) {
 	/**/ * (0.01 - 0.0005) + 0.0005;
 	follow_friction = (1.0 - this->params[PARAM_FOLLOW_FRICTION].getValue())
 	/**/ * (0.9999 - 0.999) + 0.999;
+	follow_attraction_4 = follow_attraction * 0.5;
+	follow_friction_4 = 1.0 - (1.0 - follow_friction) * 0.5;
 
 	channel_count = this->inputs[INPUT_PITCH].getChannels();
 	if (channel_count == 0)
@@ -189,7 +207,7 @@ void Gbu::process(const ProcessArgs& args) {
 
 		out = 0.0;
 
-		/// [2] COMPUTE MODULATION
+		/// [3] COMPUTE VOICE MODULATION
 		//// PITCH
 		pitch_main = this->inputs[INPUT_PITCH].getVoltage(i);
 		pitch_1 = p_pitch_1 + pitch_main;
@@ -231,7 +249,10 @@ void Gbu::process(const ProcessArgs& args) {
 		level_3 = p_level_3
 		/**/ * this->inputs[INPUT_LEVEL_3].getNormalPolyVoltage(10.0, i) / 10.0;
 
-		/// [3] COMPUTE GOOD
+		//////////////////////////////	
+		/// [4] COMPUTE OSC GOOD
+		//////////////////////////////	
+
 		//// COMPUTE FREQUENCY (Hz)
 		freq = dsp::FREQ_C4 * std::pow(2.f, pitch_1);
 		//// COMPUTE PHASE
@@ -259,7 +280,10 @@ void Gbu::process(const ProcessArgs& args) {
 		//// SEND OUTPUT
 		out += this->out_1[i] * level_1;
 
-		/// [4] COMPUTE BAD
+		//////////////////////////////	
+		/// [5] COMPUTE OSC BAD
+		//////////////////////////////	
+
 		//// COMPUTE FREQUENCY (Hz)
 		freq = dsp::FREQ_C4 * std::pow(2.f, pitch_2);
 		//// COMPUTE PHASE
@@ -287,39 +311,129 @@ void Gbu::process(const ProcessArgs& args) {
 		//// SEND OUTPUT
 		out += this->out_2[i] * level_2;
 
-		/// [5] COMPUTE UGLY
-		//// COMPUTE PITCH MOVEMENT
-		pitch_3_aim = pitch_3;
-		if (this->pitch_3[i] > pitch_3)
-			this->pitch_3_acc[i] -= args.sampleTime * follow_attraction;
-		else
-			this->pitch_3_acc[i] += args.sampleTime * follow_attraction;
-		this->pitch_3_acc[i] *= follow_friction;
-		this->pitch_3[i] += this->pitch_3_acc[i];
-		pitch_3 = this->pitch_3[i];
-		//// COMPUTE PITCH RANDOM MOVEMENT
-		pitch_3 += noise_amp * 0.3 *
-		/**/ ((GBU_WAVE(this->pitch_3_noise_phase[i])
-		/**/ * GBU_WAVE(this->pitch_3_noise_phase[i] * 3.152)
-		/**/ * GBU_WAVE(this->pitch_3_noise_phase[i] * 4.936)) * 0.5
-		/**/ + GBU_WAVE(this->pitch_3_noise_phase[i] * 24.967 + 0.5) * 0.05);
-		this->pitch_3_noise_phase[i] += args.sampleTime * 5.0 * noise_speed;
-		//// COMPUTE FREQUENCY (Hz)
-		freq = dsp::FREQ_C4 * std::pow(2.f, pitch_3);
-		//// COMPUTE PHASE
-		this->phase_3[i] += freq * args.sampleTime;
-		while (this->phase_3[i] >= 1.0)
-			this->phase_3[i] -= 1.0;
-		//// COMPUTE PHASE MODULATION
-		phase = this->phase_3[i]
-		///// MODULATION FEEDBACK
-		/**/ + (this->out_3[i] * 0.5 + 0.5) * mod_feedback_3;
-		//// COMPUTE OUTPUT
-		this->out_3[i] = GBU_WAVE(phase);
-		//// SEND OUTPUT
-		out += this->out_3[i] * level_3;
-		this->outputs[OUTPUT_EXTRA].setVoltage(pitch_3_aim - pitch_3, i);
+		//////////////////////////////	
+		/// [6] COMPUTE OSC UGLY
+		//////////////////////////////	
 
+		////////////////////	
+		/// [A] ALGO UGLY
+		////////////////////	
+		if (this->algo == GBU_ALGO_UGLY) {
+
+			//// COMPUTE PITCH MOVEMENT
+			pitch_3_aim = pitch_3;
+			if (this->pitch_3[i] > pitch_3)
+				this->pitch_3_acc[i] -= args.sampleTime * follow_attraction;
+			else
+				this->pitch_3_acc[i] += args.sampleTime * follow_attraction;
+			this->pitch_3_acc[i] *= follow_friction;
+			this->pitch_3[i] += this->pitch_3_acc[i];
+			pitch_3 = this->pitch_3[i];
+			//// COMPUTE PITCH RANDOM MOVEMENT
+			pitch_3 += noise_amp * 0.3 *
+			/**/ ((GBU_WAVE(this->pitch_3_noise_phase[i])
+			/**/ * GBU_WAVE(this->pitch_3_noise_phase[i] * 3.152)
+			/**/ * GBU_WAVE(this->pitch_3_noise_phase[i] * 4.936)) * 0.5
+			/**/ + GBU_WAVE(this->pitch_3_noise_phase[i] * 24.967 + 0.5) * 0.05);
+			this->pitch_3_noise_phase[i] += args.sampleTime * 5.0 * noise_speed;
+			//// COMPUTE FREQUENCY (Hz)
+			freq = dsp::FREQ_C4 * std::pow(2.f, pitch_3);
+			//// COMPUTE PHASE
+			this->phase_3[i] += freq * args.sampleTime;
+			while (this->phase_3[i] >= 1.0)
+				this->phase_3[i] -= 1.0;
+			//// COMPUTE PHASE MODULATION
+			phase = this->phase_3[i]
+			///// MODULATION FEEDBACK
+			/**/ + (this->out_3[i] * 0.5 + 0.5) * mod_feedback_3;
+			//// COMPUTE OUTPUT
+			this->out_3[i] = GBU_WAVE(phase);
+			//// SEND OUTPUT
+			this->outputs[OUTPUT_EXTRA].setVoltage(pitch_3_aim - pitch_3, i);
+
+		////////////////////	
+		/// [B] ALGO UGLIEST
+		////////////////////	
+		} else if (this->algo == GBU_ALGO_UGLIEST) {
+
+			/// COMPUTE UGLY
+			//// COMPUTE PITCH MOVEMENT
+			pitch_3_aim = pitch_3;
+			if (this->pitch_3[i] > pitch_3)
+				this->pitch_3_acc[i] -= args.sampleTime * follow_attraction;
+			else
+				this->pitch_3_acc[i] += args.sampleTime * follow_attraction;
+			this->pitch_3_acc[i] *= follow_friction;
+			//this->pitch_3_acc[i] *= follow_friction;
+			this->pitch_3[i] += this->pitch_3_acc[i];
+			pitch_3 = this->pitch_3[i];
+			//// COMPUTE PITCH RANDOM MOVEMENT
+			pitch_3 += noise_amp * 0.3 *
+			/**/ ((GBU_WAVE(this->pitch_3_noise_phase[i])
+			/**/ * GBU_WAVE(this->pitch_3_noise_phase[i] * 3.152)
+			/**/ * GBU_WAVE(this->pitch_3_noise_phase[i] * 4.936)) * 0.5
+			/**/ + GBU_WAVE(this->pitch_3_noise_phase[i] * 24.967 + 0.5) * 0.05);
+			this->pitch_3_noise_phase[i] += args.sampleTime * 5.0 * noise_speed;
+			//// COMPUTE FREQUENCY (Hz)
+			freq = dsp::FREQ_C4 * std::pow(2.f, pitch_3);
+			//// COMPUTE PHASE
+			this->phase_3[i] += freq * args.sampleTime;
+			while (this->phase_3[i] >= 1.0)
+				this->phase_3[i] -= 1.0;
+			//// COMPUTE PHASE MODULATION
+			phase = this->phase_3[i]
+			///// MODULATION FREQUENCY (FROM UGLIEST)
+			/**/ + (this->out_4[i] * 0.5 + 0.5) * mod_pm_3_1 * 5.0
+			///// MODULATION FEEDBACK
+			/**/ + (this->out_3[i] * 0.5 + 0.5) * mod_feedback_3;
+			//// COMPUTE OUTPUT
+			this->out_3[i] = GBU_WAVE(phase);
+			//// COMPUTE AMPLITUDE MODULATION
+			this->out_3[i] *=
+			///// MODULATION RING (FROM UGLIEST)
+			/**/ ((1.0 - mod_rm_3_1)
+			/**/ + ((this->out_4[i] * mod_rm_mul + mod_rm_add) * mod_rm_3_1));
+			//// SEND OUTPUT
+			this->outputs[OUTPUT_EXTRA].setVoltage(pitch_3_aim - pitch_3, i);
+
+			/// COMPUTE UGLIEST
+			//// COMPUTE PITCH MOVEMENT
+			if (this->pitch_4[i] > pitch_3)
+				this->pitch_4_acc[i] -= args.sampleTime * follow_attraction_4;
+			else
+				this->pitch_4_acc[i] += args.sampleTime * follow_attraction_4;
+			this->pitch_4_acc[i] *= follow_friction_4;
+			this->pitch_4[i] += this->pitch_4_acc[i];
+			pitch_4 = this->pitch_4[i];
+			//// COMPUTE PITCH RANDOM MOVEMENT
+			pitch_4 += noise_amp * 0.3 *
+			/**/ ((GBU_WAVE(this->pitch_4_noise_phase[i])
+			/**/ * GBU_WAVE(this->pitch_4_noise_phase[i] * 3.152)
+			/**/ * GBU_WAVE(this->pitch_4_noise_phase[i] * 4.936)) * 0.5
+			/**/ + GBU_WAVE(this->pitch_4_noise_phase[i] * 24.967 + 0.5) * 0.05);
+			this->pitch_4_noise_phase[i] += args.sampleTime * 5.0 * noise_speed;
+			//// COMPUTE FREQUENCY (Hz)
+			freq = dsp::FREQ_C4 * std::pow(2.f, pitch_4);
+			//// COMPUTE PHASE
+			this->phase_4[i] += freq * args.sampleTime;
+			while (this->phase_4[i] >= 1.0)
+				this->phase_4[i] -= 1.0;
+			//// COMPUTE PHASE MODULATION
+			phase = this->phase_4[i]
+			///// MODULATION FEEDBACK
+			/**/ + (this->out_4[i] * 0.5 + 0.5) * mod_feedback_3;
+			//// COMPUTE OUTPUT
+			this->out_4[i] = GBU_WAVE(phase);
+
+		////////////////////	
+		/// [C] ALGO QUEEN
+		////////////////////	
+		} else if (this->algo == GBU_ALGO_QUEEN) {
+
+		}
+		out += this->out_3[i] * level_3;
+
+		/// [7] COMPUTE OUTPUT
 		if (out_level > 1.0)
 			out /= out_level;
 		this->outputs[OUTPUT_MIX].setVoltage(out * 5.0, i);

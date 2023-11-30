@@ -4,7 +4,13 @@
 
 #include "../plugin.hpp"
 
-#define GBU_RESOLUTION	2048
+#define GBU_RESOLUTION		2048
+#define GBU_ALGO_UGLY		0
+#define GBU_ALGO_UGLIEST	1
+#define GBU_ALGO_QUEEN		2
+//#define GBU_ALGO_WEIRD		3
+//#define GBU_ALGO_DOVE		4
+#define GBU_ALGO_MAX		2
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -34,6 +40,7 @@ struct Gbu: Module {
 		PARAM_NOISE_AMP,			// Ugly noise amplitude
 		PARAM_FOLLOW_ATTRACTION,	// Ugly pitch following attraction force
 		PARAM_FOLLOW_FRICTION,		// Ugly pitch following friction
+		PARAM_ALGO_SWITCH,
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -63,20 +70,30 @@ struct Gbu: Module {
 		LIGHT_COUNT
 	};
 
+	dsp::TSchmittTrigger<float>	algo_trigger;
+	int		algo;
+
 	float	wave[GBU_RESOLUTION];
 	float	phase_1[16];
 	float	phase_2[16];
 	float	phase_3[16];
+	float	phase_4[16];
 	float	out_1[16];
 	float	out_2[16];
 	float	out_3[16];
+	float	out_4[16];
 	float	pitch_3[16];
 	float	pitch_3_acc[16];
 	float	pitch_3_noise_phase[16];
+	float	pitch_4[16];
+	float	pitch_4_acc[16];
+	float	pitch_4_noise_phase[16];
 
 	Gbu();
 
-	void	process(const ProcessArgs& args) override;
+	void		process(const ProcessArgs& args) override;
+
+	//inline void	mode_ugly();
 };
 
 struct GbuWidget : ModuleWidget {

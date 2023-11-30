@@ -47,6 +47,24 @@ struct ButtonSwitch : app::SvgSwitch {
 	}
 };
 
+struct ButtonTrigger : app::SvgSwitch {
+	ButtonTrigger() {
+		this->momentary = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch-On.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch-Off.svg")));
+	}
+};
+
+// Increase value on each click
+struct ButtonTriggerState : app::SvgSwitch {
+	ButtonTriggerState() {
+		this->momentary = false;
+		this->latch = true;
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch-On.svg")));
+		addFrame(Svg::load(asset::plugin(pluginInstance, "res/Switch-Off.svg")));
+	}
+};
+
 struct ButtonPlaySong : app::SvgSwitch {
 	ButtonPlaySong() {
 		this->momentary = true;

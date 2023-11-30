@@ -86,11 +86,11 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	dist_rm = 16.5;
 	dist_fm = 22.5;
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -1.0/6.0, dist_fm, -3.0)),
+	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -1.0/6.0, dist_fm, +3.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_PM_1_2));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -1.0/6.0, dist_fm, +3.0)),
+	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -1.0/6.0, dist_fm, -3.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_PM_2_1));
 	addParam(
@@ -102,11 +102,11 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	/**/ module,
 	/**/ Gbu::INPUT_RM_1_2_1));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(triangle(p, -1.0/6.0, dist_fm_in, -3.5)),
+	/**/ createInputCentered<Outlet>(mm2px(triangle(p, -1.0/6.0, dist_fm_in, +3.5)),
 	/**/ module,
 	/**/ Gbu::INPUT_PM_1_2));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(triangle(p, -1.0/6.0, dist_fm_in, +3.5)),
+	/**/ createInputCentered<Outlet>(mm2px(triangle(p, -1.0/6.0, dist_fm_in, -3.5)),
 	/**/ module,
 	/**/ Gbu::INPUT_PM_2_1));
 
@@ -159,6 +159,12 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, -2.0/3.0, 28.5, +10.5, -6.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_FOLLOW_FRICTION));
+
+	///  ALGO SWITCH
+	addParam(
+	/**/ createParamCentered<ButtonTriggerState>(mm2px(Vec(85.0, 6.75)),
+	/**/ module,
+	/**/ Gbu::PARAM_ALGO_SWITCH));
 
 	/// OUTPUTS
 	addOutput(
