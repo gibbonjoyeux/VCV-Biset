@@ -40,29 +40,24 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	p.y = 53.5;	// 53.5 or 59.0
 
 	/// PARAMS
-	//addParam(
-	///**/ createParamCentered<KnobMedium>(mm2px(triangle(p, -0.5/6.0, dist_big)),
-	///**/ module,
-	///**/ Gbu::PARAM_FREQ_GLOBAL));
-
 	freq_x = p.x;
 	freq_y = 100.0;
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(freq_x, freq_y)),
 	/**/ module,
-	/**/ Gbu::PARAM_FREQ_GLOBAL));
+	/**/ Gbu::PARAM_PITCH_GLOBAL));
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(freq_x - 6.0, freq_y + 6.5)),
 	/**/ module,
-	/**/ Gbu::PARAM_FREQ_1));
+	/**/ Gbu::PARAM_PITCH_1));
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(freq_x + 6.0, freq_y + 6.5)),
 	/**/ module,
-	/**/ Gbu::PARAM_FREQ_2));
+	/**/ Gbu::PARAM_PITCH_2));
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(freq_x + 0.0, freq_y + 6.5 + 3.0)),
 	/**/ module,
-	/**/ Gbu::PARAM_FREQ_3));
+	/**/ Gbu::PARAM_PITCH_3));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(freq_x - 12.5, freq_y + 6.5)),
 	/**/ module,
@@ -86,10 +81,6 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	/**/ Gbu::INPUT_RM_MODE));
 
 	for (i = 0; i < 3; ++i) {
-		//addParam(
-		///**/ createParamCentered<KnobSmall>(mm2px(triangle(p, (float)-i/3.0, 12.5)),
-		///**/ module,
-		///**/ Gbu::PARAM_FREQ_1 + i));
 		addParam(
 		/**/ createParamCentered<KnobSmall>(mm2px(triangle(p, (float)-i/3.0, 36.5)),
 		/**/ module,

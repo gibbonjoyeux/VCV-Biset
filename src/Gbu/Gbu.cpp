@@ -28,13 +28,13 @@ Gbu::Gbu() {
 	configInput(INPUT_FEEDBACK_1, "Feedback Good");
 	configInput(INPUT_FEEDBACK_2, "Feedback Bad");
 	configInput(INPUT_FEEDBACK_3, "Feedback Ugly");
-	configInput(INPUT_PM_1_2, "PM Good -> Bad");
-	configInput(INPUT_PM_2_1, "PM Bad -> Good");
-	configInput(INPUT_PM_3_1, "PM Ugly -> Good");
-	configInput(INPUT_PM_3_2, "PM Ugly -> Bad");
-	configInput(INPUT_RM_1_2_1, "AM Good <-> Bad");
-	configInput(INPUT_RM_3_1, "AM Ugly -> Good");
-	configInput(INPUT_RM_3_2, "AM Ugly -> Bad");
+	configInput(INPUT_PM_1_2, "PM Good → Bad");
+	configInput(INPUT_PM_2_1, "PM Good ← Bad");
+	configInput(INPUT_PM_3_1, "PM Good ← Ugly");
+	configInput(INPUT_PM_3_2, "PM Ugly → Bad");
+	configInput(INPUT_RM_1_2_1, "AM Good ↔ Bad");
+	configInput(INPUT_RM_3_1, "AM Good ← Ugly");
+	configInput(INPUT_RM_3_2, "AM Ugly → Bad");
 	configInput(INPUT_RM_MODE, "RM / AM");
 
 	configOutput(OUTPUT_1, "Good");
@@ -46,10 +46,10 @@ Gbu::Gbu() {
 	configSwitch(PARAM_ALGO_SWITCH, 0, GBU_ALGO_MAX, 0, "Algorithm",
 	/**/ {"Ugly", "Weird", "Queen"});
 
-	configParam(PARAM_FREQ_GLOBAL, -9, +9, 0, "Freq");
-	configParam(PARAM_FREQ_1, -9, +9, 0, "Freq Good");
-	configParam(PARAM_FREQ_2, -9, +9, 0, "Freq Bad");
-	configParam(PARAM_FREQ_3, -9, +9, 0, "Freq Ugly");
+	configParam(PARAM_PITCH_GLOBAL, -9, +9, 0, "Pitch");
+	configParam(PARAM_PITCH_1, -9, +9, 0, "Pitch Good");
+	configParam(PARAM_PITCH_2, -9, +9, 0, "Pitch Bad");
+	configParam(PARAM_PITCH_3, -9, +9, 0, "Pitch Ugly");
 
 	configParam(PARAM_LEVEL_1, 0, 1, 1, "Level Good");
 	configParam(PARAM_LEVEL_2, 0, 1, 0, "Level Bad");
@@ -60,13 +60,13 @@ Gbu::Gbu() {
 	configParam(PARAM_FEEDBACK_3, 0, 1, 0, "Feedback Ugly");
 
 	configParam(PARAM_RM_MODE, 0, 1, 1, "RM / AM");
-	configParam(PARAM_PM_1_2, 0, 1, 0, "PM Good -> Bad");
-	configParam(PARAM_PM_2_1, 0, 1, 0, "PM Bad -> Good");
-	configParam(PARAM_PM_3_1, 0, 1, 0, "PM Ugly -> Good");
-	configParam(PARAM_PM_3_2, 0, 1, 0, "PM Ugly -> Bad");
-	configParam(PARAM_RM_1_2_1, -1, +1, 0, "RM Good <-> Bad");
-	configParam(PARAM_RM_3_1, 0, 1, 0, "RM Ugly -> Good");
-	configParam(PARAM_RM_3_2, 0, 1, 0, "RM Ugly -> Bad");
+	configParam(PARAM_PM_1_2, 0, 1, 0, "PM Good → Bad");
+	configParam(PARAM_PM_2_1, 0, 1, 0, "PM Good ← Bad");
+	configParam(PARAM_PM_3_1, 0, 1, 0, "PM Good ← Ugly");
+	configParam(PARAM_PM_3_2, 0, 1, 0, "PM Ugly → Bad");
+	configParam(PARAM_RM_1_2_1, -1, +1, 0, "RM Good ↔ Bad");
+	configParam(PARAM_RM_3_1, 0, 1, 0, "RM Good ← Ugly");
+	configParam(PARAM_RM_3_2, 0, 1, 0, "RM Ugly → Bad");
 
 	configParam(PARAM_NOISE_SPEED, 0, 1, 0.3, "Ugly noise speed");
 	configParam(PARAM_NOISE_AMP, 0, 1, 0.5, "Ugly noise amplitude");
@@ -185,10 +185,10 @@ void Gbu::process(const ProcessArgs& args) {
 	p_level_2 = params[PARAM_LEVEL_2].getValue();
 	p_level_3 = params[PARAM_LEVEL_3].getValue();
 	//// PITCH
-	pitch_global = params[PARAM_FREQ_GLOBAL].getValue();
-	p_pitch_1 = pitch_global + params[PARAM_FREQ_1].getValue();
-	p_pitch_2 = pitch_global + params[PARAM_FREQ_2].getValue();
-	p_pitch_3 = pitch_global + params[PARAM_FREQ_3].getValue();
+	pitch_global = params[PARAM_PITCH_GLOBAL].getValue();
+	p_pitch_1 = pitch_global + params[PARAM_PITCH_1].getValue();
+	p_pitch_2 = pitch_global + params[PARAM_PITCH_2].getValue();
+	p_pitch_3 = pitch_global + params[PARAM_PITCH_3].getValue();
 	//// NOISE
 	noise_speed = params[PARAM_NOISE_SPEED].getValue();
 	noise_amp = params[PARAM_NOISE_AMP].getValue();
