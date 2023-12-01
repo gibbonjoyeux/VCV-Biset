@@ -15,7 +15,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 Gbu::Gbu() {
-	int		i;
+	int		i, j;
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
@@ -36,6 +36,7 @@ Gbu::Gbu() {
 	configInput(INPUT_RM_3_1, "AM Good ← Ugly");
 	configInput(INPUT_RM_3_2, "AM Ugly → Bad");
 	configInput(INPUT_RM_MODE, "RM / AM");
+	configInput(INPUT_FEEDBACK_DELAY, "Feedback delay");
 
 	configOutput(OUTPUT_1, "Good");
 	configOutput(OUTPUT_2, "Bad");
@@ -68,6 +69,8 @@ Gbu::Gbu() {
 	configParam(PARAM_RM_3_1, 0, 1, 0, "RM Good ← Ugly");
 	configParam(PARAM_RM_3_2, 0, 1, 0, "RM Ugly → Bad");
 
+	configParam(PARAM_FEEDBACK_DELAY, 0, 1, 0, "Feedback delay");
+
 	configParam(PARAM_NOISE_SPEED, 0, 1, 0.3, "Ugly noise speed");
 	configParam(PARAM_NOISE_AMP, 0, 1, 0.5, "Ugly noise amplitude");
 	configParam(PARAM_FOLLOW_ATTRACTION, 0, 1, 0.5, "Ugly attraction");
@@ -90,7 +93,15 @@ Gbu::Gbu() {
 		this->pitch_4[i] = 0.0;
 		this->pitch_4_acc[i] = 0.0;
 		this->pitch_4_noise_phase[i] = (float)(i + 16) * 12.345;
+
+		for (j = 0; j < 4096; ++j) {
+			this->feedback_buffer_1[i][j] = 0.0;
+			this->feedback_buffer_2[i][j] = 0.0;
+			this->feedback_buffer_3[i][j] = 0.0;
+			this->feedback_buffer_4[i][j] = 0.0;
+		}
 	}
+	this->feedback_i = 0;
 
 	for (i = 0; i < GBU_RESOLUTION; ++i)
 		this->wave[i] = std::sin(2.0 * M_PI * (i / (float)GBU_RESOLUTION));
@@ -123,9 +134,12 @@ void Gbu::process(const ProcessArgs& args) {
 	float	p_mod_feedback_1;
 	float	p_mod_feedback_2;
 	float	p_mod_feedback_3;
+	float	p_mod_feedback_delay;
 	float	mod_feedback_1;
 	float	mod_feedback_2;
 	float	mod_feedback_3;
+	float	mod_feedback_delay;
+	int		mod_feedback_phase;
 	float	noise_speed;
 	float	noise_amp;
 	float	follow_attraction;
@@ -177,6 +191,7 @@ void Gbu::process(const ProcessArgs& args) {
 	p_mod_pm_1_2 = params[PARAM_PM_1_2].getValue();
 	p_mod_pm_3_2 = params[PARAM_PM_3_2].getValue();
 	//// MODULATION FEEDBACK
+	p_mod_feedback_delay = params[PARAM_FEEDBACK_DELAY].getValue();
 	p_mod_feedback_1 = params[PARAM_FEEDBACK_1].getValue();
 	p_mod_feedback_2 = params[PARAM_FEEDBACK_2].getValue();
 	p_mod_feedback_3 = params[PARAM_FEEDBACK_3].getValue();
@@ -251,6 +266,10 @@ void Gbu::process(const ProcessArgs& args) {
 		/**/ * inputs[INPUT_FEEDBACK_2].getNormalPolyVoltage(10.0, i) / 10.0;
 		mod_feedback_3 = p_mod_feedback_3
 		/**/ * inputs[INPUT_FEEDBACK_3].getNormalPolyVoltage(10.0, i) / 10.0;
+		mod_feedback_delay = p_mod_feedback_delay
+		/**/ * inputs[INPUT_FEEDBACK_DELAY].getNormalPolyVoltage(10.0, i) / 10.0;
+		mod_feedback_phase = (this->feedback_i
+		/**/ - (1 + (int)(4096 * mod_feedback_delay * 0.9999)) + 4096) % 4096;
 		//// MODULATION LEVEL
 		level_1 = p_level_1
 		/**/ * inputs[INPUT_LEVEL_1].getNormalPolyVoltage(10.0, i) / 10.0;
@@ -276,7 +295,9 @@ void Gbu::process(const ProcessArgs& args) {
 		///// MODULATION FREQUENCY (FROM UGLY)
 		/**/ + (this->out_3[i] * 0.5 + 0.5) * mod_pm_3_1 * 5.0
 		///// MODULATION FEEDBACK
-		/**/ + (this->out_1[i] * 0.5 + 0.5) * mod_feedback_1;
+		///**/ + (this->out_1[i] * 0.5 + 0.5) * mod_feedback_1;
+		/**/ + (this->feedback_buffer_1[i][mod_feedback_phase] * 0.5 + 0.5)
+		/**/ * mod_feedback_1;
 		//// COMPUTE OUTPUT
 		this->out_1[i] = GBU_WAVE(phase);
 		//// COMPUTE AMPLITUDE MODULATION
@@ -290,6 +311,7 @@ void Gbu::process(const ProcessArgs& args) {
 		//// SEND OUTPUT
 		outputs[OUTPUT_1].setVoltage(this->out_1[i], i);
 		out += this->out_1[i] * level_1;
+		this->feedback_buffer_1[i][this->feedback_i] = this->out_1[i];
 
 		//////////////////////////////	
 		/// [5] COMPUTE OSC BAD
@@ -308,7 +330,9 @@ void Gbu::process(const ProcessArgs& args) {
 		///// MODULATION FREQUENCY (FROM UGLY)
 		/**/ + (this->out_3[i] * 0.5 + 0.5) * mod_pm_3_2 * 5.0
 		///// MODULATION FEEDBACK
-		/**/ + (this->out_2[i] * 0.5 + 0.5) * mod_feedback_2;
+		///**/ + (this->out_2[i] * 0.5 + 0.5) * mod_feedback_2;
+		/**/ + (this->feedback_buffer_2[i][mod_feedback_phase] * 0.5 + 0.5)
+		/**/ * mod_feedback_2;
 		//// COMPUTE OUTPUT
 		this->out_2[i] = GBU_WAVE(phase);
 		//// COMPUTE AMPLITUDE MODULATION
@@ -322,6 +346,7 @@ void Gbu::process(const ProcessArgs& args) {
 		//// SEND OUTPUT
 		outputs[OUTPUT_2].setVoltage(this->out_2[i], i);
 		out += this->out_2[i] * level_2;
+		this->feedback_buffer_2[i][this->feedback_i] = this->out_2[i];
 
 		//////////////////////////////	
 		/// [6] COMPUTE OSC UGLY
@@ -357,11 +382,14 @@ void Gbu::process(const ProcessArgs& args) {
 			//// COMPUTE PHASE MODULATION
 			phase = this->phase_3[i]
 			///// MODULATION FEEDBACK
-			/**/ + (this->out_3[i] * 0.5 + 0.5) * mod_feedback_3;
+			///**/ + (this->out_3[i] * 0.5 + 0.5) * mod_feedback_3;
+			/**/ + (this->feedback_buffer_3[i][mod_feedback_phase] * 0.5 + 0.5)
+			/**/ * mod_feedback_3;
 			//// COMPUTE OUTPUT
 			this->out_3[i] = GBU_WAVE(phase);
 			//// SEND OUTPUT
 			outputs[OUTPUT_EXTRA].setVoltage(pitch_3_aim - pitch_3, i);
+			this->feedback_buffer_3[i][this->feedback_i] = this->out_3[i];
 
 		////////////////////	
 		/// [B] ALGO WEIRD
@@ -397,7 +425,9 @@ void Gbu::process(const ProcessArgs& args) {
 			///// MODULATION FREQUENCY (FROM UGLIEST)
 			/**/ + (this->out_4[i] * 0.5 + 0.5) * mod_pm_3_1 * 5.0
 			///// MODULATION FEEDBACK
-			/**/ + (this->out_3[i] * 0.5 + 0.5) * mod_feedback_3;
+			///**/ + (this->out_3[i] * 0.5 + 0.5) * mod_feedback_3;
+			/**/ + (this->feedback_buffer_3[i][mod_feedback_phase] * 0.5 + 0.5)
+			/**/ * mod_feedback_3;
 			//// COMPUTE OUTPUT
 			this->out_3[i] = GBU_WAVE(phase);
 			//// COMPUTE AMPLITUDE MODULATION
@@ -407,6 +437,7 @@ void Gbu::process(const ProcessArgs& args) {
 			/**/ + ((this->out_4[i] * mod_rm_mul + mod_rm_add) * mod_rm_3_1));
 			//// SEND OUTPUT
 			outputs[OUTPUT_EXTRA].setVoltage(pitch_3_aim - pitch_3, i);
+			this->feedback_buffer_3[i][this->feedback_i] = this->out_3[i];
 
 			/// COMPUTE UGLIEST
 			//// COMPUTE PITCH MOVEMENT
@@ -433,9 +464,13 @@ void Gbu::process(const ProcessArgs& args) {
 			//// COMPUTE PHASE MODULATION
 			phase = this->phase_4[i]
 			///// MODULATION FEEDBACK
-			/**/ + (this->out_4[i] * 0.5 + 0.5) * mod_feedback_3;
+			///**/ + (this->out_4[i] * 0.5 + 0.5) * mod_feedback_3;
+			/**/ + (this->feedback_buffer_4[i][mod_feedback_phase] * 0.5 + 0.5)
+			/**/ * mod_feedback_3;
 			//// COMPUTE OUTPUT
 			this->out_4[i] = GBU_WAVE(phase);
+			//// SEND OUTPUT
+			this->feedback_buffer_4[i][this->feedback_i] = this->out_4[i];
 
 		////////////////////	
 		/// [C] ALGO QUEEN
@@ -468,11 +503,14 @@ void Gbu::process(const ProcessArgs& args) {
 			//// COMPUTE PHASE MODULATION
 			phase = this->phase_3[i]
 			///// MODULATION FEEDBACK
-			/**/ + (this->out_3[i] * 0.5 + 0.5) * mod_feedback_3;
+			///**/ + (this->out_3[i] * 0.5 + 0.5) * mod_feedback_3;
+			/**/ + (this->feedback_buffer_3[i][mod_feedback_phase] * 0.5 + 0.5)
+			/**/ * mod_feedback_3;
 			//// COMPUTE OUTPUT
 			this->out_3[i] = GBU_WAVE(phase);
 			//// SEND OUTPUT
 			outputs[OUTPUT_EXTRA].setVoltage(pitch_3_aim - pitch_3, i);
+			this->feedback_buffer_3[i][this->feedback_i] = this->out_3[i];
 
 			//// COMPUTE PITCH MOVEMENT
 			if (this->pitch_4[i] > pitch_3_aim + 0.02)
@@ -498,9 +536,13 @@ void Gbu::process(const ProcessArgs& args) {
 			//// COMPUTE PHASE MODULATION
 			phase = this->phase_4[i]
 			///// MODULATION FEEDBACK
-			/**/ + (this->out_4[i] * 0.5 + 0.5) * mod_feedback_3;
+			///**/ + (this->out_4[i] * 0.5 + 0.5) * mod_feedback_3;
+			/**/ + (this->feedback_buffer_4[i][mod_feedback_phase] * 0.5 + 0.5)
+			/**/ * mod_feedback_3;
 			//// COMPUTE OUTPUT
 			this->out_3[i] += GBU_WAVE(phase);
+			//// SEND OUTPUT
+			this->feedback_buffer_4[i][this->feedback_i] = this->out_4[i];
 
 		}
 		outputs[OUTPUT_3].setVoltage(this->out_3[i], i);
@@ -511,6 +553,11 @@ void Gbu::process(const ProcessArgs& args) {
 			out /= out_level;
 		outputs[OUTPUT_MIX].setVoltage(out * 5.0, i);
 	}
+
+	/// [8] UPDATE FEEDBACK DELAY
+	this->feedback_i += 1;
+		if (this->feedback_i >= 4096)
+			this->feedback_i = 0;
 }
 
 Model* modelGbu = createModel<Gbu, GbuWidget>("Biset-Gbu");

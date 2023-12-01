@@ -35,6 +35,7 @@ struct Gbu: Module {
 		PARAM_RM_3_1,				// RM Ugly to Good
 		PARAM_RM_3_2,				// RM Ugly to Bad
 		PARAM_RM_MODE,				// RM / AM mix
+		PARAM_FEEDBACK_DELAY,		// Feedback delay
 		PARAM_NOISE_SPEED,			// Ugly noise speed
 		PARAM_NOISE_AMP,			// Ugly noise amplitude
 		PARAM_FOLLOW_ATTRACTION,	// Ugly pitch following attraction force
@@ -60,6 +61,7 @@ struct Gbu: Module {
 		INPUT_RM_3_1,
 		INPUT_RM_3_2,
 		INPUT_RM_MODE,
+		INPUT_FEEDBACK_DELAY,
 		INPUT_COUNT
 	};
 	enum	OutputIds {
@@ -92,6 +94,12 @@ struct Gbu: Module {
 	float	pitch_4[16];
 	float	pitch_4_acc[16];
 	float	pitch_4_noise_phase[16];
+
+	float	feedback_buffer_1[16][4096];
+	float	feedback_buffer_2[16][4096];
+	float	feedback_buffer_3[16][4096];
+	float	feedback_buffer_4[16][4096];
+	int		feedback_i;
 
 	Gbu();
 
