@@ -6,9 +6,8 @@
 
 #define GBU_RESOLUTION		2048
 #define GBU_ALGO_UGLY		0
-#define GBU_ALGO_UGLIEST	1
+#define GBU_ALGO_WEIRD		1
 #define GBU_ALGO_QUEEN		2
-//#define GBU_ALGO_WEIRD		3
 //#define GBU_ALGO_DOVE		4
 #define GBU_ALGO_MAX		2
 
@@ -44,7 +43,9 @@ struct Gbu: Module {
 		PARAM_COUNT
 	};
 	enum	InputIds {
-		INPUT_PITCH,
+		INPUT_PITCH_1,
+		INPUT_PITCH_2,
+		INPUT_PITCH_3,
 		INPUT_LEVEL_1,
 		INPUT_LEVEL_2,
 		INPUT_LEVEL_3,
@@ -62,6 +63,9 @@ struct Gbu: Module {
 		INPUT_COUNT
 	};
 	enum	OutputIds {
+		OUTPUT_1,
+		OUTPUT_2,
+		OUTPUT_3,
 		OUTPUT_MIX,
 		OUTPUT_EXTRA,
 		OUTPUT_COUNT

@@ -3,6 +3,10 @@
 Construction: [Module - dataFromJson - onAdd] - [Widget]
 Destruction: [dataToJson], [Widget, onRemove, Module]
 
+# REGEX
+
+- [ ] Play on startup (option on context menu)
+
 # BUGS REGEX
 
 - [ ] Regex: issue with compiled tree initialisation ?
