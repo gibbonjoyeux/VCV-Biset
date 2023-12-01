@@ -73,6 +73,9 @@ struct Gbu: Module {
 		OUTPUT_COUNT
 	};
 	enum	LightIds {
+		LIGHT_UGLY,
+		LIGHT_WEIRD,
+		LIGHT_QUEEN,
 		LIGHT_COUNT
 	};
 

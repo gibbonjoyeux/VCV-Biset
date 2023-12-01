@@ -171,6 +171,11 @@ void Gbu::process(const ProcessArgs& args) {
 
 	/// [1] CHECK ALGORITHM CHANGE
 	this->algo = params[PARAM_ALGO_SWITCH].getValue();
+	if (args.frame % 32 == 0) {
+		lights[LIGHT_UGLY].setBrightness(this->algo == GBU_ALGO_UGLY);
+		lights[LIGHT_WEIRD].setBrightness(this->algo == GBU_ALGO_WEIRD);
+		lights[LIGHT_QUEEN].setBrightness(this->algo == GBU_ALGO_QUEEN);
+	}
 
 	/// [2] GET PARAMETERS
 	//// MODULATION RING

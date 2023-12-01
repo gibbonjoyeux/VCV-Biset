@@ -72,20 +72,20 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	/**/ Gbu::INPUT_PITCH_3));
 
 	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(10.0, 90.0)),
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(10.0, 94.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_FEEDBACK_DELAY));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(10.0, 90.0 + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(10.0, 94.0 + 9.0)),
 	/**/ module,
 	/**/ Gbu::INPUT_FEEDBACK_DELAY));
 
 	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(22.0, 90.0)),
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(22.0, 94.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_RM_MODE));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(22.0, 90.0 + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(22.0, 94.0 + 9.0)),
 	/**/ module,
 	/**/ Gbu::INPUT_RM_MODE));
 
@@ -192,6 +192,13 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	/**/ createParamCentered<ButtonTriggerState>(mm2px(Vec(85.0, 6.75)),
 	/**/ module,
 	/**/ Gbu::PARAM_ALGO_SWITCH));
+	/// ALGO LIGHTS
+	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(79.5, 6.75)),
+	/**/ module, Gbu::LIGHT_UGLY));
+	addChild(createLightCentered<MediumLight<BlueLight>>(mm2px(Vec(79.5, 6.75 + 5.0)),
+	/**/ module, Gbu::LIGHT_WEIRD));
+	addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(79.5, 6.75 + 10.0)),
+	/**/ module, Gbu::LIGHT_QUEEN));
 
 	/// OUTPUTS
 	addOutput(
