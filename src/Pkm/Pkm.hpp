@@ -17,8 +17,12 @@ using simd::int32_4;
 struct Pkm: Module {
 	enum	ParamIds {
 		PARAM_PITCH,
+		PARAM_DETUNE,
+		PARAM_WIDTH,
 		PARAM_FEEDBACK,
+		PARAM_FEEDBACK_SCALE,
 		PARAM_FEEDBACK_DELAY,
+		PARAM_FEEDBACK_DELAY_SCALE,
 		PARAM_COUNT
 	};
 	enum	InputIds {

@@ -177,6 +177,13 @@ struct KnobMedium : FlatKnob {
 	}
 };
 
+struct KnobBig : FlatKnob {
+	KnobBig() {
+		setSvg(Svg::load(asset::plugin(pluginInstance, "res/Knob-Big.svg")));
+		bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/Knob-Big-bg.svg")));
+	}
+};
+
 //////////////////////////////
 /// PARAM QUANTITIES
 //////////////////////////////
