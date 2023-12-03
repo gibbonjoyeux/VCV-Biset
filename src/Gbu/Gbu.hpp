@@ -107,8 +107,6 @@ struct Gbu: Module {
 	Gbu();
 
 	void		process(const ProcessArgs& args) override;
-
-	//inline void	mode_ugly();
 };
 
 struct GbuWidget : ModuleWidget {

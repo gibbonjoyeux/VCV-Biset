@@ -76,7 +76,7 @@ Gbu::Gbu() {
 	configParam(PARAM_FOLLOW_ATTRACTION, 0, 1, 0.5, "Ugly attraction");
 	configParam(PARAM_FOLLOW_FRICTION, 0, 1, 0.5, "Ugly friction");
 
-	this->algo = GBU_ALGO_UGLY;	// TODO: should be saved (as a parameter ?)
+	this->algo = GBU_ALGO_UGLY;
 
 	for (i = 0; i < 16; ++i) {
 		this->phase_1[i] = 0.0;
