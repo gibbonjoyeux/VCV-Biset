@@ -4,10 +4,6 @@
 
 #include "../plugin.hpp"
 
-using simd::float_4;
-using simd::int32_4;
-
-
 #define PKM_RESOLUTION		2048
 
 ////////////////////////////////////////////////////////////////////////////////

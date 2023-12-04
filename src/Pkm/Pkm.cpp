@@ -108,6 +108,8 @@ void Pkm::process(const ProcessArgs& args) {
 		this->phase[i] -= simd::floor(this->phase[i]);
 
 		//// COMPUTE PHASE MODULATION
+		// TODO mod_feedback_phase does not need to be a int_4
+		// TODO it's the same for each note (note independent)
 		mod_feedback_phase = simd::fmod(this->feedback_i
 		/**/ - (1 + simd::floor(4096 * mod_feedback_delay * 0.9999)) + 4096,
 		/**/ 4096);

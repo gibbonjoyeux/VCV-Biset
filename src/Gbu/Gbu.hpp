@@ -8,7 +8,6 @@
 #define GBU_ALGO_UGLY		0
 #define GBU_ALGO_WEIRD		1
 #define GBU_ALGO_QUEEN		2
-//#define GBU_ALGO_DOVE		4
 #define GBU_ALGO_MAX		2
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,14 +82,9 @@ struct Gbu: Module {
 	int		algo;
 
 	float	wave[GBU_RESOLUTION];
-	float	phase_1[16];
-	float	phase_2[16];
-	float	phase_3[16];
-	float	phase_4[16];
-	float	out_1[16];
-	float	out_2[16];
-	float	out_3[16];
-	float	out_4[16];
+	float_4	phase[16];
+	float_4	out[16];
+
 	float	pitch_3[16];
 	float	pitch_3_acc[16];
 	float	pitch_3_noise_phase[16];
@@ -98,10 +92,7 @@ struct Gbu: Module {
 	float	pitch_4_acc[16];
 	float	pitch_4_noise_phase[16];
 
-	float	feedback_buffer_1[16][4096];
-	float	feedback_buffer_2[16][4096];
-	float	feedback_buffer_3[16][4096];
-	float	feedback_buffer_4[16][4096];
+	float	feedback_buffer[16][4][4096];
 	int		feedback_i;
 
 	Gbu();
