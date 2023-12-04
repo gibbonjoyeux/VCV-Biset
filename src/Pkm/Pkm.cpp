@@ -21,18 +21,18 @@ Pkm::Pkm() {
 
 	configInput(INPUT_PITCH, "V/Oct");
 	configInput(INPUT_FEEDBACK, "Feedback");
-	configInput(INPUT_FEEDBACK_DELAY, "Feedback delay");
+	configInput(INPUT_FEEDBACK_DELAY, "Delay");
 
 	configOutput(OUTPUT_LEFT, "Left");
 	configOutput(OUTPUT_RIGHT, "Right");
 
 	configParam(PARAM_PITCH, -9, +9, 0, "Pitch");
-	configParam(PARAM_DETUNE, 0, 1, 0.3, "Detune");
+	configParam(PARAM_DETUNE, 0, 1, 0.2, "Detune");
 	configParam(PARAM_WIDTH, 0, 1, 1.0, "Width");
 	configParam(PARAM_FEEDBACK, 0, 1, 0, "Feedback");
-	configParam(PARAM_FEEDBACK_DELAY, 0, 1, 0.1, "Feedback delay");
-	configParam(PARAM_FEEDBACK_SCALE, 0, 1, 0, "Feedback modulation");
-	configParam(PARAM_FEEDBACK_DELAY_SCALE, 0, 1, 0, "Feedback delay modulation");
+	configParam(PARAM_FEEDBACK_DELAY, 0, 1, 0.1, "Delay");
+	configParam(PARAM_FEEDBACK_SCALE, -1, +1, 0, "Feedback modulation");
+	configParam(PARAM_FEEDBACK_DELAY_SCALE, -1, +1, 0, "Delay modulation");
 
 	for (i = 0; i < 16; ++i) {
 		this->phase[i] = 0.0;
