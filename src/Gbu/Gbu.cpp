@@ -33,7 +33,7 @@ Gbu::Gbu() {
 	configInput(INPUT_RM_1_2_1, "AM Good ↔ Bad");
 	configInput(INPUT_RM_3_1, "AM Good ← Ugly");
 	configInput(INPUT_RM_3_2, "AM Ugly → Bad");
-	configInput(INPUT_RM_MODE, "RM / AM");
+	configInput(INPUT_RM_MIX, "RM / AM");
 	configInput(INPUT_FEEDBACK_DELAY, "Feedback delay");
 
 	configOutput(OUTPUT_1, "Good");
@@ -58,8 +58,8 @@ Gbu::Gbu() {
 	configParam(PARAM_FEEDBACK_2, 0, 1, 0, "Feedback Bad");
 	configParam(PARAM_FEEDBACK_3, 0, 1, 0, "Feedback Ugly");
 
-	configParam(PARAM_RM_MODE, 0, 1, 1, "RM / AM");
-	configParam(PARAM_RM_MODE_MOD, -1, +1, 0, "RM / AM mod");
+	configParam(PARAM_RM_MIX, 0, 1, 1, "RM / AM");
+	configParam(PARAM_RM_MIX_MOD, -1, +1, 0, "RM / AM mod");
 	configParam(PARAM_PM_1_2, 0, 1, 0, "PM Good → Bad");
 	configParam(PARAM_PM_2_1, 0, 1, 0, "PM Good ← Bad");
 	configParam(PARAM_PM_3_1, 0, 1, 0, "PM Good ← Ugly");
@@ -111,8 +111,8 @@ void Gbu::process(const ProcessArgs& args) {
 	float	mod_feedback_delay;
 	int		mod_feedback_phase;
 	float	p_mod_pm_1_2, p_mod_pm_2_1, p_mod_pm_3_1, p_mod_pm_3_2;
-	float	p_mod_rm_mode;
-	float	p_mod_rm_mode_mod;
+	float	p_mod_rm_mix;
+	float	p_mod_rm_mix_mod;
 	float	p_mod_rm;
 	float	p_mod_rm_1_2, p_mod_rm_2_1, p_mod_rm_3_1, p_mod_rm_3_2;
 	float	p_mod_feedback_1, p_mod_feedback_2, p_mod_feedback_3;
@@ -125,7 +125,7 @@ void Gbu::process(const ProcessArgs& args) {
 	float	p_pitch;
 	float	p_pitch_1, p_pitch_2, p_pitch_3;
 	float	p_level_1, p_level_2, p_level_3;
-	float	in_mod_rm_mode;
+	float	in_mod_rm_mix;
 	float	in_pitch;
 	float	in_mod_rm;
 	float	pitch_3_aim, pitch_4_aim;
@@ -158,8 +158,8 @@ void Gbu::process(const ProcessArgs& args) {
 	}
 	p_mod_rm_3_1 = params[PARAM_RM_3_1].getValue();
 	p_mod_rm_3_2 = params[PARAM_RM_3_2].getValue();
-	p_mod_rm_mode = params[PARAM_RM_MODE].getValue();
-	p_mod_rm_mode_mod = params[PARAM_RM_MODE_MOD].getValue();
+	p_mod_rm_mix = params[PARAM_RM_MIX].getValue();
+	p_mod_rm_mix_mod = params[PARAM_RM_MIX_MOD].getValue();
 
 	//// MODULATION FREQUENCY
 	p_mod_pm_2_1 = params[PARAM_PM_2_1].getValue();
@@ -279,15 +279,15 @@ void Gbu::process(const ProcessArgs& args) {
 		mod_amp_mix_a[3] = 0.0;
 		mod_amp_mix_b[3] = 0.0;
 
-		in_mod_rm_mode = p_mod_rm_mode
-		/**/ + p_mod_rm_mode_mod
-		/**/ * inputs[INPUT_RM_MODE].getPolyVoltage(i) / 5.0;
-		if (in_mod_rm_mode < 0.0)
-			in_mod_rm_mode = 0.0;
-		else if (in_mod_rm_mode > 1.0)
-			in_mod_rm_mode = 1.0;
-		mod_rm_mul = (1.0 - in_mod_rm_mode * 0.5);
-		mod_rm_add = in_mod_rm_mode * 0.5;
+		in_mod_rm_mix = p_mod_rm_mix
+		/**/ + p_mod_rm_mix_mod
+		/**/ * inputs[INPUT_RM_MIX].getPolyVoltage(i) / 5.0;
+		if (in_mod_rm_mix < 0.0)
+			in_mod_rm_mix = 0.0;
+		else if (in_mod_rm_mix > 1.0)
+			in_mod_rm_mix = 1.0;
+		mod_rm_mul = (1.0 - in_mod_rm_mix * 0.5);
+		mod_rm_add = in_mod_rm_mix * 0.5;
 
 		//// MODULATION INPUTS
 		mod_feedback_delay = p_mod_feedback_delay

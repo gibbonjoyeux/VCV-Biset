@@ -34,8 +34,8 @@ struct Gbu: Module {
 		PARAM_RM_1_2_1,				// RM Good and Bad
 		PARAM_RM_3_1,				// RM Ugly to Good
 		PARAM_RM_3_2,				// RM Ugly to Bad
-		PARAM_RM_MODE,				// RM / AM mix
-		PARAM_RM_MODE_MOD,
+		PARAM_RM_MIX,				// RM / AM mix
+		PARAM_RM_MIX_MOD,
 		PARAM_FEEDBACK_DELAY,		// Feedback delay
 		PARAM_FEEDBACK_DELAY_MOD,
 		PARAM_NOISE_SPEED,			// Ugly noise speed
@@ -62,7 +62,7 @@ struct Gbu: Module {
 		INPUT_RM_1_2_1,
 		INPUT_RM_3_1,
 		INPUT_RM_3_2,
-		INPUT_RM_MODE,
+		INPUT_RM_MIX,
 		INPUT_FEEDBACK_DELAY,
 		INPUT_COUNT
 	};

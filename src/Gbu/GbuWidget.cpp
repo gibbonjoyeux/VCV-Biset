@@ -87,15 +87,15 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(22.0, 90.0)),
 	/**/ module,
-	/**/ Gbu::PARAM_RM_MODE));
+	/**/ Gbu::PARAM_RM_MIX));
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(22.0, 90.0 + 8.0)),
 	/**/ module,
-	/**/ Gbu::PARAM_RM_MODE_MOD));
+	/**/ Gbu::PARAM_RM_MIX_MOD));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(22.0, 90.0 + 14.5)),
 	/**/ module,
-	/**/ Gbu::INPUT_RM_MODE));
+	/**/ Gbu::INPUT_RM_MIX));
 
 	for (i = 0; i < 3; ++i) {
 		addParam(
