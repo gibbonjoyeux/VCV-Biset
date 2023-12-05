@@ -3,6 +3,8 @@
 #include <rack.hpp>
 
 using namespace		rack;
+using				simd::float_4;
+using				simd::int32_4;
 using				std::vector;
 using				std::list;
 using				std::string;
@@ -20,6 +22,9 @@ using				std::unique_ptr;
 
 #include "Regex/Regex.hpp"
 #include "Segfault/Segfault.hpp"
+
+#include "Gbu/Gbu.hpp"
+#include "Pkm/Pkm.hpp"
 
 extern char		table_pitch[12][3];
 extern char		table_effect[12];
@@ -103,3 +108,6 @@ extern Model*		modelTrackerState;
 extern Model*		modelRegex;
 extern Model*		modelRegexCondensed;
 extern Model*		modelSegfault;
+
+extern Model*		modelGbu;
+extern Model*		modelPkm;

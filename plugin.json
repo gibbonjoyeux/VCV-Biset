@@ -15,6 +15,25 @@
   "modules": [
 
 	{
+		"slug": "Biset-Gbu",
+		"name": "The Good, the Bad and the Ugly",
+		"description": "PM AM RM VCO with pitch turbulence and attraction",
+		"tags": [
+			"Oscillator",
+			"Polyphonic"
+		]
+	},
+	{
+		"slug": "Biset-Pkm",
+		"name": "Please Kill Me",
+		"description": "Bouncy stereo VCO",
+		"tags": [
+			"Oscillator",
+			"Polyphonic"
+		]
+	},
+
+	{
 		"slug": "Biset-Tracker",
 		"name": "Tracker",
 		"description": "An advanced sequencer based on a tracker and a timeline",
@@ -115,6 +134,7 @@
 		],
 		"keywords": ["live", "code", "coding"]
 	},
+
 	{
 		"slug": "Biset-Segfault",
 		"name": "Segfault",

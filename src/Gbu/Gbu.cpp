@@ -369,6 +369,13 @@ void Gbu::process(const ProcessArgs& args) {
 		/**/ + GBU_WAVE(this->pitch_3_noise_phase[i] * 24.967 + 0.5) * 0.05);
 		this->pitch_3_noise_phase[i] += args.sampleTime * 5.0 * p_noise_speed;
 
+		pitch[3] += p_noise_amp * 0.3 *
+		/**/ ((GBU_WAVE(this->pitch_4_noise_phase[i])
+		/**/ * GBU_WAVE(this->pitch_4_noise_phase[i] * 3.152)
+		/**/ * GBU_WAVE(this->pitch_4_noise_phase[i] * 4.936)) * 0.5
+		/**/ + GBU_WAVE(this->pitch_4_noise_phase[i] * 24.967 + 0.5) * 0.05);
+		this->pitch_4_noise_phase[i] += args.sampleTime * 5.0 * p_noise_speed;
+
 		//// COMPUTE FREQUENCY (Hz)
 		freq = dsp::FREQ_C4 * simd::pow(2.f, pitch);
 
