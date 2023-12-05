@@ -5,6 +5,7 @@
 #include "../plugin.hpp"
 
 #define PKM_RESOLUTION		2048
+#define PKM_FEEDBACK		4096
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -16,9 +17,9 @@ struct Pkm: Module {
 		PARAM_DETUNE,
 		PARAM_WIDTH,
 		PARAM_FEEDBACK,
-		PARAM_FEEDBACK_SCALE,
+		PARAM_FEEDBACK_MOD,
 		PARAM_FEEDBACK_DELAY,
-		PARAM_FEEDBACK_DELAY_SCALE,
+		PARAM_FEEDBACK_DELAY_MOD,
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -41,7 +42,7 @@ struct Pkm: Module {
 	float_4	phase[16];
 	float_4	out[16];
 
-	float	feedback_buffer[16][4][4096];
+	float	feedback_buffer[16][4][PKM_FEEDBACK];
 	int		feedback_i;
 
 	Pkm();

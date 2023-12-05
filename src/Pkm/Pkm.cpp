@@ -31,14 +31,14 @@ Pkm::Pkm() {
 	configParam(PARAM_WIDTH, 0, 1, 1.0, "Width");
 	configParam(PARAM_FEEDBACK, 0, 1, 0, "Feedback");
 	configParam(PARAM_FEEDBACK_DELAY, 0, 1, 0.1, "Delay");
-	configParam(PARAM_FEEDBACK_SCALE, -1, +1, 0, "Feedback modulation");
-	configParam(PARAM_FEEDBACK_DELAY_SCALE, -1, +1, 0, "Delay modulation");
+	configParam(PARAM_FEEDBACK_MOD, -1, +1, 0, "Feedback modulation");
+	configParam(PARAM_FEEDBACK_DELAY_MOD, -1, +1, 0, "Delay modulation");
 
 	for (i = 0; i < 16; ++i) {
 		this->phase[i] = 0.0;
 		this->out[i] = 0.0;
 		for (j = 0; j < 4; ++j)
-			for (k = 0; k < 4096; ++k)
+			for (k = 0; k < PKM_FEEDBACK; ++k)
 			this->feedback_buffer[i][j][k] = 0.0;
 	}
 	this->feedback_i = 0;
@@ -59,9 +59,9 @@ void Pkm::process(const ProcessArgs& args) {
 	float	p_detune;
 	float	p_width;
 	float	p_mod_feedback;
-	float	p_mod_feedback_scale;
+	float	p_mod_feedback_mod;
 	float	p_mod_feedback_delay;
-	float	p_mod_feedback_delay_scale;
+	float	p_mod_feedback_delay_mod;
 	float	mod_feedback;
 	float	mod_feedback_delay;
 	int32_4	mod_feedback_phase;
@@ -69,9 +69,9 @@ void Pkm::process(const ProcessArgs& args) {
 	int		i;
 
 	p_mod_feedback = params[PARAM_FEEDBACK].getValue();
-	p_mod_feedback_scale = params[PARAM_FEEDBACK_SCALE].getValue();
+	p_mod_feedback_mod = params[PARAM_FEEDBACK_MOD].getValue();
 	p_mod_feedback_delay = params[PARAM_FEEDBACK_DELAY].getValue();
-	p_mod_feedback_delay_scale = params[PARAM_FEEDBACK_DELAY_SCALE].getValue();
+	p_mod_feedback_delay_mod = params[PARAM_FEEDBACK_DELAY_MOD].getValue();
 	p_detune = params[PARAM_DETUNE].getValue();
 	p_width = params[PARAM_WIDTH].getValue();
 
@@ -82,11 +82,11 @@ void Pkm::process(const ProcessArgs& args) {
 	for (i = 0; i < channel_count; ++i) {
 
 		/// COMPUTE PARAMETERS
-		mod_feedback = p_mod_feedback + p_mod_feedback_scale
-		/**/ * inputs[INPUT_FEEDBACK].getPolyVoltage(i) / 10.0;
+		mod_feedback = p_mod_feedback + p_mod_feedback_mod
+		/**/ * inputs[INPUT_FEEDBACK].getPolyVoltage(i) / 5.0;
 		mod_feedback = mod_feedback * 0.9 + 0.1;
-		mod_feedback_delay = p_mod_feedback_delay + p_mod_feedback_delay_scale
-		/**/ * inputs[INPUT_FEEDBACK_DELAY].getPolyVoltage(i) / 10.0;
+		mod_feedback_delay = p_mod_feedback_delay + p_mod_feedback_delay_mod
+		/**/ * inputs[INPUT_FEEDBACK_DELAY].getPolyVoltage(i) / 5.0;
 		if (mod_feedback_delay < 0.0)
 			mod_feedback_delay = 0.0;
 		if (mod_feedback_delay > 1.0)
@@ -111,8 +111,8 @@ void Pkm::process(const ProcessArgs& args) {
 		// TODO mod_feedback_phase does not need to be a int_4
 		// TODO it's the same for each note (note independent)
 		mod_feedback_phase = simd::fmod(this->feedback_i
-		/**/ - (1 + simd::floor(4096 * mod_feedback_delay * 0.9999)) + 4096,
-		/**/ 4096);
+		/**/ - (1 + simd::floor(PKM_FEEDBACK * mod_feedback_delay * 0.9999))
+		/**/ + PKM_FEEDBACK, PKM_FEEDBACK);
 		feedback[0] = this->feedback_buffer[i][0][mod_feedback_phase[0]];
 		feedback[1] = this->feedback_buffer[i][1][mod_feedback_phase[1]];
 		feedback[2] = this->feedback_buffer[i][2][mod_feedback_phase[2]];
@@ -153,7 +153,7 @@ void Pkm::process(const ProcessArgs& args) {
 
 	/// [8] UPDATE FEEDBACK DELAY
 	this->feedback_i += 1;
-		if (this->feedback_i >= 4096)
+		if (this->feedback_i >= PKM_FEEDBACK)
 			this->feedback_i = 0;
 }
 

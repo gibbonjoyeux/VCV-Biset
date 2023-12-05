@@ -53,7 +53,7 @@ PkmWidget::PkmWidget(Pkm* _module) {
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(p.x - 4.0, dist_feedback + 10.5)),
 	/**/ module,
-	/**/ Pkm::PARAM_FEEDBACK_SCALE));
+	/**/ Pkm::PARAM_FEEDBACK_MOD));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(p.x + 4.0, dist_feedback + 10.5)),
 	/**/ module,
@@ -66,7 +66,7 @@ PkmWidget::PkmWidget(Pkm* _module) {
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(p.x - 4.0, dist_delay - 10.5)),
 	/**/ module,
-	/**/ Pkm::PARAM_FEEDBACK_DELAY_SCALE));
+	/**/ Pkm::PARAM_FEEDBACK_DELAY_MOD));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(p.x + 4.0, dist_delay - 10.5)),
 	/**/ module,

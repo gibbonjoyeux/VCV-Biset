@@ -59,6 +59,7 @@ Gbu::Gbu() {
 	configParam(PARAM_FEEDBACK_3, 0, 1, 0, "Feedback Ugly");
 
 	configParam(PARAM_RM_MODE, 0, 1, 1, "RM / AM");
+	configParam(PARAM_RM_MODE_MOD, -1, +1, 0, "RM / AM mod");
 	configParam(PARAM_PM_1_2, 0, 1, 0, "PM Good → Bad");
 	configParam(PARAM_PM_2_1, 0, 1, 0, "PM Good ← Bad");
 	configParam(PARAM_PM_3_1, 0, 1, 0, "PM Good ← Ugly");
@@ -68,6 +69,7 @@ Gbu::Gbu() {
 	configParam(PARAM_RM_3_2, 0, 1, 0, "RM Ugly → Bad");
 
 	configParam(PARAM_FEEDBACK_DELAY, 0, 1, 0, "Feedback delay");
+	configParam(PARAM_FEEDBACK_DELAY_MOD, -1, +1, 0, "Feedback delay mod");
 
 	configParam(PARAM_NOISE_SPEED, 0, 1, 0.3, "Ugly noise speed");
 	configParam(PARAM_NOISE_AMP, 0, 1, 0.5, "Ugly noise amplitude");
@@ -87,7 +89,7 @@ Gbu::Gbu() {
 		this->pitch_4_noise_phase[i] = (float)(i + 16) * 12.345;
 
 		for (j = 0; j < 4; ++j)
-			for (k = 0; k < 4096; ++k)
+			for (k = 0; k < GBU_FEEDBACK; ++k)
 			this->feedback_buffer[i][j][k] = 0.0;
 	}
 	this->feedback_i = 0;
@@ -97,63 +99,43 @@ Gbu::Gbu() {
 }
 
 void Gbu::process(const ProcessArgs& args) {
-	float	p_mod_pm_1_2;
-	float	p_mod_pm_2_1;
-	float	p_mod_pm_3_1;
-	float	p_mod_pm_3_2;
-	float	p_mod_rm_mode;
-	float	p_mod_rm;
-	float	p_mod_rm_1_2;
-	float	p_mod_rm_2_1;
-	float	p_mod_rm_3_1;
-	float	p_mod_rm_3_2;
-	float	p_mod_feedback_1;
-	float	p_mod_feedback_2;
-	float	p_mod_feedback_3;
-	float	p_mod_feedback_delay;
-	float	p_noise_speed;
-	float	p_noise_amp;
-	float	p_follow_attraction_3;
-	float	p_follow_friction_3;
-	float	p_follow_attraction_4;
-	float	p_follow_friction_4;
-	float	p_pitch;
-	float	p_pitch_1;
-	float	p_pitch_2;
-	float	p_pitch_3;
-	float	p_level_1;
-	float	p_level_2;
-	float	p_level_3;
-	float	in_mod_rm_mode;
-	float	in_pitch;
-	float	in_mod_rm;
-
-	float	mod_rm_mul, mod_rm_add;
-	float	mod_feedback_delay;
-	int		mod_feedback_phase;
-
-	float	pitch_3_aim, pitch_4_aim;
-
-	float	out_level;
-	int		channel_count;
-	int		i;
-
 	float_4	pitch;
 	float_4	freq;
 	float_4	phase;
 	float_4	level;
 	float_4	mix_out;
-	float_4	mod_phase_mix_a;
-	float_4	mod_phase_mix_b;
-	float_4	mod_phase_mix_self;
-	float_4	mod_amp_mix_a;
-	float_4	mod_amp_mix_b;
-	float_4	mod_in_a;
-	float_4	mod_in_b;
-	float_4	mod_in_self;
+	float_4	mod_phase_mix_a, mod_phase_mix_b, mod_phase_mix_self;
+	float_4	mod_amp_mix_a, mod_amp_mix_b;
+	float_4	mod_in_a, mod_in_b, mod_in_self;
+	float	mod_rm_mul, mod_rm_add;
+	float	mod_feedback_delay;
+	int		mod_feedback_phase;
+	float	p_mod_pm_1_2, p_mod_pm_2_1, p_mod_pm_3_1, p_mod_pm_3_2;
+	float	p_mod_rm_mode;
+	float	p_mod_rm_mode_mod;
+	float	p_mod_rm;
+	float	p_mod_rm_1_2, p_mod_rm_2_1, p_mod_rm_3_1, p_mod_rm_3_2;
+	float	p_mod_feedback_1, p_mod_feedback_2, p_mod_feedback_3;
+	float	p_mod_feedback_delay;
+	float	p_mod_feedback_delay_mod;
+	float	p_noise_speed;
+	float	p_noise_amp;
+	float	p_follow_attraction_3, p_follow_attraction_4;
+	float	p_follow_friction_3, p_follow_friction_4;
+	float	p_pitch;
+	float	p_pitch_1, p_pitch_2, p_pitch_3;
+	float	p_level_1, p_level_2, p_level_3;
+	float	in_mod_rm_mode;
+	float	in_pitch;
+	float	in_mod_rm;
+	float	pitch_3_aim, pitch_4_aim;
+	float	out_level;
+	int		channel_count;
+	int		i;
 
-
-	/// [1] CHECK ALGORITHM CHANGE
+	//////////////////////////////	
+	/// [1] GET ALGORITHM
+	//////////////////////////////	
 	this->algo = params[PARAM_ALGO_SWITCH].getValue();
 	if (args.frame % 32 == 0) {
 		lights[LIGHT_UGLY].setBrightness(this->algo == GBU_ALGO_UGLY);
@@ -161,7 +143,10 @@ void Gbu::process(const ProcessArgs& args) {
 		lights[LIGHT_QUEEN].setBrightness(this->algo == GBU_ALGO_QUEEN);
 	}
 
+	//////////////////////////////	
 	/// [2] GET PARAMETERS
+	//////////////////////////////	
+
 	//// MODULATION RING
 	p_mod_rm = params[PARAM_RM_1_2_1].getValue();
 	if (p_mod_rm >= 0) {
@@ -174,28 +159,36 @@ void Gbu::process(const ProcessArgs& args) {
 	p_mod_rm_3_1 = params[PARAM_RM_3_1].getValue();
 	p_mod_rm_3_2 = params[PARAM_RM_3_2].getValue();
 	p_mod_rm_mode = params[PARAM_RM_MODE].getValue();
+	p_mod_rm_mode_mod = params[PARAM_RM_MODE_MOD].getValue();
+
 	//// MODULATION FREQUENCY
 	p_mod_pm_2_1 = params[PARAM_PM_2_1].getValue();
 	p_mod_pm_3_1 = params[PARAM_PM_3_1].getValue();
 	p_mod_pm_1_2 = params[PARAM_PM_1_2].getValue();
 	p_mod_pm_3_2 = params[PARAM_PM_3_2].getValue();
+
 	//// MODULATION FEEDBACK
 	p_mod_feedback_delay = params[PARAM_FEEDBACK_DELAY].getValue();
+	p_mod_feedback_delay_mod = params[PARAM_FEEDBACK_DELAY_MOD].getValue();
 	p_mod_feedback_1 = params[PARAM_FEEDBACK_1].getValue();
 	p_mod_feedback_2 = params[PARAM_FEEDBACK_2].getValue();
 	p_mod_feedback_3 = params[PARAM_FEEDBACK_3].getValue();
+
 	//// LEVEL
 	p_level_1 = params[PARAM_LEVEL_1].getValue();
 	p_level_2 = params[PARAM_LEVEL_2].getValue();
 	p_level_3 = params[PARAM_LEVEL_3].getValue();
+
 	//// PITCH
 	p_pitch = params[PARAM_PITCH_GLOBAL].getValue();
 	p_pitch_1 = p_pitch + params[PARAM_PITCH_1].getValue();
 	p_pitch_2 = p_pitch + params[PARAM_PITCH_2].getValue();
 	p_pitch_3 = p_pitch + params[PARAM_PITCH_3].getValue();
+
 	//// NOISE
 	p_noise_speed = params[PARAM_NOISE_SPEED].getValue();
 	p_noise_amp = params[PARAM_NOISE_AMP].getValue();
+
 	//// PITCH FOLLOWING
 	p_follow_attraction_3 = params[PARAM_FOLLOW_ATTRACTION].getValue()
 	/**/ * (0.01 - 0.0005) + 0.0005;
@@ -218,19 +211,24 @@ void Gbu::process(const ProcessArgs& args) {
 	outputs[OUTPUT_MIX].setChannels(channel_count);
 	outputs[OUTPUT_EXTRA].setChannels(channel_count);
 
+	//////////////////////////////	
+	/// [3] COMPUTE OUTPUT
+	//////////////////////////////	
+
 	/// FOR EACH CHANNEL
 	for (i = 0; i < channel_count; ++i) {
 
-		//////////////////////////////////////////////////	
-		/// ! ! ! ! PARAM simd
-		//////////////////////////////////////////////////	
+		//////////////////////////////	
+		/// [A] COMPUTE PARAMETERS
+		//////////////////////////////	
+
 		/// COMPUTE PARAM PITCH
 		in_pitch = inputs[INPUT_PITCH_1].getVoltage(i);
 		pitch[0] = p_pitch_1 + in_pitch;
 		pitch[1] = p_pitch_2
 		/**/ + inputs[INPUT_PITCH_2].getNormalPolyVoltage(in_pitch, i);
 		pitch[2] = p_pitch_3
-		/**/ + inputs[INPUT_PITCH_2].getNormalPolyVoltage(in_pitch, i);
+		/**/ + inputs[INPUT_PITCH_3].getNormalPolyVoltage(in_pitch, i);
 		pitch[3] = pitch[2];
 
 		/// COMPUTE MODULATIONS
@@ -282,15 +280,26 @@ void Gbu::process(const ProcessArgs& args) {
 		mod_amp_mix_b[3] = 0.0;
 
 		in_mod_rm_mode = p_mod_rm_mode
-		/**/ * inputs[INPUT_RM_MODE].getNormalPolyVoltage(10.0, i) / 10.0;
+		/**/ + p_mod_rm_mode_mod
+		/**/ * inputs[INPUT_RM_MODE].getPolyVoltage(i) / 5.0;
+		if (in_mod_rm_mode < 0.0)
+			in_mod_rm_mode = 0.0;
+		else if (in_mod_rm_mode > 1.0)
+			in_mod_rm_mode = 1.0;
 		mod_rm_mul = (1.0 - in_mod_rm_mode * 0.5);
 		mod_rm_add = in_mod_rm_mode * 0.5;
 
 		//// MODULATION INPUTS
 		mod_feedback_delay = p_mod_feedback_delay
-		/**/ * inputs[INPUT_FEEDBACK_DELAY].getNormalPolyVoltage(10.0, i) / 10.0;
+		/**/ + p_mod_feedback_delay_mod
+		/**/ * inputs[INPUT_FEEDBACK_DELAY].getPolyVoltage(i) / 5.0;
+		if (mod_feedback_delay < 0.0)
+			mod_feedback_delay = 0.0;
+		else if (mod_feedback_delay > 1.0)
+			mod_feedback_delay = 1.0;
 		mod_feedback_phase = (this->feedback_i
-		/**/ - (1 + (int)(4096 * mod_feedback_delay * 0.9999)) + 4096) % 4096;
+		/**/ - (1 + (int)(GBU_FEEDBACK * mod_feedback_delay * 0.9999))
+		/**/ + GBU_FEEDBACK) % GBU_FEEDBACK;
 
 		mod_in_a[0] = this->out[i][1];		// Good from Bad
 		mod_in_b[0] = this->out[i][2];		// Good from Ugly
@@ -323,11 +332,9 @@ void Gbu::process(const ProcessArgs& args) {
 		if (out_level < 1.0)
 			out_level = 1.0;
 
-
-		//////////////////////////////////////////////////	
-		/// ! ! ! ! OSC simd
-		//////////////////////////////////////////////////	
-
+		//////////////////////////////	
+		/// [B] COMPUTE OSCILLATORS
+		//////////////////////////////	
 
 		//// COMPUTE PITCH SPRING MOVEMENT
 		if (this->algo == GBU_ALGO_QUEEN)
@@ -364,328 +371,61 @@ void Gbu::process(const ProcessArgs& args) {
 
 		//// COMPUTE FREQUENCY (Hz)
 		freq = dsp::FREQ_C4 * simd::pow(2.f, pitch);
+
 		//// COMPUTE PHASE
 		this->phase[i] += freq * args.sampleTime;
 		this->phase[i] -= simd::floor(this->phase[i]);
+
 		//// COMPUTE PHASE MODULATION
 		phase = this->phase[i]
 		/**/ + (mod_in_a * 0.5 + 0.5) * mod_phase_mix_a * 5.0
 		/**/ + (mod_in_b * 0.5 + 0.5) * mod_phase_mix_b * 5.0
 		/**/ + (mod_in_self * 0.5 + 0.5) * mod_phase_mix_self;
+
 		//// COMPUTE PHASE CLAMP
 		phase = simd::fmod((simd::fmod(simd::floor(phase * GBU_RESOLUTION),
 		/**/ GBU_RESOLUTION) + GBU_RESOLUTION), GBU_RESOLUTION);
+
 		//// COMPUTE OUTPUT
 		this->out[i][0] = this->wave[(int)phase[0]];
 		this->out[i][1] = this->wave[(int)phase[1]];
 		this->out[i][2] = this->wave[(int)phase[2]];
 		this->out[i][3] = this->wave[(int)phase[3]];
+
 		//// COMPUTE AMPLITUDE MODULATION
 		this->out[i] *=
 		/**/ ((1.0 - mod_amp_mix_a)
 		/**/ + (mod_in_a * mod_rm_mul + mod_rm_add) * mod_amp_mix_a)
 		/**/ * ((1.0 - mod_amp_mix_b)
 		/**/ + (mod_in_b * mod_rm_mul + mod_rm_add) * mod_amp_mix_b);
+
 		//// COMPUTE FEEDBACK OUTPUT
 		this->feedback_buffer[i][0][this->feedback_i] = this->out[i][0];
 		this->feedback_buffer[i][1][this->feedback_i] = this->out[i][1];
 		this->feedback_buffer[i][2][this->feedback_i] = this->out[i][2];
 		this->feedback_buffer[i][3][this->feedback_i] = this->out[i][3];
+
 		//// SEND OUTPUT SOLO
 		if (this->algo == GBU_ALGO_QUEEN)
 			this->out[i][2] = (this->out[i][2] + this->out[i][3]) * 0.5;
 		outputs[OUTPUT_1].setVoltage(this->out[i][0] * 5.0, i);
 		outputs[OUTPUT_2].setVoltage(this->out[i][1] * 5.0, i);
 		outputs[OUTPUT_3].setVoltage(this->out[i][2] * 5.0, i);
+
 		//// SEND OUTPUT MIX
 		mix_out = this->out[i] * level / out_level;
 		outputs[OUTPUT_MIX].setVoltage(
 		/**/ (mix_out[0] + mix_out[1] + mix_out[2] + mix_out[3]) * 5.0, i);
+
 		//// SEND OUTPUT EXTRA
 		outputs[OUTPUT_EXTRA].setVoltage(pitch_3_aim - pitch[2], i);
-
-
-
-
-		////////////////////////////////	
-		///// [4] COMPUTE OSC GOOD
-		////////////////////////////////	
-
-		////// COMPUTE FREQUENCY (Hz)
-		//freq = dsp::FREQ_C4 * std::pow(2.f, pitch_1);
-		////// COMPUTE PHASE
-		//this->phase_1[i] += freq * args.sampleTime;
-		//while (this->phase_1[i] >= 1.0)
-		//	this->phase_1[i] -= 1.0;
-		////// COMPUTE PHASE MODULATION
-		//phase = this->phase_1[i]
-		/////// MODULATION FREQUENCY (FROM BAD)
-		///**/ + (this->out_2[i] * 0.5 + 0.5) * mod_pm_2_1 * 5.0
-		/////// MODULATION FREQUENCY (FROM UGLY)
-		///**/ + (this->out_3[i] * 0.5 + 0.5) * mod_pm_3_1 * 5.0
-		/////// MODULATION FEEDBACK
-		/////**/ + (this->out_1[i] * 0.5 + 0.5) * mod_feedback_1;
-		///**/ + (this->feedback_buffer_1[i][mod_feedback_phase] * 0.5 + 0.5)
-		///**/ * mod_feedback_1;
-		////// COMPUTE OUTPUT
-		//this->out_1[i] = GBU_WAVE(phase);
-		////// COMPUTE AMPLITUDE MODULATION
-		//this->out_1[i] *=
-		/////// MODULATION AMPLITUDE / RING (FROM BAD)
-		///**/ ((1.0 - mod_rm_2_1)
-		///**/ + ((this->out_2[i] * mod_rm_mul + mod_rm_add) * mod_rm_2_1))
-		/////// MODULATION AMPLITUDE / RING (FROM UGLY)
-		///**/ * ((1.0 - mod_rm_3_1)
-		///**/ + ((this->out_3[i] * mod_rm_mul + mod_rm_add) * mod_rm_3_1));
-		////// SEND OUTPUT
-		//outputs[OUTPUT_1].setVoltage(this->out_1[i], i);
-		//out += this->out_1[i] * level_1;
-		//this->feedback_buffer_1[i][this->feedback_i] = this->out_1[i];
-
-		////////////////////////////////	
-		///// [5] COMPUTE OSC BAD
-		////////////////////////////////	
-
-		////// COMPUTE FREQUENCY (Hz)
-		//freq = dsp::FREQ_C4 * std::pow(2.f, pitch_2);
-		////// COMPUTE PHASE
-		//this->phase_2[i] += freq * args.sampleTime;
-		//while (this->phase_2[i] >= 1.0)
-		//	this->phase_2[i] -= 1.0;
-		////// COMPUTE PHASE MODULATION
-		//phase = this->phase_2[i]
-		/////// MODULATION FREQUENCY (FROM GOOD)
-		///**/ + (this->out_1[i] * 0.5 + 0.5) * mod_pm_1_2 * 5.0
-		/////// MODULATION FREQUENCY (FROM UGLY)
-		///**/ + (this->out_3[i] * 0.5 + 0.5) * mod_pm_3_2 * 5.0
-		/////// MODULATION FEEDBACK
-		/////**/ + (this->out_2[i] * 0.5 + 0.5) * mod_feedback_2;
-		///**/ + (this->feedback_buffer_2[i][mod_feedback_phase] * 0.5 + 0.5)
-		///**/ * mod_feedback_2;
-		////// COMPUTE OUTPUT
-		//this->out_2[i] = GBU_WAVE(phase);
-		////// COMPUTE AMPLITUDE MODULATION
-		//this->out_2[i] *=
-		/////// MODULATION RING (FROM BAD)
-		///**/ ((1.0 - mod_rm_1_2)
-		///**/ + ((this->out_1[i] * mod_rm_mul + mod_rm_add) * mod_rm_1_2))
-		/////// MODULATION RING (FROM UGLY)
-		///**/ * ((1.0 - mod_rm_3_2)
-		///**/ + ((this->out_3[i] * mod_rm_mul + mod_rm_add) * mod_rm_3_2));
-		////// SEND OUTPUT
-		//outputs[OUTPUT_2].setVoltage(this->out_2[i], i);
-		//out += this->out_2[i] * level_2;
-		//this->feedback_buffer_2[i][this->feedback_i] = this->out_2[i];
-
-		////////////////////////////////	
-		///// [6] COMPUTE OSC UGLY
-		////////////////////////////////	
-
-		//////////////////////	
-		///// [A] ALGO UGLY
-		//////////////////////	
-		//if (this->algo == GBU_ALGO_UGLY) {
-
-		//	//// COMPUTE PITCH MOVEMENT
-		//	pitch_3_aim = pitch_3;
-		//	if (this->pitch_3[i] > pitch_3)
-		//		this->pitch_3_acc[i] -= args.sampleTime * follow_attraction;
-		//	else
-		//		this->pitch_3_acc[i] += args.sampleTime * follow_attraction;
-		//	this->pitch_3_acc[i] *= follow_friction;
-		//	this->pitch_3[i] += this->pitch_3_acc[i];
-		//	pitch_3 = this->pitch_3[i];
-		//	//// COMPUTE PITCH RANDOM MOVEMENT
-		//	pitch_3 += noise_amp * 0.3 *
-		//	/**/ ((GBU_WAVE(this->pitch_3_noise_phase[i])
-		//	/**/ * GBU_WAVE(this->pitch_3_noise_phase[i] * 3.152)
-		//	/**/ * GBU_WAVE(this->pitch_3_noise_phase[i] * 4.936)) * 0.5
-		//	/**/ + GBU_WAVE(this->pitch_3_noise_phase[i] * 24.967 + 0.5) * 0.05);
-		//	this->pitch_3_noise_phase[i] += args.sampleTime * 5.0 * noise_speed;
-		//	//// COMPUTE FREQUENCY (Hz)
-		//	freq = dsp::FREQ_C4 * std::pow(2.f, pitch_3);
-		//	//// COMPUTE PHASE
-		//	this->phase_3[i] += freq * args.sampleTime;
-		//	while (this->phase_3[i] >= 1.0)
-		//		this->phase_3[i] -= 1.0;
-		//	//// COMPUTE PHASE MODULATION
-		//	phase = this->phase_3[i]
-		//	///// MODULATION FEEDBACK
-		//	///**/ + (this->out_3[i] * 0.5 + 0.5) * mod_feedback_3;
-		//	/**/ + (this->feedback_buffer_3[i][mod_feedback_phase] * 0.5 + 0.5)
-		//	/**/ * mod_feedback_3;
-		//	//// COMPUTE OUTPUT
-		//	this->out_3[i] = GBU_WAVE(phase);
-		//	//// SEND OUTPUT
-		//	outputs[OUTPUT_EXTRA].setVoltage(pitch_3_aim - pitch_3, i);
-		//	this->feedback_buffer_3[i][this->feedback_i] = this->out_3[i];
-
-		//////////////////////	
-		///// [B] ALGO WEIRD
-		//////////////////////	
-		//} else if (this->algo == GBU_ALGO_WEIRD) {
-
-		//	/// COMPUTE UGLY
-		//	//// COMPUTE PITCH MOVEMENT
-		//	pitch_3_aim = pitch_3;
-		//	if (this->pitch_3[i] > pitch_3)
-		//		this->pitch_3_acc[i] -= args.sampleTime * follow_attraction;
-		//	else
-		//		this->pitch_3_acc[i] += args.sampleTime * follow_attraction;
-		//	this->pitch_3_acc[i] *= follow_friction;
-		//	//this->pitch_3_acc[i] *= follow_friction;
-		//	this->pitch_3[i] += this->pitch_3_acc[i];
-		//	pitch_3 = this->pitch_3[i];
-		//	//// COMPUTE PITCH RANDOM MOVEMENT
-		//	pitch_3 += noise_amp * 0.3 *
-		//	/**/ ((GBU_WAVE(this->pitch_3_noise_phase[i])
-		//	/**/ * GBU_WAVE(this->pitch_3_noise_phase[i] * 3.152)
-		//	/**/ * GBU_WAVE(this->pitch_3_noise_phase[i] * 4.936)) * 0.5
-		//	/**/ + GBU_WAVE(this->pitch_3_noise_phase[i] * 24.967 + 0.5) * 0.05);
-		//	this->pitch_3_noise_phase[i] += args.sampleTime * 5.0 * noise_speed;
-		//	//// COMPUTE FREQUENCY (Hz)
-		//	freq = dsp::FREQ_C4 * std::pow(2.f, pitch_3);
-		//	//// COMPUTE PHASE
-		//	this->phase_3[i] += freq * args.sampleTime;
-		//	while (this->phase_3[i] >= 1.0)
-		//		this->phase_3[i] -= 1.0;
-		//	//// COMPUTE PHASE MODULATION
-		//	phase = this->phase_3[i]
-		//	///// MODULATION FREQUENCY (FROM UGLIEST)
-		//	/**/ + (this->out_4[i] * 0.5 + 0.5) * mod_pm_3_1 * 5.0
-		//	///// MODULATION FEEDBACK
-		//	///**/ + (this->out_3[i] * 0.5 + 0.5) * mod_feedback_3;
-		//	/**/ + (this->feedback_buffer_3[i][mod_feedback_phase] * 0.5 + 0.5)
-		//	/**/ * mod_feedback_3;
-		//	//// COMPUTE OUTPUT
-		//	this->out_3[i] = GBU_WAVE(phase);
-		//	//// COMPUTE AMPLITUDE MODULATION
-		//	this->out_3[i] *=
-		//	///// MODULATION RING (FROM UGLIEST)
-		//	/**/ ((1.0 - mod_rm_3_1)
-		//	/**/ + ((this->out_4[i] * mod_rm_mul + mod_rm_add) * mod_rm_3_1));
-		//	//// SEND OUTPUT
-		//	outputs[OUTPUT_EXTRA].setVoltage(pitch_3_aim - pitch_3, i);
-		//	this->feedback_buffer_3[i][this->feedback_i] = this->out_3[i];
-
-		//	/// COMPUTE UGLIEST
-		//	//// COMPUTE PITCH MOVEMENT
-		//	if (this->pitch_4[i] > pitch_3)
-		//		this->pitch_4_acc[i] -= args.sampleTime * follow_attraction_4;
-		//	else
-		//		this->pitch_4_acc[i] += args.sampleTime * follow_attraction_4;
-		//	this->pitch_4_acc[i] *= follow_friction_4;
-		//	this->pitch_4[i] += this->pitch_4_acc[i];
-		//	pitch_4 = this->pitch_4[i];
-		//	//// COMPUTE PITCH RANDOM MOVEMENT
-		//	pitch_4 += noise_amp * 0.3 *
-		//	/**/ ((GBU_WAVE(this->pitch_4_noise_phase[i])
-		//	/**/ * GBU_WAVE(this->pitch_4_noise_phase[i] * 3.152)
-		//	/**/ * GBU_WAVE(this->pitch_4_noise_phase[i] * 4.936)) * 0.5
-		//	/**/ + GBU_WAVE(this->pitch_4_noise_phase[i] * 24.967 + 0.5) * 0.05);
-		//	this->pitch_4_noise_phase[i] += args.sampleTime * 5.0 * noise_speed;
-		//	//// COMPUTE FREQUENCY (Hz)
-		//	freq = dsp::FREQ_C4 * std::pow(2.f, pitch_4);
-		//	//// COMPUTE PHASE
-		//	this->phase_4[i] += freq * args.sampleTime;
-		//	while (this->phase_4[i] >= 1.0)
-		//		this->phase_4[i] -= 1.0;
-		//	//// COMPUTE PHASE MODULATION
-		//	phase = this->phase_4[i]
-		//	///// MODULATION FEEDBACK
-		//	///**/ + (this->out_4[i] * 0.5 + 0.5) * mod_feedback_3;
-		//	/**/ + (this->feedback_buffer_4[i][mod_feedback_phase] * 0.5 + 0.5)
-		//	/**/ * mod_feedback_3;
-		//	//// COMPUTE OUTPUT
-		//	this->out_4[i] = GBU_WAVE(phase);
-		//	//// SEND OUTPUT
-		//	this->feedback_buffer_4[i][this->feedback_i] = this->out_4[i];
-
-		//////////////////////	
-		///// [C] ALGO QUEEN
-		//////////////////////	
-		//} else if (this->algo == GBU_ALGO_QUEEN) {
-
-		//	pitch_3_aim = pitch_3;
-
-		//	//// COMPUTE PITCH MOVEMENT
-		//	if (this->pitch_3[i] > pitch_3_aim - 0.02)
-		//		this->pitch_3_acc[i] -= args.sampleTime * follow_attraction;
-		//	else
-		//		this->pitch_3_acc[i] += args.sampleTime * follow_attraction;
-		//	this->pitch_3_acc[i] *= follow_friction;
-		//	this->pitch_3[i] += this->pitch_3_acc[i];
-		//	pitch_3 = this->pitch_3[i];
-		//	//// COMPUTE PITCH RANDOM MOVEMENT
-		//	pitch_3 += noise_amp * 0.3 *
-		//	/**/ ((GBU_WAVE(this->pitch_3_noise_phase[i])
-		//	/**/ * GBU_WAVE(this->pitch_3_noise_phase[i] * 3.152)
-		//	/**/ * GBU_WAVE(this->pitch_3_noise_phase[i] * 4.936)) * 0.5
-		//	/**/ + GBU_WAVE(this->pitch_3_noise_phase[i] * 24.967 + 0.5) * 0.05);
-		//	this->pitch_3_noise_phase[i] += args.sampleTime * 5.0 * noise_speed;
-		//	//// COMPUTE FREQUENCY (Hz)
-		//	freq = dsp::FREQ_C4 * std::pow(2.f, pitch_3);
-		//	//// COMPUTE PHASE
-		//	this->phase_3[i] += freq * args.sampleTime;
-		//	while (this->phase_3[i] >= 1.0)
-		//		this->phase_3[i] -= 1.0;
-		//	//// COMPUTE PHASE MODULATION
-		//	phase = this->phase_3[i]
-		//	///// MODULATION FEEDBACK
-		//	///**/ + (this->out_3[i] * 0.5 + 0.5) * mod_feedback_3;
-		//	/**/ + (this->feedback_buffer_3[i][mod_feedback_phase] * 0.5 + 0.5)
-		//	/**/ * mod_feedback_3;
-		//	//// COMPUTE OUTPUT
-		//	this->out_3[i] = GBU_WAVE(phase);
-		//	//// SEND OUTPUT
-		//	outputs[OUTPUT_EXTRA].setVoltage(pitch_3_aim - pitch_3, i);
-		//	this->feedback_buffer_3[i][this->feedback_i] = this->out_3[i];
-
-		//	//// COMPUTE PITCH MOVEMENT
-		//	if (this->pitch_4[i] > pitch_3_aim + 0.02)
-		//		this->pitch_4_acc[i] -= args.sampleTime * follow_attraction;
-		//	else
-		//		this->pitch_4_acc[i] += args.sampleTime * follow_attraction;
-		//	this->pitch_4_acc[i] *= follow_friction;
-		//	this->pitch_4[i] += this->pitch_4_acc[i];
-		//	pitch_4 = this->pitch_4[i];
-		//	//// COMPUTE PITCH RANDOM MOVEMENT
-		//	pitch_4 += noise_amp * 0.3 *
-		//	/**/ ((GBU_WAVE(this->pitch_4_noise_phase[i])
-		//	/**/ * GBU_WAVE(this->pitch_4_noise_phase[i] * 3.152)
-		//	/**/ * GBU_WAVE(this->pitch_4_noise_phase[i] * 4.936)) * 0.5
-		//	/**/ + GBU_WAVE(this->pitch_4_noise_phase[i] * 24.967 + 0.5) * 0.05);
-		//	this->pitch_4_noise_phase[i] += args.sampleTime * 5.0 * noise_speed;
-		//	//// COMPUTE FREQUENCY (Hz)
-		//	freq = dsp::FREQ_C4 * std::pow(2.f, pitch_4);
-		//	//// COMPUTE PHASE
-		//	this->phase_4[i] += freq * args.sampleTime;
-		//	while (this->phase_4[i] >= 1.0)
-		//		this->phase_4[i] -= 1.0;
-		//	//// COMPUTE PHASE MODULATION
-		//	phase = this->phase_4[i]
-		//	///// MODULATION FEEDBACK
-		//	///**/ + (this->out_4[i] * 0.5 + 0.5) * mod_feedback_3;
-		//	/**/ + (this->feedback_buffer_4[i][mod_feedback_phase] * 0.5 + 0.5)
-		//	/**/ * mod_feedback_3;
-		//	//// COMPUTE OUTPUT
-		//	this->out_3[i] += GBU_WAVE(phase);
-		//	//// SEND OUTPUT
-		//	this->feedback_buffer_4[i][this->feedback_i] = this->out_4[i];
-
-		//}
-		//outputs[OUTPUT_3].setVoltage(this->out_3[i], i);
-		//out += this->out_3[i] * level_3;
-
-		///// [7] COMPUTE OUTPUT
-		//if (out_level > 1.0)
-		//	out /= out_level;
-		//outputs[OUTPUT_MIX].setVoltage(out * 5.0, i);
 	}
 
-	/// [8] UPDATE FEEDBACK DELAY
+	//////////////////////////////	
+	/// [4] COMPUTE FEEDBACK PLAYHEAD
+	//////////////////////////////	
 	this->feedback_i += 1;
-		if (this->feedback_i >= 4096)
+		if (this->feedback_i >= GBU_FEEDBACK)
 			this->feedback_i = 0;
 }
 

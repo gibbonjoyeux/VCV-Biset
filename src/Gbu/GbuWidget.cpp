@@ -72,20 +72,28 @@ GbuWidget::GbuWidget(Gbu* _module) {
 	/**/ Gbu::INPUT_PITCH_3));
 
 	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(10.0, 94.0)),
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(10.0, 90.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_FEEDBACK_DELAY));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(10.0, 90.0 + 8.0)),
+	/**/ module,
+	/**/ Gbu::PARAM_FEEDBACK_DELAY_MOD));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(10.0, 94.0 + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(10.0, 90.0 + 14.5)),
 	/**/ module,
 	/**/ Gbu::INPUT_FEEDBACK_DELAY));
 
 	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(22.0, 94.0)),
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(22.0, 90.0)),
 	/**/ module,
 	/**/ Gbu::PARAM_RM_MODE));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(22.0, 90.0 + 8.0)),
+	/**/ module,
+	/**/ Gbu::PARAM_RM_MODE_MOD));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(22.0, 94.0 + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(22.0, 90.0 + 14.5)),
 	/**/ module,
 	/**/ Gbu::INPUT_RM_MODE));
 

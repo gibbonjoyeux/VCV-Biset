@@ -5,6 +5,7 @@
 #include "../plugin.hpp"
 
 #define GBU_RESOLUTION		2048
+#define GBU_FEEDBACK		4096
 #define GBU_ALGO_UGLY		0
 #define GBU_ALGO_WEIRD		1
 #define GBU_ALGO_QUEEN		2
@@ -34,7 +35,9 @@ struct Gbu: Module {
 		PARAM_RM_3_1,				// RM Ugly to Good
 		PARAM_RM_3_2,				// RM Ugly to Bad
 		PARAM_RM_MODE,				// RM / AM mix
+		PARAM_RM_MODE_MOD,
 		PARAM_FEEDBACK_DELAY,		// Feedback delay
+		PARAM_FEEDBACK_DELAY_MOD,
 		PARAM_NOISE_SPEED,			// Ugly noise speed
 		PARAM_NOISE_AMP,			// Ugly noise amplitude
 		PARAM_FOLLOW_ATTRACTION,	// Ugly pitch following attraction force
@@ -92,7 +95,7 @@ struct Gbu: Module {
 	float	pitch_4_acc[16];
 	float	pitch_4_noise_phase[16];
 
-	float	feedback_buffer[16][4][4096];
+	float	feedback_buffer[16][4][GBU_FEEDBACK];
 	int		feedback_i;
 
 	Gbu();
