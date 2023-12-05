@@ -169,7 +169,7 @@ void Editor::process(i64 frame) {
 
 	/// [4] HANDLE RECORD SWITCH
 	if (module->params[Tracker::PARAM_RECORD].getValue()
-	&& g_timeline->play == TIMELINE_MODE_PLAY_PATTERN_SOLO)
+	&& (g_timeline->play != TIMELINE_MODE_STOP))
 		recording = true;
 	else
 		recording = false;
