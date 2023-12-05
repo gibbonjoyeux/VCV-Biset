@@ -111,6 +111,12 @@ template<typename T> struct ArrayExt {
 		total_size =
 		/**/ (size * sizeof(void*))						// Pointer zone
 		/**/ + (size * (sizeof(T) + extension_slot));	// Memory zone
+		if (total_size == 0) {
+			this->ptr = NULL;
+			this->size = size;
+			this->extension_slot = extension_slot;
+			return true;
+		}
 		/// ALLOC ARRAY
 		array_ptr = (void**)malloc(total_size);
 		if (array_ptr == NULL)
@@ -153,6 +159,8 @@ template<typename T> struct ArrayExt {
 	}
 
 	T* operator[](int i) {
-		return this->ptr[i];
+		if (this->ptr)
+			return this->ptr[i];
+		return NULL;
 	}
 };
