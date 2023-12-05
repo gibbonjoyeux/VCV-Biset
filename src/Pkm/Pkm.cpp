@@ -64,7 +64,7 @@ void Pkm::process(const ProcessArgs& args) {
 	float	p_mod_feedback_delay_mod;
 	float	mod_feedback;
 	float	mod_feedback_delay;
-	int32_4	mod_feedback_phase;
+	int		mod_feedback_phase;
 	int		channel_count;
 	int		i;
 
@@ -108,15 +108,13 @@ void Pkm::process(const ProcessArgs& args) {
 		this->phase[i] -= simd::floor(this->phase[i]);
 
 		//// COMPUTE PHASE MODULATION
-		// TODO mod_feedback_phase does not need to be a int_4
-		// TODO it's the same for each note (note independent)
-		mod_feedback_phase = simd::fmod(this->feedback_i
-		/**/ - (1 + simd::floor(PKM_FEEDBACK * mod_feedback_delay * 0.9999))
-		/**/ + PKM_FEEDBACK, PKM_FEEDBACK);
-		feedback[0] = this->feedback_buffer[i][0][mod_feedback_phase[0]];
-		feedback[1] = this->feedback_buffer[i][1][mod_feedback_phase[1]];
-		feedback[2] = this->feedback_buffer[i][2][mod_feedback_phase[2]];
-		feedback[3] = this->feedback_buffer[i][3][mod_feedback_phase[3]];
+		mod_feedback_phase = (this->feedback_i
+		/**/ - (1 + (int)(PKM_FEEDBACK * mod_feedback_delay * 0.9999))
+		/**/ + PKM_FEEDBACK) % PKM_FEEDBACK;
+		feedback[0] = this->feedback_buffer[i][0][mod_feedback_phase];
+		feedback[1] = this->feedback_buffer[i][1][mod_feedback_phase];
+		feedback[2] = this->feedback_buffer[i][2][mod_feedback_phase];
+		feedback[3] = this->feedback_buffer[i][3][mod_feedback_phase];
 		phase = this->phase[i] + (feedback * 0.5 + 0.5) * mod_feedback;
 
 		//// COMPUTE PHASE MODULO

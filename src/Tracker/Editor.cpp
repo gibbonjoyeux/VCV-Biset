@@ -434,12 +434,17 @@ void Editor::pattern_clamp_cursor(void) {
 	if (pattern == NULL)
 		return;
 
-	/// HANDLE LINE UNDERFLOW
-	if (this->pattern_line < 0)
-		this->pattern_line = 0;
 	/// HANDLE LINE OVERFLOW
 	if (this->pattern_line >= pattern->line_count)
 		this->pattern_line = pattern->line_count - 1;
+	/// HANDLE LINE UNDERFLOW
+	if (this->pattern_line < 0)
+		this->pattern_line = 0;
+	/// HANDLE COLUMN NULL
+	if (pattern->note_count + pattern->cv_count == 0) {
+		this->pattern_col = 0;
+		return;
+	}
 	/// HANDLE COLUMN OVERFLOW
 	if (this->pattern_col >= pattern->note_count + pattern->cv_count) {
 		this->pattern_col = pattern->note_count + pattern->cv_count - 1;

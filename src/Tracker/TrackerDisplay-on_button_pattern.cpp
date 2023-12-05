@@ -211,7 +211,8 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 			}
 		));
 	/// COLUMN AS CV COLUMN
-	} else {
+	} else if (g_editor->pattern_col
+	< g_editor->pattern->note_count + g_editor->pattern->cv_count) {
 		col_cv = g_editor->pattern->cvs
 		/**/ [g_editor->pattern_col - g_editor->pattern->note_count];
 		/// ADD COLUMN MODE LIST
