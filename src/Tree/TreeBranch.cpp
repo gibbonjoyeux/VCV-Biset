@@ -66,11 +66,10 @@ void TreeBranch::grow(Tree *tree, int index) {
 	phase = tree->wind_phase + (float)index * 123.456;
 	phase -= (int)phase;
 	wind_force =
-	/**/   tree->sine[(int)(phase * 4096) % 4096]
-	/**/ * tree->sine[(int)(phase * 3.0 * 4096) % 4096]
-	/**/ * tree->sine[(int)(phase * 5.0 * 4096) % 4096]
-	/**/ * tree->sine[(int)(phase * 7.0 * 4096) % 4096]
-	/**/ + tree->sine[(int)(phase * 25.0 * 4096 + 2048) % 4096] * 0.1;
+	/**/   (tree->sine[(int)(phase * 4096) % 4096]
+	/**/ * tree->sine[(int)(phase * 3.152 * 4096) % 4096]
+	/**/ * tree->sine[(int)(phase * 4.936 * 4096) % 4096]) * 1.0
+	/**/ + tree->sine[(int)(phase * 24.967 * 4096 + 2048) % 4096] * 0.05;
 	wind_deformation = (wind_force * 0.4) / (1.0 + this->width * 3.0);
 	/// COMPUTE WIND DEFORMATION
 	angle_aim_abs = angle + wind_deformation * 2.0;
