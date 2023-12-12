@@ -44,7 +44,7 @@ void TreeDisplay::drawLayer(const DrawArgs &args, int layer) {
 	//nvgText(args.vg, rect.pos.x + 10, rect.pos.y + 10.0, str, NULL);
 
 	/// SET COLOR
-	nvgStrokeColor(args.vg, {0xec / 255.0, 0xae / 255.0, 0x52 / 255.0, 1.0});
+	//nvgStrokeColor(args.vg, {0xec / 255.0, 0xae / 255.0, 0x52 / 255.0, 1.0});
 	/// SET TRANSFORMATION
 	//nvgScissor(args.vg, RECT_ARGS(rect));
 	nvgTranslate(args.vg, center.x, center.y);
@@ -54,6 +54,10 @@ void TreeDisplay::drawLayer(const DrawArgs &args, int layer) {
 	/// DRAW BRANCHES
 	for (i = 0; i < this->module->branch_count; ++i) {
 		branch = &(this->module->branches[i]);
+		if (i == this->module->branch_read)
+			nvgStrokeColor(args.vg, {0xff / 255.0, 0x00 / 255.0, 0x00 / 255.0, 1.0});
+		else
+			nvgStrokeColor(args.vg, {0xec / 255.0, 0xae / 255.0, 0x52 / 255.0, 1.0});
 		nvgStrokeWidth(args.vg, branch->width * 0.2);
 		nvgBeginPath(args.vg);
 		nvgMoveTo(args.vg, branch->wpos_root.x, branch->wpos_root.y);

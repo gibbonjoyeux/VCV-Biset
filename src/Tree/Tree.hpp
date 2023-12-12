@@ -31,6 +31,8 @@ struct TreeBranch {
 	int		children_read;	// Reading children index
 	int		index;			// Count single branching from multi branching
 	int		level;			// Branch type (1: single, 2: two branch, 3: tree ...)
+	float	value_a;		// Branch output value
+	float	value_b;		// Branch output value
 
 	float	phase;			// Playing phase
 
@@ -45,23 +47,36 @@ struct Tree : Module {
 		PARAM_BRANCH_ANGLE_DIVISION,	// angle variation on multi branching
 		PARAM_BRANCH_ANGLE_SUN_FORCE,	// branch attraction to sun
 		PARAM_BRANCH_DIVISION,			// number of new branches on division
+		PARAM_SEQ_LENGTH,				// Sequence length
+		PARAM_SEQ_OFFSET,				// Sequence offset
+		PARAM_SEQ_WIND_INFLUENCE,		// Sequence influence from wind
 		PARAM_COUNT
 	};
 	enum	InputIds {
-		INPUT_RESET,
+		INPUT_TREE_RESET,
+		INPUT_SEQ_RESET,
+		INPUT_SEQ_CLOCK,
 		INPUT_COUNT
 	};
 	enum	OutputIds {
+		OUTPUT_X,
+		OUTPUT_Y,
 		OUTPUT_COUNT
 	};
 	enum	LightIds {
 		LIGHT_COUNT
 	};
-	dsp::TSchmittTrigger<float>	trigger_reset;
+
+	dsp::TSchmittTrigger<float>	trigger_tree_reset;
+	dsp::TSchmittTrigger<float>	trigger_seq_reset;
+	dsp::TSchmittTrigger<float>	trigger_seq_clock;
 	float						sine[4096];
 	TreeBranch					branches[TREE_BRANCH_MAX];
 	int							branch_count;
 	int							branch_index;
+	int							branch_read;
+	int							branch_read_phase;
+	Vec							tree_max;
 
 	float						phase_l;
 	float						phase_r;
