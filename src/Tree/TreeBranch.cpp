@@ -23,11 +23,8 @@ void TreeBranch::init(void) {
 	this->energy_total = 0.0;
 	this->parent = -1;
 	this->children_count = 0;
-	this->children_read = 0;
-	this->index = 0;
+	this->solo_count = 0;
 	this->level = 1;
-
-	this->phase = 0.0;
 }
 
 void TreeBranch::grow(Tree *tree, int index) {
@@ -82,7 +79,7 @@ void TreeBranch::grow(Tree *tree, int index) {
 
 	/// [4] GIVE BIRTH
 	if (this->children_count == 0 && tree->branch_count < TREE_BRANCH_MAX)
-		if (random::uniform() * 1000.0 < this->length)							// !
+		if (random::uniform() * 1000.0 < this->length)
 			this->birth(tree, index);
 }
 
@@ -92,7 +89,7 @@ void TreeBranch::birth(Tree *tree, int index) {
 	float		angle_division;
 	float		angle_sun_force;
 	int			branch_division;
-	int			i;
+	int			i, j;
 
 	angle_variation = (M_PI / 8.0)
 	/**/ * tree->params[Tree::PARAM_BRANCH_ANGLE_VARIATION].getValue();
@@ -103,7 +100,7 @@ void TreeBranch::birth(Tree *tree, int index) {
 	branch_division = tree->params[Tree::PARAM_BRANCH_DIVISION].getValue();
 
 	/// BIRTH TO SINGLE BRANCH (CONTINUOUS)
-	if (random::uniform() * 3.0 > this->index) {
+	if (random::uniform() * 3.0 > this->solo_count) {
 		/// ADD CHILDREN TO PARENT
 		this->children_count = 1;
 		this->childrens[0] = tree->branch_count;
@@ -111,9 +108,9 @@ void TreeBranch::birth(Tree *tree, int index) {
 		branch = &(tree->branches[tree->branch_count]);
 		branch->init();
 		branch->parent = index;
-		branch->index = this->index + 1;
-		branch->value_a = random::uniform();
-		branch->value_b = random::uniform();
+		branch->solo_count = this->solo_count + 1;
+		for (j = 0; j < 5; ++j)
+			branch->value[j] = random::uniform();
 		/// COMPUTE BRANCH ANGLE
 		branch->angle_rel = ((random::uniform() * 2.0) - 1.0) * angle_variation;
 		branch->angle_abs = this->angle_abs + branch->angle_rel;
@@ -136,9 +133,9 @@ void TreeBranch::birth(Tree *tree, int index) {
 			branch = &(tree->branches[tree->branch_count]);
 			branch->init();
 			branch->parent = index;
-			branch->index = 1;
-			branch->value_a = random::uniform();
-			branch->value_b = random::uniform();
+			branch->solo_count = 1;
+			for (j = 0; j < 5; ++j)
+				branch->value[j] = random::uniform();
 			/// COMPUTE BRANCH ANGLE
 			branch->angle_rel = ((random::uniform() * 2.0) - 1.0) * angle_division;
 			branch->angle_abs = this->angle_abs + branch->angle_rel;

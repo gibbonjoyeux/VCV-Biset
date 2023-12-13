@@ -14,14 +14,28 @@ Tree::Tree() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
-	configParam(PARAM_BRANCH_ANGLE_VARIATION, 0, 1, 1, "angle variation", "");
-	configParam(PARAM_BRANCH_ANGLE_DIVISION, 0, 1, 1, "angle division variation", "");
-	configParam(PARAM_BRANCH_ANGLE_SUN_FORCE, 0, 1, 0.2, "sun force", "");
-	configParam(PARAM_BRANCH_DIVISION, 1, 4, 2, "branching", "")->snapEnabled = true;
+	configParam(PARAM_BRANCH_ANGLE_VARIATION, 0, 1, 1, "Angle variation", "%", 0, 100);
+	configParam(PARAM_BRANCH_ANGLE_DIVISION, 0, 1, 1, "Branching variation", "%", 0, 100);
+	configParam(PARAM_BRANCH_ANGLE_SUN_FORCE, 0, 1, 0.2, "Sun force", "%", 0, 100);
+	configParam(PARAM_BRANCH_DIVISION, 1, 4, 2, "Branching", "")->snapEnabled = true;
 
 	configParam(PARAM_SEQ_LENGTH, 1, 64, 8, "Sequence length", "")->snapEnabled = true;
+	configParam(PARAM_SEQ_LENGTH_MOD, 0, 1, 0, "Sequence length mod", "%", 0, 100);
 	configParam(PARAM_SEQ_OFFSET, 0, 1, 0, "Sequence offset", "%", 0, 100);
+	configParam(PARAM_SEQ_OFFSET_MOD, 0, 1, 0, "Sequence offset mod", "%", 0, 100);
 	configParam(PARAM_SEQ_WIND_INFLUENCE, 0, 1, 0, "Sequence wind influence", "%", 0, 100);
+	configParam(PARAM_SEQ_WIND_INFLUENCE_MOD, 0, 1, 0, "Sequence wind influence mod", "%", 0, 100);
+
+	configInput(INPUT_TREE_RESET, "Reset tree");
+	configInput(INPUT_SEQ_RESET, "Reset sequence");
+	configInput(INPUT_SEQ_CLOCK, "Clock sequence");
+
+	configInput(INPUT_SEQ_LENGTH, "Sequence length");
+	configInput(INPUT_SEQ_OFFSET, "Sequence offset");
+	configInput(INPUT_SEQ_WIND_INFLUENCE, "Sequence wind influence");
+
+	for (i = 0; i < 5; ++i)
+		configOutput(OUTPUT + i, rack::string::f("%d", i + 1));
 
 	this->branch_index = 0;
 	this->branch_count = 1;
@@ -48,7 +62,9 @@ void Tree::process(const ProcessArgs& args) {
 	int			seq_length;
 	int			seq_offset;
 	float		seq_wind;
+	float		wind_force;
 	bool		clock;
+	int			i;
 
 	/// [1] HANDLE INPUTS
 	clock = false;
@@ -65,12 +81,26 @@ void Tree::process(const ProcessArgs& args) {
 	}
 
 	/// [2] HANDLE PARAMETERS
-	seq_length = params[PARAM_SEQ_LENGTH].getValue();
-	seq_offset = params[PARAM_SEQ_OFFSET].getValue() * this->branch_count
-	/**/ - seq_length;
+	seq_length = params[PARAM_SEQ_LENGTH].getValue()
+	/**/ + params[PARAM_SEQ_LENGTH_MOD].getValue()
+	/**/ * (inputs[INPUT_SEQ_LENGTH].getVoltage() / 10.0) * 64.0;
+	if (seq_length < 1)
+		seq_length = 1;
+	if (seq_length > 64)
+		seq_length = 64;
+	seq_offset = (params[PARAM_SEQ_OFFSET].getValue()
+	/**/ + params[PARAM_SEQ_OFFSET_MOD].getValue()
+	/**/ * (inputs[INPUT_SEQ_OFFSET].getVoltage() / 10.0))
+	/**/ * this->branch_count - seq_length;
 	if (seq_offset < 0)
 		seq_offset = 0;
-	seq_wind = params[PARAM_SEQ_WIND_INFLUENCE].getValue();
+	seq_wind = params[PARAM_SEQ_WIND_INFLUENCE].getValue()
+	/**/ + params[PARAM_SEQ_WIND_INFLUENCE_MOD].getValue()
+	/**/ * (inputs[INPUT_SEQ_WIND_INFLUENCE].getVoltage() / 10.0);
+	if (seq_wind < 0.0)
+		seq_wind = 0.0;
+	if (seq_wind > 1.0)
+		seq_wind = 1.0;
 
 	/// [3] COMPUTE TREE GROWTH
 	//// GROW BRANCH
@@ -95,14 +125,12 @@ void Tree::process(const ProcessArgs& args) {
 		/**/ % this->branch_count;
 
 		/// OUTPUT SEQUENCE
-		// TODO: adding angle_wind_rel tends to increase value
 		branch = &(this->branches[this->branch_read]);
-		outputs[OUTPUT_X].setVoltage(
-		/**/ (branch->value_a) * 10.0 - 5.0
-		/**/ + branch->angle_wind_rel * seq_wind * 30.0);
-		outputs[OUTPUT_Y].setVoltage(
-		/**/ (branch->value_b) * 10.0 - 5.0
-		/**/ + branch->angle_wind_rel * seq_wind * 30.0);
+		wind_force = branch->angle_wind_rel * seq_wind * 30.0;
+		for (i = 0; i < 5; ++i) {
+			outputs[OUTPUT + i].setVoltage(
+			/**/ (branch->value[i]) * 10.0 - 5.0 + wind_force);
+		}
 	}
 }
 
