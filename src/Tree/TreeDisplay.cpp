@@ -29,7 +29,11 @@ void TreeDisplay::drawLayer(const DrawArgs &args, int layer) {
 
 	/// [1] GET EXPANDERS
 	exp_left = this->module->leftExpander.module;
+	if (exp_left && exp_left->model != this->module->model)
+		exp_left = NULL;
 	exp_right = this->module->rightExpander.module;
+	if (exp_right && exp_right->model != this->module->model)
+		exp_right = NULL;
 
 	/// [2] COMPUTE CANVAS FORMAT
 	rect = box.zeroPos();
