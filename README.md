@@ -1,11 +1,21 @@
 
 # Biset
 
-**Biset** sequencing / performing modules.
+**Biset** sequencing / performing / vco modules.
 
 [Donations are welcome](https://www.paypal.com/paypalme/bisousbiset)
 
+## VCOs
+
+**The Good, the Bad and the Ugly** and **Please kill me** are VCOs based on
+**Frequency** (**Phase**), **amplitude** and **ring** modulation.
+They are designed to add some spring and inertia to sound.
+
+![VCO modules](./doc/Biset-VCOs.png)
+
 ## Tracker
+
+[Tracker walk through](https://www.youtube.com/watch?v=dUq9HsWwDsw)
 
 **Tracker** is a series of modules building a complex sequencer based on
 **patterns** arranged in a **timeline**.
@@ -20,11 +30,17 @@ It can be used to build complex **tracks** or for **live performance**.
 **Regex** and **Regex-Condensed** are **live coding** modules. They can generate
 **clock** (rythm), **pitch** and **modulation** sequences.
 
+[Regex walk through](https://www.youtube.com/watch?v=hXMN2y9V8K0)
+
 [Regex manual](./doc/Manual-Regex.pdf)
 
 ![Regex modules](./doc/Biset-Regex.png)
 
 ## Other modules
+
+### Tree
+
+**Tree** is a random sequencer based on Tree growth simulation.
 
 ### Segfault
 
