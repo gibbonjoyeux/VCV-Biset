@@ -15,6 +15,22 @@
   "modules": [
 
 	{
+		"slug": "Biset-Tree",
+		"name": "Tree",
+		"description": "Tree growth sequencer",
+		"tags": [
+			"Sequencer",
+			"Visual",
+			"Random",
+			"Physical modeling"
+		]
+	},
+
+
+
+
+
+	{
 		"slug": "Biset-Gbu",
 		"name": "The Good, the Bad and the Ugly",
 		"description": "PM AM RM VCO with pitch turbulence and attraction",
@@ -33,17 +49,16 @@
 		]
 	},
 
+
+
+
+
 	{
 		"slug": "Biset-Tracker",
 		"name": "Tracker",
 		"description": "An advanced sequencer based on a tracker and a timeline",
 		"tags": [
 			"Sequencer",
-			"Controller",
-			"Polyphonic",
-			"Function generator",
-			"Quantizer",
-			"Tuner",
 			"Digital"
 		]
 	},
@@ -110,6 +125,10 @@
 		]
 	},
 
+
+
+
+
 	{
 		"slug": "Biset-Regex",
 		"name": "Regex",
@@ -134,6 +153,10 @@
 		],
 		"keywords": ["live", "code", "coding"]
 	},
+
+
+
+
 
 	{
 		"slug": "Biset-Segfault",
