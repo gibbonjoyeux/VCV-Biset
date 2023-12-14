@@ -15,6 +15,20 @@
   "modules": [
 
 	{
+		"slug": "Biset-Acro",
+		"name": "Acro",
+		"description": "2D live coding sequencer",
+		"tags": [
+			"Sequencer",
+			"Visual"
+		]
+	}
+
+  ],
+
+  "save": [
+
+	{
 		"slug": "Biset-Tree",
 		"name": "Tree",
 		"description": "Tree growth sequencer",

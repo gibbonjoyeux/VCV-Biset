@@ -12,22 +12,25 @@ using				std::unique_ptr;
 
 #include "types.hpp"
 #include "components.hpp"
-#include "Tracker/Tracker.hpp"
-#include "TrackerSynth/TrackerSynth.hpp"
-#include "TrackerDrum/TrackerDrum.hpp"
-#include "TrackerClock/TrackerClock.hpp"
-#include "TrackerPhase/TrackerPhase.hpp"
-#include "TrackerQuant/TrackerQuant.hpp"
-#include "TrackerState/TrackerState.hpp"
 
-#include "Regex/Regex.hpp"
+//#include "Tracker/Tracker.hpp"
+//#include "TrackerSynth/TrackerSynth.hpp"
+//#include "TrackerDrum/TrackerDrum.hpp"
+//#include "TrackerClock/TrackerClock.hpp"
+//#include "TrackerPhase/TrackerPhase.hpp"
+//#include "TrackerQuant/TrackerQuant.hpp"
+//#include "TrackerState/TrackerState.hpp"
+//
+//#include "Regex/Regex.hpp"
+//
+//#include "Segfault/Segfault.hpp"
+//
+//#include "Tree/Tree.hpp"
+//
+//#include "Gbu/Gbu.hpp"
+//#include "Pkm/Pkm.hpp"
 
-#include "Segfault/Segfault.hpp"
-
-#include "Tree/Tree.hpp"
-
-#include "Gbu/Gbu.hpp"
-#include "Pkm/Pkm.hpp"
+#include "Acro/Acro.hpp"
 
 extern char		table_pitch[12][3];
 extern char		table_effect[12];
@@ -100,20 +103,22 @@ extern NVGcolor	colors_user[8];
 extern Plugin*		pluginInstance;
 
 // Declare each Model, defined in each module source file
-extern Model*		modelTracker;
-extern Model*		modelTrackerSynth;
-extern Model*		modelTrackerDrum;
-extern Model*		modelTrackerClock;
-extern Model*		modelTrackerPhase;
-extern Model*		modelTrackerQuant;
-extern Model*		modelTrackerState;
+//extern Model*		modelTracker;
+//extern Model*		modelTrackerSynth;
+//extern Model*		modelTrackerDrum;
+//extern Model*		modelTrackerClock;
+//extern Model*		modelTrackerPhase;
+//extern Model*		modelTrackerQuant;
+//extern Model*		modelTrackerState;
+//
+//extern Model*		modelRegex;
+//extern Model*		modelRegexCondensed;
+//
+//extern Model*		modelSegfault;
+//
+//extern Model*		modelGbu;
+//extern Model*		modelPkm;
+//
+//extern Model*		modelTree;
 
-extern Model*		modelRegex;
-extern Model*		modelRegexCondensed;
-
-extern Model*		modelSegfault;
-
-extern Model*		modelGbu;
-extern Model*		modelPkm;
-
-extern Model*		modelTree;
+extern Model*		modelAcro;
