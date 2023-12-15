@@ -14,11 +14,14 @@ AcroDisplay::AcroDisplay(void) {
 }
 
 void AcroDisplay::draw(const DrawArgs &args) {
-	char					line[ACRO_W + 1];
 	Rect					rect;
 	std::shared_ptr<Font>	font;
-	AcroChar				c;
+	AcroChar				*c;
+	char					glyph[2];
 	int						x, y;
+	float					gx, gy;
+	NVGcolor				col_back, col_text;
+	bool					background;
 
 	//LedDisplay::draw(args);
 
@@ -34,14 +37,13 @@ void AcroDisplay::draw(const DrawArgs &args) {
 	nvgFill(args.vg);
 
 	/// DRAW CURSOR
-
-	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[14]);
-	nvgRect(args.vg,
-	/**/ ACRO_CHAR_W * (float)this->module->cur_x,
-	/**/ ACRO_CHAR_H * (float)this->module->cur_y,
-	/**/ ACRO_CHAR_W, ACRO_CHAR_H);
-	nvgFill(args.vg);
+	//nvgBeginPath(args.vg);
+	//nvgFillColor(args.vg, colors[3]);
+	//nvgRect(args.vg,
+	///**/ ACRO_CHAR_W * (float)this->module->cur_x,
+	///**/ ACRO_CHAR_H * (float)this->module->cur_y,
+	///**/ ACRO_CHAR_W, ACRO_CHAR_H);
+	//nvgFill(args.vg);
 
 	//// GET FONT
 	font = APP->window->loadFont(this->font_path);
@@ -51,26 +53,63 @@ void AcroDisplay::draw(const DrawArgs &args) {
 	nvgFontSize(args.vg, 12);
 	nvgFontFaceId(args.vg, font->handle);
 	nvgTextAlign(args.vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
-	nvgFillColor(args.vg, colors[4]);
 
+	glyph[1] = 0;
 	for (y = 0; y < ACRO_H; ++y) {
 		for (x = 0; x < ACRO_W; ++x) {
-			c = this->module->grid[y][x];
-			if (c.enabled) {
-				line[x] = acro_chars[c.value];
-				if (c.upper && c.value >= ACRO_C_A && c.value <= ACRO_C_Z)
-					line[x] -= 'a' - 'A';
+
+			c = &(this->module->grid[y][x]);
+			gx = 0.0 + ACRO_CHAR_W * x;
+			gy = 0.0 + ACRO_CHAR_H * y;
+			background = false;
+
+			/// DEFINE GLYPH
+			if (c->enabled) {
+				glyph[0] = acro_chars[c->value];
+				if (c->upper && c->value >= ACRO_C_A && c->value <= ACRO_C_Z)
+					glyph[0] -= 'a' - 'A';
+				col_text = colors[4];
+			} else if (c->flags & ACRO_FLAG_BANG) {
+				glyph[0] = '*';
+				background = true;
+				col_back = colors[12];
+				col_text = colors[14];
 			} else {
 				if (x % 8 == 0 && y % 8 == 0)
-					line[x] = '+';
+					glyph[0] = '+';
 				else if (x % 2 == 0 && y % 2 == 0)
-					line[x] = '.';
+					glyph[0] = '.';
 				else
-					line[x] = ' ';
+					glyph[0] = ' ';
+				col_text = colors[14];
 			}
+
+			if (c->flags & ACRO_FLAG_OWNED) {
+				if (c->flags & ACRO_FLAG_OWNED_FOCUS)
+					col_text = colors[3];
+				else if (c->flags & ACRO_FLAG_OWNED_OUTPUT)
+					col_text = colors[2];
+				else
+					col_text = colors[10];
+			}
+			if (x == this->module->cur_x && y == this->module->cur_y) {
+				background = true;
+				col_text = colors[15];
+				col_back = colors[3];
+			}
+
+			/// DRAW GLYPH BACKGROUND
+			if (background) {
+				nvgFillColor(args.vg, col_back);
+				nvgBeginPath(args.vg);
+				nvgRect(args.vg, gx, gy, ACRO_CHAR_W, ACRO_CHAR_H);
+				nvgFill(args.vg);
+			}
+
+			/// DRAW GLYPH
+			nvgFillColor(args.vg, col_text);
+			nvgText(args.vg, gx, gy, glyph, NULL);
 		}
-		line[ACRO_W] = 0;
-		nvgText(args.vg, 0.0, 0.0 + 12.0 * y, line, NULL);
 	}
 
 	// DEBUG

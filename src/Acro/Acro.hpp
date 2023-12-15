@@ -9,9 +9,17 @@
 #define ACRO_CHAR_H			12.0
 #define ACRO_CHAR_W			8.37 //8.32461165625
 
-#define ACRO_FLAG_FREE		0
-#define ACRO_FLAG_BANG		1
-#define ACRO_FLAG_OWNED		2
+#define ACRO_FLAG_ZERO			0b00000000	// No flag
+#define ACRO_FLAG_OWNED			0b00000001	// Is owned by another ope
+#define ACRO_FLAG_OWNED_FOCUS	0b00000010	// Is owned (focus) by another ope
+#define ACRO_FLAG_OWNED_OUTPUT	0b00000100	// Is owned (focus) by another ope
+#define ACRO_FLAG_BANG			0b00001000	// Is banged
+#define ACRO_FLAG_PROCESSED		0b00010000	// Has already been computed
+#define ACRO_FLAG_OPE			0b00100000	// Is ope
+
+//#define ACRO_FLAG_FREE		0
+//#define ACRO_FLAG_BANG		1
+//#define ACRO_FLAG_OWNED		2
 
 #define ACRO_C_0			0
 #define ACRO_C_A			10
@@ -44,7 +52,7 @@ struct AcroChar {
 	i8		enabled;		// Cell written
 	i8		value;			// Cell value
 	i8		upper;			// Cell uppercase
-	i8		flag;			// Cell playing flag
+	u8		flags;			// Cell playing flag
 };
 
 struct Acro: Module {
@@ -75,7 +83,7 @@ struct Acro: Module {
 	AcroChar	*get(int x, int y);
 	void		set(int x, int y, int value, int upper = -1, int flag = -1);
 	void		reset(int x, int y);
-	void		own(int x, int y);
+	void		own(int x, int y, int flag = 0);
 	void		bang(int x, int y);
 };
 
