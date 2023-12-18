@@ -79,6 +79,8 @@ void AcroDisplay::draw(const DrawArgs &args) {
 					glyph[0] = '+';
 				else if (x % 2 == 0 && y % 2 == 0)
 					glyph[0] = '.';
+				else if (c->flags & ACRO_FLAG_OWNED)
+					glyph[0] = '.';
 				else
 					glyph[0] = ' ';
 				col_text = colors[14];

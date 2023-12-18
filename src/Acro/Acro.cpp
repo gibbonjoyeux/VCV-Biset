@@ -167,6 +167,27 @@ void Acro::process(const ProcessArgs& args) {
 						}
 					break;
 
+					/// OPE F - IF
+					case ACRO_C_F :
+						c_left = this->get(x - 1, y);
+						c_right = this->get(x + 1, y);
+						value = false;
+						if (c_left && c_left->enabled) {
+							if (c_right && c_right->enabled) {
+								if (c_left->upper == c_right->upper
+								&& c_left->value == c_right->value)
+									value = true;
+							}
+						} else if (c_right == NULL
+						|| c_right->enabled == false) {
+							value = true;
+						}
+						if (value)
+							this->set(x, y + 1, ACRO_C_BANG);
+						this->own(x - 1, y);
+						this->own(x + 1, y);
+					break;
+
 					/// OPE * - BANG
 					case ACRO_C_BANG :
 						this->reset(x, y);

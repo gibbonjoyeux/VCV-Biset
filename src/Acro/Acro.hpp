@@ -30,6 +30,14 @@
 #define ACRO_C_F			15
 #define ACRO_C_G			16
 #define ACRO_C_H			17
+#define ACRO_C_I			18
+#define ACRO_C_J			19
+#define ACRO_C_K			20
+#define ACRO_C_L			21
+#define ACRO_C_M			22
+#define ACRO_C_N			23
+#define ACRO_C_O			24
+#define ACRO_C_P			25
 
 #define ACRO_C_Z			35
 
