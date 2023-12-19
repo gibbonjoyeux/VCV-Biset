@@ -124,6 +124,15 @@
 			"Digital"
 		]
 	},
+	{
+		"slug": "Biset-Tracker-Control",
+		"name": "Tracker Control",
+		"description": "Tracker playing controller",
+		"tags": [
+			"Sequencer",
+			"Digital"
+		]
+	},
 
 
 

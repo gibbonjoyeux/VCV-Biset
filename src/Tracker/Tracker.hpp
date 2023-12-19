@@ -73,6 +73,8 @@
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
 
+struct TrackerControl;
+
 struct PatternEffect;
 struct PatternCV;
 struct PatternNote;
@@ -490,6 +492,7 @@ struct Tracker : Module {
 								LIGHT_COUNT
 	};
 	midi::InputQueue			midi_input;
+	TrackerControl				*control;
 
 	Tracker();
 	~Tracker();

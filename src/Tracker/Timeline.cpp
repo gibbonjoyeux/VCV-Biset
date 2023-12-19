@@ -55,7 +55,8 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 
 	/// [1] UPDATE CLOCK
 	if (g_timeline->play != TIMELINE_MODE_STOP)
-		this->clock.process(dt_beat);
+		if (g_module->control->clock_master == false)
+			this->clock.process(dt_beat);
 
 	////// MODE PLAY SONG
 	//if (g_timeline->play == TIMELINE_MODE_PLAY_SONG) {

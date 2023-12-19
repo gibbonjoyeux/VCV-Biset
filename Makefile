@@ -20,6 +20,7 @@ SOURCES += $(wildcard src/TrackerClock/*.cpp)
 SOURCES += $(wildcard src/TrackerPhase/*.cpp)
 SOURCES += $(wildcard src/TrackerQuant/*.cpp)
 SOURCES += $(wildcard src/TrackerState/*.cpp)
+SOURCES += $(wildcard src/TrackerControl/*.cpp)
 
 SOURCES += $(wildcard src/Regex/*.cpp)
 SOURCES += $(wildcard src/Segfault/*.cpp)
