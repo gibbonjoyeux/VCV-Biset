@@ -81,4 +81,13 @@ PkmWidget::PkmWidget(Pkm* _module) {
 	/**/ createOutputCentered<Outlet>(mm2px(Vec(p.x + 5.0, 103.8)),
 	/**/ module,
 	/**/ Pkm::OUTPUT_RIGHT));
+
+	///  ALGO SWITCH
+	addParam(
+	/**/ createParamCentered<ButtonTriggerState>(mm2px(Vec(35.0, 6.75)),
+	/**/ module,
+	/**/ Pkm::PARAM_ALGO_SWITCH));
+	/// ALGO LIGHTS
+	addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(35.0, 6.75 + 5.5)),
+	/**/ module, Pkm::LIGHT_DOUBLE));
 }
