@@ -4,17 +4,28 @@
 
 #include "../plugin.hpp"
 
+#define TCONTROL_RUN_PATTERN	0
+#define TCONTROL_RUN_SONG		1
+#define TCONTROL_RUN_TRIGGER	0
+#define TCONTROL_RUN_GATE		1
+#define TCONTROL_CLOCK_24		0
+#define TCONTROL_CLOCK_48		1
+#define TCONTROL_CLOCK_96		2
+#define TCONTROL_CLOCK_PHASE	3
+
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
 
 struct TrackerControl : Module {
 	enum	ParamIds {
+		PARAM_RUN_MODE,
+		PARAM_RUN_GATE_MODE,
+		PARAM_CLOCK_MODE,
 		PARAM_COUNT
 	};
 	enum	InputIds {
-		INPUT_PLAY_SONG,
-		INPUT_PLAY_PATTERN,
+		INPUT_RUN,
 		INPUT_CLOCK,
 		INPUT_PATTERN_NEXT,
 		INPUT_PATTERN_PREV,
@@ -27,8 +38,7 @@ struct TrackerControl : Module {
 	enum	LightIds {
 		LIGHT_COUNT
 	};
-	dsp::TSchmittTrigger<float>	trigger_play_song;
-	dsp::TSchmittTrigger<float>	trigger_play_pattern;
+	dsp::TSchmittTrigger<float>	trigger_run;
 	dsp::TSchmittTrigger<float>	trigger_clock;
 	dsp::TSchmittTrigger<float>	trigger_pattern_next;
 	dsp::TSchmittTrigger<float>	trigger_pattern_prev;
@@ -41,15 +51,18 @@ struct TrackerControl : Module {
 	int							clock_count;
 
 	TrackerControl();
+	~TrackerControl();
 
 	void	process(const ProcessArgs& args) override;
+
+	void	play(int mode);
+	void	stop(void);
 };
 
 struct TrackerControlWidget : ModuleWidget {
 	TrackerControl			*module;
 
 	TrackerControlWidget(TrackerControl* _module);
-	//void appendContextMenu(Menu *menu) override;
 };
 
 #endif
