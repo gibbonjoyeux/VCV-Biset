@@ -1,4 +1,5 @@
 
+
 #include "TrackerControl.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,6 +26,9 @@ TrackerControl::TrackerControl() {
 	configInput(INPUT_PATTERN_NEXT, "Trigger next pattern");
 	configInput(INPUT_PATTERN_PREV, "Trigger previous pattern");
 	configInput(INPUT_PATTERN_RAND, "Trigger random pattern");
+	configSwitch(PARAM_PATTERN_NEXT, 0, 1, 0, "Next pattern");
+	configSwitch(PARAM_PATTERN_PREV, 0, 1, 0, "Prev pattern");
+	configSwitch(PARAM_PATTERN_RAND, 0, 1, 0, "Random pattern");
 
 	this->trigger_run.reset();
 	this->trigger_clock.reset();
@@ -75,6 +79,16 @@ void TrackerControl::process(const ProcessArgs& args) {
 		ppqn = 96;
 	else
 		ppqn = 0;
+	if (args.frame % 32 == 0) {
+		lights[LIGHT_CLOCK_24].setBrightness(ppqn == 24);
+		lights[LIGHT_CLOCK_48].setBrightness(ppqn == 48);
+		lights[LIGHT_CLOCK_96].setBrightness(ppqn == 96);
+		lights[LIGHT_CLOCK_PHASE].setBrightness(ppqn == 0);
+		lights[LIGHT_PATTERN].setBrightness(p_run_mode == TCONTROL_RUN_PATTERN);
+		lights[LIGHT_SONG].setBrightness(p_run_mode == TCONTROL_RUN_SONG);
+		lights[LIGHT_TRIGGER].setBrightness(p_gate_mode == TCONTROL_RUN_TRIGGER);
+		lights[LIGHT_GATE].setBrightness(p_gate_mode == TCONTROL_RUN_GATE);
+	}
 
 	/// [2] HANDLE RUN MODE
 	//// RUN GATE MODE
@@ -155,7 +169,9 @@ void TrackerControl::process(const ProcessArgs& args) {
 	}
 
 	/// [5] HANDLE PATTERN SELECTION TRIGGERS
-	if (this->trigger_pattern_next.process(inputs[INPUT_PATTERN_NEXT].getVoltage())) {
+	if (this->trigger_pattern_next.process(
+	inputs[INPUT_PATTERN_NEXT].getVoltage()
+	+ params[PARAM_PATTERN_NEXT].getValue())) {
 		if (g_timeline->pattern_count > 0) {
 			if (g_editor->pattern_id < g_timeline->pattern_count - 1)
 				g_editor->pattern_id += 1;
@@ -164,7 +180,9 @@ void TrackerControl::process(const ProcessArgs& args) {
 			g_editor->pattern = &(g_timeline->patterns[g_editor->pattern_id]);
 		}
 	}
-	if (this->trigger_pattern_prev.process(inputs[INPUT_PATTERN_PREV].getVoltage())) {
+	if (this->trigger_pattern_prev.process(
+	inputs[INPUT_PATTERN_PREV].getVoltage()
+	+ params[PARAM_PATTERN_PREV].getValue())) {
 		if (g_timeline->pattern_count > 0) {
 			if (g_editor->pattern_id > 0)
 				g_editor->pattern_id -= 1;
@@ -173,7 +191,9 @@ void TrackerControl::process(const ProcessArgs& args) {
 			g_editor->pattern = &(g_timeline->patterns[g_editor->pattern_id]);
 		}
 	}
-	if (this->trigger_pattern_rand.process(inputs[INPUT_PATTERN_RAND].getVoltage())) {
+	if (this->trigger_pattern_rand.process(
+	inputs[INPUT_PATTERN_RAND].getVoltage()
+	+ params[PARAM_PATTERN_RAND].getValue())) {
 		if (g_timeline->pattern_count > 0) {
 			g_editor->pattern_id = random::uniform() * g_timeline->pattern_count;
 			g_editor->pattern = &(g_timeline->patterns[g_editor->pattern_id]);

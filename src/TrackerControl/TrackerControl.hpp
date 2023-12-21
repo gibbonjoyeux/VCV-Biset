@@ -22,6 +22,9 @@ struct TrackerControl : Module {
 		PARAM_RUN_MODE,
 		PARAM_RUN_GATE_MODE,
 		PARAM_CLOCK_MODE,
+		PARAM_PATTERN_NEXT,
+		PARAM_PATTERN_PREV,
+		PARAM_PATTERN_RAND,
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -37,6 +40,14 @@ struct TrackerControl : Module {
 		OUTPUT_COUNT
 	};
 	enum	LightIds {
+		LIGHT_PATTERN,
+		LIGHT_SONG,
+		LIGHT_TRIGGER,
+		LIGHT_GATE,
+		LIGHT_CLOCK_24,
+		LIGHT_CLOCK_48,
+		LIGHT_CLOCK_96,
+		LIGHT_CLOCK_PHASE,
 		LIGHT_COUNT
 	};
 	dsp::TSchmittTrigger<float>	trigger_run;
