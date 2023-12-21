@@ -101,7 +101,7 @@ void TrackerControl::process(const ProcessArgs& args) {
 		}
 	}
 
-	/// [3] HANDLE RUN CLOCK
+	/// [3] HANDLE CLOCK
 	if (g_timeline->play != TIMELINE_MODE_STOP && g_editor->pattern) {
 		if (inputs[INPUT_CLOCK].isConnected()) {
 			this->clock_master = true;
@@ -148,7 +148,13 @@ void TrackerControl::process(const ProcessArgs& args) {
 		}
 	}
 
-	/// [4] HANDLE PATTERN SELECTION TRIGGERS
+	/// [4] HANDLE RESET
+	if (this->trigger_reset.process(inputs[INPUT_RESET].getVoltage())) {
+		g_timeline->stop();
+		g_timeline->clock.reset();
+	}
+
+	/// [5] HANDLE PATTERN SELECTION TRIGGERS
 	if (this->trigger_pattern_next.process(inputs[INPUT_PATTERN_NEXT].getVoltage())) {
 		if (g_timeline->pattern_count > 0) {
 			if (g_editor->pattern_id < g_timeline->pattern_count - 1)
@@ -184,6 +190,7 @@ void TrackerControl::play(int mode) {
 	/// RESET TIMELINE
 	g_timeline->stop();
 	g_timeline->clock.reset();
+	this->reset();
 	/// PLAY TIMELINE
 	g_timeline->play = mode;
 }
@@ -192,6 +199,12 @@ void TrackerControl::stop(void) {
 	g_timeline->stop();
 	g_timeline->play = TIMELINE_MODE_STOP;
 	g_timeline->stop_trigger.trigger(0.01);
+}
+
+void TrackerControl::reset(void) {
+	this->clock_phase = 0.0;
+	this->clock_between_count = 0;
+	this->clock_count = 0;
 }
 
 Model* modelTrackerControl = createModel<TrackerControl, TrackerControlWidget>("Biset-Tracker-Control");

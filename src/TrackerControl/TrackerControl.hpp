@@ -27,6 +27,7 @@ struct TrackerControl : Module {
 	enum	InputIds {
 		INPUT_RUN,
 		INPUT_CLOCK,
+		INPUT_RESET,
 		INPUT_PATTERN_NEXT,
 		INPUT_PATTERN_PREV,
 		INPUT_PATTERN_RAND,
@@ -40,6 +41,7 @@ struct TrackerControl : Module {
 	};
 	dsp::TSchmittTrigger<float>	trigger_run;
 	dsp::TSchmittTrigger<float>	trigger_clock;
+	dsp::TSchmittTrigger<float>	trigger_reset;
 	dsp::TSchmittTrigger<float>	trigger_pattern_next;
 	dsp::TSchmittTrigger<float>	trigger_pattern_prev;
 	dsp::TSchmittTrigger<float>	trigger_pattern_rand;
@@ -57,6 +59,7 @@ struct TrackerControl : Module {
 
 	void	play(int mode);
 	void	stop(void);
+	void	reset(void);
 };
 
 struct TrackerControlWidget : ModuleWidget {

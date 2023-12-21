@@ -13,7 +13,7 @@ TrackerControlWidget::TrackerControlWidget(TrackerControl* _module) {
 
 	module = _module;
 	setModule(module);
-	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker-Clock.svg")));
+	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker-Control.svg")));
 
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(10.0, 10.0)),
@@ -32,8 +32,12 @@ TrackerControlWidget::TrackerControlWidget(TrackerControl* _module) {
 	/**/ createInputCentered<Outlet>(mm2px(Vec(10.0, 40.0)),
 	/**/ module,
 	/**/ TrackerControl::INPUT_CLOCK));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(20.0, 40.0)),
+	/**/ module,
+	/**/ TrackerControl::INPUT_RESET));
 	addParam(
-	/**/ createParamCentered<ButtonTriggerState>(mm2px(Vec(20.0, 40.0)),
+	/**/ createParamCentered<ButtonTriggerState>(mm2px(Vec(30.0, 40.0)),
 	/**/ module,
 	/**/ TrackerControl::PARAM_CLOCK_MODE));
 
