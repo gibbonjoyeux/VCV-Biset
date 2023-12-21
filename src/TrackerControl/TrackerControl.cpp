@@ -20,6 +20,7 @@ TrackerControl::TrackerControl() {
 	/**/ {"Trigger", "Gate"});
 
 	configInput(INPUT_CLOCK, "Clock");
+	configInput(INPUT_RESET, "Reset");
 	configSwitch(PARAM_CLOCK_MODE, 0, 3, 0, "Clock mode",
 	/**/ {"24", "48", "96", "Phase"});
 
@@ -128,12 +129,14 @@ void TrackerControl::process(const ProcessArgs& args) {
 					phase = 0.0;
 				/// RUN PATTERN
 				if (p_run_mode == TCONTROL_RUN_PATTERN) {
-					g_timeline->clock.beat =
-					/**/ phase * g_editor->pattern->beat_count;
-					g_timeline->clock.phase =
-					/**/ fmod(phase * g_editor->pattern->beat_count, 1.0);
+					phase *= g_editor->pattern->beat_count;
+					g_timeline->clock.beat = phase;
+					g_timeline->clock.phase = phase - (int)phase;
 				/// RUN SONG
 				} else {
+					phase *= this->timeline_length;
+					g_timeline->clock.beat = phase;
+					g_timeline->clock.phase = phase - (int)phase;
 				}
 			/// CLOCK MODE TRIGGER
 			} else {
@@ -203,6 +206,10 @@ void TrackerControl::process(const ProcessArgs& args) {
 }
 
 void TrackerControl::play(int mode) {
+	list<PatternInstance>::iterator	it, it_end;
+	int								instance_end;
+	int								i;
+
 	/// SEND T-STATE SIGNALS
 	g_timeline->play_trigger.trigger(0.01);
 	if (g_timeline->play != TIMELINE_MODE_STOP)
@@ -213,6 +220,19 @@ void TrackerControl::play(int mode) {
 	this->reset();
 	/// PLAY TIMELINE
 	g_timeline->play = mode;
+
+	/// COMPUTE TIMELINE LENGTH
+	this->timeline_length = 0;
+	for (i = 0; i < 32; ++i) {
+		it = g_timeline->timeline[i].begin();
+		it_end = g_timeline->timeline[i].end();
+		while (it != it_end) {
+			instance_end = it->beat + it->beat_length;
+			if (instance_end > this->timeline_length)
+				this->timeline_length = instance_end;
+			it = std::next(it);
+		}
+	}
 }
 
 void TrackerControl::stop(void) {

@@ -62,6 +62,7 @@ struct TrackerControl : Module {
 	int							clock_between;
 	int							clock_between_count;
 	int							clock_count;
+	int							timeline_length;
 
 	TrackerControl();
 	~TrackerControl();

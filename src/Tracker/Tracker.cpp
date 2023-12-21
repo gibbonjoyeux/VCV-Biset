@@ -136,6 +136,8 @@ Tracker::Tracker() {
 	for (i = 0; i < 12; ++i)
 		configParam(PARAM_TUNING + i, 0.0f, 1200.0f, i * 100.0f, table_pitch[i]);
 
+	this->control = NULL;
+
 	/// DEFINE GLOBAL KEYBOARD
 	for (i = 0; i < 128; ++i)
 		table_keyboard[i] = -1;

@@ -48,34 +48,15 @@ Timeline::Timeline() {
 void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 	//PatternSource*				pattern;
 	Clock							clock_relative;
-	list<PatternInstance>::iterator	it, it_end;
+	list<PatternInstance>::iterator	it, it_cur, it_end;
 	int								rate_divider;
 	int								count;
 	int								i;
 
 	/// [1] UPDATE CLOCK
 	if (g_timeline->play != TIMELINE_MODE_STOP)
-		if (g_module->control->clock_master == false)
+		if (!g_module->control || g_module->control->clock_master == false)
 			this->clock.process(dt_beat);
-
-	////// MODE PLAY SONG
-	//if (g_timeline->play == TIMELINE_MODE_PLAY_SONG) {
-	//	if (this->clock.beat >= this->beat_count) {
-	//		/// RESET CLOCK
-	//		this->clock.beat = 0;
-	//		/// RESET RUNNING PATTERNS
-	//		this->stop();
-	//	}
-	////// MODE PLAY PATTERN
-	//} else if (g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
-	//	if (this->pattern_source[0]
-	//	&& this->clock.beat >= this->pattern_source[0]->beat_count) {
-	//		/// RESET CLOCK
-	//		this->clock.beat = 0;
-	//		/// RESET RUNNING PATTERNS
-	//		this->stop();
-	//	}
-	//}
 
 	/// [2] TRUNCATE FRAMERATE
 	rate_divider = g_module->params[Tracker::PARAM_RATE].getValue();
@@ -105,11 +86,16 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 		for (i = 0; i < 32; ++i) {
 			it = this->pattern_it[i];
 			it_end = this->timeline[i].end();
+			it_cur = it_end;
 			/// FIND PLAYING INSTANCE
-			while (it != it_end
-			&& this->clock.beat >= it->beat + it->beat_length) {
-				/// STOP INSTANCE (FINISHED)
-				if (this->pattern_state[i] == true) {
+			while (it != it_end) {
+				/// CURRENT INSTANCE
+				if (this->clock.beat >= it->beat
+				&& this->clock.beat < it->beat + it->beat_length) {
+					it_cur = it;
+				/// FINISHED INSTANCE
+				} else if (this->pattern_state[i] == true
+				&& this->pattern_it[i] == it) {
 					this->pattern_state[i] = false;
 					this->pattern_reader[i].stop();
 					if (g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
@@ -125,20 +111,20 @@ void Timeline::process(i64 frame, float dt_sec, float dt_beat) {
 				it = std::next(it);
 			}
 			/// PLAY INSTANCE (IF FOUND)
-			if (it != it_end) {
-				if (this->clock.beat >= it->beat) {
-					if (it->muted == false) {
+			if (it_cur != it_end) {
+				if (this->clock.beat >= it_cur->beat) {
+					if (it_cur->muted == false) {
 						/// ACTIVATE INSTANCE
 						this->pattern_state[i] = true;
-						this->pattern_it[i] = it;
+						this->pattern_it[i] = it_cur;
 						/// COMPUTE RELATIVE CLOCK
 						clock_relative.beat =
-						(it->beat_start + (this->clock.beat - it->beat))
-						/**/ % it->source->beat_count;
+						(it_cur->beat_start + (this->clock.beat - it_cur->beat))
+						/**/ % it_cur->source->beat_count;
 						clock_relative.phase = this->clock.phase;
 						/// COMPUTE PATTERN PROCESS
 						this->pattern_reader[i].process(this->synths,
-						/**/ it->source, clock_relative);
+						/**/ it_cur->source, clock_relative);
 					}
 				}
 			} else {
