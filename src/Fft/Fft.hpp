@@ -4,7 +4,8 @@
 
 #include "../plugin.hpp"
 
-#define FFT_BUFFER	2048
+#define FFT_BUFFER		8192	//4096	//2048
+#define FFT_CHANNELS	15
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -28,9 +29,15 @@ struct Fft: Module {
 	};
 
 	dsp::ComplexFFT	*fft;
-	float			buffer[FFT_BUFFER * 2];
+	float			buffer[FFT_BUFFER];
+	float			buffer_in[FFT_BUFFER * 2];
 	float			buffer_out[FFT_BUFFER * 2];
 	int				buffer_i;
+
+	float			out_pitch[FFT_CHANNELS];
+	float			out_pitch_aim[FFT_CHANNELS];
+	float			out_mag[FFT_CHANNELS];
+	float			out_mag_aim[FFT_CHANNELS];
 
 	Fft();
 
