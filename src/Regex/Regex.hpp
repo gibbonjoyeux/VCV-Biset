@@ -15,7 +15,7 @@
 #define IS_MODE(c)		(c == '>' || c == '<' || c == '^' || c == '@' || c == '?' || c == '!' || c == '$')
 #define IS_DIGIT(c)		(c >= '0' && c <= '9')
 #define IS_PITCH(c)		((c >= 'a' && c <= 'g') || (c >= 'A' && c <= 'G'))
-#define IS_MODULATOR(c)	(c == 'x' || c == '%')
+#define IS_MODULATOR(c)	(c == 'x' || c == '%' || c == '*')
 
 extern int	table_pitch_midi[7];
 

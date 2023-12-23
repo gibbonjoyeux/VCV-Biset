@@ -20,7 +20,8 @@ bool RegexItem::pull_pitch_foreward(int &value, int &index, float bias) {
 	/// PULL SEQUENCE
 	state = this->sequence.it->pull_pitch(value, index, bias);
 	/// TYPE MODULO
-	if (this->sequence.modulator_mode == '%') {
+	if (this->sequence.modulator_mode == '%'
+	|| this->sequence.modulator_mode == '*') {
 		this->sequence.state_a += 1;
 		if (this->sequence.state_a >= this->sequence.modulator_value) {
 			this->sequence.it = this->sequence.sequence.begin();
@@ -61,7 +62,8 @@ bool RegexItem::pull_pitch_backward(int &value, int &index, float bias) {
 	/// PULL SEQUENCE
 	state = this->sequence.it->pull_pitch(value, index, bias);
 	/// TYPE MODULO
-	if (this->sequence.modulator_mode == '%') {
+	if (this->sequence.modulator_mode == '%'
+	|| this->sequence.modulator_mode == '*') {
 		this->sequence.state_a += 1;
 		if (this->sequence.state_a >= this->sequence.modulator_value) {
 			this->sequence.it = std::prev(this->sequence.sequence.end());
@@ -104,7 +106,8 @@ bool RegexItem::pull_pitch_pingpong(int &value, int &index, float bias) {
 	/// PULL SEQUENCE
 	state = this->sequence.it->pull_pitch(value, index, bias);
 	/// TYPE MODULO
-	if (this->sequence.modulator_mode == '%') {
+	if (this->sequence.modulator_mode == '%'
+	|| this->sequence.modulator_mode == '*') {
 		this->sequence.state_a += 1;
 		if (this->sequence.state_a >= this->sequence.modulator_value) {
 			this->sequence.it = this->sequence.sequence.begin();
@@ -158,7 +161,8 @@ bool RegexItem::pull_pitch_shuffle(int &value, int &index, float bias) {
 	/// PULL SEQUENCE
 	state = this->sequence.it->pull_pitch(value, index, bias);
 	/// TYPE MODULO
-	if (this->sequence.modulator_mode == '%') {
+	if (this->sequence.modulator_mode == '%'
+	|| this->sequence.modulator_mode == '*') {
 		this->sequence.state_a += 1;
 		if (this->sequence.state_a >= this->sequence.modulator_value) {
 			this->shuffle();
@@ -201,7 +205,8 @@ bool RegexItem::pull_pitch_rand(int &value, int &index, float bias) {
 	/// PULL SEQUENCE
 	state = this->sequence.it->pull_pitch(value, index, bias);
 	/// TYPE MODULO
-	if (this->sequence.modulator_mode == '%') {
+	if (this->sequence.modulator_mode == '%'
+	|| this->sequence.modulator_mode == '*') {
 		this->sequence.state_a += 1;
 		if (this->sequence.state_a >= this->sequence.modulator_value) {
 			this->pick(bias);
@@ -244,7 +249,8 @@ bool RegexItem::pull_pitch_xrand(int &value, int &index, float bias) {
 	/// PULL SEQUENCE
 	state = this->sequence.it->pull_pitch(value, index, bias);
 	/// TYPE MODULO
-	if (this->sequence.modulator_mode == '%') {
+	if (this->sequence.modulator_mode == '%'
+	|| this->sequence.modulator_mode == '*') {
 		this->sequence.state_a += 1;
 		if (this->sequence.state_a >= this->sequence.modulator_value) {
 			this->sequence.state_c = this->xpick(this->sequence.state_c, bias);
@@ -287,7 +293,8 @@ bool RegexItem::pull_pitch_walk(int &value, int &index, float bias) {
 	/// PULL SEQUENCE
 	state = this->sequence.it->pull_pitch(value, index, bias);
 	/// TYPE MODULO
-	if (this->sequence.modulator_mode == '%') {
+	if (this->sequence.modulator_mode == '%'
+	|| this->sequence.modulator_mode == '*') {
 		this->sequence.state_a += 1;
 		if (this->sequence.state_a >= this->sequence.modulator_value) {
 			this->sequence.it = this->sequence.sequence.begin();
