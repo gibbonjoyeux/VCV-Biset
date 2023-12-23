@@ -38,6 +38,7 @@ Timeline::Timeline() {
 	this->play = TIMELINE_MODE_STOP;
 	this->play_trigger.reset();
 	this->stop_trigger.reset();
+	this->timeline_length = 0;
 	/// [5] INIT SAVE BUFFER
 	this->save_buffer = NULL;
 	this->save_length = 0;
@@ -196,4 +197,22 @@ void Timeline::clear(void) {
 	/// REMOVE SYNTHS
 	while (this->synth_count > 0)
 		this->synth_del(&(this->synths[this->synth_count - 1]));
+}
+
+void Timeline::compute_length(void) {
+	list<PatternInstance>::iterator	it, it_end;
+	int								instance_end;
+	int								i;
+
+	this->timeline_length = 0;
+	for (i = 0; i < 32; ++i) {
+		it = g_timeline->timeline[i].begin();
+		it_end = g_timeline->timeline[i].end();
+		while (it != it_end) {
+			instance_end = it->beat + it->beat_length;
+			if (instance_end > this->timeline_length)
+				this->timeline_length = instance_end;
+			it = std::next(it);
+		}
+	}
 }

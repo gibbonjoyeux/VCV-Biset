@@ -326,6 +326,7 @@ struct Timeline {
 	float						pitch_scale[12];
 
 	list<PatternInstance>		timeline[32];
+	int							timeline_length;
 	PatternSource				patterns[1000];	// [0:999]
 	int							pattern_count;
 	Synth						synths[100];	// [0:99]
@@ -343,6 +344,7 @@ struct Timeline {
 	void			process(i64 frame, float dt_sec, float dt_beat);
 	void			stop(void);
 	void			clear(void);
+	void			compute_length(void);
 	PatternSource	*pattern_new(void);
 	PatternSource	*pattern_new(int note_count, int cv_count, int beat_count, int lpb);
 	void			pattern_del(PatternSource *source);

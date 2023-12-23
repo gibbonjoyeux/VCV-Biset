@@ -49,6 +49,10 @@ TrackerControl::~TrackerControl() {
 		g_module->control = NULL;
 }
 
+void TrackerControl::processBypass(const ProcessArgs& args) {
+	this->clock_master = false;
+}
+
 void TrackerControl::process(const ProcessArgs& args) {
 	int		p_clock_mode;
 	bool	p_run_mode;
@@ -134,7 +138,7 @@ void TrackerControl::process(const ProcessArgs& args) {
 					g_timeline->clock.phase = phase - (int)phase;
 				/// RUN SONG
 				} else {
-					phase *= this->timeline_length;
+					phase *= g_timeline->timeline_length;
 					g_timeline->clock.beat = phase;
 					g_timeline->clock.phase = phase - (int)phase;
 				}
@@ -206,10 +210,6 @@ void TrackerControl::process(const ProcessArgs& args) {
 }
 
 void TrackerControl::play(int mode) {
-	list<PatternInstance>::iterator	it, it_end;
-	int								instance_end;
-	int								i;
-
 	/// SEND T-STATE SIGNALS
 	g_timeline->play_trigger.trigger(0.01);
 	if (g_timeline->play != TIMELINE_MODE_STOP)
@@ -220,19 +220,7 @@ void TrackerControl::play(int mode) {
 	this->reset();
 	/// PLAY TIMELINE
 	g_timeline->play = mode;
-
-	/// COMPUTE TIMELINE LENGTH
-	this->timeline_length = 0;
-	for (i = 0; i < 32; ++i) {
-		it = g_timeline->timeline[i].begin();
-		it_end = g_timeline->timeline[i].end();
-		while (it != it_end) {
-			instance_end = it->beat + it->beat_length;
-			if (instance_end > this->timeline_length)
-				this->timeline_length = instance_end;
-			it = std::next(it);
-		}
-	}
+	g_timeline->compute_length();
 }
 
 void TrackerControl::stop(void) {

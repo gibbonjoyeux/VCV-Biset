@@ -195,12 +195,14 @@ void Editor::process(i64 frame) {
 		g_timeline->stop();
 		g_timeline->clock.reset();
 		g_timeline->play = TIMELINE_MODE_PLAY_SONG;
+		g_timeline->compute_length();
 	}
 	//// PLAY PATTERN
 	if (this->button_play[1]
 	.process(module->params[Tracker::PARAM_PLAY_PATTERN].getValue())) {
 		g_timeline->stop();
 		g_timeline->clock.reset();
+		g_timeline->compute_length();
 		g_timeline->play_trigger.trigger(0.01);
 		if (g_timeline->play != TIMELINE_MODE_STOP)
 			g_timeline->stop_trigger.trigger(0.01);
@@ -222,8 +224,9 @@ void Editor::process(i64 frame) {
 	if (this->button_play[2]
 	.process(module->params[Tracker::PARAM_PLAY].getValue())) {
 		if (g_timeline->play == TIMELINE_MODE_PLAY_PATTERN) {
-			g_timeline->stop();
-			g_timeline->clock.reset();
+			//g_timeline->stop();
+			//g_timeline->clock.reset();
+			g_timeline->play = TIMELINE_MODE_PLAY_SONG;
 		} else if (g_timeline->play == TIMELINE_MODE_STOP) {
 			g_timeline->stop();
 		}
@@ -231,6 +234,7 @@ void Editor::process(i64 frame) {
 		if (g_timeline->play != TIMELINE_MODE_STOP)
 			g_timeline->stop_trigger.trigger(0.01);
 		g_timeline->play = TIMELINE_MODE_PLAY_SONG;
+		g_timeline->compute_length();
 	}
 	//// STOP
 	if (this->button_play[3]
