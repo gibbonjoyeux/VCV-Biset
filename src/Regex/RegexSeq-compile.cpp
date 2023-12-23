@@ -20,14 +20,15 @@ static void compile_value_modulator(
 	RegexItem		*item_new;
 	RegexItem		*item_child;
 	int				modulator;
+	int				count;
 	int				type;
 
-	/// CREATE NEW ITEM
-	item->sequence.length += 1;
-	item->sequence.sequence.emplace_back();
-	item_new = &(item->sequence.sequence.back());
 	/// VALUE AS SEQUENCE
-	if (IS_MODULATOR(str[i])) {
+	if (str[i] == '%' || str[i] == '*') {
+		/// CREATE NEW ITEM
+		item->sequence.length += 1;
+		item->sequence.sequence.emplace_back();
+		item_new = &(item->sequence.sequence.back());
 		/// GET NEW ITEM MODULATION
 		type = str[i];
 		i += 1;
@@ -52,8 +53,33 @@ static void compile_value_modulator(
 		item_child->type = REGEX_VALUE;
 		item_child->value.value = item_value;
 		item_child->value.index = item_index;
+	/// VALUE AS INLINED SEQUENCE
+	} else if (str[i] == 'x') {
+		/// GET NEW ITEM MODULATION
+		type = str[i];
+		i += 1;
+		modulator = 0;
+		while (IS_DIGIT(str[i])) {
+			modulator = modulator * 10 + (str[i] - '0');
+			i += 1;
+		}
+		/// INSERT ITEM N TIMES
+		for (count = 0; count < modulator; ++count) {
+			/// CREATE NEW ITEM
+			item->sequence.length += 1;
+			item->sequence.sequence.emplace_back();
+			item_new = &(item->sequence.sequence.back());
+			/// INIT FIRST ITEM
+			item_new->type = REGEX_VALUE;
+			item_new->value.value = item_value;
+			item_new->value.index = item_index;
+		}
 	/// VALUE AS SINGLE VALUE
 	} else {
+		/// CREATE NEW ITEM
+		item->sequence.length += 1;
+		item->sequence.sequence.emplace_back();
+		item_new = &(item->sequence.sequence.back());
 		/// INIT NEW ITEM
 		item_new->type = REGEX_VALUE;
 		item_new->value.value = item_value;
