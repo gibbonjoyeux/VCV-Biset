@@ -15,6 +15,16 @@
   "modules": [
 
 	{
+		"slug": "Biset-Fft",
+		"name": "Fast fast tast",
+		"description": "Have fun kiddo",
+		"tags": [
+		]
+	}
+
+  ], "tmp": [
+
+	{
 		"slug": "Biset-Tree",
 		"name": "Tree",
 		"description": "Tree growth sequencer",

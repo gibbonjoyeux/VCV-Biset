@@ -5,22 +5,24 @@ Plugin* pluginInstance;
 void init(Plugin* p) {
 	pluginInstance = p;
 
-	p->addModel(modelTracker);
-	p->addModel(modelTrackerSynth);
-	p->addModel(modelTrackerDrum);
-	p->addModel(modelTrackerClock);
-	p->addModel(modelTrackerPhase);
-	p->addModel(modelTrackerQuant);
-	p->addModel(modelTrackerState);
-	p->addModel(modelTrackerControl);
+	//p->addModel(modelTracker);
+	//p->addModel(modelTrackerSynth);
+	//p->addModel(modelTrackerDrum);
+	//p->addModel(modelTrackerClock);
+	//p->addModel(modelTrackerPhase);
+	//p->addModel(modelTrackerQuant);
+	//p->addModel(modelTrackerState);
+	//p->addModel(modelTrackerControl);
 
-	p->addModel(modelRegex);
-	p->addModel(modelRegexCondensed);
+	//p->addModel(modelRegex);
+	//p->addModel(modelRegexCondensed);
 
-	p->addModel(modelSegfault);
+	//p->addModel(modelSegfault);
 
-	p->addModel(modelGbu);
-	p->addModel(modelPkm);
+	//p->addModel(modelGbu);
+	//p->addModel(modelPkm);
 
-	p->addModel(modelTree);
+	//p->addModel(modelTree);
+
+	p->addModel(modelFft);
 }
