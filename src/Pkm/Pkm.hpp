@@ -8,6 +8,8 @@
 #define PKM_FEEDBACK		4096
 #define PKM_ALGO_SIMPLE		0
 #define PKM_ALGO_DOUBLE		1
+#define PKM_ALGO_ENTANGLED	2
+#define PKM_ALGO_ECHO		3
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -37,7 +39,10 @@ struct Pkm: Module {
 		OUTPUT_COUNT
 	};
 	enum	LightIds {
+		LIGHT_SIMPLE,
 		LIGHT_DOUBLE,
+		LIGHT_ENTANGLED,
+		LIGHT_ECHO,
 		LIGHT_COUNT
 	};
 

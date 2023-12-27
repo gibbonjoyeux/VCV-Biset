@@ -34,8 +34,8 @@ Pkm::Pkm() {
 	configParam(PARAM_FEEDBACK_MOD, -1, +1, 0, "Feedback modulation");
 	configParam(PARAM_FEEDBACK_DELAY_MOD, -1, +1, 0, "Delay modulation");
 
-	configSwitch(PARAM_ALGO_SWITCH, 0, 1, 0, "Algorithm",
-	/**/ {"Simple", "Double"});
+	configSwitch(PARAM_ALGO_SWITCH, 0, 3, 0, "Algorithm",
+	/**/ {"Simple", "Double", "Entangled", "Echo"});
 
 	for (i = 0; i < 16; ++i) {
 		this->phase_1[i] = 0.0;
@@ -81,8 +81,12 @@ void Pkm::process(const ProcessArgs& args) {
 	/// [1] GET ALGORITHM
 	//////////////////////////////	
 	algo = params[PARAM_ALGO_SWITCH].getValue();
-	if (args.frame % 32 == 0)
+	if (args.frame % 32 == 0) {
+		lights[LIGHT_SIMPLE].setBrightness(algo == PKM_ALGO_SIMPLE);
 		lights[LIGHT_DOUBLE].setBrightness(algo == PKM_ALGO_DOUBLE);
+		lights[LIGHT_ENTANGLED].setBrightness(algo == PKM_ALGO_ENTANGLED);
+		lights[LIGHT_ECHO].setBrightness(algo == PKM_ALGO_ECHO);
+	}
 
 	//////////////////////////////	
 	/// [2] GET PARAMETERS
@@ -197,11 +201,30 @@ void Pkm::process(const ProcessArgs& args) {
 			this->feedback_buffer_2[i][1][this->feedback_i] = this->out_2[i][1];
 			this->feedback_buffer_2[i][2][this->feedback_i] = this->out_2[i][2];
 			this->feedback_buffer_2[i][3][this->feedback_i] = this->out_2[i][3];
+		} else if (algo == PKM_ALGO_SIMPLE) {
+			this->feedback_buffer_1[i][0][this->feedback_i] = this->out_1[i][0];
+			this->feedback_buffer_1[i][1][this->feedback_i] = this->out_1[i][1];
+			this->feedback_buffer_1[i][2][this->feedback_i] = this->out_1[i][2];
+			this->feedback_buffer_1[i][3][this->feedback_i] = this->out_1[i][3];
+		} else if (algo == PKM_ALGO_ECHO) {
+			this->feedback_buffer_1[i][0][this->feedback_i] =
+			/**/ this->feedback_buffer_1[i][0][this->feedback_i] * 0.9
+			/**/ + this->out_1[i][0];
+			this->feedback_buffer_1[i][1][this->feedback_i] =
+			/**/ this->feedback_buffer_1[i][1][this->feedback_i] * 0.9
+			/**/ + this->out_1[i][1];
+			this->feedback_buffer_1[i][2][this->feedback_i] =
+			/**/ this->feedback_buffer_1[i][2][this->feedback_i] * 0.9
+			/**/ + this->out_1[i][2];
+			this->feedback_buffer_1[i][3][this->feedback_i] =
+			/**/ this->feedback_buffer_1[i][3][this->feedback_i] * 0.9
+			/**/ + this->out_1[i][3];
+		} else if (algo == PKM_ALGO_ENTANGLED) {
+			this->feedback_buffer_1[i][0][this->feedback_i] = this->out_1[i][3];
+			this->feedback_buffer_1[i][1][this->feedback_i] = this->out_1[i][2];
+			this->feedback_buffer_1[i][2][this->feedback_i] = this->out_1[i][1];
+			this->feedback_buffer_1[i][3][this->feedback_i] = this->out_1[i][0];
 		}
-		this->feedback_buffer_1[i][0][this->feedback_i] = this->out_1[i][0];
-		this->feedback_buffer_1[i][1][this->feedback_i] = this->out_1[i][1];
-		this->feedback_buffer_1[i][2][this->feedback_i] = this->out_1[i][2];
-		this->feedback_buffer_1[i][3][this->feedback_i] = this->out_1[i][3];
 	
 		//// COMPUTE STEREO OUTPUT PANNING
 		if (algo == PKM_ALGO_DOUBLE) {
