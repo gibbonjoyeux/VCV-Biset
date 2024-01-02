@@ -113,6 +113,7 @@ struct Regex : Module {
 		ENUMS(PARAM_MODE, 12),
 		PARAM_BIAS,
 		PARAM_BIAS_DEPTH,
+		PARAM_RUN_START,
 		PARAM_COUNT
 	};
 	enum	InputIds {

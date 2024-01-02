@@ -9,22 +9,20 @@
 	- [x] `@`	Shuffle
 	- [ ] `&`	Shuffle 1 item at a time
 - [x] Modulators
+	- [x] `x`	Times (clone solo values)
 	- [x] `x`	Times
 	- [x] `%`	Modulo
 	- [x] `*`	Times clock
 	- [x] Modulate with single value
 	- [ ] Modulate with sequence
-	- [ ] Inline multiplication with `x` on single value
 - [ ] User
 	- [x] Clock
 	- [x] Reset
 	- [x] Bias
-	- [ ] Play on patch opening (context menu option)
-
-- [ ] Play on patch opening
-		-> Option via context menu
-- [x] Single value multiplier
-		-> ?(4x1,4x0)    @(5x1,3x0)
-- [ ] Fix Bias int to float issue
-- [ ] Sequence as modulator value
-		-> >(1,2,3)%(4,8,16)
+	- [x] Play on patch opening (context menu option)
+	- [ ] Shortcuts
+		- [x] Run expression
+		- [x] Run all expressions
+		- [x] Stop expression
+		- [x] Line up / down
+		- [ ] Switch expression mode (clock / pitch)

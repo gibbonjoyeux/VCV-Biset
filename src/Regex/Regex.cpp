@@ -28,10 +28,13 @@ Regex::Regex(bool condensed) {
 	else
 		this->exp_count = 8;
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
+
 	/// COMFIG PARAMS
 	configParam(PARAM_BIAS, -1, 1, 0, "Bias", "%", 0, 100);
 	for (i = 0; i < this->exp_count; ++i)
 		configSwitch(PARAM_MODE + i, 0, 1, 0, rack::string::f("Mode %d", i + 1), {"Clock", "Pitch"});
+	configSwitch(PARAM_RUN_START, 0, 1, 0, "Run", {"Off", "On"});
+
 	/// CONFIG INPUTS / OUTPUTS
 	configInput(INPUT_BIAS, "Orientation");
 	configInput(INPUT_RESET, "Master reset");
@@ -48,9 +51,11 @@ Regex::Regex(bool condensed) {
 		this->sequences[i].out = &(this->outputs[OUTPUT_EXP + i]);
 		this->sequences[i].out_eoc = &(this->outputs[OUTPUT_EXP_EOC + i]);
 	}
+
 	/// INIT CLOCK
 	this->clock_reset.reset();
 	this->clock_master.reset();
+
 	/// INIT THREAD FLAG
 	this->thread_flag.clear();
 }
