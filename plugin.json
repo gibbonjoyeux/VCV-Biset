@@ -37,7 +37,8 @@
 		"tags": [
 			"Oscillator",
 			"Polyphonic"
-		]
+		],
+		"keywords": ["fm", "pm", "am", "rm", "ring", "phase"]
 	},
 	{
 		"slug": "Biset-Pkm",
@@ -46,7 +47,8 @@
 		"tags": [
 			"Oscillator",
 			"Polyphonic"
-		]
+		],
+		"keywords": ["fm", "pm", "phase"]
 	},
 
 
