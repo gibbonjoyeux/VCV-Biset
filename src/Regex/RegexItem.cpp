@@ -67,6 +67,10 @@ void RegexItem::reset(void) {
 void RegexItem::select(int index) {
 	list<RegexItem>::iterator	it;
 
+	/// CHECK RANGE
+	if (index >= this->sequence.length - 1)
+		index = this->sequence.length - 1;
+	/// SELECT ITEM
 	it = this->sequence.sequence.begin();
 	while (index > 0) {
 		it = std::next(it);
@@ -76,55 +80,51 @@ void RegexItem::select(int index) {
 }
 
 int RegexItem::pick(float bias) {
-	int		range;
-	int		offset;
+	float	range;
+	float	offset;
 	int		index;
 
 	if (bias < 0) {
-		range = this->sequence.length * (1.0 + bias);
-		if (range == 0)
-			range = 1;
+		range = (float)this->sequence.length * (1.0 + bias);
 		index = random::uniform() * range;
 	} else {
-		range = this->sequence.length * (1.0 - bias);
-		if (range == 0)
-			range = 1;
-		offset = this->sequence.length - range;
-		index = offset + random::uniform() * range;
+		range = (float)this->sequence.length * (1.0 - bias);
+		index = (float)this->sequence.length - (random::uniform() * range);
 	}
 	this->select(index);
 	return index;
 }
 
 int RegexItem::xpick(int last_picked, float bias) {
-	int		range;
-	int		offset;
-	int		index;
+	float	range;
+	float	offset;
+	float	index;
 
 	/// COMPUTE RANGE & OFFSET
 	if (bias < 0) {
-		range = this->sequence.length * (1.0 + bias);
-		if (range == 0)
-			range = 1;
-		if (range == 1 && this->sequence.length > 1)
-			range = 2;
+		range = (float)this->sequence.length * (1.0 + bias);
+		if (range < 2.0 && this->sequence.length > 1)
+			range = 2.0;
 		offset = 0;
 	} else {
-		range = this->sequence.length * (1.0 - bias);
-		if (range == 0)
-			range = 1;
-		if (range == 1 && this->sequence.length > 1)
-			range = 2;
-		offset = this->sequence.length - range;
+		range = (float)this->sequence.length * (1.0 - bias);
+		if (range < 2.0 && this->sequence.length > 1)
+			range = 2.0;
+		offset = (float)this->sequence.length - range;
 	}
 	/// COMPUTE RANDOM
-	if (range == 1) {
-		index = 0;
-	} else if (range == 2) {
-		index = (last_picked == offset) ? 1 : 0;
+	if (range <= 2.0) {
+		/// SEQUENCE == 1
+		if (this->sequence.length == 1)
+			index = 0.0;
+		/// SEQUENCE > 1
+		else if (last_picked == (int)offset)
+			index = 1.0;
+		else
+			index = 0.0;
 	} else {
 		index = random::uniform() * range;
-		while (last_picked == offset + index)
+		while (last_picked == (int)(offset + index))
 			index = random::uniform() * range;
 	}
 	this->select(offset + index);

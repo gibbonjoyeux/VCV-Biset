@@ -149,8 +149,9 @@ void RegexWidget::appendContextMenu(Menu *menu) {
 	label = new MenuLabel();
 	label->text = "Expression modulators";
 	menu->addChild(label);
-	menu->addChild(new MenuItemStay("xN", "Multiply by N", [=](){}));
+	menu->addChild(new MenuItemStay("xN", "Times N", [=](){}));
 	menu->addChild(new MenuItemStay("%N", "Until N", [=](){}));
+	menu->addChild(new MenuItemStay("*N", "Until N (clock)", [=](){}));
 
 	/// SEQUENCE MODULATOR
 	menu->addChild(new MenuSeparator);

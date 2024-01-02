@@ -1,9 +1,30 @@
 
-- [x] New clock modulator
-		-> `*` acting like pitch %
+- [ ] Sequence types
+	- [x] `>`	Forward
+	- [x] `<`	Backward
+	- [x] `^`	Ping pong
+	- [x] `?`	Random
+	- [x] `!`	X-Random
+	- [x] `$`	Walk
+	- [x] `@`	Shuffle
+	- [ ] `&`	Shuffle 1 item at a time
+- [x] Modulators
+	- [x] `x`	Times
+	- [x] `%`	Modulo
+	- [x] `*`	Times clock
+	- [x] Modulate with single value
+	- [ ] Modulate with sequence
+	- [ ] Inline multiplication with `x` on single value
+- [ ] User
+	- [x] Clock
+	- [x] Reset
+	- [x] Bias
+	- [ ] Play on patch opening (context menu option)
+
 - [ ] Play on patch opening
 		-> Option via context menu
 - [x] Single value multiplier
 		-> ?(4x1,4x0)    @(5x1,3x0)
+- [ ] Fix Bias int to float issue
 - [ ] Sequence as modulator value
 		-> >(1,2,3)%(4,8,16)
