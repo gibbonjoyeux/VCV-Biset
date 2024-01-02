@@ -29,11 +29,16 @@ void Regex::dataFromJson(json_t *j_root) {
 	json_t		*j_array;
 	json_t		*j_str;
 	char		*str;
+	bool		run;
 	int			i;
 
+	/// COMPUTE START SWITCH VALUE
+	run = (bool)this->params[Regex::PARAM_RUN_START].getValue();
+	/// COMPUTE EXPRESSIONS
 	j_array = json_object_get(j_root, "expressions");
 	if (j_array && json_typeof(j_array) == JSON_ARRAY) {
 		for (i = 0; i < this->exp_count; ++i) {
+			/// SET EXPRESSION
 			j_str = json_array_get(j_array, i);
 			str = NULL;
 			if (j_str && json_typeof(j_str) == JSON_STRING)
@@ -44,6 +49,15 @@ void Regex::dataFromJson(json_t *j_root) {
 			this->sequences[i].string_run_next = "";
 			if (this->widget)
 				this->widget->display[i]->setText((str) ? str : "");
+			/// RUN EXPRESSION
+			if (run) {
+				this->sequences[i].mode =
+				/**/ this->params[PARAM_MODE + i].getValue();
+				this->sequences[i].check_syntax();
+				this->sequences[i].compile(this);
+			}
+
 		}
 	}
+
 }

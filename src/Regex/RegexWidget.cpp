@@ -112,54 +112,69 @@ RegexWidget::RegexWidget(Regex* _module, bool _condensed) {
 }
 
 void RegexWidget::appendContextMenu(Menu *menu) {
+	Param		*param_run;
 	MenuLabel	*label;
 
-	/// SEQUENCE TYPE
+	/// [1] MENU OPTIONS
 	menu->addChild(new MenuSeparator);
-	label = new MenuLabel();
-	label->text = "Expression exemples";
-	menu->addChild(label);
-	menu->addChild(new MenuItemStay("1,2,3", "", [=](){}));
-	menu->addChild(new MenuItemStay(">(1,2,3)%16", "", [=](){}));
-	menu->addChild(new MenuItemStay(">(1,2,3,?(4,5,6))", "", [=](){}));
+	param_run = &(this->module->params[Regex::PARAM_RUN_START]);
+	menu->addChild(new MenuCheckItem("Run on start up", "",
+		[=]() { return param_run->getValue() == 1; },
+		[=]() { param_run->setValue(!(int)param_run->getValue()); }
+	));
 
-	/// SEQUENCE TYPE
+	/// [2] MENU HELP
 	menu->addChild(new MenuSeparator);
 	label = new MenuLabel();
-	label->text = "Expression types";
+	label->text = "Help";
 	menu->addChild(label);
-	menu->addChild(new MenuItemStay(">", "Sequence forward", [=](){}));
-	menu->addChild(new MenuItemStay("<", "Sequence backward", [=](){}));
-	menu->addChild(new MenuItemStay("^", "Sequence ping-pong", [=](){}));
-	menu->addChild(new MenuItemStay("@", "Shuffle sequence", [=](){}));
-	menu->addChild(new MenuItemStay("?", "Random", [=](){}));
-	menu->addChild(new MenuItemStay("!", "Random exclude", [=](){}));
-	menu->addChild(new MenuItemStay("$", "Walk random", [=](){}));
+
+	/// SEQUENCE EXAMPLES
+	menu->addChild(rack::createSubmenuItem("Examples", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuItemStay("1,2,3", "", [=](){}));
+			menu->addChild(new MenuItemStay(">(1,2,3)%16", "", [=](){}));
+			menu->addChild(new MenuItemStay(">(1,2,3,?(4,5,6))", "", [=](){}));
+		}
+	));
+
+	/// SEQUENCE TYPES
+	menu->addChild(rack::createSubmenuItem("Sequence types", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuItemStay(">", "Sequence forward", [=](){}));
+			menu->addChild(new MenuItemStay("<", "Sequence backward", [=](){}));
+			menu->addChild(new MenuItemStay("^", "Sequence ping-pong", [=](){}));
+			menu->addChild(new MenuItemStay("@", "Shuffle sequence", [=](){}));
+			menu->addChild(new MenuItemStay("?", "Random", [=](){}));
+			menu->addChild(new MenuItemStay("!", "Random exclude", [=](){}));
+			menu->addChild(new MenuItemStay("$", "Walk random", [=](){}));
+		}
+	));
+
+	/// SEQUENCE MODULATORS
+	menu->addChild(rack::createSubmenuItem("Modulators", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuItemStay("xN", "Times N", [=](){}));
+			menu->addChild(new MenuItemStay("%N", "Until N", [=](){}));
+			menu->addChild(new MenuItemStay("*N", "Until N (clock)", [=](){}));
+		}
+	));
 
 	/// SEQUENCE VALUES
-	menu->addChild(new MenuSeparator);
-	label = new MenuLabel();
-	label->text = "Expression values";
-	menu->addChild(label);
-	menu->addChild(new MenuItemStay("4 / 12 / -7", "Number", [=](){}));
-	menu->addChild(new MenuItemStay("c / c# / cb / c4", "Pitch", [=](){}));
+	menu->addChild(rack::createSubmenuItem("Values", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuItemStay("4 / 12 / -7", "Number", [=](){}));
+			menu->addChild(new MenuItemStay("c / c# / cb / c4", "Pitch", [=](){}));
+		}
+	));
 
-	/// SEQUENCE MODULATOR
-	menu->addChild(new MenuSeparator);
-	label = new MenuLabel();
-	label->text = "Expression modulators";
-	menu->addChild(label);
-	menu->addChild(new MenuItemStay("xN", "Times N", [=](){}));
-	menu->addChild(new MenuItemStay("%N", "Until N", [=](){}));
-	menu->addChild(new MenuItemStay("*N", "Until N (clock)", [=](){}));
-
-	/// SEQUENCE MODULATOR
-	menu->addChild(new MenuSeparator);
-	label = new MenuLabel();
-	label->text = "Shortcuts";
-	menu->addChild(label);
-	menu->addChild(new MenuItemStay("Enter", "Compile exp", [=](){}));
-	menu->addChild(new MenuItemStay("Ctrl + Enter", "Compile all exp", [=](){}));
-	menu->addChild(new MenuItemStay("Escape", "Stop exp", [=](){}));
-	menu->addChild(new MenuItemStay("Ctrl + Arrow", "Jump exp", [=](){}));
+	/// MODULE SHORTCUTS
+	menu->addChild(rack::createSubmenuItem("Shortcuts", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuItemStay("Enter", "Compile exp", [=](){}));
+			menu->addChild(new MenuItemStay("Ctrl + Enter", "Compile all exp", [=](){}));
+			menu->addChild(new MenuItemStay("Escape", "Stop exp", [=](){}));
+			menu->addChild(new MenuItemStay("Ctrl + Arrow", "Jump exp", [=](){}));
+		}
+	));
 }
