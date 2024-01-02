@@ -23,8 +23,8 @@ PkmWidget::PkmWidget(Pkm* _module) {
 	p.y = 53.5;
 
 	dist_pitch = 12.0;
-	dist_feedback = 45.0 + 2.6;
-	dist_delay = 75.0 + 2.6;
+	dist_feedback = 45.0 + 2.6 + 3.5;
+	dist_delay = 75.0 + 2.6 + 3.5;
 
 	/// PARAMS
 	addParam(
@@ -88,6 +88,12 @@ PkmWidget::PkmWidget(Pkm* _module) {
 	/**/ module,
 	/**/ Pkm::PARAM_ALGO_SWITCH));
 	/// ALGO LIGHTS
-	addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(35.0, 6.75 + 5.5)),
+	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(p.x - 10.5, 32.0)),
+	/**/ module, Pkm::LIGHT_SIMPLE));
+	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(p.x - 3.5, 32.0)),
 	/**/ module, Pkm::LIGHT_DOUBLE));
+	addChild(createLightCentered<MediumLight<BlueLight>>(mm2px(Vec(p.x + 3.5, 32.0)),
+	/**/ module, Pkm::LIGHT_ENTANGLED));
+	addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(p.x + 10.5, 32.0)),
+	/**/ module, Pkm::LIGHT_ECHO));
 }
