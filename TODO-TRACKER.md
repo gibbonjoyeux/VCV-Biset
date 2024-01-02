@@ -35,6 +35,13 @@
 
 # TODO
 
+- [ ] PATTERN EDITOR SHORTCUTS
+	- [ ] Select multiple cells
+	- [ ] Move	cell / selection up / down
+	- [ ] Copy	cell / selection
+	- [ ] Cut	cell / selection
+	- [ ] Paste	cell / selection
+
 - [ ] MODULE Tracker
 	- [ ] BACKEND
 		- [ ] PLAY
