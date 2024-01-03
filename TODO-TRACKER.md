@@ -35,6 +35,13 @@
 
 # TODO
 
+- [ ] User enhancements
+	- [ ] Line selection (MAJ key)
+	- [ ] Shift row up / down
+	- [ ] Ctrl-Z
+	- [ ] Remove instance with Del (consume Del key)
+	- [x] Module to control playhead
+
 - [ ] PATTERN EDITOR SHORTCUTS
 	- [ ] Select multiple cells
 	- [ ] Move	cell / selection up / down
