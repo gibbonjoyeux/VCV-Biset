@@ -40,14 +40,6 @@ void Igc::process(const ProcessArgs& args) {
 			this->cables[i].buffer[this->buffer_i] =
 			/**/ cable->outputModule->outputs[cable->outputId].getVoltage();
 		}
-
-		//pos_in = cables[i]->getInputPos();
-		//pos_out = cables[i]->getOutputPos();
-		//pos_slump = getSlumpPos(pos_out, pos_in);
-		//this->cables[i].pos_out =
-		///**/ pos_out.plus(pos_slump.minus(pos_out).normalize().mult(13.0));
-		//this->cables[i].pos_in =
-		///**/ pos_in.plus(pos_slump.minus(pos_in).normalize().mult(13.0));
 	}
 	this->buffer_i += 1;
 	if (this->buffer_i >= IGC_BUFFER)
