@@ -4,10 +4,10 @@
 
 #include "../plugin.hpp"
 
-#define IGC_BUFFER		2048	//1024
-#define IGC_DIST_MAX	300.0	//150.0
-#define IGC_PRECISION	128
-#define IGC_CABLES		256
+#define IGC_BUFFER			2048	//1024
+#define IGC_DIST_MAX		300.0	//150.0
+#define IGC_PRECISION		128
+#define IGC_CABLES			256
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE

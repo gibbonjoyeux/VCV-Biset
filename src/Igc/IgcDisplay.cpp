@@ -137,5 +137,6 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		nvgStrokeWidth(args.vg, 6.0);
 		nvgStroke(args.vg);
 	}
+
 	nvgResetTransform(args.vg);
 }

@@ -19,6 +19,7 @@ void Igc::process(const ProcessArgs& args) {
 	std::vector<CableWidget*>	cables;
 	CableWidget					*widget;
 	Cable						*cable;
+	Output						*output;
 	int							i;
 
 	if (args.frame % 32 != 0)
@@ -37,8 +38,8 @@ void Igc::process(const ProcessArgs& args) {
 		this->cables[i].color = widget->color;
 		/// STORE CABLE BUFFER
 		if (cable && cable->outputModule && cable->outputId >= 0) {
-			this->cables[i].buffer[this->buffer_i] =
-			/**/ cable->outputModule->outputs[cable->outputId].getVoltage();
+			output = &(cable->outputModule->outputs[cable->outputId]);
+			this->cables[i].buffer[this->buffer_i] = output->getVoltageSum();
 		}
 	}
 	this->buffer_i += 1;
