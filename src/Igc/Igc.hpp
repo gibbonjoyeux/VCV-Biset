@@ -76,9 +76,8 @@ struct IgcWidget : ModuleWidget {
 	void appendContextMenu(Menu *menu) override;
 };
 
-struct IgcDisplay : LedDisplay {
+struct IgcDisplay : Widget {
 	Igc				*module;
-	ModuleWidget	*moduleWidget;
 
 	IgcDisplay();
 	void draw(const DrawArgs &args) override;
@@ -92,6 +91,6 @@ struct IgcScope : Widget {
 	void draw(const DrawArgs &args) override;
 };
 
-extern IgcScope	*g_scope;
+extern Igc	*g_igc;
 
 #endif

@@ -1,6 +1,8 @@
 
 #include "Igc.hpp"
 
+Igc *g_igc = NULL;
+
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
@@ -8,8 +10,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
-
-IgcScope *g_scope = NULL;
 
 Igc::Igc(void) {
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
@@ -27,15 +27,15 @@ Igc::Igc(void) {
 }
 
 Igc::~Igc(void) {
-	if (this->scope) {
-		if (this->scope == g_scope)
-			g_scope = NULL;
-		this->scope->requestDelete();
-		this->scope = NULL;
-	}
 }
 
 void Igc::onRemove(const RemoveEvent &e) {
+	if (this == g_igc)
+		g_igc = NULL;
+	if (this->scope) {
+		this->scope->requestDelete();
+		this->scope = NULL;
+	}
 }
 
 void Igc::process(const ProcessArgs& args) {
@@ -48,9 +48,9 @@ void Igc::process(const ProcessArgs& args) {
 
 	if (args.frame % 32 != 0)
 		return;
-	if (g_scope == NULL)
-		g_scope = this->scope;
-	if (g_scope != this->scope)
+	if (g_igc == NULL)
+		g_igc = this;
+	if (g_igc != this)
 		return;
 
 	/// [1] GET CABLES
@@ -80,6 +80,17 @@ void Igc::process(const ProcessArgs& args) {
 
 	/// [3] RECORD HOVERED CABLE / PORT
 	// TODO: check if hovered is not cable but port
+	//if (hovered) {
+	//	PortWidget *port = dynamic_cast<PortWidget*>(hovered);
+	//	if (port) {
+	//		port->portId;
+	//		port->module;
+	//		port->module->outputs;
+	//	}
+	//	Outlet *outlet = dynamic_cast<Outlet*>(hovered);
+	//	outlet->portId;
+	//	outlet->module;
+	//}
 
 	/// [4] STEP BUFFER
 	this->buffer_i += 1;

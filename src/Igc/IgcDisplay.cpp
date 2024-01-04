@@ -53,7 +53,7 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 
 	if (this->module == NULL || layer != 1)
 		return;
-	if (g_scope != this->module->scope)
+	if (g_igc != this->module)
 		return;
 
 	rect = box.zeroPos();

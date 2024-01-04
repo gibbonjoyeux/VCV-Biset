@@ -25,7 +25,7 @@ void IgcScope::draw(const DrawArgs &args) {
 	int			i;
 
 
-	if (g_scope != this->module->scope)
+	if (g_igc != this->module)
 		return;
 	if (this->module->params[Igc::PARAM_SCOPE_ENABLED].getValue() == 0.0)
 		return;

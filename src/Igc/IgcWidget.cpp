@@ -18,11 +18,12 @@ IgcWidget::IgcWidget(Igc* _module) {
 	setPanel(createPanel(asset::plugin(pluginInstance, "res/Igc.svg")));
 
 	/// ADD CABLE DISPLAY
-	display = createWidget<IgcDisplay>(mm2px(Vec(0.0, 0.0)));
-	display->box.size = mm2px(Vec(40.64, 60.0));
-	display->module = module;
-	display->moduleWidget = this;
-	addChild(display);
+	if (this->module) {
+		display = createWidget<IgcDisplay>(mm2px(Vec(0.0, 0.0)));
+		display->box.size = mm2px(Vec(35.56, 128.50));
+		display->module = module;
+		addChild(display);
+	}
 
 	/// ADD SCOPE DISPLAY
 	if (this->module) {
