@@ -20,7 +20,9 @@ void IgcScope::draw(const DrawArgs &args) {
 	int			position;
 	bool		details;
 	bool		mode;
+	bool		background;
 	float		scale;
+	float		alpha;
 	float		t;
 	int			i;
 
@@ -34,9 +36,11 @@ void IgcScope::draw(const DrawArgs &args) {
 
 	cable = &(this->module->cables[this->module->scope_index]);
 	scale = this->module->params[Igc::PARAM_SCOPE_SCALE].getValue();
+	alpha = this->module->params[Igc::PARAM_SCOPE_ALPHA].getValue();
 	position = this->module->params[Igc::PARAM_SCOPE_POSITION].getValue();
 	mode = this->module->params[Igc::PARAM_SCOPE_MODE].getValue();
 	details = this->module->params[Igc::PARAM_SCOPE_DETAILS].getValue();
+	background = this->module->params[Igc::PARAM_SCOPE_BACKGROUND].getValue();
 	box.size.x = scale * APP->scene->box.size.x;
 	box.size.y = scale * APP->scene->box.size.x * 0.5;
 	if (position == IGC_SCOPE_TOP_LEFT) {
@@ -56,36 +60,38 @@ void IgcScope::draw(const DrawArgs &args) {
 		box.pos.y = APP->scene->box.size.y * 0.5 - box.size.y * 0.5;
 	}
 
-	/// DRAW BOX
-	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[12]);
-	nvgRect(args.vg, box.pos.x, box.pos.y, box.size.x, box.size.y);
-	nvgFill(args.vg);
+	nvgAlpha(args.vg, alpha);
 
-	/// DRAW DETAILS
-	if (details) {
-		/// 0V LINE
+	if (background) {
+		/// DRAW BOX
 		nvgBeginPath(args.vg);
-		nvgMoveTo(args.vg,
-		/**/ box.pos.x, box.pos.y + box.size.y * 0.5);
-		nvgLineTo(args.vg,
-		/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.5);
-		nvgStrokeColor(args.vg, colors[15]);
-		nvgStrokeWidth(args.vg, 1.0);
-		nvgStroke(args.vg);
-		/// 5V LINES
-		nvgBeginPath(args.vg);
-		nvgMoveTo(args.vg,
-		/**/ box.pos.x, box.pos.y + box.size.y * 0.25);
-		nvgLineTo(args.vg,
-		/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.25);
-		nvgMoveTo(args.vg,
-		/**/ box.pos.x, box.pos.y + box.size.y * 0.75);
-		nvgLineTo(args.vg,
-		/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.75);
-		nvgStrokeColor(args.vg, colors[14]);
-		nvgStrokeWidth(args.vg, 1.0);
-		nvgStroke(args.vg);
+		nvgFillColor(args.vg, (NVGcolor){0, 0, 0, 1});
+		nvgRect(args.vg, box.pos.x, box.pos.y, box.size.x, box.size.y);
+		nvgFill(args.vg);
+
+		/// DRAW DETAILS
+		if (details) {
+			nvgStrokeColor(args.vg, (NVGcolor){0.3, 0.3, 0.3, 1});
+			nvgStrokeWidth(args.vg, 1.0);
+			/// 0V LINE
+			nvgBeginPath(args.vg);
+			nvgMoveTo(args.vg,
+			/**/ box.pos.x, box.pos.y + box.size.y * 0.5);
+			nvgLineTo(args.vg,
+			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.5);
+			nvgStroke(args.vg);
+			/// 5V LINES
+			nvgBeginPath(args.vg);
+			nvgMoveTo(args.vg,
+			/**/ box.pos.x, box.pos.y + box.size.y * 0.25);
+			nvgLineTo(args.vg,
+			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.25);
+			nvgMoveTo(args.vg,
+			/**/ box.pos.x, box.pos.y + box.size.y * 0.75);
+			nvgLineTo(args.vg,
+			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.75);
+			nvgStroke(args.vg);
+		}
 	}
 
 	/// DRAW WAVE
@@ -112,7 +118,7 @@ void IgcScope::draw(const DrawArgs &args) {
 		else
 			nvgLineTo(args.vg, VEC_ARGS(pos_point));
 	}
-	nvgStrokeColor(args.vg, colors[0]);
+	nvgStrokeColor(args.vg, cable->color);
 	nvgStrokeWidth(args.vg, 2.0);
 	nvgStroke(args.vg);
 	nvgResetScissor(args.vg);

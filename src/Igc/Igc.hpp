@@ -38,6 +38,7 @@ struct IgcCable {
 struct Igc : Module {
 	enum	ParamIds {
 		PARAM_SCOPE_ENABLED,
+		PARAM_SCOPE_BACKGROUND,
 		PARAM_SCOPE_DETAILS,
 		PARAM_SCOPE_MODE,
 		PARAM_SCOPE_POSITION,

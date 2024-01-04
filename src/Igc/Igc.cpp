@@ -15,6 +15,7 @@ Igc::Igc(void) {
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
 	configSwitch(PARAM_SCOPE_ENABLED, 0, 1, 1);
+	configSwitch(PARAM_SCOPE_BACKGROUND, 0, 1, 1);
 	configSwitch(PARAM_SCOPE_DETAILS, 0, 1, 1);
 	configSwitch(PARAM_SCOPE_MODE, 0, 1, 0);
 	configSwitch(PARAM_SCOPE_POSITION, 0, 4, 0);

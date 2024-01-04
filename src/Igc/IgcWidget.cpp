@@ -51,6 +51,12 @@ void IgcWidget::appendContextMenu(Menu *menu) {
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));
 
+	param = &(this->module->params[Igc::PARAM_SCOPE_BACKGROUND]);
+	menu->addChild(new MenuCheckItem("Scope background", "",
+		[=]() { return param->getValue() == 1; },
+		[=]() { param->setValue(!(int)param->getValue()); }
+	));
+
 	param = &(this->module->params[Igc::PARAM_SCOPE_DETAILS]);
 	menu->addChild(new MenuCheckItem("Scope details", "",
 		[=]() { return param->getValue() == 1; },
