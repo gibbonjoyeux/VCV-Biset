@@ -19,6 +19,7 @@ void IgcScope::draw(const DrawArgs &args) {
 	int			buffer_phase;
 	int			position;
 	bool		details;
+	bool		mode;
 	float		scale;
 	float		t;
 	int			i;
@@ -30,6 +31,7 @@ void IgcScope::draw(const DrawArgs &args) {
 	cable = &(this->module->cables[0]);
 	scale = this->module->params[Igc::PARAM_SCOPE_SCALE].getValue();
 	position = this->module->params[Igc::PARAM_SCOPE_POSITION].getValue();
+	mode = this->module->params[Igc::PARAM_SCOPE_MODE].getValue();
 	details = this->module->params[Igc::PARAM_SCOPE_DETAILS].getValue();
 	box.size.x = scale * APP->scene->box.size.x;
 	box.size.y = scale * APP->scene->box.size.x * 0.5;
@@ -76,12 +78,16 @@ void IgcScope::draw(const DrawArgs &args) {
 	nvgScissor(args.vg, box.pos.x, box.pos.y, box.size.x, box.size.y);
 	nvgBeginPath(args.vg);
 	for (i = 0; i < IGC_PRECISION_SCOPE; ++i) {
-		t = (float)i / (float)(IGC_PRECISION_SCOPE - 1);
+		t = (float)i / (float)IGC_PRECISION_SCOPE;
 
 		/// COMPUTE BUFFER PLAYHEAD
-		buffer_phase = this->module->buffer_i - t * (float)IGC_BUFFER;
-		if (buffer_phase < 0)
-			buffer_phase += IGC_BUFFER;
+		if (mode) {
+			buffer_phase = this->module->buffer_i - t * (float)IGC_BUFFER;
+			if (buffer_phase < 0)
+				buffer_phase += IGC_BUFFER;
+		} else {
+			buffer_phase = t * (float)IGC_BUFFER;
+		}
 
 		/// DRAW POINT
 		pos_point.x = box.pos.x + t * box.size.x;

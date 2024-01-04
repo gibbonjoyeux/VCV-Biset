@@ -14,6 +14,8 @@
 #define IGC_SCOPE_BOTTOM_LEFT	2
 #define IGC_SCOPE_BOTTOM_RIGHT	3
 #define IGC_SCOPE_CENTER		4
+#define IGC_SCOPE_CIRCULAR		0
+#define IGC_SCOPE_LINEAR		1
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -37,6 +39,7 @@ struct Igc : Module {
 	enum	ParamIds {
 		PARAM_SCOPE_ENABLED,
 		PARAM_SCOPE_DETAILS,
+		PARAM_SCOPE_MODE,
 		PARAM_SCOPE_POSITION,
 		PARAM_SCOPE_SCALE,
 		PARAM_SCOPE_ALPHA,
@@ -60,6 +63,7 @@ struct Igc : Module {
 
 	Igc();
 	~Igc();
+	void onRemove(const RemoveEvent &e) override;
 	void process(const ProcessArgs& args) override;
 };
 

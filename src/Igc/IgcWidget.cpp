@@ -31,8 +31,6 @@ IgcWidget::IgcWidget(Igc* _module) {
 		scope->module = module;
 		this->module->scope = scope;
 		APP->scene->addChild(scope);
-	} else {
-		this->module->scope = NULL;
 	}
 }
 
@@ -54,6 +52,12 @@ void IgcWidget::appendContextMenu(Menu *menu) {
 
 	param = &(this->module->params[Igc::PARAM_SCOPE_DETAILS]);
 	menu->addChild(new MenuCheckItem("Scope details", "",
+		[=]() { return param->getValue() == 1; },
+		[=]() { param->setValue(!(int)param->getValue()); }
+	));
+
+	param = &(this->module->params[Igc::PARAM_SCOPE_MODE]);
+	menu->addChild(new MenuCheckItem("Scope display mode", "",
 		[=]() { return param->getValue() == 1; },
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));
@@ -83,7 +87,6 @@ void IgcWidget::appendContextMenu(Menu *menu) {
 			));
 		}
 	));
-
 
 	slider = new MenuSlider(
 	/**/ this->module->paramQuantities[Igc::PARAM_SCOPE_SCALE]);

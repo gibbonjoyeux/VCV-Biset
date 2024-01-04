@@ -14,6 +14,7 @@ Igc::Igc(void) {
 
 	configSwitch(PARAM_SCOPE_ENABLED, 0, 1, 1);
 	configSwitch(PARAM_SCOPE_DETAILS, 0, 1, 1);
+	configSwitch(PARAM_SCOPE_MODE, 0, 1, 0);
 	configSwitch(PARAM_SCOPE_POSITION, 0, 4, 0);
 	configParam(PARAM_SCOPE_SCALE, 0.02, 1, 0.2, "Scope scale", "%", 0, 100);
 	configParam(PARAM_SCOPE_ALPHA, 0, 1, 0.8, "Scope alpha", "%", 0, 100);
@@ -28,6 +29,9 @@ Igc::~Igc(void) {
 		this->scope->requestDelete();
 		this->scope = NULL;
 	}
+}
+
+void Igc::onRemove(const RemoveEvent &e) {
 }
 
 void Igc::process(const ProcessArgs& args) {
