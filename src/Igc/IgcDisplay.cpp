@@ -31,7 +31,6 @@ void IgcDisplay::draw(const DrawArgs &args) {
 	/// BACKGROUND
 	nvgBeginPath(args.vg);
 	nvgFillColor(args.vg, colors[12]);
-	//nvgRect(args.vg, RECT_ARGS(rect));
 	nvgRect(args.vg, rect.pos.x, rect.pos.y, rect.size.x, rect.size.y + 1.0);
 	nvgFill(args.vg);
 

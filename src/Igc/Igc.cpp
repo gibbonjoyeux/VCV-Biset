@@ -12,7 +12,22 @@
 Igc::Igc(void) {
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
+	configSwitch(PARAM_SCOPE_ENABLED, 0, 1, 1);
+	configSwitch(PARAM_SCOPE_DETAILS, 0, 1, 1);
+	configSwitch(PARAM_SCOPE_POSITION, 0, 4, 0);
+	configParam(PARAM_SCOPE_SCALE, 0.02, 1, 0.2, "Scope scale", "%", 0, 100);
+	configParam(PARAM_SCOPE_ALPHA, 0, 1, 0.8, "Scope alpha", "%", 0, 100);
+
 	this->buffer_i = 0;
+
+	this->scope = NULL;
+}
+
+Igc::~Igc(void) {
+	if (this->scope) {
+		this->scope->requestDelete();
+		this->scope = NULL;
+	}
 }
 
 void Igc::process(const ProcessArgs& args) {
@@ -25,10 +40,12 @@ void Igc::process(const ProcessArgs& args) {
 	if (args.frame % 32 != 0)
 		return;
 
+	/// [1] GET CABLES
 	cables = APP->scene->rack->getCompleteCables();
 	this->count = cables.size();
 	if (this->count >= IGC_CABLES)
 		this->count = IGC_CABLES - 1;
+	/// [2] RECORD CABLES
 	for (i = 0; i < this->count; ++i) {
 		widget = cables[i];
 		cable = widget->cable;
@@ -42,6 +59,8 @@ void Igc::process(const ProcessArgs& args) {
 			this->cables[i].buffer[this->buffer_i] = output->getVoltageSum();
 		}
 	}
+	/// [3] RECORD HOVERED CABLE / PORT
+	/// [4] STEP BUFFER
 	this->buffer_i += 1;
 	if (this->buffer_i >= IGC_BUFFER)
 		this->buffer_i = 0;

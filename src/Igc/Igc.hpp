@@ -4,14 +4,26 @@
 
 #include "../plugin.hpp"
 
-#define IGC_BUFFER			2048	//1024
-#define IGC_DIST_MAX		300.0	//150.0
-#define IGC_PRECISION		128
-#define IGC_CABLES			256
+#define IGC_BUFFER				2048	//1024
+#define IGC_DIST_MAX			300.0	//150.0
+#define IGC_PRECISION			128
+#define IGC_PRECISION_SCOPE		256
+#define IGC_CABLES				256
+#define IGC_SCOPE_TOP_LEFT		0
+#define IGC_SCOPE_TOP_RIGHT		1
+#define IGC_SCOPE_BOTTOM_LEFT	2
+#define IGC_SCOPE_BOTTOM_RIGHT	3
+#define IGC_SCOPE_CENTER		4
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
+
+struct IgcCable;
+struct Igc;
+struct IgcWidget;
+struct IgcDisplay;
+struct IgcScope;
 
 struct IgcCable {
 	i64			id;
@@ -23,6 +35,11 @@ struct IgcCable {
 
 struct Igc : Module {
 	enum	ParamIds {
+		PARAM_SCOPE_ENABLED,
+		PARAM_SCOPE_DETAILS,
+		PARAM_SCOPE_POSITION,
+		PARAM_SCOPE_SCALE,
+		PARAM_SCOPE_ALPHA,
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -35,13 +52,14 @@ struct Igc : Module {
 		LIGHT_COUNT
 	};
 
-	int						count;
-	i64						ids[IGC_CABLES];
-	IgcCable				cables[IGC_CABLES];
-
-	int						buffer_i;
+	int				count;
+	i64				ids[IGC_CABLES];
+	IgcCable		cables[IGC_CABLES];
+	int				buffer_i;
+	IgcScope		*scope;
 
 	Igc();
+	~Igc();
 	void process(const ProcessArgs& args) override;
 };
 
@@ -49,7 +67,7 @@ struct IgcWidget : ModuleWidget {
 	Igc				*module;
 
 	IgcWidget(Igc *_module);
-	//void appendContextMenu(Menu *menu) override;
+	void appendContextMenu(Menu *menu) override;
 };
 
 struct IgcDisplay : LedDisplay {
@@ -59,6 +77,13 @@ struct IgcDisplay : LedDisplay {
 	IgcDisplay();
 	void draw(const DrawArgs &args) override;
 	void drawLayer(const DrawArgs &args, int layer) override;
+};
+
+struct IgcScope : Widget {
+	Igc				*module;
+
+	IgcScope();
+	void draw(const DrawArgs &args) override;
 };
 
 #endif
