@@ -9,6 +9,8 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
+IgcScope *g_scope = NULL;
+
 Igc::Igc(void) {
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
@@ -26,6 +28,8 @@ Igc::Igc(void) {
 
 Igc::~Igc(void) {
 	if (this->scope) {
+		if (this->scope == g_scope)
+			g_scope = NULL;
 		this->scope->requestDelete();
 		this->scope = NULL;
 	}
@@ -43,6 +47,10 @@ void Igc::process(const ProcessArgs& args) {
 	int							i;
 
 	if (args.frame % 32 != 0)
+		return;
+	if (g_scope == NULL)
+		g_scope = this->scope;
+	if (g_scope != this->scope)
 		return;
 
 	/// [1] GET CABLES

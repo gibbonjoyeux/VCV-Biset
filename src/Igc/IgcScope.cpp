@@ -25,6 +25,8 @@ void IgcScope::draw(const DrawArgs &args) {
 	int			i;
 
 
+	if (g_scope != this->module->scope)
+		return;
 	if (this->module->params[Igc::PARAM_SCOPE_ENABLED].getValue() == 0.0)
 		return;
 	if (this->module->scope_index < 0)
@@ -69,7 +71,7 @@ void IgcScope::draw(const DrawArgs &args) {
 		nvgLineTo(args.vg,
 		/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.5);
 		nvgStrokeColor(args.vg, colors[15]);
-		nvgStrokeWidth(args.vg, 2.0);
+		nvgStrokeWidth(args.vg, 1.0);
 		nvgStroke(args.vg);
 		/// 5V LINES
 		nvgBeginPath(args.vg);
@@ -82,7 +84,7 @@ void IgcScope::draw(const DrawArgs &args) {
 		nvgLineTo(args.vg,
 		/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.75);
 		nvgStrokeColor(args.vg, colors[14]);
-		nvgStrokeWidth(args.vg, 2.0);
+		nvgStrokeWidth(args.vg, 1.0);
 		nvgStroke(args.vg);
 	}
 
@@ -93,7 +95,7 @@ void IgcScope::draw(const DrawArgs &args) {
 		t = (float)i / (float)IGC_PRECISION_SCOPE;
 
 		/// COMPUTE BUFFER PLAYHEAD
-		if (mode) {
+		if (mode == IGC_SCOPE_CIRCULAR) {
 			buffer_phase = this->module->buffer_i - 1 - t * (float)IGC_BUFFER;
 			if (buffer_phase < 0)
 				buffer_phase += IGC_BUFFER;

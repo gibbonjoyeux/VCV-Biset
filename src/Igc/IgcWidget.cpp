@@ -15,7 +15,7 @@ IgcWidget::IgcWidget(Igc* _module) {
 
 	this->module = _module;
 	setModule(this->module);
-	setPanel(createPanel(asset::plugin(pluginInstance, "res/Pkm.svg")));
+	setPanel(createPanel(asset::plugin(pluginInstance, "res/Igc.svg")));
 
 	/// ADD CABLE DISPLAY
 	display = createWidget<IgcDisplay>(mm2px(Vec(0.0, 0.0)));

@@ -24,16 +24,15 @@ IgcDisplay::IgcDisplay() {
 }
 
 void IgcDisplay::draw(const DrawArgs &args) {
-	Rect	rect;
+	//Rect	rect;
 
-	/// GET CANVAS FORMAT
-	rect = box.zeroPos();
-	/// BACKGROUND
-	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[12]);
-	nvgRect(args.vg, rect.pos.x, rect.pos.y, rect.size.x, rect.size.y + 1.0);
-	nvgFill(args.vg);
-
+	///// GET CANVAS FORMAT
+	//rect = box.zeroPos();
+	///// BACKGROUND
+	//nvgBeginPath(args.vg);
+	//nvgFillColor(args.vg, colors[12]);
+	//nvgRect(args.vg, rect.pos.x, rect.pos.y, rect.size.x, rect.size.y + 1.0);
+	//nvgFill(args.vg);
 }
 
 void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
@@ -54,14 +53,11 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 
 	if (this->module == NULL || layer != 1)
 		return;
+	if (g_scope != this->module->scope)
+		return;
 
 	rect = box.zeroPos();
 	rect_module = this->parent->box;
-
-	nvgBeginPath(args.vg);
-	nvgFillColor(args.vg, colors[14]);
-	nvgRect(args.vg, 0, 0, rect.size.x, rect.size.y + 1.0);
-	nvgFill(args.vg);
 
 	nvgTranslate(args.vg, -rect_module.pos.x, -rect_module.pos.y);
 	nvgLineCap(args.vg, 1);

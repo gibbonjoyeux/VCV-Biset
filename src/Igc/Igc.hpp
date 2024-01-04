@@ -92,4 +92,6 @@ struct IgcScope : Widget {
 	void draw(const DrawArgs &args) override;
 };
 
+extern IgcScope	*g_scope;
+
 #endif
