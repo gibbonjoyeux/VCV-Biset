@@ -39,17 +39,20 @@ void Igc::process(const ProcessArgs& args) {
 	CableWidget					*widget;
 	Cable						*cable;
 	Output						*output;
+	Widget						*hovered;
 	int							i;
 
 	if (args.frame % 32 != 0)
 		return;
 
 	/// [1] GET CABLES
+	hovered = APP->event->hoveredWidget;
 	cables = APP->scene->rack->getCompleteCables();
 	this->count = cables.size();
 	if (this->count >= IGC_CABLES)
 		this->count = IGC_CABLES - 1;
 	/// [2] RECORD CABLES
+	this->scope_index = -1;
 	for (i = 0; i < this->count; ++i) {
 		widget = cables[i];
 		cable = widget->cable;
@@ -62,8 +65,14 @@ void Igc::process(const ProcessArgs& args) {
 			output = &(cable->outputModule->outputs[cable->outputId]);
 			this->cables[i].buffer[this->buffer_i] = output->getVoltageSum();
 		}
+		/// CHECK HOVER
+		if (widget->outputPort == hovered || widget->inputPort == hovered)
+			this->scope_index = i;
 	}
+
 	/// [3] RECORD HOVERED CABLE / PORT
+	// TODO: check if hovered is not cable but port
+
 	/// [4] STEP BUFFER
 	this->buffer_i += 1;
 	if (this->buffer_i >= IGC_BUFFER)

@@ -27,8 +27,10 @@ void IgcScope::draw(const DrawArgs &args) {
 
 	if (this->module->params[Igc::PARAM_SCOPE_ENABLED].getValue() == 0.0)
 		return;
+	if (this->module->scope_index < 0)
+		return;
 
-	cable = &(this->module->cables[0]);
+	cable = &(this->module->cables[this->module->scope_index]);
 	scale = this->module->params[Igc::PARAM_SCOPE_SCALE].getValue();
 	position = this->module->params[Igc::PARAM_SCOPE_POSITION].getValue();
 	mode = this->module->params[Igc::PARAM_SCOPE_MODE].getValue();
@@ -60,6 +62,16 @@ void IgcScope::draw(const DrawArgs &args) {
 
 	/// DRAW DETAILS
 	if (details) {
+		/// 0V LINE
+		nvgBeginPath(args.vg);
+		nvgMoveTo(args.vg,
+		/**/ box.pos.x, box.pos.y + box.size.y * 0.5);
+		nvgLineTo(args.vg,
+		/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.5);
+		nvgStrokeColor(args.vg, colors[15]);
+		nvgStrokeWidth(args.vg, 2.0);
+		nvgStroke(args.vg);
+		/// 5V LINES
 		nvgBeginPath(args.vg);
 		nvgMoveTo(args.vg,
 		/**/ box.pos.x, box.pos.y + box.size.y * 0.25);
@@ -82,7 +94,7 @@ void IgcScope::draw(const DrawArgs &args) {
 
 		/// COMPUTE BUFFER PLAYHEAD
 		if (mode) {
-			buffer_phase = this->module->buffer_i - t * (float)IGC_BUFFER;
+			buffer_phase = this->module->buffer_i - 1 - t * (float)IGC_BUFFER;
 			if (buffer_phase < 0)
 				buffer_phase += IGC_BUFFER;
 		} else {
@@ -92,7 +104,7 @@ void IgcScope::draw(const DrawArgs &args) {
 		/// DRAW POINT
 		pos_point.x = box.pos.x + t * box.size.x;
 		pos_point.y = box.pos.y + box.size.y * 0.5
-		/**/ + cable->buffer[buffer_phase] * 0.1 * box.size.y * 0.9;
+		/**/ - cable->buffer[buffer_phase] * 0.05 * box.size.y;
 		if (i == 0)
 			nvgMoveTo(args.vg, VEC_ARGS(pos_point));
 		else
