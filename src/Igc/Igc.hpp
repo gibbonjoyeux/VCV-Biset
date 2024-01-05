@@ -58,7 +58,7 @@ struct Igc : Module {
 
 	int				count;
 	i64				ids[IGC_CABLES];
-	IgcCable		cables[IGC_CABLES];
+	IgcCable		cables[IGC_CABLES + 1];
 	int				buffer_i;
 
 	int				scope_index;

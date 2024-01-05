@@ -28,18 +28,26 @@ Igc::Igc(void) {
 }
 
 Igc::~Igc(void) {
+	if (this->scope) {
+		APP->scene->removeChild(this->scope);
+		delete this->scope;
+		//this->scope->requestDelete();
+		//this->scope = NULL;
+	}
 }
 
 void Igc::onRemove(const RemoveEvent &e) {
 	if (this == g_igc)
 		g_igc = NULL;
-	if (this->scope) {
-		this->scope->requestDelete();
-		this->scope = NULL;
-	}
+	//if (this->scope) {
+	//	this->scope->requestDelete();
+	//	this->scope = NULL;
+	//}
 }
 
 void Igc::process(const ProcessArgs& args) {
+	PortWidget					*port_widget;
+	Port						*port;
 	std::vector<CableWidget*>	cables;
 	CableWidget					*widget;
 	Cable						*cable;
@@ -79,19 +87,20 @@ void Igc::process(const ProcessArgs& args) {
 			this->scope_index = i;
 	}
 
-	/// [3] RECORD HOVERED CABLE / PORT
-	// TODO: check if hovered is not cable but port
-	//if (hovered) {
-	//	PortWidget *port = dynamic_cast<PortWidget*>(hovered);
-	//	if (port) {
-	//		port->portId;
-	//		port->module;
-	//		port->module->outputs;
-	//	}
-	//	Outlet *outlet = dynamic_cast<Outlet*>(hovered);
-	//	outlet->portId;
-	//	outlet->module;
-	//}
+	/// [3] RECORD HOVERED PORT
+	if (this->scope_index < 0 && hovered) {
+		port_widget = dynamic_cast<PortWidget*>(hovered);
+		if (port_widget && port_widget->type == engine::Port::OUTPUT) {
+			port = port_widget->getPort();
+			if (port) {
+				/// STORE PORT TO EXTRA CABLE
+				this->scope_index = IGC_CABLES;
+				this->cables[IGC_CABLES].color = {1, 1, 1, 1};
+				this->cables[IGC_CABLES].buffer[this->buffer_i] =
+				/**/ port->voltages[0];
+			}
+		}
+	}
 
 	/// [4] STEP BUFFER
 	this->buffer_i += 1;
