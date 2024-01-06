@@ -67,7 +67,7 @@ struct Igc : Module {
 
 	Igc();
 	~Igc();
-	void onRemove(const RemoveEvent &e) override;
+	void processBypass(const ProcessArgs& args) override;
 	void process(const ProcessArgs& args) override;
 };
 

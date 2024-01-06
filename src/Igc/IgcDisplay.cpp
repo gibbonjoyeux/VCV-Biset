@@ -50,6 +50,7 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 	rect = box.zeroPos();
 	rect_module = this->parent->box;
 
+	nvgAlpha(args.vg, settings::cableOpacity);
 	nvgLineCap(args.vg, 1);
 	nvgLineJoin(args.vg, 1);
 	for (i = 0; i < this->module->count; ++i) {
@@ -61,9 +62,13 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		pos_out = cable->pos_out;
 		pos_slump = get_pos_slump(pos_out, pos_in);
 		pos_out =
-		/**/ pos_out.plus(pos_slump.minus(pos_out).normalize().mult(13.0));
+		/**/ pos_out.plus(pos_slump.minus(pos_out).normalize().mult(10.5));
 		pos_in =
-		/**/ pos_in.plus(pos_slump.minus(pos_in).normalize().mult(13.0));
+		/**/ pos_in.plus(pos_slump.minus(pos_in).normalize().mult(10.5));
+		//pos_out =
+		///**/ pos_out.plus(pos_slump.minus(pos_out).normalize().mult(13.0));
+		//pos_in =
+		///**/ pos_in.plus(pos_slump.minus(pos_in).normalize().mult(13.0));
 
 		/// COMPUTE CABLE LENGTH
 		length = sqrt(
@@ -74,6 +79,19 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		if (length < 1.0)
 			length = 1.0;
 		length = length / IGC_DIST_MAX;
+
+		nvgStrokeColor(args.vg, cable->color);
+		nvgFillColor(args.vg, cable->color);
+
+		/// DRAW CABLE PLUGS
+		nvgBeginPath(args.vg);
+		nvgCircle(args.vg, cable->pos_in.x, cable->pos_in.y, 8.5);
+		nvgStrokeWidth(args.vg, 4.0);
+		nvgStroke(args.vg);
+		nvgBeginPath(args.vg);
+		nvgCircle(args.vg, cable->pos_out.x, cable->pos_out.y, 8.5);
+		nvgStrokeWidth(args.vg, 4.0);
+		nvgStroke(args.vg);
 
 		/// DRAW CABLE
 		nvgBeginPath(args.vg);
@@ -115,9 +133,6 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 
 			nvgLineTo(args.vg, VEC_ARGS(pos_point));
 		}
-
-		// Draw cable
-		nvgStrokeColor(args.vg, cable->color);
 		//nvgStrokeColor(args.vg, color::mult(color, 0.95));
 		nvgStrokeWidth(args.vg, 6.0);
 		nvgStroke(args.vg);
