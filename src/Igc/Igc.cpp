@@ -24,25 +24,27 @@ Igc::Igc(void) {
 
 	this->buffer_i = 0;
 
+	this->display = NULL;
 	this->scope = NULL;
 }
 
 Igc::~Igc(void) {
+	if (this->display) {
+		APP->scene->rack->removeChild(this->display);
+		delete this->display;
+	}
 	if (this->scope) {
 		APP->scene->removeChild(this->scope);
 		delete this->scope;
-		//this->scope->requestDelete();
-		//this->scope = NULL;
 	}
 }
 
 void Igc::onRemove(const RemoveEvent &e) {
+	// TODO: show cable container again
+	////APP->scene->rack->getCableContainer()->show();
+
 	if (this == g_igc)
 		g_igc = NULL;
-	//if (this->scope) {
-	//	this->scope->requestDelete();
-	//	this->scope = NULL;
-	//}
 }
 
 void Igc::process(const ProcessArgs& args) {
@@ -61,6 +63,9 @@ void Igc::process(const ProcessArgs& args) {
 		g_igc = this;
 	if (g_igc != this)
 		return;
+
+	// TODO: hide cable container
+	////APP->scene->rack->getCableContainer()->hide();
 
 	/// [1] GET CABLES
 	hovered = APP->event->hoveredWidget;

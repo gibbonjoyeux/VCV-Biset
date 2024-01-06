@@ -19,16 +19,17 @@ IgcWidget::IgcWidget(Igc* _module) {
 
 	/// ADD CABLE DISPLAY
 	if (this->module) {
-		display = createWidget<IgcDisplay>(mm2px(Vec(0.0, 0.0)));
-		display->box.size = mm2px(Vec(35.56, 128.50));
+		display = createWidget<IgcDisplay>(Vec(0, 0));
+		display->box.size = math::Vec(INFINITY, INFINITY);
 		display->module = module;
-		addChild(display);
+		this->module->display = display;
+		APP->scene->rack->addChild(display);
 	}
 
 	/// ADD SCOPE DISPLAY
 	if (this->module) {
-		scope = createWidget<IgcScope>(Vec(0.0, 0.0));
-		scope->box.size = Vec(5.0, 5.0);
+		scope = createWidget<IgcScope>(Vec(0, 0));
+		scope->box.size = math::Vec(INFINITY, INFINITY);
 		scope->module = module;
 		this->module->scope = scope;
 		APP->scene->addChild(scope);
