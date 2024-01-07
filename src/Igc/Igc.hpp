@@ -4,18 +4,21 @@
 
 #include "../plugin.hpp"
 
-#define IGC_BUFFER				2048
-#define IGC_DIST_MAX			300.0
-#define IGC_PRECISION			128
-#define IGC_PRECISION_SCOPE		256
-#define IGC_CABLES				256
-#define IGC_SCOPE_TOP_LEFT		0
-#define IGC_SCOPE_TOP_RIGHT		1
-#define IGC_SCOPE_BOTTOM_LEFT	2
-#define IGC_SCOPE_BOTTOM_RIGHT	3
-#define IGC_SCOPE_CENTER		4
-#define IGC_SCOPE_CIRCULAR		0
-#define IGC_SCOPE_LINEAR		1
+#define IGC_BUFFER					2048
+#define IGC_DIST_MAX				300.0
+#define IGC_PRECISION				128
+#define IGC_PRECISION_SCOPE			256
+#define IGC_CABLES					256
+#define IGC_SCOPE_TOP_LEFT			0
+#define IGC_SCOPE_TOP_RIGHT			1
+#define IGC_SCOPE_BOTTOM_LEFT		2
+#define IGC_SCOPE_BOTTOM_RIGHT		3
+#define IGC_SCOPE_CENTER			4
+#define IGC_SCOPE_CIRCULAR			0
+#define IGC_SCOPE_LINEAR			1
+#define IGC_CABLE_INCOMPLETE_OFF	0
+#define IGC_CABLE_INCOMPLETE_IN		1
+#define IGC_CABLE_INCOMPLETE_OUT	2
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -56,8 +59,8 @@ struct Igc : Module {
 		LIGHT_COUNT
 	};
 
-	int				count;
-	i64				ids[IGC_CABLES];
+	int				cable_count;
+	int				cable_incomplete;
 	IgcCable		cables[IGC_CABLES + 1];
 	int				buffer_i;
 

@@ -50,10 +50,12 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 	rect = box.zeroPos();
 	rect_module = this->parent->box;
 
-	nvgAlpha(args.vg, settings::cableOpacity);
+	/// [1] DRAW CABLES
+	//nvgAlpha(args.vg, settings::cableOpacity);
+	//nvgGlobalAlpha(args.vg, settings::cableOpacity);
 	nvgLineCap(args.vg, 1);
 	nvgLineJoin(args.vg, 1);
-	for (i = 0; i < this->module->count; ++i) {
+	for (i = 0; i < this->module->cable_count; ++i) {
 
 		cable = &(this->module->cables[i]);
 
@@ -84,6 +86,7 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		nvgFillColor(args.vg, cable->color);
 
 		/// DRAW CABLE PLUGS
+		nvgGlobalAlpha(args.vg, 1.0);
 		nvgBeginPath(args.vg);
 		nvgCircle(args.vg, cable->pos_in.x, cable->pos_in.y, 8.5);
 		nvgStrokeWidth(args.vg, 4.0);
@@ -94,6 +97,7 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		nvgStroke(args.vg);
 
 		/// DRAW CABLE
+		nvgGlobalAlpha(args.vg, settings::cableOpacity);
 		nvgBeginPath(args.vg);
 		nvgMoveTo(args.vg, VEC_ARGS(pos_in));
 		for (j = 0; j < IGC_PRECISION; ++j) {
@@ -134,6 +138,43 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 			nvgLineTo(args.vg, VEC_ARGS(pos_point));
 		}
 		//nvgStrokeColor(args.vg, color::mult(color, 0.95));
+		nvgStrokeWidth(args.vg, 6.0);
+		nvgStroke(args.vg);
+	}
+
+	/// [2] DRAW INCOMPLETE CABLE
+	if (this->module->cable_incomplete != IGC_CABLE_INCOMPLETE_OFF) {
+		cable = &(this->module->cables[IGC_CABLES]);
+		/// COMPUTE CABLE POSITION
+		pos_in = cable->pos_in;
+		pos_out = cable->pos_out;
+		pos_slump = get_pos_slump(pos_out, pos_in);
+		pos_out =
+		/**/ pos_out.plus(pos_slump.minus(pos_out).normalize().mult(10.5));
+		pos_in =
+		/**/ pos_in.plus(pos_slump.minus(pos_in).normalize().mult(10.5));
+		//pos_out =
+		///**/ pos_out.plus(pos_slump.minus(pos_out).normalize().mult(13.0));
+		//pos_in =
+		///**/ pos_in.plus(pos_slump.minus(pos_in).normalize().mult(13.0));
+
+		nvgStrokeColor(args.vg, cable->color);
+		nvgGlobalAlpha(args.vg, 1.0);
+
+		/// DRAW CABLE PLUG
+		if (this->module->cable_incomplete == IGC_CABLE_INCOMPLETE_IN)
+			pos_point = cable->pos_out;
+		else
+			pos_point = cable->pos_in;
+		nvgBeginPath(args.vg);
+		nvgCircle(args.vg, pos_point.x, pos_point.y, 8.5);
+		nvgStrokeWidth(args.vg, 4.0);
+		nvgStroke(args.vg);
+
+		/// DRAW CABLE
+		nvgBeginPath(args.vg);
+		nvgMoveTo(args.vg, VEC_ARGS(pos_in));
+		nvgQuadTo(args.vg, VEC_ARGS(pos_slump), VEC_ARGS(pos_out));
 		nvgStrokeWidth(args.vg, 6.0);
 		nvgStroke(args.vg);
 	}

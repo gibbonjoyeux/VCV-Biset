@@ -75,12 +75,13 @@ void Igc::process(const ProcessArgs& args) {
 	/// [1] GET CABLES
 	hovered = APP->event->hoveredWidget;
 	cables = APP->scene->rack->getCompleteCables();
-	this->count = cables.size();
-	if (this->count >= IGC_CABLES)
-		this->count = IGC_CABLES - 1;
+	this->cable_count = cables.size();
+	if (this->cable_count >= IGC_CABLES)
+		this->cable_count = IGC_CABLES - 1;
+
 	/// [2] RECORD CABLES
 	this->scope_index = -1;
-	for (i = 0; i < this->count; ++i) {
+	for (i = 0; i < this->cable_count; ++i) {
 		widget = cables[i];
 		cable = widget->cable;
 		/// STORE CABLE POSITION
@@ -112,7 +113,21 @@ void Igc::process(const ProcessArgs& args) {
 		}
 	}
 
-	/// [4] STEP BUFFER
+	/// [4] RECORD INCOMPLETE CABLE
+	widget = APP->scene->rack->getIncompleteCable();
+	this->cable_incomplete = IGC_CABLE_INCOMPLETE_OFF;
+	if (widget) {
+		if (widget->inputPort)
+			this->cable_incomplete = IGC_CABLE_INCOMPLETE_IN;
+		else
+			this->cable_incomplete = IGC_CABLE_INCOMPLETE_OUT;
+		this->scope_index = -1;
+		this->cables[IGC_CABLES].pos_out = widget->getInputPos();
+		this->cables[IGC_CABLES].pos_in = widget->getOutputPos();
+		this->cables[IGC_CABLES].color = widget->color;
+	}
+
+	/// [5] STEP BUFFER
 	this->buffer_i += 1;
 	if (this->buffer_i >= IGC_BUFFER)
 		this->buffer_i = 0;

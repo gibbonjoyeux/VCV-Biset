@@ -1,4 +1,7 @@
 
+- [ ] User enhancements
+	- [ ] Option to output GATE instead of TRIGGER (via an expander ?)
+
 - [ ] Sequence types
 	- [x] `>`	Forward
 	- [x] `<`	Backward

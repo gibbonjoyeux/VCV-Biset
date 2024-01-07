@@ -41,6 +41,9 @@
 	- [ ] Ctrl-Z
 	- [ ] Remove instance with Del (consume Del key)
 	- [x] Module to control playhead
+	- [ ] Help in context menu (shortcuts, effects, etc)
+	- [ ] Crash on startup
+	- [x] Crash with chance effect
 
 - [ ] PATTERN EDITOR SHORTCUTS
 	- [ ] Select multiple cells
