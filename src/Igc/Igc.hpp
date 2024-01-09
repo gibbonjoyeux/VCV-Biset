@@ -9,6 +9,11 @@
 #define IGC_PRECISION				128
 #define IGC_PRECISION_SCOPE			256
 #define IGC_CABLES					256
+
+#define IGC_CABLE_POLY_FIRST		0
+#define IGC_CABLE_POLY_SUM			1
+#define IGC_CABLE_POLY_SUM_DIVIDED	2
+
 #define IGC_SCOPE_TOP_LEFT			0
 #define IGC_SCOPE_TOP_RIGHT			1
 #define IGC_SCOPE_BOTTOM_LEFT		2
@@ -35,6 +40,7 @@ struct IgcCable {
 	math::Vec	pos_in;
 	math::Vec	pos_out;
 	NVGcolor	color;
+	bool		thick;
 	float		buffer[IGC_BUFFER];
 };
 
@@ -47,6 +53,12 @@ struct Igc : Module {
 		PARAM_SCOPE_POSITION,
 		PARAM_SCOPE_SCALE,
 		PARAM_SCOPE_ALPHA,
+		PARAM_CABLE_ENABLED,		// Cable animation state
+		PARAM_CABLE_BRIGHTNESS,		// Cable impacted by brightness
+		PARAM_CABLE_LED,			// Cable with leds
+		PARAM_CABLE_POLY_THICK,		// Polyphonic cables thicker
+		PARAM_CABLE_POLY_MODE,		// Polyphonic cables behavior (1st or sum)
+		PARAM_CABLE_SCALE,			// Cable animation scale
 		PARAM_COUNT
 	};
 	enum	InputIds {

@@ -35,24 +35,30 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 	math::Vec		pos_angle;
 	Rect			rect;
 	Rect			rect_module;
+	bool			brightness;
 	float			t;
 	float			angle;
 	float			amp;
 	float			length;
+	float			scale;
 	int				buffer_phase;
 	int				i, j;
 
-	if (this->module == NULL || layer != 1)
+	if (this->module == NULL)
+		return;
+	brightness = this->module->params[Igc::PARAM_CABLE_BRIGHTNESS].getValue();
+	if ((brightness == 0 && layer != 1)
+	|| (brightness == 1 && layer != 2))
 		return;
 	if (g_igc != this->module)
 		return;
+
+	scale = this->module->params[Igc::PARAM_CABLE_SCALE].getValue();
 
 	rect = box.zeroPos();
 	rect_module = this->parent->box;
 
 	/// [1] DRAW CABLES
-	//nvgAlpha(args.vg, settings::cableOpacity);
-	//nvgGlobalAlpha(args.vg, settings::cableOpacity);
 	nvgLineCap(args.vg, 1);
 	nvgLineJoin(args.vg, 1);
 	for (i = 0; i < this->module->cable_count; ++i) {
@@ -132,13 +138,14 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 				amp = (1.0 - t) * 5.0;
 			else
 				amp = 1.0;
+			amp *= scale;
 			pos_point.x += cos(angle) * cable->buffer[buffer_phase] * amp;
 			pos_point.y += sin(angle) * cable->buffer[buffer_phase] * amp;
 
 			nvgLineTo(args.vg, VEC_ARGS(pos_point));
 		}
 		//nvgStrokeColor(args.vg, color::mult(color, 0.95));
-		nvgStrokeWidth(args.vg, 6.0);
+		nvgStrokeWidth(args.vg, (cable->thick) ? 9.0 : 6.0);
 		nvgStroke(args.vg);
 	}
 
@@ -162,12 +169,12 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		nvgGlobalAlpha(args.vg, 1.0);
 
 		/// DRAW CABLE PLUG
-		if (this->module->cable_incomplete == IGC_CABLE_INCOMPLETE_IN)
-			pos_point = cable->pos_out;
-		else
-			pos_point = cable->pos_in;
 		nvgBeginPath(args.vg);
-		nvgCircle(args.vg, pos_point.x, pos_point.y, 8.5);
+		nvgCircle(args.vg, cable->pos_in.x, cable->pos_in.y, 8.5);
+		nvgStrokeWidth(args.vg, 4.0);
+		nvgStroke(args.vg);
+		nvgBeginPath(args.vg);
+		nvgCircle(args.vg, cable->pos_out.x, cable->pos_out.y, 8.5);
 		nvgStrokeWidth(args.vg, 4.0);
 		nvgStroke(args.vg);
 

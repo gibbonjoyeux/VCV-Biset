@@ -41,6 +41,62 @@ void IgcWidget::appendContextMenu(Menu *menu) {
 	MenuSlider	*slider;
 	MenuLabel	*label;
 
+	/// [1] CABLE
+
+	menu->addChild(new MenuSeparator);
+	label = new MenuLabel();
+	label->text = "Cables";
+	menu->addChild(label);
+
+	param = &(this->module->params[Igc::PARAM_CABLE_ENABLED]);
+	menu->addChild(new MenuCheckItem("Cable animation enabled", "",
+		[=]() { return param->getValue() == 1; },
+		[=]() { param->setValue(!(int)param->getValue()); }
+	));
+
+	param = &(this->module->params[Igc::PARAM_CABLE_BRIGHTNESS]);
+	menu->addChild(new MenuCheckItem("Cable brightness", "",
+		[=]() { return param->getValue() == 1; },
+		[=]() { param->setValue(!(int)param->getValue()); }
+	));
+
+	param = &(this->module->params[Igc::PARAM_CABLE_LED]);
+	menu->addChild(new MenuCheckItem("Cable led", "",
+		[=]() { return param->getValue() == 1; },
+		[=]() { param->setValue(!(int)param->getValue()); }
+	));
+
+	param = &(this->module->params[Igc::PARAM_CABLE_POLY_THICK]);
+	menu->addChild(new MenuCheckItem("Cable polyphonic thickness", "",
+		[=]() { return param->getValue() == 1; },
+		[=]() { param->setValue(!(int)param->getValue()); }
+	));
+
+	param = &(this->module->params[Igc::PARAM_CABLE_POLY_MODE]);
+	menu->addChild(rack::createSubmenuItem("Cable polyphonic", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuCheckItem("1st channel", "",
+				[=]() { return param->getValue() == IGC_CABLE_POLY_FIRST; },
+				[=]() { param->setValue(IGC_CABLE_POLY_FIRST); }
+			));
+			menu->addChild(new MenuCheckItem("Sum", "",
+				[=]() { return param->getValue() == IGC_CABLE_POLY_SUM; },
+				[=]() { param->setValue(IGC_CABLE_POLY_SUM); }
+			));
+			menu->addChild(new MenuCheckItem("Sum / channel count", "",
+				[=]() { return param->getValue() == IGC_CABLE_POLY_SUM_DIVIDED; },
+				[=]() { param->setValue(IGC_CABLE_POLY_SUM_DIVIDED); }
+			));
+		}
+	));
+
+	slider = new MenuSlider(
+	/**/ this->module->paramQuantities[Igc::PARAM_CABLE_SCALE]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+
+	/// [2] SCOPE
+
 	menu->addChild(new MenuSeparator);
 	label = new MenuLabel();
 	label->text = "Scope";
