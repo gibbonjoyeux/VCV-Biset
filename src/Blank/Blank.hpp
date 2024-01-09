@@ -1,50 +1,50 @@
 
-#ifndef IGC_HPP
-#define IGC_HPP
+#ifndef BLANK_HPP
+#define BLANK_HPP
 
 #include "../plugin.hpp"
 
-#define IGC_BUFFER					2048
-#define IGC_DIST_MAX				300.0
-#define IGC_PRECISION				128
-#define IGC_PRECISION_SCOPE			256
-#define IGC_CABLES					256
+#define BLANK_BUFFER					2048
+#define BLANK_DIST_MAX				300.0
+#define BLANK_PRECISION				128
+#define BLANK_PRECISION_SCOPE			256
+#define BLANK_CABLES					256
 
-#define IGC_CABLE_POLY_FIRST		0
-#define IGC_CABLE_POLY_SUM			1
-#define IGC_CABLE_POLY_SUM_DIVIDED	2
+#define BLANK_CABLE_POLY_FIRST		0
+#define BLANK_CABLE_POLY_SUM			1
+#define BLANK_CABLE_POLY_SUM_DIVIDED	2
 
-#define IGC_SCOPE_TOP_LEFT			0
-#define IGC_SCOPE_TOP_RIGHT			1
-#define IGC_SCOPE_BOTTOM_LEFT		2
-#define IGC_SCOPE_BOTTOM_RIGHT		3
-#define IGC_SCOPE_CENTER			4
-#define IGC_SCOPE_CIRCULAR			0
-#define IGC_SCOPE_LINEAR			1
-#define IGC_CABLE_INCOMPLETE_OFF	0
-#define IGC_CABLE_INCOMPLETE_IN		1
-#define IGC_CABLE_INCOMPLETE_OUT	2
+#define BLANK_SCOPE_TOP_LEFT			0
+#define BLANK_SCOPE_TOP_RIGHT			1
+#define BLANK_SCOPE_BOTTOM_LEFT		2
+#define BLANK_SCOPE_BOTTOM_RIGHT		3
+#define BLANK_SCOPE_CENTER			4
+#define BLANK_SCOPE_CIRCULAR			0
+#define BLANK_SCOPE_LINEAR			1
+#define BLANK_CABLE_INCOMPLETE_OFF	0
+#define BLANK_CABLE_INCOMPLETE_IN		1
+#define BLANK_CABLE_INCOMPLETE_OUT	2
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
 
-struct IgcCable;
-struct Igc;
-struct IgcWidget;
-struct IgcDisplay;
-struct IgcScope;
+struct BlankCable;
+struct Blank;
+struct BlankWidget;
+struct BlankDisplay;
+struct BlankScope;
 
-struct IgcCable {
+struct BlankCable {
 	i64			id;
 	math::Vec	pos_in;
 	math::Vec	pos_out;
 	NVGcolor	color;
 	bool		thick;
-	float		buffer[IGC_BUFFER];
+	float		buffer[BLANK_BUFFER];
 };
 
-struct Igc : Module {
+struct Blank : Module {
 	enum	ParamIds {
 		PARAM_SCOPE_ENABLED,
 		PARAM_SCOPE_BACKGROUND,
@@ -73,41 +73,41 @@ struct Igc : Module {
 
 	int				cable_count;
 	int				cable_incomplete;
-	IgcCable		cables[IGC_CABLES + 1];
+	BlankCable		cables[BLANK_CABLES + 1];
 	int				buffer_i;
 
 	int				scope_index;
-	IgcScope		*scope;
-	IgcDisplay		*display;
+	BlankScope		*scope;
+	BlankDisplay		*display;
 
-	Igc();
-	~Igc();
+	Blank();
+	~Blank();
 	void processBypass(const ProcessArgs& args) override;
 	void process(const ProcessArgs& args) override;
 };
 
-struct IgcWidget : ModuleWidget {
-	Igc				*module;
+struct BlankWidget : ModuleWidget {
+	Blank				*module;
 
-	IgcWidget(Igc *_module);
+	BlankWidget(Blank *_module);
 	void appendContextMenu(Menu *menu) override;
 };
 
-struct IgcDisplay : Widget {
-	Igc				*module;
+struct BlankDisplay : Widget {
+	Blank				*module;
 
-	IgcDisplay();
+	BlankDisplay();
 	void draw(const DrawArgs &args) override;
 	void drawLayer(const DrawArgs &args, int layer) override;
 };
 
-struct IgcScope : Widget {
-	Igc				*module;
+struct BlankScope : Widget {
+	Blank				*module;
 
-	IgcScope();
+	BlankScope();
 	void draw(const DrawArgs &args) override;
 };
 
-extern Igc	*g_igc;
+extern Blank	*g_igc;
 
 #endif

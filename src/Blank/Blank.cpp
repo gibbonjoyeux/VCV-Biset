@@ -1,7 +1,7 @@
 
-#include "Igc.hpp"
+#include "Blank.hpp"
 
-Igc *g_igc = NULL;
+Blank *g_igc = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -11,7 +11,7 @@ Igc *g_igc = NULL;
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-Igc::Igc(void) {
+Blank::Blank(void) {
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
 	configSwitch(PARAM_SCOPE_ENABLED, 0, 1, 1);
@@ -35,7 +35,7 @@ Igc::Igc(void) {
 	this->scope = NULL;
 }
 
-Igc::~Igc(void) {
+Blank::~Blank(void) {
 	if (this->display) {
 		APP->scene->rack->removeChild(this->display);
 		delete this->display;
@@ -50,7 +50,7 @@ Igc::~Igc(void) {
 	}
 }
 
-void Igc::processBypass(const ProcessArgs& args) {
+void Blank::processBypass(const ProcessArgs& args) {
 	if (this == g_igc) {
 		APP->scene->rack->getCableContainer()->show();
 		if (this->display)
@@ -58,7 +58,7 @@ void Igc::processBypass(const ProcessArgs& args) {
 	}
 }
 
-void Igc::process(const ProcessArgs& args) {
+void Blank::process(const ProcessArgs& args) {
 	PortWidget					*port_widget;
 	Port						*port;
 	std::vector<CableWidget*>	cables;
@@ -79,9 +79,9 @@ void Igc::process(const ProcessArgs& args) {
 		return;
 
 	/// [1] GET PARAMETERS
-	poly_thick = this->params[Igc::PARAM_CABLE_POLY_THICK].getValue();
-	poly_mode = this->params[Igc::PARAM_CABLE_POLY_MODE].getValue();
-	if (this->params[Igc::PARAM_CABLE_ENABLED].getValue()) {
+	poly_thick = this->params[Blank::PARAM_CABLE_POLY_THICK].getValue();
+	poly_mode = this->params[Blank::PARAM_CABLE_POLY_MODE].getValue();
+	if (this->params[Blank::PARAM_CABLE_ENABLED].getValue()) {
 		APP->scene->rack->getCableContainer()->hide();
 		if (this->display)
 			this->display->show();
@@ -95,8 +95,8 @@ void Igc::process(const ProcessArgs& args) {
 	hovered = APP->event->hoveredWidget;
 	cables = APP->scene->rack->getCompleteCables();
 	this->cable_count = cables.size();
-	if (this->cable_count >= IGC_CABLES)
-		this->cable_count = IGC_CABLES - 1;
+	if (this->cable_count >= BLANK_CABLES)
+		this->cable_count = BLANK_CABLES - 1;
 
 	/// [3] RECORD CABLES
 	this->scope_index = -1;
@@ -114,10 +114,10 @@ void Igc::process(const ProcessArgs& args) {
 			if (channels == 0)
 				channels = 1;
 			this->cables[i].thick = (channels > 1 && poly_thick);
-			if (poly_mode == IGC_CABLE_POLY_FIRST) {
+			if (poly_mode == BLANK_CABLE_POLY_FIRST) {
 				this->cables[i].buffer[this->buffer_i] =
 				/**/ output->getVoltage();
-			} else if (poly_mode == IGC_CABLE_POLY_SUM) {
+			} else if (poly_mode == BLANK_CABLE_POLY_SUM) {
 				this->cables[i].buffer[this->buffer_i] =
 				/**/ output->getVoltageSum();
 			} else  {
@@ -137,9 +137,9 @@ void Igc::process(const ProcessArgs& args) {
 			port = port_widget->getPort();
 			if (port) {
 				/// STORE PORT TO EXTRA CABLE
-				this->scope_index = IGC_CABLES;
-				this->cables[IGC_CABLES].color = {1, 1, 1, 1};
-				this->cables[IGC_CABLES].buffer[this->buffer_i] =
+				this->scope_index = BLANK_CABLES;
+				this->cables[BLANK_CABLES].color = {1, 1, 1, 1};
+				this->cables[BLANK_CABLES].buffer[this->buffer_i] =
 				/**/ port->voltages[0];
 			}
 		}
@@ -147,22 +147,22 @@ void Igc::process(const ProcessArgs& args) {
 
 	/// [5] RECORD INCOMPLETE CABLE
 	widget = APP->scene->rack->getIncompleteCable();
-	this->cable_incomplete = IGC_CABLE_INCOMPLETE_OFF;
+	this->cable_incomplete = BLANK_CABLE_INCOMPLETE_OFF;
 	if (widget) {
 		if (widget->inputPort)
-			this->cable_incomplete = IGC_CABLE_INCOMPLETE_IN;
+			this->cable_incomplete = BLANK_CABLE_INCOMPLETE_IN;
 		else
-			this->cable_incomplete = IGC_CABLE_INCOMPLETE_OUT;
+			this->cable_incomplete = BLANK_CABLE_INCOMPLETE_OUT;
 		this->scope_index = -1;
-		this->cables[IGC_CABLES].pos_out = widget->getInputPos();
-		this->cables[IGC_CABLES].pos_in = widget->getOutputPos();
-		this->cables[IGC_CABLES].color = widget->color;
+		this->cables[BLANK_CABLES].pos_out = widget->getInputPos();
+		this->cables[BLANK_CABLES].pos_in = widget->getOutputPos();
+		this->cables[BLANK_CABLES].color = widget->color;
 	}
 
 	/// [6] STEP BUFFER
 	this->buffer_i += 1;
-	if (this->buffer_i >= IGC_BUFFER)
+	if (this->buffer_i >= BLANK_BUFFER)
 		this->buffer_i = 0;
 }
 
-Model* modelIgc = createModel<Igc, IgcWidget>("Biset-Igc");
+Model* modelBlank = createModel<Blank, BlankWidget>("Biset-Blank");

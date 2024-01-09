@@ -1,5 +1,5 @@
 
-#include "Igc.hpp"
+#include "Blank.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -9,17 +9,17 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-IgcWidget::IgcWidget(Igc* _module) {
-	IgcScope	*scope;
-	IgcDisplay	*display;
+BlankWidget::BlankWidget(Blank* _module) {
+	BlankScope	*scope;
+	BlankDisplay	*display;
 
 	this->module = _module;
 	setModule(this->module);
-	setPanel(createPanel(asset::plugin(pluginInstance, "res/Igc.svg")));
+	setPanel(createPanel(asset::plugin(pluginInstance, "res/Blank.svg")));
 
 	/// ADD CABLE DISPLAY
 	if (this->module) {
-		display = createWidget<IgcDisplay>(Vec(0, 0));
+		display = createWidget<BlankDisplay>(Vec(0, 0));
 		display->box.size = math::Vec(INFINITY, INFINITY);
 		display->module = module;
 		this->module->display = display;
@@ -28,7 +28,7 @@ IgcWidget::IgcWidget(Igc* _module) {
 
 	/// ADD SCOPE DISPLAY
 	if (this->module) {
-		scope = createWidget<IgcScope>(Vec(0, 0));
+		scope = createWidget<BlankScope>(Vec(0, 0));
 		scope->box.size = math::Vec(INFINITY, INFINITY);
 		scope->module = module;
 		this->module->scope = scope;
@@ -36,7 +36,7 @@ IgcWidget::IgcWidget(Igc* _module) {
 	}
 }
 
-void IgcWidget::appendContextMenu(Menu *menu) {
+void BlankWidget::appendContextMenu(Menu *menu) {
 	Param		*param;
 	MenuSlider	*slider;
 	MenuLabel	*label;
@@ -48,50 +48,50 @@ void IgcWidget::appendContextMenu(Menu *menu) {
 	label->text = "Cables";
 	menu->addChild(label);
 
-	param = &(this->module->params[Igc::PARAM_CABLE_ENABLED]);
+	param = &(this->module->params[Blank::PARAM_CABLE_ENABLED]);
 	menu->addChild(new MenuCheckItem("Cable animation enabled", "",
 		[=]() { return param->getValue() == 1; },
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));
 
-	param = &(this->module->params[Igc::PARAM_CABLE_BRIGHTNESS]);
+	param = &(this->module->params[Blank::PARAM_CABLE_BRIGHTNESS]);
 	menu->addChild(new MenuCheckItem("Cable brightness", "",
 		[=]() { return param->getValue() == 1; },
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));
 
-	param = &(this->module->params[Igc::PARAM_CABLE_LED]);
+	param = &(this->module->params[Blank::PARAM_CABLE_LED]);
 	menu->addChild(new MenuCheckItem("Cable led", "",
 		[=]() { return param->getValue() == 1; },
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));
 
-	param = &(this->module->params[Igc::PARAM_CABLE_POLY_THICK]);
+	param = &(this->module->params[Blank::PARAM_CABLE_POLY_THICK]);
 	menu->addChild(new MenuCheckItem("Cable polyphonic thickness", "",
 		[=]() { return param->getValue() == 1; },
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));
 
-	param = &(this->module->params[Igc::PARAM_CABLE_POLY_MODE]);
+	param = &(this->module->params[Blank::PARAM_CABLE_POLY_MODE]);
 	menu->addChild(rack::createSubmenuItem("Cable polyphonic", "",
 		[=](Menu *menu) {
 			menu->addChild(new MenuCheckItem("1st channel", "",
-				[=]() { return param->getValue() == IGC_CABLE_POLY_FIRST; },
-				[=]() { param->setValue(IGC_CABLE_POLY_FIRST); }
+				[=]() { return param->getValue() == BLANK_CABLE_POLY_FIRST; },
+				[=]() { param->setValue(BLANK_CABLE_POLY_FIRST); }
 			));
 			menu->addChild(new MenuCheckItem("Sum", "",
-				[=]() { return param->getValue() == IGC_CABLE_POLY_SUM; },
-				[=]() { param->setValue(IGC_CABLE_POLY_SUM); }
+				[=]() { return param->getValue() == BLANK_CABLE_POLY_SUM; },
+				[=]() { param->setValue(BLANK_CABLE_POLY_SUM); }
 			));
 			menu->addChild(new MenuCheckItem("Sum / channel count", "",
-				[=]() { return param->getValue() == IGC_CABLE_POLY_SUM_DIVIDED; },
-				[=]() { param->setValue(IGC_CABLE_POLY_SUM_DIVIDED); }
+				[=]() { return param->getValue() == BLANK_CABLE_POLY_SUM_DIVIDED; },
+				[=]() { param->setValue(BLANK_CABLE_POLY_SUM_DIVIDED); }
 			));
 		}
 	));
 
 	slider = new MenuSlider(
-	/**/ this->module->paramQuantities[Igc::PARAM_CABLE_SCALE]);
+	/**/ this->module->paramQuantities[Blank::PARAM_CABLE_SCALE]);
 	slider->box.size.x = 200.f;
 	menu->addChild(slider);
 
@@ -102,63 +102,63 @@ void IgcWidget::appendContextMenu(Menu *menu) {
 	label->text = "Scope";
 	menu->addChild(label);
 
-	param = &(this->module->params[Igc::PARAM_SCOPE_ENABLED]);
+	param = &(this->module->params[Blank::PARAM_SCOPE_ENABLED]);
 	menu->addChild(new MenuCheckItem("Scope enabled", "",
 		[=]() { return param->getValue() == 1; },
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));
 
-	param = &(this->module->params[Igc::PARAM_SCOPE_BACKGROUND]);
+	param = &(this->module->params[Blank::PARAM_SCOPE_BACKGROUND]);
 	menu->addChild(new MenuCheckItem("Scope background", "",
 		[=]() { return param->getValue() == 1; },
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));
 
-	param = &(this->module->params[Igc::PARAM_SCOPE_DETAILS]);
+	param = &(this->module->params[Blank::PARAM_SCOPE_DETAILS]);
 	menu->addChild(new MenuCheckItem("Scope details", "",
 		[=]() { return param->getValue() == 1; },
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));
 
-	param = &(this->module->params[Igc::PARAM_SCOPE_MODE]);
+	param = &(this->module->params[Blank::PARAM_SCOPE_MODE]);
 	menu->addChild(new MenuCheckItem("Scope display mode", "",
 		[=]() { return param->getValue() == 1; },
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));
 
-	param = &(this->module->params[Igc::PARAM_SCOPE_POSITION]);
+	param = &(this->module->params[Blank::PARAM_SCOPE_POSITION]);
 	menu->addChild(rack::createSubmenuItem("Scope position", "",
 		[=](Menu *menu) {
 			menu->addChild(new MenuCheckItem("Top left", "",
-				[=]() { return param->getValue() == IGC_SCOPE_TOP_LEFT; },
-				[=]() { param->setValue(IGC_SCOPE_TOP_LEFT); }
+				[=]() { return param->getValue() == BLANK_SCOPE_TOP_LEFT; },
+				[=]() { param->setValue(BLANK_SCOPE_TOP_LEFT); }
 			));
 			menu->addChild(new MenuCheckItem("Top right", "",
-				[=]() { return param->getValue() == IGC_SCOPE_TOP_RIGHT; },
-				[=]() { param->setValue(IGC_SCOPE_TOP_RIGHT); }
+				[=]() { return param->getValue() == BLANK_SCOPE_TOP_RIGHT; },
+				[=]() { param->setValue(BLANK_SCOPE_TOP_RIGHT); }
 			));
 			menu->addChild(new MenuCheckItem("Bottom left", "",
-				[=]() { return param->getValue() == IGC_SCOPE_BOTTOM_LEFT; },
-				[=]() { param->setValue(IGC_SCOPE_BOTTOM_LEFT); }
+				[=]() { return param->getValue() == BLANK_SCOPE_BOTTOM_LEFT; },
+				[=]() { param->setValue(BLANK_SCOPE_BOTTOM_LEFT); }
 			));
 			menu->addChild(new MenuCheckItem("Bottom right", "",
-				[=]() { return param->getValue() == IGC_SCOPE_BOTTOM_RIGHT; },
-				[=]() { param->setValue(IGC_SCOPE_BOTTOM_RIGHT); }
+				[=]() { return param->getValue() == BLANK_SCOPE_BOTTOM_RIGHT; },
+				[=]() { param->setValue(BLANK_SCOPE_BOTTOM_RIGHT); }
 			));
 			menu->addChild(new MenuCheckItem("Center", "",
-				[=]() { return param->getValue() == IGC_SCOPE_CENTER; },
-				[=]() { param->setValue(IGC_SCOPE_CENTER); }
+				[=]() { return param->getValue() == BLANK_SCOPE_CENTER; },
+				[=]() { param->setValue(BLANK_SCOPE_CENTER); }
 			));
 		}
 	));
 
 	slider = new MenuSlider(
-	/**/ this->module->paramQuantities[Igc::PARAM_SCOPE_SCALE]);
+	/**/ this->module->paramQuantities[Blank::PARAM_SCOPE_SCALE]);
 	slider->box.size.x = 200.f;
 	menu->addChild(slider);
 
 	slider = new MenuSlider(
-	/**/ this->module->paramQuantities[Igc::PARAM_SCOPE_ALPHA]);
+	/**/ this->module->paramQuantities[Blank::PARAM_SCOPE_ALPHA]);
 	slider->box.size.x = 200.f;
 	menu->addChild(slider);
 }

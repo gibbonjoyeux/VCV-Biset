@@ -1,5 +1,5 @@
 
-#include "Igc.hpp"
+#include "Blank.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -20,14 +20,14 @@ static math::Vec get_pos_slump(math::Vec pos1, math::Vec pos2) {
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-IgcDisplay::IgcDisplay() {
+BlankDisplay::BlankDisplay() {
 }
 
-void IgcDisplay::draw(const DrawArgs &args) {
+void BlankDisplay::draw(const DrawArgs &args) {
 }
 
-void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
-	IgcCable		*cable;
+void BlankDisplay::drawLayer(const DrawArgs &args, int layer) {
+	BlankCable		*cable;
 	math::Vec		pos_in;
 	math::Vec		pos_out;
 	math::Vec		pos_slump;
@@ -46,14 +46,14 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 
 	if (this->module == NULL)
 		return;
-	brightness = this->module->params[Igc::PARAM_CABLE_BRIGHTNESS].getValue();
+	brightness = this->module->params[Blank::PARAM_CABLE_BRIGHTNESS].getValue();
 	if ((brightness == 0 && layer != 1)
 	|| (brightness == 1 && layer != 2))
 		return;
 	if (g_igc != this->module)
 		return;
 
-	scale = this->module->params[Igc::PARAM_CABLE_SCALE].getValue();
+	scale = this->module->params[Blank::PARAM_CABLE_SCALE].getValue();
 
 	rect = box.zeroPos();
 	rect_module = this->parent->box;
@@ -82,11 +82,11 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		length = sqrt(
 		/**/ (pos_in.x - pos_out.x) * (pos_in.x - pos_out.x)
 		/**/ + (pos_in.y - pos_out.y) * (pos_in.y - pos_out.y));
-		if (length > IGC_DIST_MAX)
-			length = IGC_DIST_MAX;
+		if (length > BLANK_DIST_MAX)
+			length = BLANK_DIST_MAX;
 		if (length < 1.0)
 			length = 1.0;
-		length = length / IGC_DIST_MAX;
+		length = length / BLANK_DIST_MAX;
 
 		nvgStrokeColor(args.vg, cable->color);
 		nvgFillColor(args.vg, cable->color);
@@ -106,8 +106,8 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		nvgGlobalAlpha(args.vg, settings::cableOpacity);
 		nvgBeginPath(args.vg);
 		nvgMoveTo(args.vg, VEC_ARGS(pos_in));
-		for (j = 0; j < IGC_PRECISION; ++j) {
-			t = (float)(j + 1) / (float)IGC_PRECISION;
+		for (j = 0; j < BLANK_PRECISION; ++j) {
+			t = (float)(j + 1) / (float)BLANK_PRECISION;
 
 			/// COMPUTE POINT TANGENT
 			pos_angle.x = 2.0 * (1.0 - t) * (pos_slump.x - pos_in.x)
@@ -128,9 +128,9 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 
 			/// COMPUTE POINT ANIMATED POSITION
 			buffer_phase = this->module->buffer_i
-			/**/ - t * ((float)IGC_BUFFER * length);
+			/**/ - t * ((float)BLANK_BUFFER * length);
 			if (buffer_phase < 0)
-				buffer_phase += IGC_BUFFER;
+				buffer_phase += BLANK_BUFFER;
 			angle += M_PI * 0.5;
 			if (t < 0.2)
 				amp = t * 5.0;
@@ -150,8 +150,8 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 	}
 
 	/// [2] DRAW INCOMPLETE CABLE
-	if (this->module->cable_incomplete != IGC_CABLE_INCOMPLETE_OFF) {
-		cable = &(this->module->cables[IGC_CABLES]);
+	if (this->module->cable_incomplete != BLANK_CABLE_INCOMPLETE_OFF) {
+		cable = &(this->module->cables[BLANK_CABLES]);
 		/// COMPUTE CABLE POSITION
 		pos_in = cable->pos_in;
 		pos_out = cable->pos_out;
