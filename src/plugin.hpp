@@ -22,6 +22,7 @@ using				std::unique_ptr;
 #include "TrackerState/TrackerState.hpp"
 
 #include "Regex/Regex.hpp"
+#include "RegexExp/RegexExp.hpp"
 
 #include "Segfault/Segfault.hpp"
 
@@ -112,6 +113,7 @@ extern Model*		modelTrackerControl;
 
 extern Model*		modelRegex;
 extern Model*		modelRegexCondensed;
+extern Model*		modelRegexExp;
 
 extern Model*		modelSegfault;
 

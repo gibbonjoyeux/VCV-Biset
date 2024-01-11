@@ -16,6 +16,7 @@ void init(Plugin* p) {
 
 	p->addModel(modelRegex);
 	p->addModel(modelRegexCondensed);
+	p->addModel(modelRegexExp);
 
 	p->addModel(modelSegfault);
 

@@ -164,6 +164,18 @@
 		],
 		"keywords": ["live", "code", "coding"]
 	},
+	{
+		"slug": "Biset-Regex-Exp",
+		"name": "Regex Exp",
+		"description": "Regex expander outputing gate",
+		"tags": [
+			"Expander",
+			"Clock modulator",
+			"Controller",
+			"Digital"
+		],
+		"keywords": ["live", "code", "coding", "gate"]
+	},
 
 
 

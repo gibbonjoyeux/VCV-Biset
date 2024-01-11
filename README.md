@@ -88,7 +88,7 @@ If the **gate** input is not provided, it is considered **up** by default.
 	- [x] Fixed / enhanced bias knob
 	- [x] Added `*` clock modulator !
 	- [x] Can run on start-up (context menu)
-	- [ ] Gate output expander
+	- [x] Gate output expander
 - Please kill me
 	- [x] Fixed no pitch input no output issue
 
