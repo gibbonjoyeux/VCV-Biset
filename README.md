@@ -5,6 +5,10 @@
 
 [Donations are welcome](https://www.paypal.com/paypalme/bisousbiset)
 
+For **question**, **bug report** or **feature request**, feel free to contact me
+by email or create a **github issue** (easier for me for report or request).
+You can see the past and comming updates at the bottom of the document.
+
 ## VCOs
 
 **The Good, the Bad and the Ugly** and **Please kill me** are VCOs based on
@@ -15,11 +19,11 @@ They are designed to add some spring and inertia to sound.
 
 ## Tracker
 
-[Tracker walk through](https://www.youtube.com/watch?v=dUq9HsWwDsw)
-
 **Tracker** is a series of modules building a complex sequencer based on
 **patterns** arranged in a **timeline**.
 It can be used to build complex **tracks** or for **live performance**.
+
+[Tracker walk through](https://www.youtube.com/watch?v=dUq9HsWwDsw)
 
 [Tracker manual](./doc/Manual-Tracker.pdf)
 
@@ -68,3 +72,32 @@ to activate a different synth for every note.
 modified gate (if needed).
 
 If the **gate** input is not provided, it is considered **up** by default.
+
+## Updates
+
+### 2.0.8 (coming)
+
+- Tracker
+	- [x] Fixed `c` effect crash
+	- [x] Shortcut `space` to add note stop
+	- [x] Shortcut `arrow` keys to move timeline camera
+	- [x] Shortcut `delete` to remove pattern instance
+	- [ ] Shortcut `insert` / `suppr` to move lines
+- Regex
+	- [x] Inline `x` modulator multiplication
+	- [x] Fixed / enhanced bias knob
+	- [x] Added `*` clock modulator !
+	- [x] Can run on start-up (context menu)
+	- [ ] Gate output expander
+- Please kill me
+	- [x] Fixed no pitch input no output issue
+
+### 2.0.7 (jan 4, 2024)
+
+- [x] New **Please kill me** synth module !
+- [x] New **The good, the bad and the ugly** synth module !
+- [x] New **Tree** sequencer module !
+- [x] New **T-Control** tracker module !
+- Tracker
+	- [x] Fixed empty pattern crash
+	- [x] Allows record on both playing modes
