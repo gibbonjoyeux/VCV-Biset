@@ -177,7 +177,7 @@
 			"Polyphonic"
 		],
 		"keywords": ["piano", "keys"]
-	}
+	},
 
 	{
 		"slug": "Biset-Blank",
@@ -188,4 +188,6 @@
 			"Utility"
 		]
 	}
+
+	]
 }
