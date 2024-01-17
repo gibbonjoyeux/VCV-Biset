@@ -1,6 +1,6 @@
 
 - [ ] User enhancements
-	- [ ] Option to output GATE instead of TRIGGER (via an expander ?)
+	- [x] Gate output expander
 
 - [ ] Sequence types
 	- [x] `>`	Forward

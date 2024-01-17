@@ -55,7 +55,6 @@ struct Blank : Module {
 		PARAM_SCOPE_ALPHA,
 		PARAM_CABLE_ENABLED,		// Cable animation state
 		PARAM_CABLE_BRIGHTNESS,		// Cable impacted by brightness
-		PARAM_CABLE_LED,			// Cable with leds
 		PARAM_CABLE_POLY_THICK,		// Polyphonic cables thicker
 		PARAM_CABLE_POLY_MODE,		// Polyphonic cables behavior (1st or sum)
 		PARAM_CABLE_SCALE,			// Cable animation scale

@@ -22,13 +22,13 @@ using				std::unique_ptr;
 #include "TrackerState/TrackerState.hpp"
 
 #include "Regex/Regex.hpp"
-
-#include "Segfault/Segfault.hpp"
-
 #include "Tree/Tree.hpp"
 
 #include "Gbu/Gbu.hpp"
 #include "Pkm/Pkm.hpp"
+
+#include "Segfault/Segfault.hpp"
+#include "Blank/Blank.hpp"
 
 extern char		table_pitch[12][3];
 extern char		table_effect[12];
@@ -114,8 +114,9 @@ extern Model*		modelRegex;
 extern Model*		modelRegexCondensed;
 
 extern Model*		modelSegfault;
+extern Model*		modelTree;
 
 extern Model*		modelGbu;
 extern Model*		modelPkm;
 
-extern Model*		modelTree;
+extern Model*		modelBlank;

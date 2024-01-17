@@ -16,11 +16,11 @@ void init(Plugin* p) {
 
 	p->addModel(modelRegex);
 	p->addModel(modelRegexCondensed);
-
-	p->addModel(modelSegfault);
+	p->addModel(modelTree);
 
 	p->addModel(modelGbu);
 	p->addModel(modelPkm);
 
-	p->addModel(modelTree);
+	p->addModel(modelSegfault);
+	p->addModel(modelBlank);
 }

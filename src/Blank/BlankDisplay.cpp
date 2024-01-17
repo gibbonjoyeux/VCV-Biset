@@ -97,10 +97,12 @@ void BlankDisplay::drawLayer(const DrawArgs &args, int layer) {
 		nvgCircle(args.vg, cable->pos_in.x, cable->pos_in.y, 8.5);
 		nvgStrokeWidth(args.vg, 4.0);
 		nvgStroke(args.vg);
+		nvgFill(args.vg);
 		nvgBeginPath(args.vg);
 		nvgCircle(args.vg, cable->pos_out.x, cable->pos_out.y, 8.5);
 		nvgStrokeWidth(args.vg, 4.0);
 		nvgStroke(args.vg);
+		nvgFill(args.vg);
 
 		/// DRAW CABLE
 		nvgGlobalAlpha(args.vg, settings::cableOpacity);

@@ -23,12 +23,13 @@ SOURCES += $(wildcard src/TrackerState/*.cpp)
 SOURCES += $(wildcard src/TrackerControl/*.cpp)
 
 SOURCES += $(wildcard src/Regex/*.cpp)
-SOURCES += $(wildcard src/Segfault/*.cpp)
+SOURCES += $(wildcard src/Tree/*.cpp)
 
 SOURCES += $(wildcard src/Gbu/*.cpp)
 SOURCES += $(wildcard src/Pkm/*.cpp)
 
-SOURCES += $(wildcard src/Tree/*.cpp)
+SOURCES += $(wildcard src/Segfault/*.cpp)
+SOURCES += $(wildcard src/Blank/*.cpp)
 
 # Add files to the ZIP package when running `make dist`
 # The compiled plugin and "plugin.json" are automatically added.

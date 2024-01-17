@@ -1,18 +1,18 @@
 {
-  "slug": "Biset",
-  "name": "Biset",
-  "version": "2.0.7",
-  "license": "MIT",
-  "brand": "Biset",
-  "author": "Biset",
-  "authorEmail": "sebastien.huertas@protonmail.com",
-  "authorUrl": "https://github.com/gibbonjoyeux/VCV-Biset",
-  "pluginUrl": "https://github.com/gibbonjoyeux/VCV-Biset",
-  "manualUrl": "https://github.com/gibbonjoyeux/VCV-Biset",
-  "sourceUrl": "https://github.com/gibbonjoyeux/VCV-Biset",
-  "donateUrl": "https://www.paypal.com/paypalme/bisousbiset",
-  "changelogUrl": "",
-  "modules": [
+	"slug": "Biset",
+	"name": "Biset",
+	"version": "2.0.7",
+	"license": "MIT",
+	"brand": "Biset",
+	"author": "Biset",
+	"authorEmail": "sebastien.huertas@protonmail.com",
+	"authorUrl": "https://github.com/gibbonjoyeux/VCV-Biset",
+	"pluginUrl": "https://github.com/gibbonjoyeux/VCV-Biset",
+	"manualUrl": "https://github.com/gibbonjoyeux/VCV-Biset",
+	"sourceUrl": "https://github.com/gibbonjoyeux/VCV-Biset",
+	"donateUrl": "https://www.paypal.com/paypalme/bisousbiset",
+	"changelogUrl": "",
+	"modules": [
 
 	{
 		"slug": "Biset-Tree",
@@ -168,7 +168,6 @@
 
 
 
-
 	{
 		"slug": "Biset-Segfault",
 		"name": "Segfault",
@@ -179,5 +178,14 @@
 		],
 		"keywords": ["piano", "keys"]
 	}
-  ]
+
+	{
+		"slug": "Biset-Blank",
+		"name": "Blank",
+		"description": "Animated cables & scope on hovered cables",
+		"tags": [
+			"Visual",
+			"Utility"
+		]
+	}
 }
