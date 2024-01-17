@@ -22,6 +22,8 @@ using				std::unique_ptr;
 #include "TrackerState/TrackerState.hpp"
 
 #include "Regex/Regex.hpp"
+#include "RegexExp/RegexExp.hpp"
+
 #include "Tree/Tree.hpp"
 
 #include "Gbu/Gbu.hpp"
@@ -112,11 +114,12 @@ extern Model*		modelTrackerControl;
 
 extern Model*		modelRegex;
 extern Model*		modelRegexCondensed;
+extern Model*		modelRegexExp;
 
-extern Model*		modelSegfault;
 extern Model*		modelTree;
 
 extern Model*		modelGbu;
 extern Model*		modelPkm;
 
+extern Model*		modelSegfault;
 extern Model*		modelBlank;

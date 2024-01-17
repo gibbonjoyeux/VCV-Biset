@@ -15,22 +15,6 @@
 	"modules": [
 
 	{
-		"slug": "Biset-Tree",
-		"name": "Tree",
-		"description": "Tree growth sequencer",
-		"tags": [
-			"Sequencer",
-			"Visual",
-			"Random",
-			"Physical modeling"
-		]
-	},
-
-
-
-
-
-	{
 		"slug": "Biset-Gbu",
 		"name": "The Good, the Bad and the Ugly",
 		"description": "PM AM RM VCO with pitch turbulence and attraction",
@@ -163,6 +147,29 @@
 			"Digital"
 		],
 		"keywords": ["live", "code", "coding"]
+	},
+	{
+		"slug": "Biset-Regex-Exp",
+		"name": "Regex Exp",
+		"description": "Regex expander outputing gate",
+		"tags": [
+			"Expander",
+			"Clock modulator",
+			"Controller",
+			"Digital"
+		],
+		"keywords": ["live", "code", "coding", "gate"]
+	},
+	{
+		"slug": "Biset-Tree",
+		"name": "Tree",
+		"description": "Tree growth sequencer",
+		"tags": [
+			"Sequencer",
+			"Visual",
+			"Random",
+			"Physical modeling"
+		]
 	},
 
 

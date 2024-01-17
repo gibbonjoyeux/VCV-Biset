@@ -81,7 +81,6 @@ void RegexItem::select(int index) {
 
 int RegexItem::pick(float bias) {
 	float	range;
-	float	offset;
 	int		index;
 
 	if (bias < 0) {

@@ -99,6 +99,8 @@ void Pkm::process(const ProcessArgs& args) {
 	p_width = params[PARAM_WIDTH].getValue();
 
 	channel_count = inputs[INPUT_PITCH].getChannels();
+	if (channel_count == 0)
+		channel_count = 1;
 	outputs[OUTPUT_LEFT].setChannels(channel_count);
 	outputs[OUTPUT_RIGHT].setChannels(channel_count);
 

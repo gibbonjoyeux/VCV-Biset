@@ -70,14 +70,20 @@ void RegexSeq::process(
 					this->clock_out_divider = value;
 					if (this->clock_out_divider < 1)
 						this->clock_out_divider = 1;
-					if (value > 0)
+					if (value > 0) {
 						this->clock_out.trigger();
+						this->clock_out_gate.on();
+					} else {
+						this->clock_out_gate.off();
+					}
 				}
 			}
 		}
 		/// SET VOLTAGE
 		this->out->setVoltage(this->clock_out.process(dt) ? 10.0 : 0.0);
 		this->out_eoc->setVoltage(this->clock_out_eoc.process(dt) ? 10.0 : 0.0);
+		/// SET GATE (Expander Regex-Gate)
+		this->clock_out_gate.process(dt);
 	/// SEQUENCE AS PITCH
 	} else if (this->mode == REGEX_MODE_PITCH) {
 		/// COMPUTE CLOCK

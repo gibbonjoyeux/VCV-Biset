@@ -106,7 +106,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 								g_editor->pattern_jump_cursor();
 								e.consume(this);
 							/// NOTE STOP
-							} else if (e.key == '`') {
+							} else if (e.key == GLFW_KEY_SPACE) {
 								line_note->mode = PATTERN_NOTE_STOP;
 								g_editor->pattern_jump_cursor();
 								e.consume(this);

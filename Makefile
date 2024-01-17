@@ -23,6 +23,7 @@ SOURCES += $(wildcard src/TrackerState/*.cpp)
 SOURCES += $(wildcard src/TrackerControl/*.cpp)
 
 SOURCES += $(wildcard src/Regex/*.cpp)
+SOURCES += $(wildcard src/RegexExp/*.cpp)
 SOURCES += $(wildcard src/Tree/*.cpp)
 
 SOURCES += $(wildcard src/Gbu/*.cpp)
