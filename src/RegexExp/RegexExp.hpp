@@ -22,7 +22,7 @@ struct RegexExp : Module {
 		INPUT_COUNT
 	};
 	enum	OutputIds {
-		ENUMS(OUTPUT_GATE, 12),
+		ENUMS(OUTPUT_EXP, 12),
 		OUTPUT_COUNT
 	};
 	enum	LightIds {

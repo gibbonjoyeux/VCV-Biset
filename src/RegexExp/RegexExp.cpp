@@ -15,7 +15,7 @@ RegexExp::RegexExp(void) {
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
 	for (i = 0; i < 12; ++i)
-		configOutput(OUTPUT_GATE + i, rack::string::f("Gate %d", i + 1));
+		configOutput(OUTPUT_EXP + i, rack::string::f("Gate %d", i + 1));
 }
 
 void RegexExp::process(const ProcessArgs& args) {
@@ -36,12 +36,12 @@ void RegexExp::process(const ProcessArgs& args) {
 			/// MODE CLOCK
 			if (seq->mode == REGEX_MODE_CLOCK) {
 				if (seq->clock_out_gate.state)
-					this->outputs[RegexExp::OUTPUT_GATE + i].setVoltage(10.0);
+					this->outputs[RegexExp::OUTPUT_EXP + i].setVoltage(10.0);
 				else
-					this->outputs[RegexExp::OUTPUT_GATE + i].setVoltage(0.0);
+					this->outputs[RegexExp::OUTPUT_EXP + i].setVoltage(0.0);
 			/// MODE PITCH
 			} else {
-				this->outputs[RegexExp::OUTPUT_GATE + i].setVoltage(
+				this->outputs[RegexExp::OUTPUT_EXP + i].setVoltage(
 				/**/ - exp->outputs[Regex::OUTPUT_EXP + i].getVoltage());
 			}
 		}

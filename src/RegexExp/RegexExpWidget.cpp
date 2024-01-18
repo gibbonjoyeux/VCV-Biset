@@ -25,7 +25,7 @@ RegexExpWidget::RegexExpWidget(RegexExp* _module) {
 		output =
 		/**/ createOutputCentered<Outlet>(mm2px(Vec(7.62, 8.5 + step * i)),
 		/**/ module,
-		/**/ RegexExp::OUTPUT_GATE + i);
+		/**/ RegexExp::OUTPUT_EXP + i);
 		addOutput(output);
 	}
 

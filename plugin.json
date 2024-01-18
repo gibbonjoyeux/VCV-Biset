@@ -22,7 +22,7 @@
 			"Oscillator",
 			"Polyphonic"
 		],
-		"keywords": ["fm", "pm", "am", "rm", "ring", "phase"]
+		"keywords": ["gbu", "fm", "pm", "am", "rm", "ring", "phase"]
 	},
 	{
 		"slug": "Biset-Pkm",
@@ -32,7 +32,7 @@
 			"Oscillator",
 			"Polyphonic"
 		],
-		"keywords": ["fm", "pm", "phase"]
+		"keywords": ["pkm", "fm", "pm", "phase"]
 	},
 
 
