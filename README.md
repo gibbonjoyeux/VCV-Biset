@@ -83,7 +83,7 @@ If the **gate** input is not provided, it is considered **up** by default.
 	- [x] Shortcut `arrow` keys to move timeline camera
 	- [x] Shortcut `delete` to remove pattern instance
 	- [x] Shortcut `insert` / `suppr` to move lines
-	- [ ] Context menu help (shortcuts + effects)
+	- [x] Context menu help (shortcuts + effects)
 - Regex
 	- [x] Inline `x` modulator multiplication
 	- [x] Fixed / enhanced bias knob

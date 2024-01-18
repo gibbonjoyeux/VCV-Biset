@@ -42,7 +42,7 @@
 		- [x] Use arrows to move in timeline view
 		- [ ] Line selection (MAJ key)
 		- [x] Change note stop shortcut ('.' ?)
-	- [ ] Help in context menu (shortcuts, effects, etc)
+	- [x] Help in context menu (shortcuts, effects, etc)
 	- [ ] Ctrl-Z
 	- [ ] Crash on startup
 	- [x] Crash with chance effect

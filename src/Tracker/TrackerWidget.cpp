@@ -330,26 +330,64 @@ void TrackerWidget::onDeselect(const DeselectEvent &e) {
 //}
 
 void TrackerWidget::appendContextMenu(Menu *menu) {
-	MenuSeparator	*separator;
 	MenuLabel		*label;
 	MenuSliderEdit	*slider;
 	Param			*param_rate;
 
-	separator = new MenuSeparator();
-	menu->addChild(separator);
 
+	/// [1] MENU HELP
+
+	menu->addChild(new MenuSeparator);
+	label = new MenuLabel();
+	label->text = "Help";
+	menu->addChild(label);
+
+	menu->addChild(rack::createSubmenuItem("Note effects", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuItemStay("Axx", "Rand amplitude (x: range)", [=](){}));
+			menu->addChild(new MenuItemStay("Pxx", "Rand panning (x: range)", [=](){}));
+			menu->addChild(new MenuItemStay("Dxx", "Rand delay (x: range)", [=](){}));
+			menu->addChild(new MenuItemStay("Oxy", "Rand octave (x: 0(-+) 1(+) 2(-), y: range)", [=](){}));
+			menu->addChild(new MenuItemStay("Nxy", "Pick note (between note, note + x and note + y)", [=](){}));
+			menu->addChild(new MenuItemStay("Vxy", "Vibrato (x: speed, y: amplitude)", [=](){}));
+			menu->addChild(new MenuItemStay("Txy", "Tremolo (x: speed, y: amplitude)", [=](){}));
+			menu->addChild(new MenuItemStay("vxy", "Rand vibrato (x: max speed, y: max amplitude)", [=](){}));
+			menu->addChild(new MenuItemStay("txy", "Rand tremolo (x: max speed, y: max amplitude)", [=](){}));
+			menu->addChild(new MenuItemStay("Cxx", "Chance to play (x: chance)", [=](){}));
+			menu->addChild(new MenuItemStay("cxx", "Chance to play or stops (x: chance))", [=](){}));
+		}
+	));
+	menu->addChild(rack::createSubmenuItem("Shortcuts pattern", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuItemStay("Arrows", "Move cursor", [=](){}));
+			menu->addChild(new MenuItemStay("Backspace", "Clear line", [=](){}));
+			menu->addChild(new MenuItemStay("Delete", "Delete line", [=](){}));
+			menu->addChild(new MenuItemStay("Insert", "Insert line", [=](){}));
+			menu->addChild(new MenuItemStay("Space", "Insert note stop", [=](){}));
+		}
+	));
+	menu->addChild(rack::createSubmenuItem("Shortcuts timeline", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuItemStay("Arrows", "Move camera", [=](){}));
+			menu->addChild(new MenuItemStay("Backspace / Delete", "Delete pattern instance", [=](){}));
+		}
+	));
+
+	/// [2] MENU SETTINGS
+
+	menu->addChild(new MenuSeparator());
 	label = new MenuLabel();
 	label->text = "Settings";
 	menu->addChild(label);
 
-	/// [1] MIDI / KEYBOARD CHOICE
+	/// MIDI / KEYBOARD CHOICE
 	menu->addChild(rack::createSubmenuItem("Midi", "",
 		[=](Menu *menu) {
 			appendMidiMenu(menu, &(this->module->midi_input));
 		}
 	));
 
-	/// [2] RATE
+	/// RATE
 	param_rate = &(g_module->params[Tracker::PARAM_RATE]);
 	menu->addChild(rack::createSubmenuItem("Rate", "",
 		[=](Menu *menu) {
@@ -396,18 +434,19 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 		}
 	));
 
-	separator = new MenuSeparator();
-	menu->addChild(separator);
+	/// [3] MENU TUNING
+
+	menu->addChild(new MenuSeparator());
 
 	label = new MenuLabel();
 	label->text = "Tuning";
 	menu->addChild(label);
 
-	/// [3] BASE PITCH
+	/// BASE PITCH
 	slider = new MenuSliderEdit(g_module->paramQuantities[Tracker::PARAM_PITCH_BASE]);
 	slider->box.size.x = 200.f;
 	menu->addChild(slider);
-	/// [4] TUNING
+	/// TUNING
 	menu->addChild(rack::createSubmenuItem("Tuning", "",
 		[=](Menu *menu) {
 			MenuSliderEdit	*slider;
