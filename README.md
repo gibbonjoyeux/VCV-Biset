@@ -82,7 +82,8 @@ If the **gate** input is not provided, it is considered **up** by default.
 	- [x] Shortcut `space` to add note stop
 	- [x] Shortcut `arrow` keys to move timeline camera
 	- [x] Shortcut `delete` to remove pattern instance
-	- [ ] Shortcut `insert` / `suppr` to move lines
+	- [x] Shortcut `insert` / `suppr` to move lines
+	- [ ] Context menu help (shortcuts + effects)
 - Regex
 	- [x] Inline `x` modulator multiplication
 	- [x] Fixed / enhanced bias knob

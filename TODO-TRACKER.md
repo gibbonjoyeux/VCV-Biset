@@ -37,11 +37,11 @@
 
 - [ ] User enhancements
 	- [ ] Shortcuts
-		- [ ] Shift row up / down (insert / remove line)
+		- [x] Shift row up / down (insert / remove line)
 		- [x] Remove instance with Del (consume Del key)
 		- [x] Use arrows to move in timeline view
 		- [ ] Line selection (MAJ key)
-		- [ ] Change note stop shortcut ('.' ?)
+		- [x] Change note stop shortcut ('.' ?)
 	- [ ] Help in context menu (shortcuts, effects, etc)
 	- [ ] Ctrl-Z
 	- [ ] Crash on startup

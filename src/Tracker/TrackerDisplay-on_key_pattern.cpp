@@ -45,10 +45,10 @@ static int key_alpha(const Widget::SelectKeyEvent &e) {
 void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 	PatternSource	*pattern;
 	PatternNoteCol	*col_note;
-	PatternNote		*line_note;
+	PatternNote		*line_note, *line_note_2;
 	PatternEffect	*effect;
 	PatternCVCol	*col_cv;
-	PatternCV		*line_cv;
+	PatternCV		*line_cv, *line_cv_2;
 	int				fx_1, fx_2;
 	int				key;
 	int				i;
@@ -89,7 +89,63 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 			} else if (e.key == GLFW_KEY_DOWN) {
 				g_editor->pattern_move_cursor_y(+1);
 				e.consume(this);
-			/// EVENT KEYBOARD
+			/// EVENT LINE INSERT
+			} else if (e.key == GLFW_KEY_INSERT) {
+				pattern = g_editor->pattern;
+				/// INSERT NOTE
+				if (g_editor->pattern_col < pattern->note_count) {
+					col_note = pattern->notes[g_editor->pattern_col];
+					for (i = pattern->line_count - 1;
+					i > g_editor->pattern_line; --i) {
+						line_note = &(col_note->lines[i]);
+						line_note_2 = &(col_note->lines[i - 1]);
+						*line_note = *line_note_2;
+					}
+					line_note = &(col_note->lines[g_editor->pattern_line]);
+					line_note->mode = PATTERN_NOTE_KEEP;
+				/// INSERT CV
+				} else {
+					col_cv = pattern->cvs[g_editor->pattern_col
+					/**/ - pattern->note_count];
+					for (i = pattern->line_count - 1;
+					i > g_editor->pattern_line; --i) {
+						line_cv = &(col_cv->lines[i]);
+						line_cv_2 = &(col_cv->lines[i - 1]);
+						*line_cv = *line_cv_2;
+					}
+					line_cv = &(col_cv->lines[g_editor->pattern_line]);
+					line_cv->mode = PATTERN_CV_KEEP;
+				}
+				e.consume(this);
+			/// EVENT LINE DELETE
+			} else if (e.key == GLFW_KEY_DELETE) {
+				pattern = g_editor->pattern;
+				/// DELETE NOTE
+				if (g_editor->pattern_col < pattern->note_count) {
+					col_note = pattern->notes[g_editor->pattern_col];
+					for (i = g_editor->pattern_line + 1;
+					i < pattern->line_count; ++i) {
+						line_note = &(col_note->lines[i - 1]);
+						line_note_2 = &(col_note->lines[i]);
+						*line_note = *line_note_2;
+					}
+					line_note = &(col_note->lines[pattern->line_count - 1]);
+					line_note->mode = PATTERN_NOTE_KEEP;
+				/// DELETE CV
+				} else {
+					col_cv = pattern->cvs[g_editor->pattern_col
+					/**/ - pattern->note_count];
+					for (i = g_editor->pattern_line + 1;
+					i < pattern->line_count; ++i) {
+						line_cv = &(col_cv->lines[i - 1]);
+						line_cv_2 = &(col_cv->lines[i]);
+						*line_cv = *line_cv_2;
+					}
+					line_cv = &(col_cv->lines[pattern->line_count - 1]);
+					line_cv->mode = PATTERN_CV_KEEP;
+				}
+				e.consume(this);
+			/// EVENT NOTE / CV
 			} else {
 				pattern = g_editor->pattern;
 				/// KEY ON NOTE
