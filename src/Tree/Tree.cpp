@@ -63,6 +63,7 @@ void Tree::process(const ProcessArgs& args) {
 	int			seq_offset;
 	float		seq_wind;
 	float		wind_force;
+	float		voltage;
 	bool		clock;
 	int			i;
 
@@ -128,8 +129,12 @@ void Tree::process(const ProcessArgs& args) {
 		branch = &(this->branches[this->branch_read]);
 		wind_force = branch->angle_wind_rel * seq_wind * 30.0;
 		for (i = 0; i < 5; ++i) {
-			outputs[OUTPUT + i].setVoltage(
-			/**/ (branch->value[i]) * 10.0 - 5.0 + wind_force);
+			voltage = (branch->value[i] * 10.0 - 5.0) + wind_force;
+			if (voltage > 5.0)
+				voltage = 5.0;
+			if (voltage < -5.0)
+				voltage = -5.0;
+			outputs[OUTPUT + i].setVoltage(voltage);
 		}
 	}
 }

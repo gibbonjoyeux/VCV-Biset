@@ -210,16 +210,16 @@ void Pkm::process(const ProcessArgs& args) {
 			this->feedback_buffer_1[i][3][this->feedback_i] = this->out_1[i][3];
 		} else if (algo == PKM_ALGO_ECHO) {
 			this->feedback_buffer_1[i][0][this->feedback_i] =
-			/**/ this->feedback_buffer_1[i][0][this->feedback_i] * 0.9
+			/**/ this->feedback_buffer_1[i][0][this->feedback_i] * 0.5
 			/**/ + this->out_1[i][0];
 			this->feedback_buffer_1[i][1][this->feedback_i] =
-			/**/ this->feedback_buffer_1[i][1][this->feedback_i] * 0.9
+			/**/ this->feedback_buffer_1[i][1][this->feedback_i] * 0.5
 			/**/ + this->out_1[i][1];
 			this->feedback_buffer_1[i][2][this->feedback_i] =
-			/**/ this->feedback_buffer_1[i][2][this->feedback_i] * 0.9
+			/**/ this->feedback_buffer_1[i][2][this->feedback_i] * 0.5
 			/**/ + this->out_1[i][2];
 			this->feedback_buffer_1[i][3][this->feedback_i] =
-			/**/ this->feedback_buffer_1[i][3][this->feedback_i] * 0.9
+			/**/ this->feedback_buffer_1[i][3][this->feedback_i] * 0.5
 			/**/ + this->out_1[i][3];
 		} else if (algo == PKM_ALGO_ENTANGLED) {
 			this->feedback_buffer_1[i][0][this->feedback_i] = this->out_1[i][3];

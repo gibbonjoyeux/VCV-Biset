@@ -5,6 +5,17 @@
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
+static float get_random_value(void) {
+	float	value;
+
+	value = random::uniform();
+	if (value < 0.0)
+		value = 0.0;
+	if (value > 1.0)
+		value = 1.0;
+	return value;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
@@ -110,7 +121,7 @@ void TreeBranch::birth(Tree *tree, int index) {
 		branch->parent = index;
 		branch->solo_count = this->solo_count + 1;
 		for (j = 0; j < 5; ++j)
-			branch->value[j] = random::uniform();
+			branch->value[j] = get_random_value();
 		/// COMPUTE BRANCH ANGLE
 		branch->angle_rel = ((random::uniform() * 2.0) - 1.0) * angle_variation;
 		branch->angle_abs = this->angle_abs + branch->angle_rel;
@@ -135,7 +146,7 @@ void TreeBranch::birth(Tree *tree, int index) {
 			branch->parent = index;
 			branch->solo_count = 1;
 			for (j = 0; j < 5; ++j)
-				branch->value[j] = random::uniform();
+				branch->value[j] = get_random_value();
 			/// COMPUTE BRANCH ANGLE
 			branch->angle_rel = ((random::uniform() * 2.0) - 1.0) * angle_division;
 			branch->angle_abs = this->angle_abs + branch->angle_rel;
