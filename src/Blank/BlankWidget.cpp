@@ -84,6 +84,12 @@ void BlankWidget::appendContextMenu(Menu *menu) {
 		}
 	));
 
+	param = &(this->module->params[Blank::PARAM_CABLE_FAST]);
+	menu->addChild(new MenuCheckItem("Cable CPU fast", "",
+		[=]() { return param->getValue() == 1; },
+		[=]() { param->setValue(!(int)param->getValue()); }
+	));
+
 	slider = new MenuSlider(
 	/**/ this->module->paramQuantities[Blank::PARAM_CABLE_SCALE]);
 	slider->box.size.x = 200.f;

@@ -36,12 +36,15 @@ void BlankDisplay::drawLayer(const DrawArgs &args, int layer) {
 	Rect			rect;
 	Rect			rect_module;
 	bool			brightness;
+	bool			fast;
 	float			t;
 	float			angle;
 	float			amp;
 	float			length;
 	float			scale;
-	int				buffer_phase;
+	float			voltage, voltage_prev;
+	float			voltage_diff, voltage_diff_max, voltage_max;
+	int				buffer_phase, buffer_phase_prev;
 	int				i, j;
 
 	if (this->module == NULL)
@@ -54,6 +57,7 @@ void BlankDisplay::drawLayer(const DrawArgs &args, int layer) {
 		return;
 
 	scale = this->module->params[Blank::PARAM_CABLE_SCALE].getValue();
+	fast = this->module->params[Blank::PARAM_CABLE_FAST].getValue();
 
 	rect = box.zeroPos();
 	rect_module = this->parent->box;
@@ -108,6 +112,8 @@ void BlankDisplay::drawLayer(const DrawArgs &args, int layer) {
 		nvgGlobalAlpha(args.vg, settings::cableOpacity);
 		nvgBeginPath(args.vg);
 		nvgMoveTo(args.vg, VEC_ARGS(pos_in));
+		buffer_phase_prev = this->module->buffer_i;
+		voltage_prev = 0.0;
 		for (j = 0; j < BLANK_PRECISION; ++j) {
 			t = (float)(j + 1) / (float)BLANK_PRECISION;
 
@@ -128,11 +134,36 @@ void BlankDisplay::drawLayer(const DrawArgs &args, int layer) {
 			/**/ + 2 * (1.0 - t) * t * pos_slump.y
 			/**/ + t * t * pos_out.y;
 
-			/// COMPUTE POINT ANIMATED POSITION
+			/// COMPUTE POINT PHASE
 			buffer_phase = this->module->buffer_i
 			/**/ - t * ((float)BLANK_BUFFER * length);
 			if (buffer_phase < 0)
 				buffer_phase += BLANK_BUFFER;
+
+			/// COMPUTE POINT ANIMATED POSITION
+			//// MODE FAST
+			if (fast) {
+				voltage = cable->buffer[buffer_phase];
+			//// MODE PRECISION
+			} else {
+				voltage_diff_max = 0;
+				voltage_max = voltage_prev;
+				while (buffer_phase_prev != buffer_phase) {
+					voltage = cable->buffer[buffer_phase_prev];
+					voltage_diff = voltage_prev - voltage;
+					if (voltage_diff < 0)
+						voltage_diff = -voltage_diff;
+					if (voltage_diff > voltage_diff_max) {
+						voltage_diff_max = voltage_diff;
+						voltage_max = voltage;
+					}
+					buffer_phase_prev -= 1;
+					if (buffer_phase_prev < 0)
+						buffer_phase_prev += BLANK_BUFFER;
+				}
+				voltage_prev = voltage_max;
+				voltage = voltage_max;
+			}
 			angle += M_PI * 0.5;
 			if (t < 0.2)
 				amp = t * 5.0;
@@ -141,8 +172,8 @@ void BlankDisplay::drawLayer(const DrawArgs &args, int layer) {
 			else
 				amp = 1.0;
 			amp *= scale;
-			pos_point.x += cos(angle) * cable->buffer[buffer_phase] * amp;
-			pos_point.y += sin(angle) * cable->buffer[buffer_phase] * amp;
+			pos_point.x += cos(angle) * voltage * amp;
+			pos_point.y += sin(angle) * voltage * amp;
 
 			nvgLineTo(args.vg, VEC_ARGS(pos_point));
 		}

@@ -57,6 +57,7 @@ struct Blank : Module {
 		PARAM_CABLE_BRIGHTNESS,		// Cable impacted by brightness
 		PARAM_CABLE_POLY_THICK,		// Polyphonic cables thicker
 		PARAM_CABLE_POLY_MODE,		// Polyphonic cables behavior (1st or sum)
+		PARAM_CABLE_FAST,			// Cable animation computation mode
 		PARAM_CABLE_SCALE,			// Cable animation scale
 		PARAM_COUNT
 	};
