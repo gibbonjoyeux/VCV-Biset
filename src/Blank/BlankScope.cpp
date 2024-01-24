@@ -16,14 +16,16 @@ void BlankScope::draw(const DrawArgs &args) {
 	math::Vec	pos_point;
 	BlankCable	*cable;
 	Rect		box;
-	int			buffer_phase;
-	int			position;
 	bool		details;
 	bool		mode;
 	bool		background;
 	float		scale;
 	float		alpha;
 	float		t;
+	float		voltage, voltage_prev;
+	float		voltage_diff, voltage_diff_max, voltage_max;
+	int			buffer_phase, buffer_phase_prev;
+	int			position;
 	int			i;
 
 
@@ -97,22 +99,45 @@ void BlankScope::draw(const DrawArgs &args) {
 	/// DRAW WAVE
 	nvgScissor(args.vg, box.pos.x, box.pos.y, box.size.x, box.size.y);
 	nvgBeginPath(args.vg);
+	buffer_phase_prev = this->module->buffer_i;
+	voltage_prev = 0.0;
 	for (i = 0; i < BLANK_PRECISION_SCOPE; ++i) {
 		t = (float)i / (float)BLANK_PRECISION_SCOPE;
 
-		/// COMPUTE BUFFER PLAYHEAD
+		/// COMPUTE VOLTAGE
 		if (mode == BLANK_SCOPE_CIRCULAR) {
+			/// COMPUTE BUFFER PHASE
 			buffer_phase = this->module->buffer_i - 1 - t * (float)BLANK_BUFFER;
 			if (buffer_phase < 0)
 				buffer_phase += BLANK_BUFFER;
+			/// COMPUTE VOLTAGE
+			voltage_diff_max = 0;
+			voltage_max = voltage_prev;
+			while (buffer_phase_prev != buffer_phase) {
+				voltage = cable->buffer[buffer_phase_prev];
+				voltage_diff = voltage_prev - voltage;
+				if (voltage_diff < 0)
+					voltage_diff = -voltage_diff;
+				if (voltage_diff > voltage_diff_max) {
+					voltage_diff_max = voltage_diff;
+					voltage_max = voltage;
+				}
+				buffer_phase_prev -= 1;
+				if (buffer_phase_prev < 0)
+					buffer_phase_prev += BLANK_BUFFER;
+			}
+			voltage_prev = voltage_max;
+			voltage = voltage_max;
+
 		} else {
 			buffer_phase = t * (float)BLANK_BUFFER;
+			voltage = cable->buffer[buffer_phase];
 		}
 
 		/// DRAW POINT
 		pos_point.x = box.pos.x + t * box.size.x;
 		pos_point.y = box.pos.y + box.size.y * 0.5
-		/**/ - cable->buffer[buffer_phase] * 0.05 * box.size.y;
+		/**/ - voltage * 0.05 * box.size.y;
 		if (i == 0)
 			nvgMoveTo(args.vg, VEC_ARGS(pos_point));
 		else
