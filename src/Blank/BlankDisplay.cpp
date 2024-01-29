@@ -44,6 +44,7 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 	float			scale;
 	float			voltage, voltage_prev;
 	float			voltage_diff, voltage_diff_max, voltage_max;
+	float			orientation;
 	int				buffer_phase, buffer_phase_prev;
 	int				i, j;
 
@@ -81,6 +82,7 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 		///**/ pos_out.plus(pos_slump.minus(pos_out).normalize().mult(13.0));
 		//pos_in =
 		///**/ pos_in.plus(pos_slump.minus(pos_in).normalize().mult(13.0));
+		orientation = (pos_in.x > pos_out.x) ? 1.0 : -1.0;
 
 		/// COMPUTE CABLE LENGTH
 		length = sqrt(
@@ -171,7 +173,7 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 				amp = (1.0 - t) * 5.0;
 			else
 				amp = 1.0;
-			amp *= scale;
+			amp *= scale * orientation;
 			pos_point.x += cos(angle) * voltage * amp;
 			pos_point.y += sin(angle) * voltage * amp;
 
