@@ -108,18 +108,6 @@ void BlankWidget::appendContextMenu(Menu *menu) {
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));
 
-	param = &(this->module->params[Blank::PARAM_SCOPE_BACKGROUND]);
-	menu->addChild(new MenuCheckItem("Scope background", "",
-		[=]() { return param->getValue() == 1; },
-		[=]() { param->setValue(!(int)param->getValue()); }
-	));
-
-	param = &(this->module->params[Blank::PARAM_SCOPE_DETAILS]);
-	menu->addChild(new MenuCheckItem("Scope details", "",
-		[=]() { return param->getValue() == 1; },
-		[=]() { param->setValue(!(int)param->getValue()); }
-	));
-
 	param = &(this->module->params[Blank::PARAM_SCOPE_MODE]);
 	menu->addChild(new MenuCheckItem("Scope display mode", "",
 		[=]() { return param->getValue() == 1; },
@@ -154,6 +142,21 @@ void BlankWidget::appendContextMenu(Menu *menu) {
 
 	slider = new MenuSlider(
 	/**/ this->module->paramQuantities[Blank::PARAM_SCOPE_SCALE]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+
+	slider = new MenuSlider(
+	/**/ this->module->paramQuantities[Blank::PARAM_SCOPE_THICKNESS]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+
+	slider = new MenuSlider(
+	/**/ this->module->paramQuantities[Blank::PARAM_SCOPE_BACK_ALPHA]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+
+	slider = new MenuSlider(
+	/**/ this->module->paramQuantities[Blank::PARAM_SCOPE_VOLT_ALPHA]);
 	slider->box.size.x = 200.f;
 	menu->addChild(slider);
 

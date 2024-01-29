@@ -16,11 +16,12 @@ void BlankScope::draw(const DrawArgs &args) {
 	math::Vec	pos_point;
 	BlankCable	*cable;
 	Rect		box;
-	bool		details;
 	bool		mode;
-	bool		background;
+	float		details;
+	float		background;
 	float		scale;
 	float		alpha;
+	float		thickness;
 	float		t;
 	float		voltage, voltage_prev;
 	float		voltage_diff, voltage_diff_max, voltage_max;
@@ -38,11 +39,12 @@ void BlankScope::draw(const DrawArgs &args) {
 
 	cable = &(this->module->cables[this->module->scope_index]);
 	scale = this->module->params[Blank::PARAM_SCOPE_SCALE].getValue();
-	alpha = this->module->params[Blank::PARAM_SCOPE_ALPHA].getValue();
 	position = this->module->params[Blank::PARAM_SCOPE_POSITION].getValue();
 	mode = this->module->params[Blank::PARAM_SCOPE_MODE].getValue();
-	details = this->module->params[Blank::PARAM_SCOPE_DETAILS].getValue();
-	background = this->module->params[Blank::PARAM_SCOPE_BACKGROUND].getValue();
+	thickness = this->module->params[Blank::PARAM_SCOPE_THICKNESS].getValue();
+	details = this->module->params[Blank::PARAM_SCOPE_VOLT_ALPHA].getValue();
+	background = this->module->params[Blank::PARAM_SCOPE_BACK_ALPHA].getValue();
+	alpha = this->module->params[Blank::PARAM_SCOPE_ALPHA].getValue();
 	box.size.x = scale * APP->scene->box.size.x;
 	box.size.y = scale * APP->scene->box.size.x * 0.5;
 	if (position == BLANK_SCOPE_TOP_LEFT) {
@@ -64,47 +66,48 @@ void BlankScope::draw(const DrawArgs &args) {
 
 	nvgAlpha(args.vg, alpha);
 
-	if (background) {
-		/// DRAW BOX
+	/// DRAW BOX
+	if (background >= 0) {
 		nvgBeginPath(args.vg);
-		nvgFillColor(args.vg, (NVGcolor){0, 0, 0, 1});
+		nvgFillColor(args.vg, (NVGcolor){0, 0, 0, background});
 		nvgRect(args.vg, box.pos.x, box.pos.y, box.size.x, box.size.y);
 		nvgFill(args.vg);
 
-		/// DRAW DETAILS
-		if (details) {
-			nvgStrokeColor(args.vg, (NVGcolor){0.5, 0.5, 0.5, 1});
-			nvgStrokeWidth(args.vg, 1.0);
-			/// 0V LINE
-			nvgBeginPath(args.vg);
-			nvgMoveTo(args.vg,
-			/**/ box.pos.x, box.pos.y + box.size.y * 0.5);
-			nvgLineTo(args.vg,
-			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.5);
-			/// 5V LINES
-			//// 0.5 - 0.25 * 0.8
-			//// 0.5 + 0.25 * 0.8
-			nvgMoveTo(args.vg,
-			/**/ box.pos.x, box.pos.y + box.size.y * 0.3);
-			nvgLineTo(args.vg,
-			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.3);
-			nvgMoveTo(args.vg,
-			/**/ box.pos.x, box.pos.y + box.size.y * 0.7);
-			nvgLineTo(args.vg,
-			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.7);
-			/// 10V LINES
-			//// 0.5 - 0.5 * 0.8
-			//// 0.5 + 0.5 * 0.8
-			nvgMoveTo(args.vg,
-			/**/ box.pos.x, box.pos.y + box.size.y * 0.1);
-			nvgLineTo(args.vg,
-			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.1);
-			nvgMoveTo(args.vg,
-			/**/ box.pos.x, box.pos.y + box.size.y * 0.9);
-			nvgLineTo(args.vg,
-			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.9);
-			nvgStroke(args.vg);
-		}
+	}
+
+	/// DRAW DETAILS
+	if (details >= 0) {
+		nvgStrokeColor(args.vg, (NVGcolor){1, 1, 1, details});
+		nvgStrokeWidth(args.vg, 1.0);
+		/// 0V LINE
+		nvgBeginPath(args.vg);
+		nvgMoveTo(args.vg,
+		/**/ box.pos.x, box.pos.y + box.size.y * 0.5);
+		nvgLineTo(args.vg,
+		/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.5);
+		/// 5V LINES
+		//// 0.5 - 0.25 * 0.8
+		//// 0.5 + 0.25 * 0.8
+		nvgMoveTo(args.vg,
+		/**/ box.pos.x, box.pos.y + box.size.y * 0.3);
+		nvgLineTo(args.vg,
+		/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.3);
+		nvgMoveTo(args.vg,
+		/**/ box.pos.x, box.pos.y + box.size.y * 0.7);
+		nvgLineTo(args.vg,
+		/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.7);
+		/// 10V LINES
+		//// 0.5 - 0.5 * 0.8
+		//// 0.5 + 0.5 * 0.8
+		nvgMoveTo(args.vg,
+		/**/ box.pos.x, box.pos.y + box.size.y * 0.1);
+		nvgLineTo(args.vg,
+		/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.1);
+		nvgMoveTo(args.vg,
+		/**/ box.pos.x, box.pos.y + box.size.y * 0.9);
+		nvgLineTo(args.vg,
+		/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.9);
+		nvgStroke(args.vg);
 	}
 
 	/// DRAW WAVE
@@ -155,7 +158,7 @@ void BlankScope::draw(const DrawArgs &args) {
 			nvgLineTo(args.vg, VEC_ARGS(pos_point));
 	}
 	nvgStrokeColor(args.vg, cable->color);
-	nvgStrokeWidth(args.vg, 2.0);
+	nvgStrokeWidth(args.vg, thickness);
 	nvgStroke(args.vg);
 	nvgResetScissor(args.vg);
 }

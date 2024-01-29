@@ -15,16 +15,17 @@ Blank::Blank(void) {
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
 	configSwitch(PARAM_SCOPE_ENABLED, 0, 1, 1);
-	configSwitch(PARAM_SCOPE_BACKGROUND, 0, 1, 1);
-	configSwitch(PARAM_SCOPE_DETAILS, 0, 1, 1);
 	configSwitch(PARAM_SCOPE_MODE, 0, 1, 0);
 	configSwitch(PARAM_SCOPE_POSITION, 0, 4, 0);
 	configParam(PARAM_SCOPE_SCALE, 0.02, 1, 0.2, "Scope scale", "%", 0, 100);
-	configParam(PARAM_SCOPE_ALPHA, 0, 1, 0.8, "Scope alpha", "%", 0, 100);
+	configParam(PARAM_SCOPE_THICKNESS, 1, 10, 2, "Scope thickness", "");
+	configParam(PARAM_SCOPE_BACK_ALPHA, 0, 1, 1, "Scope background alpha", "%", 0, 100);
+	configParam(PARAM_SCOPE_VOLT_ALPHA, 0, 1, 0.3, "Scope voltage alpha", "%", 0, 100);
+	configParam(PARAM_SCOPE_ALPHA, 0, 1, 0.6, "Scope alpha", "%", 0, 100);
 
 	configSwitch(PARAM_CABLE_ENABLED, 0, 1, 1);
 	configSwitch(PARAM_CABLE_BRIGHTNESS, 0, 1, 1);
-	configSwitch(PARAM_CABLE_POLY_THICK, 0, 1, 0);
+	configSwitch(PARAM_CABLE_POLY_THICK, 0, 1, 1);
 	configSwitch(PARAM_CABLE_POLY_MODE, 0, 2, 0);
 	configSwitch(PARAM_CABLE_FAST, 0, 1, 0);
 	configParam(PARAM_CABLE_SCALE, 0.0, 2.0, 1.0, "Cable scale", "%", 0, 100);
