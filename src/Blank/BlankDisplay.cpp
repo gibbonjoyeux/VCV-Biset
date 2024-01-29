@@ -74,10 +74,10 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 		pos_in = cable->pos_in;
 		pos_out = cable->pos_out;
 		pos_slump = get_pos_slump(pos_out, pos_in);
-		pos_out =
-		/**/ pos_out.plus(pos_slump.minus(pos_out).normalize().mult(10.5));
-		pos_in =
-		/**/ pos_in.plus(pos_slump.minus(pos_in).normalize().mult(10.5));
+		//pos_out =
+		///**/ pos_out.plus(pos_slump.minus(pos_out).normalize().mult(10.5));
+		//pos_in =
+		///**/ pos_in.plus(pos_slump.minus(pos_in).normalize().mult(10.5));
 		//pos_out =
 		///**/ pos_out.plus(pos_slump.minus(pos_out).normalize().mult(13.0));
 		//pos_in =
@@ -191,16 +191,17 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 		pos_in = cable->pos_in;
 		pos_out = cable->pos_out;
 		pos_slump = get_pos_slump(pos_out, pos_in);
-		pos_out =
-		/**/ pos_out.plus(pos_slump.minus(pos_out).normalize().mult(10.5));
-		pos_in =
-		/**/ pos_in.plus(pos_slump.minus(pos_in).normalize().mult(10.5));
+		//pos_out =
+		///**/ pos_out.plus(pos_slump.minus(pos_out).normalize().mult(10.5));
+		//pos_in =
+		///**/ pos_in.plus(pos_slump.minus(pos_in).normalize().mult(10.5));
 		//pos_out =
 		///**/ pos_out.plus(pos_slump.minus(pos_out).normalize().mult(13.0));
 		//pos_in =
 		///**/ pos_in.plus(pos_slump.minus(pos_in).normalize().mult(13.0));
 
 		nvgStrokeColor(args.vg, cable->color);
+		nvgFillColor(args.vg, cable->color);
 		nvgGlobalAlpha(args.vg, 1.0);
 
 		/// DRAW CABLE PLUG
@@ -208,10 +209,12 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 		nvgCircle(args.vg, cable->pos_in.x, cable->pos_in.y, 8.5);
 		nvgStrokeWidth(args.vg, 4.0);
 		nvgStroke(args.vg);
+		nvgFill(args.vg);
 		nvgBeginPath(args.vg);
 		nvgCircle(args.vg, cable->pos_out.x, cable->pos_out.y, 8.5);
 		nvgStrokeWidth(args.vg, 4.0);
 		nvgStroke(args.vg);
+		nvgFill(args.vg);
 
 		/// DRAW CABLE
 		nvgBeginPath(args.vg);
