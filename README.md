@@ -3,7 +3,9 @@
 
 **Biset** sequencing / performing / vco modules.
 
-[Donations are welcome](https://www.paypal.com/paypalme/bisousbiset)
+<a href='https://ko-fi.com/N4N0TVI8X' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi2.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
+[Tip on paypal](https://www.paypal.com/paypalme/bisousbiset)
 
 For **question**, **bug report** or **feature request**, feel free to contact me
 by email or create a **github issue** (easier for me for report or request).
@@ -75,7 +77,13 @@ If the **gate** input is not provided, it is considered **up** by default.
 
 ## Updates
 
-### 2.0.8 (coming)
+### 2.0.9 (coming)
+
+- Blank
+	- [x] Fix closing VCV crash
+	- [x] Add new parameters
+
+### 2.0.8 (jan 27, 2024)
 
 - Tracker
 	- [x] Fixed `c` effect crash
@@ -92,6 +100,9 @@ If the **gate** input is not provided, it is considered **up** by default.
 	- [x] Gate output expander
 - Please kill me
 	- [x] Fixed no pitch input no output issue
+- Blank
+	- [x] Animated cables
+	- [x] Hover scope
 
 ### 2.0.7 (jan 4, 2024)
 
