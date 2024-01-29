@@ -11,7 +11,7 @@
 
 BlankWidget::BlankWidget(Blank* _module) {
 	BlankScope	*scope;
-	BlankDisplay	*display;
+	BlankCables	*display;
 
 	this->module = _module;
 	setModule(this->module);
@@ -19,7 +19,7 @@ BlankWidget::BlankWidget(Blank* _module) {
 
 	/// ADD CABLE DISPLAY
 	if (this->module) {
-		display = createWidget<BlankDisplay>(Vec(0, 0));
+		display = createWidget<BlankCables>(Vec(0, 0));
 		display->box.size = math::Vec(INFINITY, INFINITY);
 		display->module = module;
 		this->module->display = display;

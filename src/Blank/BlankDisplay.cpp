@@ -20,13 +20,13 @@ static math::Vec get_pos_slump(math::Vec pos1, math::Vec pos2) {
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-BlankDisplay::BlankDisplay() {
+BlankCables::BlankCables() {
 }
 
-void BlankDisplay::draw(const DrawArgs &args) {
+void BlankCables::draw(const DrawArgs &args) {
 }
 
-void BlankDisplay::drawLayer(const DrawArgs &args, int layer) {
+void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 	BlankCable		*cable;
 	math::Vec		pos_in;
 	math::Vec		pos_out;
@@ -53,7 +53,7 @@ void BlankDisplay::drawLayer(const DrawArgs &args, int layer) {
 	if ((brightness == 0 && layer != 1)
 	|| (brightness == 1 && layer != 2))
 		return;
-	if (g_igc != this->module)
+	if (g_blank != this->module)
 		return;
 
 	scale = this->module->params[Blank::PARAM_CABLE_SCALE].getValue();

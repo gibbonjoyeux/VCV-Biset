@@ -1,7 +1,7 @@
 
 #include "Blank.hpp"
 
-Blank *g_igc = NULL;
+Blank *g_blank = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -37,21 +37,23 @@ Blank::Blank(void) {
 
 Blank::~Blank(void) {
 	if (this->display) {
-		APP->scene->rack->removeChild(this->display);
+		if (APP->scene->rack->hasChild(this->display))
+			APP->scene->rack->removeChild(this->display);
 		delete this->display;
 	}
 	if (this->scope) {
-		APP->scene->removeChild(this->scope);
+		if (APP->scene->hasChild(this->scope))
+			APP->scene->removeChild(this->scope);
 		delete this->scope;
 	}
-	if (this == g_igc) {
-		g_igc = NULL;
+	if (this == g_blank) {
+		g_blank = NULL;
 		APP->scene->rack->getCableContainer()->show();
 	}
 }
 
 void Blank::processBypass(const ProcessArgs& args) {
-	if (this == g_igc) {
+	if (this == g_blank) {
 		APP->scene->rack->getCableContainer()->show();
 		if (this->display)
 			this->display->hide();
@@ -59,23 +61,24 @@ void Blank::processBypass(const ProcessArgs& args) {
 }
 
 void Blank::process(const ProcessArgs& args) {
-	PortWidget					*port_widget;
-	Port						*port;
-	std::vector<CableWidget*>	cables;
-	CableWidget					*widget;
-	Cable						*cable;
-	Output						*output;
-	Widget						*hovered;
-	bool						poly_thick;
-	i8							poly_mode;
-	int							channels;
-	int							i;
+	std::list<Widget*>::iterator	it, it_end;
+	Widget							*container;
+	CableWidget						*widget;
+	Cable							*cable;
+	PortWidget						*port_widget;
+	Port							*port;
+	Output							*output;
+	Widget							*hovered;
+	bool							poly_thick;
+	i8								poly_mode;
+	int								channels;
+	int								i;
 
 	if (args.frame % 32 != 0)
 		return;
-	if (g_igc == NULL)
-		g_igc = this;
-	if (g_igc != this)
+	if (g_blank == NULL)
+		g_blank = this;
+	if (g_blank != this)
 		return;
 
 	/// [1] GET PARAMETERS
@@ -91,17 +94,22 @@ void Blank::process(const ProcessArgs& args) {
 			this->display->hide();
 	}
 
-	/// [2] GET CABLES
+	/// [2] GET CABLE CONTAINER
 	hovered = APP->event->hoveredWidget;
-	cables = APP->scene->rack->getCompleteCables();
-	this->cable_count = cables.size();
-	if (this->cable_count >= BLANK_CABLES)
-		this->cable_count = BLANK_CABLES - 1;
+	container = APP->scene->rack->getCableContainer();
+	it = container->children.begin();
+	it_end = container->children.end();
 
 	/// [3] RECORD CABLES
+	i = 0;
 	this->scope_index = -1;
-	for (i = 0; i < this->cable_count; ++i) {
-		widget = cables[i];
+	while (it != it_end) {
+		/// GET CABLE
+		widget = dynamic_cast<CableWidget*>(*it);
+		if (widget == NULL || widget->isComplete() == false) {
+			++it;
+			continue;
+		}
 		cable = widget->cable;
 		/// STORE CABLE POSITION
 		this->cables[i].pos_out = widget->getInputPos();
@@ -128,7 +136,15 @@ void Blank::process(const ProcessArgs& args) {
 		/// CHECK HOVER
 		if (widget->outputPort == hovered || widget->inputPort == hovered)
 			this->scope_index = i;
+		/// LOOP
+		++it;
+		++i;
+		if (i >= BLANK_CABLES) {
+			i = BLANK_CABLES - 1;
+			return;
+		}
 	}
+	this->cable_count = i;
 
 	/// [4] RECORD HOVERED PORT
 	if (this->scope_index < 0 && hovered) {

@@ -29,7 +29,7 @@ void BlankScope::draw(const DrawArgs &args) {
 	int			i;
 
 
-	if (g_igc != this->module)
+	if (g_blank != this->module)
 		return;
 	if (this->module->params[Blank::PARAM_SCOPE_ENABLED].getValue() == 0.0)
 		return;
@@ -73,7 +73,7 @@ void BlankScope::draw(const DrawArgs &args) {
 
 		/// DRAW DETAILS
 		if (details) {
-			nvgStrokeColor(args.vg, (NVGcolor){0.3, 0.3, 0.3, 1});
+			nvgStrokeColor(args.vg, (NVGcolor){0.5, 0.5, 0.5, 1});
 			nvgStrokeWidth(args.vg, 1.0);
 			/// 0V LINE
 			nvgBeginPath(args.vg);
@@ -81,17 +81,28 @@ void BlankScope::draw(const DrawArgs &args) {
 			/**/ box.pos.x, box.pos.y + box.size.y * 0.5);
 			nvgLineTo(args.vg,
 			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.5);
-			nvgStroke(args.vg);
 			/// 5V LINES
-			nvgBeginPath(args.vg);
+			//// 0.5 - 0.25 * 0.8
+			//// 0.5 + 0.25 * 0.8
 			nvgMoveTo(args.vg,
-			/**/ box.pos.x, box.pos.y + box.size.y * 0.25);
+			/**/ box.pos.x, box.pos.y + box.size.y * 0.3);
 			nvgLineTo(args.vg,
-			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.25);
+			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.3);
 			nvgMoveTo(args.vg,
-			/**/ box.pos.x, box.pos.y + box.size.y * 0.75);
+			/**/ box.pos.x, box.pos.y + box.size.y * 0.7);
 			nvgLineTo(args.vg,
-			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.75);
+			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.7);
+			/// 10V LINES
+			//// 0.5 - 0.5 * 0.8
+			//// 0.5 + 0.5 * 0.8
+			nvgMoveTo(args.vg,
+			/**/ box.pos.x, box.pos.y + box.size.y * 0.1);
+			nvgLineTo(args.vg,
+			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.1);
+			nvgMoveTo(args.vg,
+			/**/ box.pos.x, box.pos.y + box.size.y * 0.9);
+			nvgLineTo(args.vg,
+			/**/ box.pos.x + box.size.x, box.pos.y + box.size.y * 0.9);
 			nvgStroke(args.vg);
 		}
 	}
@@ -137,7 +148,7 @@ void BlankScope::draw(const DrawArgs &args) {
 		/// DRAW POINT
 		pos_point.x = box.pos.x + t * box.size.x;
 		pos_point.y = box.pos.y + box.size.y * 0.5
-		/**/ - voltage * 0.05 * box.size.y;
+		/**/ - voltage * 0.05 * box.size.y * 0.8;
 		if (i == 0)
 			nvgMoveTo(args.vg, VEC_ARGS(pos_point));
 		else

@@ -5,25 +5,25 @@
 #include "../plugin.hpp"
 
 #define BLANK_BUFFER					2048
-#define BLANK_DIST_MAX				300.0
-#define BLANK_PRECISION				128
+#define BLANK_DIST_MAX					300.0
+#define BLANK_PRECISION					128
 #define BLANK_PRECISION_SCOPE			256
 #define BLANK_CABLES					256
 
-#define BLANK_CABLE_POLY_FIRST		0
+#define BLANK_CABLE_POLY_FIRST			0
 #define BLANK_CABLE_POLY_SUM			1
 #define BLANK_CABLE_POLY_SUM_DIVIDED	2
 
 #define BLANK_SCOPE_TOP_LEFT			0
 #define BLANK_SCOPE_TOP_RIGHT			1
-#define BLANK_SCOPE_BOTTOM_LEFT		2
+#define BLANK_SCOPE_BOTTOM_LEFT			2
 #define BLANK_SCOPE_BOTTOM_RIGHT		3
-#define BLANK_SCOPE_CENTER			4
+#define BLANK_SCOPE_CENTER				4
 #define BLANK_SCOPE_CIRCULAR			0
-#define BLANK_SCOPE_LINEAR			1
-#define BLANK_CABLE_INCOMPLETE_OFF	0
+#define BLANK_SCOPE_LINEAR				1
+#define BLANK_CABLE_INCOMPLETE_OFF		0
 #define BLANK_CABLE_INCOMPLETE_IN		1
-#define BLANK_CABLE_INCOMPLETE_OUT	2
+#define BLANK_CABLE_INCOMPLETE_OUT		2
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
@@ -32,7 +32,7 @@
 struct BlankCable;
 struct Blank;
 struct BlankWidget;
-struct BlankDisplay;
+struct BlankCables;
 struct BlankScope;
 
 struct BlankCable {
@@ -78,7 +78,7 @@ struct Blank : Module {
 
 	int				scope_index;
 	BlankScope		*scope;
-	BlankDisplay		*display;
+	BlankCables		*display;
 
 	Blank();
 	~Blank();
@@ -93,10 +93,10 @@ struct BlankWidget : ModuleWidget {
 	void appendContextMenu(Menu *menu) override;
 };
 
-struct BlankDisplay : Widget {
+struct BlankCables : Widget {
 	Blank				*module;
 
-	BlankDisplay();
+	BlankCables();
 	void draw(const DrawArgs &args) override;
 	void drawLayer(const DrawArgs &args, int layer) override;
 };
@@ -108,6 +108,6 @@ struct BlankScope : Widget {
 	void draw(const DrawArgs &args) override;
 };
 
-extern Blank	*g_igc;
+extern Blank	*g_blank;
 
 #endif
