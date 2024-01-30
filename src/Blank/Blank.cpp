@@ -20,9 +20,10 @@ Blank::Blank(void) {
 	configSwitch(PARAM_SCOPE_POSITION, 0, 4, 0);
 	configParam(PARAM_SCOPE_SCALE, 0.02, 1, 0.2, "Scope scale", "%", 0, 100);
 	configParam(PARAM_SCOPE_THICKNESS, 1, 10, 2, "Scope thickness", "");
-	configParam(PARAM_SCOPE_BACK_ALPHA, 0, 1, 1, "Scope background alpha", "%", 0, 100);
+	configParam(PARAM_SCOPE_BACK_ALPHA, 0, 1, 0.6, "Scope background alpha", "%", 0, 100);
 	configParam(PARAM_SCOPE_VOLT_ALPHA, 0, 1, 0.3, "Scope voltage alpha", "%", 0, 100);
-	configParam(PARAM_SCOPE_ALPHA, 0, 1, 0.6, "Scope alpha", "%", 0, 100);
+	configParam(PARAM_SCOPE_LABEL_ALPHA, 0, 1, 1, "Scope label alpha", "%", 0, 100);
+	configParam(PARAM_SCOPE_ALPHA, 0, 1, 1, "Scope alpha", "%", 0, 100);
 
 	configSwitch(PARAM_CABLE_ENABLED, 0, 1, 1);
 	configSwitch(PARAM_CABLE_BRIGHTNESS, 0, 1, 1);
@@ -67,10 +68,11 @@ void Blank::process(const ProcessArgs& args) {
 	Widget							*container;
 	CableWidget						*widget;
 	Cable							*cable;
+	PortInfo						*port_info;
 	PortWidget						*port_widget;
 	Port							*port;
 	Output							*output;
-	Widget							*hovered;
+	PortWidget						*hovered;
 	bool							scope;
 	bool							poly_thick;
 	i8								poly_mode;
@@ -89,7 +91,6 @@ void Blank::process(const ProcessArgs& args) {
 		scope = ((APP->window->getMods() & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT);
 	else
 		scope = true;
-
 	poly_thick = this->params[Blank::PARAM_CABLE_POLY_THICK].getValue();
 	poly_mode = this->params[Blank::PARAM_CABLE_POLY_MODE].getValue();
 	if (this->params[Blank::PARAM_CABLE_ENABLED].getValue()) {
@@ -101,9 +102,10 @@ void Blank::process(const ProcessArgs& args) {
 		if (this->display)
 			this->display->hide();
 	}
+	hovered = dynamic_cast<PortWidget*>(APP->event->hoveredWidget);
+	this->scope_label[0] = 0;
 
 	/// [2] GET CABLE CONTAINER
-	hovered = APP->event->hoveredWidget;
 	container = APP->scene->rack->getCableContainer();
 	it = container->children.begin();
 	it_end = container->children.end();
@@ -143,8 +145,25 @@ void Blank::process(const ProcessArgs& args) {
 		}
 		/// CHECK HOVER
 		if (scope &&
-		(widget->outputPort == hovered || widget->inputPort == hovered))
+		(widget->outputPort == hovered || widget->inputPort == hovered)) {
+			/// SET INDEX
 			this->scope_index = i;
+			/// SET LABEL
+			port_info = widget->outputPort->getPortInfo();
+			if (port_info) {
+				strncpy(this->scope_label,
+				/**/ port_info->name.c_str(),
+				/**/ BLANK_SCOPE_LABEL);
+			}
+			strcat(this->scope_label, " output to ");
+			port_info = widget->inputPort->getPortInfo();
+			if (port_info) {
+				strncat(this->scope_label,
+				/**/ port_info->name.c_str(),
+				/**/ BLANK_SCOPE_LABEL);
+			}
+			strcat(this->scope_label, " input");
+		}
 		/// LOOP
 		++it;
 		++i;
@@ -166,6 +185,13 @@ void Blank::process(const ProcessArgs& args) {
 				this->cables[BLANK_CABLES].color = {1, 1, 1, 1};
 				this->cables[BLANK_CABLES].buffer[this->buffer_i] =
 				/**/ port->voltages[0];
+				/// STORE PORT LABEL
+				port_info = port_widget->getPortInfo();
+				if (port_info) {
+					strncpy(this->scope_label,
+					/**/ port_info->name.c_str(),
+					/**/ BLANK_SCOPE_LABEL - 1);
+				}
 			}
 		}
 	}

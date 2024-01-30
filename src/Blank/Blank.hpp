@@ -9,6 +9,8 @@
 #define BLANK_PRECISION					128
 #define BLANK_PRECISION_SCOPE			256
 #define BLANK_CABLES					256
+#define BLANK_SCOPE_LABEL_BUFFER		128	// "X output to Y input\0"
+#define BLANK_SCOPE_LABEL				55	// (128 - 18) / 2
 
 #define BLANK_CABLE_POLY_FIRST			0
 #define BLANK_CABLE_POLY_SUM			1
@@ -50,12 +52,11 @@ struct Blank : Module {
 		PARAM_SCOPE_MAJ,			// Scope appears only with MAJ pressed
 		PARAM_SCOPE_MODE,			// Scope display mode (circular / redraw)
 		PARAM_SCOPE_POSITION,		// Scope position mode
-		PARAM_SCOPE_NAME,			// TODO Scope plug name enabled
-		PARAM_SCOPE_NAME_SCALE,		// TODO Scope plug name scale
 		PARAM_SCOPE_SCALE,			// Scope scale
 		PARAM_SCOPE_THICKNESS,		// Scope line thickness
 		PARAM_SCOPE_BACK_ALPHA,		// Scope background alpha
 		PARAM_SCOPE_VOLT_ALPHA,		// Scope voltage indicator alpha
+		PARAM_SCOPE_LABEL_ALPHA,	// Scope port name alpha
 		PARAM_SCOPE_ALPHA,			// Scope alpha
 
 		PARAM_CABLE_ENABLED,
@@ -86,6 +87,7 @@ struct Blank : Module {
 	int				scope_index;
 	BlankScope		*scope;
 	BlankCables		*display;
+	char			scope_label[BLANK_SCOPE_LABEL_BUFFER];
 
 	Blank();
 	~Blank();
@@ -110,6 +112,7 @@ struct BlankCables : Widget {
 
 struct BlankScope : Widget {
 	Blank				*module;
+	std::string			font_path;
 
 	BlankScope();
 	void draw(const DrawArgs &args) override;

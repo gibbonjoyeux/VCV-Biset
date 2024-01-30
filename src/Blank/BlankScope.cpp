@@ -10,24 +10,27 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 BlankScope::BlankScope() {
+	this->font_path = asset::system("res/fonts/ShareTechMono-Regular.ttf");
 }
 
 void BlankScope::draw(const DrawArgs &args) {
-	math::Vec	pos_point;
-	BlankCable	*cable;
-	Rect		box;
-	bool		mode;
-	float		details;
-	float		background;
-	float		scale;
-	float		alpha;
-	float		thickness;
-	float		t;
-	float		voltage, voltage_prev;
-	float		voltage_diff, voltage_diff_max, voltage_max;
-	int			buffer_phase, buffer_phase_prev;
-	int			position;
-	int			i;
+	std::shared_ptr<Font>	font;
+	math::Vec				pos_point;
+	BlankCable				*cable;
+	Rect					box;
+	bool					mode;
+	float					label;
+	float					details;
+	float					background;
+	float					scale;
+	float					alpha;
+	float					thickness;
+	float					t;
+	float					voltage, voltage_prev;
+	float					voltage_diff, voltage_diff_max, voltage_max;
+	int						buffer_phase, buffer_phase_prev;
+	int						position;
+	int						i;
 
 
 	if (g_blank != this->module)
@@ -37,6 +40,7 @@ void BlankScope::draw(const DrawArgs &args) {
 	if (this->module->scope_index < 0)
 		return;
 
+	/// [1] GET PARAMETERS
 	cable = &(this->module->cables[this->module->scope_index]);
 	scale = this->module->params[Blank::PARAM_SCOPE_SCALE].getValue();
 	position = this->module->params[Blank::PARAM_SCOPE_POSITION].getValue();
@@ -44,6 +48,7 @@ void BlankScope::draw(const DrawArgs &args) {
 	thickness = this->module->params[Blank::PARAM_SCOPE_THICKNESS].getValue();
 	details = this->module->params[Blank::PARAM_SCOPE_VOLT_ALPHA].getValue();
 	background = this->module->params[Blank::PARAM_SCOPE_BACK_ALPHA].getValue();
+	label = this->module->params[Blank::PARAM_SCOPE_LABEL_ALPHA].getValue();
 	alpha = this->module->params[Blank::PARAM_SCOPE_ALPHA].getValue();
 	box.size.x = scale * APP->scene->box.size.x;
 	box.size.y = scale * APP->scene->box.size.x * 0.5;
@@ -66,7 +71,7 @@ void BlankScope::draw(const DrawArgs &args) {
 
 	nvgAlpha(args.vg, alpha);
 
-	/// DRAW BOX
+	/// [2] DRAW BACKGROUND
 	if (background >= 0) {
 		nvgBeginPath(args.vg);
 		nvgFillColor(args.vg, (NVGcolor){0, 0, 0, background});
@@ -75,7 +80,7 @@ void BlankScope::draw(const DrawArgs &args) {
 
 	}
 
-	/// DRAW DETAILS
+	/// [3] DRAW DETAILS (VOLTAGE)
 	if (details >= 0) {
 		nvgStrokeColor(args.vg, (NVGcolor){1, 1, 1, details});
 		nvgStrokeWidth(args.vg, 1.0);
@@ -110,7 +115,7 @@ void BlankScope::draw(const DrawArgs &args) {
 		nvgStroke(args.vg);
 	}
 
-	/// DRAW WAVE
+	/// [4] DRAW WAVE
 	nvgScissor(args.vg, box.pos.x, box.pos.y, box.size.x, box.size.y);
 	nvgBeginPath(args.vg);
 	buffer_phase_prev = this->module->buffer_i;
@@ -161,4 +166,19 @@ void BlankScope::draw(const DrawArgs &args) {
 	nvgStrokeWidth(args.vg, thickness);
 	nvgStroke(args.vg);
 	nvgResetScissor(args.vg);
+
+	/// [5] DRAW PORT LABEL
+	if (label > 0) {
+		font = APP->window->loadFont(this->font_path);
+		if (font == NULL)
+			return;
+		nvgFontSize(args.vg, 12.0 * scale * 5.0);
+		nvgFontFaceId(args.vg, font->handle);
+		nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+		nvgFillColor(args.vg, (NVGcolor){1, 1, 1, label});
+		nvgText(args.vg,
+		/**/ box.pos.x + box.size.x * 0.5,
+		/**/ box.pos.y + box.size.y * 0.905,
+		/**/ this->module->scope_label, NULL);
+	}
 }

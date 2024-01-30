@@ -167,6 +167,11 @@ void BlankWidget::appendContextMenu(Menu *menu) {
 	menu->addChild(slider);
 
 	slider = new MenuSlider(
+	/**/ this->module->paramQuantities[Blank::PARAM_SCOPE_LABEL_ALPHA]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+
+	slider = new MenuSlider(
 	/**/ this->module->paramQuantities[Blank::PARAM_SCOPE_ALPHA]);
 	slider->box.size.x = 200.f;
 	menu->addChild(slider);
