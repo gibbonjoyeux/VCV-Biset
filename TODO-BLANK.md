@@ -11,4 +11,4 @@
 - [x] Scope signal
 - [x] Scope position / scale / alpha
 - [x] Scope elements alpha
-- [ ] Scope plug name
+- [x] Scope port label
