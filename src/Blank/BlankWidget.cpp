@@ -108,8 +108,14 @@ void BlankWidget::appendContextMenu(Menu *menu) {
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));
 
+	param = &(this->module->params[Blank::PARAM_SCOPE_MAJ]);
+	menu->addChild(new MenuCheckItem("Scope on MAJ", "",
+		[=]() { return param->getValue() == 1; },
+		[=]() { param->setValue(!(int)param->getValue()); }
+	));
+
 	param = &(this->module->params[Blank::PARAM_SCOPE_MODE]);
-	menu->addChild(new MenuCheckItem("Scope display mode", "",
+	menu->addChild(new MenuCheckItem("Scope display circular", "",
 		[=]() { return param->getValue() == 1; },
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));

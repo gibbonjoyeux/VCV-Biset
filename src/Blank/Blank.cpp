@@ -15,6 +15,7 @@ Blank::Blank(void) {
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
 	configSwitch(PARAM_SCOPE_ENABLED, 0, 1, 1);
+	configSwitch(PARAM_SCOPE_MAJ, 0, 1, 0);
 	configSwitch(PARAM_SCOPE_MODE, 0, 1, 0);
 	configSwitch(PARAM_SCOPE_POSITION, 0, 4, 0);
 	configParam(PARAM_SCOPE_SCALE, 0.02, 1, 0.2, "Scope scale", "%", 0, 100);
@@ -70,6 +71,7 @@ void Blank::process(const ProcessArgs& args) {
 	Port							*port;
 	Output							*output;
 	Widget							*hovered;
+	bool							scope;
 	bool							poly_thick;
 	i8								poly_mode;
 	int								channels;
@@ -83,6 +85,11 @@ void Blank::process(const ProcessArgs& args) {
 		return;
 
 	/// [1] GET PARAMETERS
+	if (this->params[Blank::PARAM_SCOPE_MAJ].getValue())
+		scope = ((APP->window->getMods() & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT);
+	else
+		scope = true;
+
 	poly_thick = this->params[Blank::PARAM_CABLE_POLY_THICK].getValue();
 	poly_mode = this->params[Blank::PARAM_CABLE_POLY_MODE].getValue();
 	if (this->params[Blank::PARAM_CABLE_ENABLED].getValue()) {
@@ -135,7 +142,8 @@ void Blank::process(const ProcessArgs& args) {
 			}
 		}
 		/// CHECK HOVER
-		if (widget->outputPort == hovered || widget->inputPort == hovered)
+		if (scope &&
+		(widget->outputPort == hovered || widget->inputPort == hovered))
 			this->scope_index = i;
 		/// LOOP
 		++it;
@@ -147,8 +155,8 @@ void Blank::process(const ProcessArgs& args) {
 	}
 	this->cable_count = i;
 
-	/// [4] RECORD HOVERED PORT
-	if (this->scope_index < 0 && hovered) {
+	/// [4] RECORD HOVERED UNCONNECTED PORT
+	if (this->scope_index < 0 && hovered && scope) {
 		port_widget = dynamic_cast<PortWidget*>(hovered);
 		if (port_widget && port_widget->type == engine::Port::OUTPUT) {
 			port = port_widget->getPort();
