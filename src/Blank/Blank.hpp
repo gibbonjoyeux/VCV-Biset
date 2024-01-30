@@ -48,6 +48,14 @@ struct BlankCable {
 
 struct Blank : Module {
 	enum	ParamIds {
+		PARAM_CABLE_ENABLED,
+		PARAM_CABLE_BRIGHTNESS,		// Cable impacted by brightness
+		PARAM_CABLE_LIGHT,			// TODO - Cable plug light
+		PARAM_CABLE_POLY_THICK,		// Polyphonic cables thicker
+		PARAM_CABLE_POLY_MODE,		// Polyphonic cables behavior (1st or sum)
+		PARAM_CABLE_FAST,			// Cable animation computation mode
+		PARAM_CABLE_SCALE,			// Cable animation scale
+
 		PARAM_SCOPE_ENABLED,
 		PARAM_SCOPE_MAJ,			// Scope appears only with MAJ pressed
 		PARAM_SCOPE_MODE,			// Scope display mode (circular / redraw)
@@ -58,14 +66,6 @@ struct Blank : Module {
 		PARAM_SCOPE_VOLT_ALPHA,		// Scope voltage indicator alpha
 		PARAM_SCOPE_LABEL_ALPHA,	// Scope port name alpha
 		PARAM_SCOPE_ALPHA,			// Scope alpha
-
-		PARAM_CABLE_ENABLED,
-		PARAM_CABLE_BRIGHTNESS,		// Cable impacted by brightness
-		PARAM_CABLE_LIGHT,			// TODO - Cable plug light
-		PARAM_CABLE_POLY_THICK,		// Polyphonic cables thicker
-		PARAM_CABLE_POLY_MODE,		// Polyphonic cables behavior (1st or sum)
-		PARAM_CABLE_FAST,			// Cable animation computation mode
-		PARAM_CABLE_SCALE,			// Cable animation scale
 
 		PARAM_COUNT
 	};
