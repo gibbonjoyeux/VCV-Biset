@@ -30,6 +30,7 @@ Blank::Blank(void) {
 	configSwitch(PARAM_CABLE_POLY_THICK, 0, 1, 1);
 	configSwitch(PARAM_CABLE_POLY_MODE, 0, 2, 0);
 	configSwitch(PARAM_CABLE_FAST, 0, 1, 0);
+	configParam(PARAM_CABLE_SLEW, 0.0, 1.0, 0.0, "Cable slew", "%", 0, 100);
 	configParam(PARAM_CABLE_SCALE, 0.0, 2.0, 1.0, "Cable scale", "%", 0, 100);
 
 	this->buffer_i = 0;

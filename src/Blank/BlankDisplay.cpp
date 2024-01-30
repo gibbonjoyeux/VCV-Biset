@@ -42,6 +42,7 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 	float			amp;
 	float			length;
 	float			scale;
+	float			slew;
 	float			voltage, voltage_prev;
 	float			voltage_diff, voltage_diff_max, voltage_max;
 	float			orientation;
@@ -59,6 +60,8 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 
 	scale = this->module->params[Blank::PARAM_CABLE_SCALE].getValue();
 	fast = this->module->params[Blank::PARAM_CABLE_FAST].getValue();
+	slew = this->module->params[Blank::PARAM_CABLE_SLEW].getValue();
+	slew = (slew * slew) * 0.8;
 
 	rect = box.zeroPos();
 	rect_module = this->parent->box;
@@ -163,9 +166,10 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 					if (buffer_phase_prev < 0)
 						buffer_phase_prev += BLANK_BUFFER;
 				}
-				voltage_prev = voltage_max;
 				voltage = voltage_max;
 			}
+			voltage = voltage * (1.0 - slew) + voltage_prev * slew;
+			voltage_prev = voltage;
 			angle += M_PI * 0.5;
 			if (t < 0.2)
 				amp = t * 5.0;

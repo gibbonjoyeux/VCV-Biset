@@ -91,6 +91,11 @@ void BlankWidget::appendContextMenu(Menu *menu) {
 	));
 
 	slider = new MenuSlider(
+	/**/ this->module->paramQuantities[Blank::PARAM_CABLE_SLEW]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+
+	slider = new MenuSlider(
 	/**/ this->module->paramQuantities[Blank::PARAM_CABLE_SCALE]);
 	slider->box.size.x = 200.f;
 	menu->addChild(slider);
