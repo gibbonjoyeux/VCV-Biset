@@ -33,6 +33,8 @@ Blank::Blank(void) {
 	configParam(PARAM_CABLE_SLEW, 0.0, 1.0, 0.0, "Cable slew", "%", 0, 100);
 	configParam(PARAM_CABLE_SCALE, 0.0, 2.0, 1.0, "Cable scale", "%", 0, 100);
 
+	configSwitch(PARAM_PANEL, 0, 3, 0);
+
 	this->buffer_i = 0;
 
 	this->display = NULL;

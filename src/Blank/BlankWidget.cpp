@@ -15,7 +15,11 @@ BlankWidget::BlankWidget(Blank* _module) {
 
 	this->module = _module;
 	setModule(this->module);
-	setPanel(createPanel(asset::plugin(pluginInstance, "res/Blank.svg")));
+	if (this->module)
+		this->set_panel(this->module->params[Blank::PARAM_PANEL].getValue());
+	else
+		this->set_panel(0);
+	//setPanel(createPanel(asset::plugin(pluginInstance, "res/Blank.svg")));
 
 	/// ADD CABLE DISPLAY
 	if (this->module) {
@@ -41,7 +45,33 @@ void BlankWidget::appendContextMenu(Menu *menu) {
 	MenuSlider	*slider;
 	MenuLabel	*label;
 
-	/// [1] CABLE
+	/// [1] PANEL
+
+	menu->addChild(new MenuSeparator);
+
+	param = &(this->module->params[Blank::PARAM_PANEL]);
+	menu->addChild(rack::createSubmenuItem("Panel", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuCheckItem("City pigeon", "",
+				[=]() { return param->getValue() == 0 ; },
+				[=]() { this->set_panel(0); }
+			));
+			menu->addChild(new MenuCheckItem("Wild pigeon", "",
+				[=]() { return param->getValue() == 1 ; },
+				[=]() { this->set_panel(1); }
+			));
+			menu->addChild(new MenuCheckItem("Pigeon gang", "",
+				[=]() { return param->getValue() == 2 ; },
+				[=]() { this->set_panel(2); }
+			));
+			menu->addChild(new MenuCheckItem("Pigeon Army (loops)", "",
+				[=]() { return param->getValue() == 3 ; },
+				[=]() { this->set_panel(3); }
+			));
+		}
+	));
+
+	/// [2] CABLE
 
 	menu->addChild(new MenuSeparator);
 	label = new MenuLabel();
@@ -100,7 +130,7 @@ void BlankWidget::appendContextMenu(Menu *menu) {
 	slider->box.size.x = 200.f;
 	menu->addChild(slider);
 
-	/// [2] SCOPE
+	/// [3] SCOPE
 
 	menu->addChild(new MenuSeparator);
 	label = new MenuLabel();
@@ -181,3 +211,24 @@ void BlankWidget::appendContextMenu(Menu *menu) {
 	slider->box.size.x = 200.f;
 	menu->addChild(slider);
 }
+
+void BlankWidget::set_panel(int id) {
+	if (id == 1) {
+		setPanel(createPanel(asset::plugin(pluginInstance,
+		/**/ "res/Blank-Wild.svg")));
+	} else if (id == 2) {
+		setPanel(createPanel(asset::plugin(pluginInstance,
+		/**/ "res/Blank-Gang.svg")));
+	} else if (id == 3) {
+		setPanel(createPanel(asset::plugin(pluginInstance,
+		/**/ "res/Blank-Army.svg")));
+	} else {
+		id = 0;
+	}
+	if (id == 0) {
+		setPanel(createPanel(asset::plugin(pluginInstance,
+		/**/ "res/Blank.svg")));
+	}
+	this->module->params[Blank::PARAM_PANEL].setValue(id);
+}
+

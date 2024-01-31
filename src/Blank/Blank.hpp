@@ -68,6 +68,8 @@ struct Blank : Module {
 		PARAM_SCOPE_LABEL_ALPHA,	// Scope port name alpha
 		PARAM_SCOPE_ALPHA,			// Scope alpha
 
+		PARAM_PANEL,
+
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -101,6 +103,8 @@ struct BlankWidget : ModuleWidget {
 
 	BlankWidget(Blank *_module);
 	void appendContextMenu(Menu *menu) override;
+
+	void set_panel(int id);
 };
 
 struct BlankCables : Widget {
