@@ -19,7 +19,6 @@ BlankWidget::BlankWidget(Blank* _module) {
 		this->set_panel(this->module->params[Blank::PARAM_PANEL].getValue());
 	else
 		this->set_panel(0);
-	//setPanel(createPanel(asset::plugin(pluginInstance, "res/Blank.svg")));
 
 	/// ADD CABLE DISPLAY
 	if (this->module) {
@@ -229,6 +228,7 @@ void BlankWidget::set_panel(int id) {
 		setPanel(createPanel(asset::plugin(pluginInstance,
 		/**/ "res/Blank.svg")));
 	}
-	this->module->params[Blank::PARAM_PANEL].setValue(id);
+	if (this->module)
+		this->module->params[Blank::PARAM_PANEL].setValue(id);
 }
 
