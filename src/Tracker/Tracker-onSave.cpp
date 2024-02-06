@@ -413,20 +413,3 @@ void Tracker::onSave(const SaveEvent &e) {
 	/// [5] CLEAR THREAD FLAG
 	g_timeline->thread_flag.clear();
 }
-
-json_t *Tracker::dataToJson(void) {
-	json_t		*root;
-
-	if (g_module != this)
-		return NULL;
-
-	/// SAVE MIDI (DRIVER + DEVICE + CHANNEL)
-	root = json_object();
-	json_object_set_new(root, "midi", this->midi_input.toJson());
-	/// SAVE EDITOR (JUMP + OCTAVE)
-	json_object_set_new(root,
-	/**/ "editor_jump", json_integer(g_editor->pattern_jump));
-	json_object_set_new(root,
-	/**/ "editor_octave", json_integer(g_editor->pattern_octave));
-	return root;
-}

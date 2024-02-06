@@ -386,22 +386,3 @@ void Tracker::onAdd(const AddEvent &e) {
 	/// [4] CLEAR THREAD FLAG
 	g_timeline->thread_flag.clear();
 }
-
-void Tracker::dataFromJson(json_t *root) {
-	json_t		*obj;
-
-	if (g_module != this)
-		return;
-
-	/// RECOVER MIDI (DRIVER + DEVICE + CHANNEL)
-	obj = json_object_get(root, "midi");
-	if (obj)
-		this->midi_input.fromJson(obj);
-	/// RECOVER EDITOR (JUMP + OCTAVE)
-	obj = json_object_get(root, "editor_jump");
-	if (obj)
-		g_editor->pattern_jump = json_integer_value(obj);
-	obj = json_object_get(root, "editor_octave");
-	if (obj)
-		g_editor->pattern_octave = json_integer_value(obj);
-}
