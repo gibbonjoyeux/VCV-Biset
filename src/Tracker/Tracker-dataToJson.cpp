@@ -325,7 +325,7 @@ static void save_track(json_t *root) {
 		/**/ json_integer(g_timeline->synths[i].color));
 		json_object_set_new(json_synth, "mode",				// Synth mode (gate / trigger / drum)
 		/**/ json_integer(g_timeline->synths[i].mode));
-		json_object_set_new(json_synth, "channel_count",	// Synth channel count
+		json_object_set_new(json_synth, "polyphony",		// Synth channel count
 		/**/ json_integer(g_timeline->synths[i].channel_count));
 	}
 
@@ -344,17 +344,17 @@ static void save_track(json_t *root) {
 			json_instance = json_object();
 			json_array_append_new(json_instances, json_instance);
 
-			json_object_set_new(json_instance, "row",			// Instance row
+			json_object_set_new(json_instance, "row",		// Instance row
 			/**/ json_integer(it->row));
-			json_object_set_new(json_instance, "beat",			// Instance beat
+			json_object_set_new(json_instance, "beat",		// Instance beat
 			/**/ json_integer(it->beat));
-			json_object_set_new(json_instance, "pattern",		// Instance pattern source index
+			json_object_set_new(json_instance, "pattern",	// Instance pattern source index
 			/**/ json_integer(pattern_source));
-			json_object_set_new(json_instance, "beat_start",	// Instance beat start
+			json_object_set_new(json_instance, "start",		// Instance beat start
 			/**/ json_integer(it->beat_start));
-			json_object_set_new(json_instance, "beat_length",	// Instance beat length
+			json_object_set_new(json_instance, "length",	// Instance beat length
 			/**/ json_integer(it->beat_length));
-			json_object_set_new(json_instance, "muted",			// Instance muted
+			json_object_set_new(json_instance, "muted",		// Instance muted
 			/**/ json_integer(it->muted));
 
 			it = std::next(it);

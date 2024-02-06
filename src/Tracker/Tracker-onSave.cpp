@@ -397,6 +397,8 @@ static void write_save_buffer() {
 
 void Tracker::onSave(const SaveEvent &e) {
 
+	return;
+
 	if (g_module != this)
 		return;
 

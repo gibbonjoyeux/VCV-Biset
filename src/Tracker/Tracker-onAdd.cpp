@@ -373,14 +373,9 @@ void Tracker::onAdd(const AddEvent &e) {
 	while (g_timeline->thread_flag.test_and_set()) {}
 
 	/// [2] LOAD FILE
-	g_timeline->clear();
 	if (load_save_file()) {
-		if (compute_save_file() == false) {
-			load_template();
-		}
-	/// [3] LOAD TEMPLATE
-	} else {
-		load_template();
+		g_timeline->clear();
+		compute_save_file();
 	}
 
 	/// [4] CLEAR THREAD FLAG
