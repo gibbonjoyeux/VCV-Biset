@@ -194,6 +194,8 @@ static bool load_save_file(void) {
 	/// [5] LOAD FILE INTO BUFFER
 	read(fd, g_timeline->save_buffer + 1 + 1 + 4, size - 1 - 1 - 4);
 	close(fd);
+	/// [6] REMOVE FILE (now save to json)
+	remove(path.c_str());
 	return true;
 }
 
