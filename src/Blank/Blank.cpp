@@ -90,7 +90,7 @@ void Blank::process(const ProcessArgs& args) {
 		return;
 
 	/// [1] GET PARAMETERS
-	if (this->params[Blank::PARAM_SCOPE_MAJ].getValue())
+	if (this->params[Blank::PARAM_SCOPE_MAJ].getValue() && APP->window)
 		scope = ((APP->window->getMods() & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT);
 	else
 		scope = true;

@@ -228,3 +228,4 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 		nvgStroke(args.vg);
 	}
 }
+
