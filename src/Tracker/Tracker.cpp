@@ -193,8 +193,19 @@ Tracker::Tracker() {
 }
 
 Tracker::~Tracker() {
-	if (g_module == this)
+	if (g_module == this) {
+		/// RESET TRACKER
 		g_module = NULL;
+		/// RESET GLOBALS
+		if (g_timeline) {
+			delete g_timeline;
+			g_timeline = NULL;
+		}
+		if (g_editor) {
+			delete g_editor;
+			g_editor = NULL;
+		}
+	}
 }
 
 void Tracker::process(const ProcessArgs& args) {
