@@ -9,16 +9,8 @@
 
 - ! ! ! Check for 'TODO:' in files
 - ! ! ! Crash: Crash on pattern when play whole song
-
 - Pattern instances can have a negative `beat_start` but should not
-
-- Check if `thread_flag` has a big CPU impact
-
-- If clone Tracker module accidentaly, the last module takes previous one
-		place in `g_module`. If the new one is removed, issue.
-- ! ! ! Sometimes, on multi channels synth, gate / trigger got issue and
-		miss lot of notes.
-		-> Due to external bug blocking a single polyphonic channel ?
+- Check `thread_flag` CPU usage
 
 # THINK ABOUT
 
@@ -44,6 +36,8 @@
 		- [x] Change note stop shortcut ('.' ?)
 	- [x] Help in context menu (shortcuts, effects, etc)
 	- [ ] Ctrl-Z
+	- [x] JSON saving format (more stable)
+	- [x] Crash on file/revert when song playing
 	- [ ] Crash on startup
 	- [x] Crash with chance effect
 	- [x] Module to control playhead

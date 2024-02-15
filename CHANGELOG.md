@@ -1,11 +1,22 @@
 
 # Change log
 
-## 2.0.9 (coming)
+## 2.0.10 (work in progress)
+
+- Tracker
+	- [x] Switched to JSON saving format (more stable)
+	- [x] Fixed Tracker deletion lost memory issue
+- Blank
+	- [x] Fix closing crash 3
+
+## 2.0.9 (feb 14, 2024)
 
 - Blank
-	- [x] Fix closing VCV crash
+	- [x] Fix closing crash 1 & 2
 	- [x] Add new parameters
+	- [x] Added cable slew limiter
+	- [x] Added more scope controls
+	- [x] Added panels
 
 ## 2.0.8 (jan 27, 2024)
 

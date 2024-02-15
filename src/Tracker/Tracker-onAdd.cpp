@@ -366,6 +366,8 @@ static void load_template(void) {
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
+/// LEGACY
+///  onAdd() is kept to allow users to open patches using older saving system
 void Tracker::onAdd(const AddEvent &e) {
 
 	if (g_module != this)
