@@ -97,3 +97,26 @@ PkmWidget::PkmWidget(Pkm* _module) {
 	addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(p.x + 10.5, 32.0)),
 	/**/ module, Pkm::LIGHT_ECHO));
 }
+
+void PkmWidget::appendContextMenu(Menu *menu) {
+	MenuSlider	*slider;
+
+	menu->addChild(new MenuSeparator());
+
+	/// DETUNE PHASE OFFSET
+	slider = new MenuSlider(this->module->paramQuantities[Pkm::PARAM_DETUNE_OFFSET]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+
+	slider = new MenuSlider(this->module->paramQuantities[Pkm::PARAM_DETUNE_ROTATION_SPEED]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+
+	slider = new MenuSlider(this->module->paramQuantities[Pkm::PARAM_DETUNE_ROTATION_AMP]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+
+	menu->addChild(createMenuItem("Reset detune phase", "",
+		[=]() { this->module->phase_detune = 0.0; }
+	));
+}

@@ -34,6 +34,10 @@ Pkm::Pkm() {
 	configParam(PARAM_FEEDBACK_MOD, -1, +1, 0, "Feedback modulation");
 	configParam(PARAM_FEEDBACK_DELAY_MOD, -1, +1, 0, "Delay modulation");
 
+	configParam(PARAM_DETUNE_OFFSET, 0, 1, 0, "Detune offset");
+	configParam(PARAM_DETUNE_ROTATION_SPEED, 0, 1, 0, "Detune rotation speed");
+	configParam(PARAM_DETUNE_ROTATION_AMP, 0, 1, 0, "Detune rotation amp");
+
 	configSwitch(PARAM_ALGO_SWITCH, 0, 3, 0, "Algorithm",
 	/**/ {"Simple", "Double", "Entangled", "Echo"});
 
@@ -50,6 +54,7 @@ Pkm::Pkm() {
 		}
 	}
 	this->feedback_i = 0;
+	this->phase_detune = 0.0;
 
 	for (i = 0; i < PKM_RESOLUTION; ++i)
 		this->wave[i] = std::sin(2.0 * M_PI * (i / (float)PKM_RESOLUTION));
@@ -64,7 +69,11 @@ void Pkm::process(const ProcessArgs& args) {
 	float_4	out_l;
 	float_4	out_r;
 	float	pitch_main;
+	float	detune_phase;
 	float	p_detune;
+	float	p_detune_offset;
+	float	p_detune_speed;
+	float	p_detune_amp;
 	float	p_width;
 	float	p_mod_feedback;
 	float	p_mod_feedback_mod;
@@ -98,6 +107,10 @@ void Pkm::process(const ProcessArgs& args) {
 	p_detune = params[PARAM_DETUNE].getValue();
 	p_width = params[PARAM_WIDTH].getValue();
 
+	p_detune_offset = params[PARAM_DETUNE_OFFSET].getValue();
+	p_detune_speed = params[PARAM_DETUNE_ROTATION_SPEED].getValue();
+	p_detune_amp = params[PARAM_DETUNE_ROTATION_AMP].getValue();
+
 	channel_count = inputs[INPUT_PITCH].getChannels();
 	if (channel_count == 0)
 		channel_count = 1;
@@ -107,6 +120,12 @@ void Pkm::process(const ProcessArgs& args) {
 	//////////////////////////////	
 	/// [3] COMPUTE OUTPUT
 	//////////////////////////////	
+
+	/// DETUNE PHASE
+	this->phase_detune += p_detune_speed * args.sampleTime;
+	while (this->phase_detune > 1.0)
+		this->phase_detune -= 1.0;
+	detune_phase = p_detune_offset + this->phase_detune * p_detune_amp;
 
 	/// FOR EACH CHANNEL
 	for (i = 0; i < channel_count; ++i) {
@@ -132,19 +151,55 @@ void Pkm::process(const ProcessArgs& args) {
 		pitch_main = inputs[INPUT_PITCH].getVoltage(i)
 		/**/ + params[PARAM_PITCH].getValue();
 		if (algo == PKM_ALGO_DOUBLE) {
-			pitch_1[0] = pitch_main - 0.1000 * p_detune;	// - (7 / 7)
-			pitch_1[1] = pitch_main - 0.0714 * p_detune;	// - (5 / 7)
-			pitch_1[2] = pitch_main - 0.0428 * p_detune;	// - (3 / 7)
-			pitch_1[3] = pitch_main - 0.0142 * p_detune;	// - (1 / 7)
-			pitch_2[0] = pitch_main + 0.0142 * p_detune;	// + (1 / 7)
-			pitch_2[1] = pitch_main + 0.0428 * p_detune;	// + (3 / 7)
-			pitch_2[2] = pitch_main + 0.0714 * p_detune;	// + (5 / 7)
-			pitch_2[3] = pitch_main + 0.1000 * p_detune;	// + (7 / 7)
+			pitch_1[0] = pitch_main
+			/**/ + (this->wave[(int)((detune_phase + 0.750)
+			/**/ * (float)PKM_RESOLUTION) % PKM_RESOLUTION])
+			/**/ * 0.1000 * p_detune;
+			pitch_1[1] = pitch_main
+			/**/ + (this->wave[(int)((detune_phase + 0.875)
+			/**/ * (float)PKM_RESOLUTION) % PKM_RESOLUTION])
+			/**/ * 0.1000 * p_detune;
+			pitch_1[2] = pitch_main
+			/**/ + (this->wave[(int)((detune_phase + 1.000)
+			/**/ * (float)PKM_RESOLUTION) % PKM_RESOLUTION])
+			/**/ * 0.1000 * p_detune;
+			pitch_1[3] = pitch_main
+			/**/ + (this->wave[(int)((detune_phase + 1.125)
+			/**/ * (float)PKM_RESOLUTION) % PKM_RESOLUTION])
+			/**/ * 0.1000 * p_detune;
+			pitch_2[0] = pitch_main
+			/**/ + (this->wave[(int)((detune_phase + 1.250)
+			/**/ * (float)PKM_RESOLUTION) % PKM_RESOLUTION])
+			/**/ * 0.1000 * p_detune;
+			pitch_2[1] = pitch_main
+			/**/ + (this->wave[(int)((detune_phase + 1.375)
+			/**/ * (float)PKM_RESOLUTION) % PKM_RESOLUTION])
+			/**/ * 0.1000 * p_detune;
+			pitch_2[2] = pitch_main
+			/**/ + (this->wave[(int)((detune_phase + 1.500)
+			/**/ * (float)PKM_RESOLUTION) % PKM_RESOLUTION])
+			/**/ * 0.1000 * p_detune;
+			pitch_2[3] = pitch_main
+			/**/ + (this->wave[(int)((detune_phase + 1.625)
+			/**/ * (float)PKM_RESOLUTION) % PKM_RESOLUTION])
+			/**/ * 0.1000 * p_detune;
 		} else {
-			pitch_1[0] = pitch_main - 0.1000 * p_detune;	// - (3 / 3)
-			pitch_1[1] = pitch_main - 0.0333 * p_detune;	// - (1 / 3)
-			pitch_1[2] = pitch_main + 0.0333 * p_detune;	// + (1 / 3)
-			pitch_1[3] = pitch_main + 0.1000 * p_detune;	// + (3 / 3)
+			pitch_1[0] = pitch_main
+			/**/ + (this->wave[(int)((detune_phase + 0.75)
+			/**/ * (float)PKM_RESOLUTION) % PKM_RESOLUTION])
+			/**/ * 0.1000 * p_detune;
+			pitch_1[1] = pitch_main
+			/**/ + (this->wave[(int)((detune_phase + 1.00)
+			/**/ * (float)PKM_RESOLUTION) % PKM_RESOLUTION])
+			/**/ * 0.1000 * p_detune;
+			pitch_1[2] = pitch_main
+			/**/ + (this->wave[(int)((detune_phase + 1.25)
+			/**/ * (float)PKM_RESOLUTION) % PKM_RESOLUTION])
+			/**/ * 0.1000 * p_detune;
+			pitch_1[3] = pitch_main
+			/**/ + (this->wave[(int)((detune_phase + 1.50)
+			/**/ * (float)PKM_RESOLUTION) % PKM_RESOLUTION])
+			/**/ * 0.1000 * p_detune;
 		}
 
 		//// COMPUTE FREQUENCY (Hz)
@@ -199,6 +254,10 @@ void Pkm::process(const ProcessArgs& args) {
 
 		//// COMPUTE FEEDBACK OUTPUT
 		if (algo == PKM_ALGO_DOUBLE) {
+			this->feedback_buffer_1[i][0][this->feedback_i] = this->out_1[i][0];
+			this->feedback_buffer_1[i][1][this->feedback_i] = this->out_1[i][1];
+			this->feedback_buffer_1[i][2][this->feedback_i] = this->out_1[i][2];
+			this->feedback_buffer_1[i][3][this->feedback_i] = this->out_1[i][3];
 			this->feedback_buffer_2[i][0][this->feedback_i] = this->out_2[i][0];
 			this->feedback_buffer_2[i][1][this->feedback_i] = this->out_2[i][1];
 			this->feedback_buffer_2[i][2][this->feedback_i] = this->out_2[i][2];

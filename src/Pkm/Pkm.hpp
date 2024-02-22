@@ -25,6 +25,9 @@ struct Pkm: Module {
 		PARAM_FEEDBACK_DELAY,
 		PARAM_FEEDBACK_DELAY_MOD,
 		PARAM_ALGO_SWITCH,
+		PARAM_DETUNE_OFFSET,
+		PARAM_DETUNE_ROTATION_SPEED,
+		PARAM_DETUNE_ROTATION_AMP,
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -57,6 +60,8 @@ struct Pkm: Module {
 	float	feedback_buffer_2[16][4][PKM_FEEDBACK];
 	int		feedback_i;
 
+	float	phase_detune;
+
 	Pkm();
 
 	void		process(const ProcessArgs& args) override;
@@ -66,6 +71,7 @@ struct PkmWidget : ModuleWidget {
 	Pkm			*module;
 
 	PkmWidget(Pkm* _module);
+	void appendContextMenu(Menu *menu) override;
 };
 
 #endif
