@@ -7,12 +7,12 @@
 	- [x] Switched to JSON saving format (more stable)
 	- [x] Fixed Tracker deletion lost memory issue
 - Blank
-	- [x] Fix closing crash 3
+	- [x] Fixed closing crash 3
 
 ## 2.0.9 (feb 14, 2024)
 
 - Blank
-	- [x] Fix closing crash 1 & 2
+	- [x] Fixed closing crash 1 & 2
 	- [x] Add new parameters
 	- [x] Added cable slew limiter
 	- [x] Added more scope controls
