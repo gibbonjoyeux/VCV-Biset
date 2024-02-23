@@ -34,18 +34,19 @@ bool RegexItem::pull_clock_foreward(int &value, int &index, float bias) {
 		} else {
 			this->sequence.state_a += step;
 		}
-	/// TYPE MODULO SEQ
-	} else if (this->sequence.modulator_mode == '*') {
-		this->sequence.state_a += 1;
-		if (this->sequence.state_a >= this->sequence.modulator_value) {
-			this->sequence.it = this->sequence.sequence.begin();
-			this->sequence.state_a = 0;
-			return true;
-		}
 	}
 	/// SEQUENCE NEXT
 	if (state == true) {
 		this->sequence.it = std::next(this->sequence.it);
+		/// TYPE MODULO SEQ
+		if (this->sequence.modulator_mode == '*') {
+			this->sequence.state_a += 1;
+			if (this->sequence.state_a >= this->sequence.modulator_value) {
+				this->sequence.it = this->sequence.sequence.begin();
+				this->sequence.state_a = 0;
+				return true;
+			}
+		}
 		/// SEQUENCE END
 		if (this->sequence.it == it_end) {
 			this->sequence.it = this->sequence.sequence.begin();
@@ -90,18 +91,19 @@ bool RegexItem::pull_clock_backward(int &value, int &index, float bias) {
 		} else {
 			this->sequence.state_a += step;
 		}
-	/// TYPE MODULO SEQ
-	} else if (this->sequence.modulator_mode == '*') {
-		this->sequence.state_a += 1;
-		if (this->sequence.state_a >= this->sequence.modulator_value) {
-			this->sequence.it = std::prev(this->sequence.sequence.end());
-			this->sequence.state_a = 0;
-			return true;
-		}
 	}
 	/// SEQUENCE NEXT
 	if (state == true) {
 		this->sequence.it = std::prev(this->sequence.it);
+		/// TYPE MODULO SEQ
+		if (this->sequence.modulator_mode == '*') {
+			this->sequence.state_a += 1;
+			if (this->sequence.state_a >= this->sequence.modulator_value) {
+				this->sequence.it = std::prev(this->sequence.sequence.end());
+				this->sequence.state_a = 0;
+				return true;
+			}
+		}
 		/// SEQUENCE END
 		if (this->sequence.it == it_end) {
 			this->sequence.it = std::prev(this->sequence.sequence.end());
@@ -149,15 +151,6 @@ bool RegexItem::pull_clock_pingpong(int &value, int &index, float bias) {
 		} else {
 			this->sequence.state_a += step;
 		}
-	/// TYPE MODULO SEQ
-	} else if (this->sequence.modulator_mode == '*') {
-		this->sequence.state_a += 1;
-		if (this->sequence.state_a >= this->sequence.modulator_value) {
-			this->sequence.it = this->sequence.sequence.begin();
-			this->sequence.state_a = 0;
-			this->sequence.state_b = 0;
-			return true;
-		}
 	}
 	/// SEQUENCE NEXT
 	if (state == true) {
@@ -165,6 +158,16 @@ bool RegexItem::pull_clock_pingpong(int &value, int &index, float bias) {
 			this->sequence.it = std::next(this->sequence.it);
 		else
 			this->sequence.it = std::prev(this->sequence.it);
+		/// TYPE MODULO SEQ
+		if (this->sequence.modulator_mode == '*') {
+			this->sequence.state_a += 1;
+			if (this->sequence.state_a >= this->sequence.modulator_value) {
+				this->sequence.it = this->sequence.sequence.begin();
+				this->sequence.state_a = 0;
+				this->sequence.state_b = 0;
+				return true;
+			}
+		}
 		/// SEQUENCE END
 		if (this->sequence.it == it_end) {
 			/// GO BACKWARD
@@ -218,18 +221,19 @@ bool RegexItem::pull_clock_shuffle(int &value, int &index, float bias) {
 		} else {
 			this->sequence.state_a += step;
 		}
-	/// TYPE MODULO SEQ
-	} else if (this->sequence.modulator_mode == '*') {
-		this->sequence.state_a += 1;
-		if (this->sequence.state_a >= this->sequence.modulator_value) {
-			this->shuffle();
-			this->sequence.state_a = 0;
-			return true;
-		}
 	}
 	/// SEQUENCE NEXT
 	if (state == true) {
 		this->sequence.it = std::next(this->sequence.it);
+		/// TYPE MODULO SEQ
+		if (this->sequence.modulator_mode == '*') {
+			this->sequence.state_a += 1;
+			if (this->sequence.state_a >= this->sequence.modulator_value) {
+				this->shuffle();
+				this->sequence.state_a = 0;
+				return true;
+			}
+		}
 		/// SEQUENCE END
 		if (this->sequence.it == it_end) {
 			this->sequence.it = this->sequence.sequence.begin();
@@ -276,14 +280,6 @@ bool RegexItem::pull_clock_rand(int &value, int &index, float bias) {
 		} else {
 			this->sequence.state_a += step;
 		}
-	/// TYPE MODULO SEQ
-	} else if (this->sequence.modulator_mode == '*') {
-		this->sequence.state_a += 1;
-		if (this->sequence.state_a >= this->sequence.modulator_value) {
-			this->pick(bias);
-			this->sequence.state_a = 0;
-			return true;
-		}
 	}
 	/// SEQUENCE NEXT
 	if (state == true) {
@@ -294,6 +290,13 @@ bool RegexItem::pull_clock_rand(int &value, int &index, float bias) {
 			this->sequence.state_a += 1;
 			if (this->sequence.state_a
 			>= this->sequence.length * this->sequence.modulator_value) {
+				this->sequence.state_a = 0;
+				return true;
+			}
+		/// TYPE MODULO SEQ
+		} else if (this->sequence.modulator_mode == '*') {
+			this->sequence.state_a += 1;
+			if (this->sequence.state_a >= this->sequence.modulator_value) {
 				this->sequence.state_a = 0;
 				return true;
 			}
@@ -334,19 +337,20 @@ bool RegexItem::pull_clock_xrand(int &value, int &index, float bias) {
 		} else {
 			this->sequence.state_a += step;
 		}
-	/// TYPE MODULO SEQ
-	} else if (this->sequence.modulator_mode == '*') {
-		this->sequence.state_a += 1;
-		if (this->sequence.state_a >= this->sequence.modulator_value) {
-			this->sequence.state_c = this->xpick(this->sequence.state_c, bias);
-			this->sequence.state_a = 0;
-			return true;
-		}
 	}
 	/// SEQUENCE NEXT
 	if (state == true) {
 		/// SELECT RANDOM ELEMENT
 		this->sequence.state_c = this->xpick(this->sequence.state_c, bias);
+		/// TYPE MODULO SEQ
+		if (this->sequence.modulator_mode == '*') {
+			this->sequence.state_a += 1;
+			if (this->sequence.state_a >= this->sequence.modulator_value) {
+				this->sequence.state_c = this->xpick(this->sequence.state_c, bias);
+				this->sequence.state_a = 0;
+				return true;
+			}
+		}
 		/// TYPE MULT
 		if (this->sequence.modulator_mode == 'x') {
 			this->sequence.state_a += 1;
@@ -392,18 +396,19 @@ bool RegexItem::pull_clock_walk(int &value, int &index, float bias) {
 		} else {
 			this->sequence.state_a += step;
 		}
-	/// TYPE MODULO SEQ
-	} else if (this->sequence.modulator_mode == '*') {
-		this->sequence.state_a += 1;
-		if (this->sequence.state_a >= this->sequence.modulator_value) {
-			this->sequence.it = this->sequence.sequence.begin();
-			this->sequence.state_a = 0;
-			return true;
-		}
 	}
 	/// SEQUENCE NEXT
 	if (state == true) {
 		this->walk(bias);
+		/// TYPE MODULO SEQ
+		if (this->sequence.modulator_mode == '*') {
+			this->sequence.state_a += 1;
+			if (this->sequence.state_a >= this->sequence.modulator_value) {
+				this->sequence.it = this->sequence.sequence.begin();
+				this->sequence.state_a = 0;
+				return true;
+			}
+		}
 		/// TYPE MULT
 		if (this->sequence.modulator_mode == 'x') {
 			this->sequence.state_a += 1;

@@ -135,6 +135,9 @@ void RegexWidget::appendContextMenu(Menu *menu) {
 			menu->addChild(new MenuItemStay("1,2,3", "", [=](){}));
 			menu->addChild(new MenuItemStay(">(1,2,3)%16", "", [=](){}));
 			menu->addChild(new MenuItemStay(">(1,2,3,?(4,5,6))", "", [=](){}));
+
+			menu->addChild(new MenuItemStay("c,d#,e", "", [=](){}));
+			menu->addChild(new MenuItemStay("^(c,d#,e,f)%16", "", [=](){}));
 		}
 	));
 
@@ -154,9 +157,24 @@ void RegexWidget::appendContextMenu(Menu *menu) {
 	/// SEQUENCE MODULATORS
 	menu->addChild(rack::createSubmenuItem("Modulators", "",
 		[=](Menu *menu) {
-			menu->addChild(new MenuItemStay("xN", "Times N", [=](){}));
-			menu->addChild(new MenuItemStay("%N", "Until N", [=](){}));
-			menu->addChild(new MenuItemStay("*N", "Until N (clock)", [=](){}));
+			MenuLabel	*label;
+
+			label = new MenuLabel();
+			label->text = "Clock sequence";
+			menu->addChild(label);
+
+			menu->addChild(new MenuItemStay("xN", "All items times N", [=](){}));
+			menu->addChild(new MenuItemStay("%N", "Until N clock", [=](){}));
+			menu->addChild(new MenuItemStay("*N", "Until N items", [=](){}));
+
+			menu->addChild(new MenuSeparator);
+			label = new MenuLabel();
+			label->text = "CV / Pitch sequence";
+			menu->addChild(label);
+
+			menu->addChild(new MenuItemStay("xN", "All items times N", [=](){}));
+			menu->addChild(new MenuItemStay("%N", "Until N items", [=](){}));
+			menu->addChild(new MenuItemStay("*N", "Until N items", [=](){}));
 		}
 	));
 
