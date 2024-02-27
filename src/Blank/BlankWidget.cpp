@@ -83,6 +83,12 @@ void BlankWidget::appendContextMenu(Menu *menu) {
 		[=]() { param->setValue(!(int)param->getValue()); }
 	));
 
+	param = &(this->module->params[Blank::PARAM_CABLE_LIGHT]);
+	menu->addChild(new MenuCheckItem("Cable led", "",
+		[=]() { return param->getValue() == 1; },
+		[=]() { param->setValue(!(int)param->getValue()); }
+	));
+
 	param = &(this->module->params[Blank::PARAM_CABLE_BRIGHTNESS]);
 	menu->addChild(new MenuCheckItem("Cable brightness", "",
 		[=]() { return param->getValue() == 1; },

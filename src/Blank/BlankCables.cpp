@@ -33,31 +33,35 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 	math::Vec		pos_slump;
 	math::Vec		pos_point, pos_point_prev;
 	math::Vec		pos_angle;
+	NVGcolor		color, color_light;
+	NVGcolor		col_in, col_out;
 	Rect			rect;
 	Rect			rect_module;
 	bool			brightness;
 	bool			fast;
+	bool			light;
 	float			t;
 	float			angle;
 	float			amp;
 	float			length;
 	float			scale;
 	float			slew;
+	float			radius, radius_out;
 	float			voltage, voltage_prev;
 	float			voltage_diff, voltage_diff_max, voltage_max;
 	float			orientation;
 	int				buffer_phase, buffer_phase_prev;
 	int				i, j;
 
-	if (this->module == NULL)
+	if (layer != 1)
 		return;
-	brightness = this->module->params[Blank::PARAM_CABLE_BRIGHTNESS].getValue();
-	if ((brightness == 0 && layer != 1)
-	|| (brightness == 1 && layer != 2))
+
+	if (this->module == NULL)
 		return;
 	if (g_blank != this->module)
 		return;
-
+	brightness = this->module->params[Blank::PARAM_CABLE_BRIGHTNESS].getValue();
+	light = this->module->params[Blank::PARAM_CABLE_LIGHT].getValue();
 	scale = this->module->params[Blank::PARAM_CABLE_SCALE].getValue();
 	fast = this->module->params[Blank::PARAM_CABLE_FAST].getValue();
 	slew = this->module->params[Blank::PARAM_CABLE_SLEW].getValue();
@@ -97,8 +101,15 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 			length = 1.0;
 		length = length / BLANK_DIST_MAX;
 
-		nvgStrokeColor(args.vg, cable->color);
-		nvgFillColor(args.vg, cable->color);
+		/// SET CABLE COLOR
+		if (brightness) {
+			color_light = color::mult(cable->color, settings::rackBrightness);
+			nvgStrokeColor(args.vg, color_light);
+			nvgFillColor(args.vg, color_light);
+		} else {
+			nvgStrokeColor(args.vg, cable->color);
+			nvgFillColor(args.vg, cable->color);
+		}
 
 		/// DRAW CABLE PLUGS
 		nvgGlobalAlpha(args.vg, 1.0);
@@ -106,12 +117,14 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 		nvgCircle(args.vg, cable->pos_in.x, cable->pos_in.y, 8.5);
 		nvgStrokeWidth(args.vg, 4.0);
 		nvgStroke(args.vg);
-		nvgFill(args.vg);
+		if (light == false)
+			nvgFill(args.vg);
 		nvgBeginPath(args.vg);
 		nvgCircle(args.vg, cable->pos_out.x, cable->pos_out.y, 8.5);
 		nvgStrokeWidth(args.vg, 4.0);
 		nvgStroke(args.vg);
-		nvgFill(args.vg);
+		if (light == false)
+			nvgFill(args.vg);
 
 		/// DRAW CABLE
 		nvgGlobalAlpha(args.vg, settings::cableOpacity);
@@ -183,9 +196,75 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 
 			nvgLineTo(args.vg, VEC_ARGS(pos_point));
 		}
-		//nvgStrokeColor(args.vg, color::mult(color, 0.95));
 		nvgStrokeWidth(args.vg, (cable->thick) ? 9.0 : 6.0);
 		nvgStroke(args.vg);
+
+		if (light) {
+
+			/// DRAW CABLE LIGHT
+			buffer_phase = this->module->buffer_i - 1;
+			if (buffer_phase < 0)
+				buffer_phase += BLANK_BUFFER;
+			voltage = cable->buffer[buffer_phase];
+			if (voltage > 0)
+				color = color::mult({0.6274, 0.8235, 0.2862}, voltage * 0.1);
+			else
+				color = color::mult({0.9450, 0.2078, 0.1725}, voltage * -0.1);
+			color.a = 1.0;
+			nvgBeginPath(args.vg);
+			nvgCircle(args.vg, cable->pos_in.x, cable->pos_in.y, 5.75);
+			nvgCircle(args.vg, cable->pos_out.x, cable->pos_out.y, 5.75);
+			nvgFillColor(args.vg, color);
+			nvgFill(args.vg);
+			if (brightness) {
+				nvgStrokeColor(args.vg,
+				/**/ color::mult({0.9019, 0.8823, 0.8823, 1.0},
+				/**/ settings::rackBrightness));
+			} else {
+				nvgStrokeColor(args.vg, {0.9019, 0.8823, 0.8823, 1.0});
+			}
+			nvgStrokeWidth(args.vg, 1.5);
+			nvgStroke(args.vg);
+
+			/// DRAW CABLE LIGHT HALO
+			if (settings::haloBrightness > 0) {
+
+				nvgGlobalCompositeBlendFunc(args.vg,
+				/**/ NVG_ONE_MINUS_DST_COLOR, NVG_ONE);
+				radius = 5.0;
+				radius_out = radius + std::min(radius * 4.f, 15.f);
+				col_in = color::mult(color, settings::haloBrightness);
+				col_out = nvgRGBA(0, 0, 0, 0);
+
+				/// INPUT PORT HALO
+				pos_in = cable->pos_in;
+				nvgBeginPath(args.vg);
+				nvgRect(args.vg,
+				/**/ pos_in.x - radius_out, pos_in.y - radius_out,
+				/**/ 2 * radius_out, 2 * radius_out);
+				NVGpaint paint = nvgRadialGradient(args.vg,
+				/**/ pos_in.x, pos_in.y,
+				/**/ radius, radius_out,
+				/**/ col_in, col_out);
+				nvgFillPaint(args.vg, paint);
+				nvgFill(args.vg);
+
+				/// OUTPUT PORT HALO
+				pos_out = cable->pos_out;
+				nvgBeginPath(args.vg);
+				nvgRect(args.vg,
+				/**/ pos_out.x - radius_out, pos_out.y - radius_out,
+				/**/ 2 * radius_out, 2 * radius_out);
+				paint = nvgRadialGradient(args.vg,
+				/**/ pos_out.x, pos_out.y,
+				/**/ radius, radius_out,
+				/**/ col_in, col_out);
+				nvgFillPaint(args.vg, paint);
+				nvgFill(args.vg);
+
+				nvgGlobalCompositeOperation(args.vg, NVG_SOURCE_OVER);
+			}
+		}
 	}
 
 	/// [2] DRAW INCOMPLETE CABLE
@@ -204,8 +283,15 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 		//pos_in =
 		///**/ pos_in.plus(pos_slump.minus(pos_in).normalize().mult(13.0));
 
-		nvgStrokeColor(args.vg, cable->color);
-		nvgFillColor(args.vg, cable->color);
+		/// SET CABLE COLOR
+		if (brightness) {
+			color_light = color::mult(cable->color, settings::rackBrightness);
+			nvgStrokeColor(args.vg, color_light);
+			nvgFillColor(args.vg, color_light);
+		} else {
+			nvgStrokeColor(args.vg, cable->color);
+			nvgFillColor(args.vg, cable->color);
+		}
 		nvgGlobalAlpha(args.vg, 1.0);
 
 		/// DRAW CABLE PLUG

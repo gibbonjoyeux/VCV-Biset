@@ -1,13 +1,23 @@
 
 # Change log
 
-## 2.0.10 (work in progress)
+## 2.0.11 (work in progress)
+
+- Blank
+	- [x] Added led + bloom option
+- Regex
+	- [x] Fixed clock `*` modulator
+
+## 2.0.10 (feb 26, 2024)
 
 - Tracker
 	- [x] Switched to JSON saving format (more stable)
 	- [x] Fixed Tracker deletion lost memory issue
 - Blank
 	- [x] Fixed closing crash 3
+- Please Kill Me
+	- [x] Added detune stereo rotation LFO (context menu)
+	- [x] Fixed double mode
 
 ## 2.0.9 (feb 14, 2024)
 
