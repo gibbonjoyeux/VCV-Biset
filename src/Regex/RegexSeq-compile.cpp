@@ -63,6 +63,8 @@ static void compile_value_modulator(
 			modulator = modulator * 10 + (str[i] - '0');
 			i += 1;
 		}
+		if (modulator > 64)
+			modulator = 64;
 		/// INSERT ITEM N TIMES
 		for (count = 0; count < modulator; ++count) {
 			/// CREATE NEW ITEM

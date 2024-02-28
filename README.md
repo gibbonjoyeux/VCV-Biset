@@ -13,7 +13,10 @@ You can see the past and comming updates on the [changelog](./CHANGELOG.md).
 
 **The Good, the Bad and the Ugly** and **Please kill me** are VCOs based on
 **Frequency** (**Phase**), **amplitude** and **ring** modulation.
-They are designed to add some spring and inertia to sound.
+They are designed to add some spring and inertia to sound with some unusual
+sound design and controls !
+
+[VCOs manual](./doc/Manual-VCOs.pdf)
 
 ![VCO modules](./doc/Biset-VCOs.png)
 
@@ -42,9 +45,19 @@ It can be used to build complex **tracks** or for **live performance**.
 
 ## Other modules
 
+### Blank
+
+**Blank** is definitely not a blank module. Try it.
+Animated cables and on hover scope !
+
+![Blank](./doc/Biset-Blank.png)
+
 ### Tree
 
 **Tree** is a random sequencer based on Tree growth simulation.
+Wind goes through its leaves and makes your sequence less repetitive !
+
+![Tree](./doc/Biset-Tree.png)
 
 ### Segfault
 
