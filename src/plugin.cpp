@@ -19,6 +19,7 @@ void init(Plugin* p) {
 	p->addModel(modelRegexExp);
 
 	p->addModel(modelTree);
+	p->addModel(modelTreeExp);
 
 	p->addModel(modelGbu);
 	p->addModel(modelPkm);

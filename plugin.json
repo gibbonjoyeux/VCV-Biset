@@ -160,11 +160,24 @@
 		],
 		"keywords": ["live", "code", "coding", "gate"]
 	},
+
 	{
 		"slug": "Biset-Tree",
 		"name": "Tree",
-		"description": "Tree growth sequencer",
+		"description": "Evolving Tree sequencer impacted by wind",
 		"tags": [
+			"Sequencer",
+			"Visual",
+			"Random",
+			"Physical modeling"
+		]
+	},
+	{
+		"slug": "Biset-Tree-Exp",
+		"name": "Tree Exp",
+		"description": "Tree sequencer expander to create evolving melodies",
+		"tags": [
+			"Expander",
 			"Sequencer",
 			"Visual",
 			"Random",
