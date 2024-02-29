@@ -9,6 +9,41 @@ typedef int32_t		i32;
 typedef uint64_t	u64;
 typedef int64_t		i64;
 
+// Generates gate with small gapes between adjacent gates
+struct GateGenerator {
+	bool	state;						// Gate final state
+	bool	gate;						// Gate ideal state
+	float	remaining;					// Gate remaining delay
+
+	GateGenerator(void) {
+		this->gate = false;
+		this->state = false;
+		this->remaining = 0.0;
+	}
+
+	bool process(float delta) {
+		if (this->remaining > 0.0)
+			this->remaining -= delta;
+		this->state = this->gate;
+		if (this->remaining > 0.0)
+			this->state = false;
+		return this->state;
+	}
+
+	void on(void) {
+		if (this->gate)
+			this->remaining = 1e-3f;
+		else
+			this->gate = true;
+	}
+
+	void off(void) {
+		this->gate = false;
+		this->state = false;
+		this->remaining = 0.0;
+	}
+};
+
 // Allocate 2D arrays with only one malloc
 template<typename T> struct Array2D {
 	T**			ptr;

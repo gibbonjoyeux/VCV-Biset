@@ -11,6 +11,8 @@
 - Tree
 	- [x] Added branch mutation chance (context menu)
 - [ ] New **Tree Exp** expander module !
+	- [x] Sequence from Tree
+	- [ ] Polyphonic output
 
 ## 2.0.10 (feb 26, 2024)
 

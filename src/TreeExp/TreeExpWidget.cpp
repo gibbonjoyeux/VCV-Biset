@@ -49,6 +49,20 @@ void TreeExpWidget::appendContextMenu(Menu *menu) {
 
 	menu->addChild(new MenuSeparator);
 
+	param = &(this->module->params[TreeExp::PARAM_GATE_MODE]);
+	menu->addChild(rack::createSubmenuItem("Gate", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuCheckItem("Trigger", "",
+				[=]() { return param->getValue() == TREE_EXP_GATE_TRIGGER; },
+				[=]() { param->setValue(TREE_EXP_GATE_TRIGGER); }
+			));
+			menu->addChild(new MenuCheckItem("Gate", "",
+				[=]() { return param->getValue() == TREE_EXP_GATE_GATE; },
+				[=]() { param->setValue(TREE_EXP_GATE_GATE); }
+			));
+		}
+	));
+
 	param = &(this->module->params[TreeExp::PARAM_RANGE]);
 	menu->addChild(rack::createSubmenuItem("Range", "",
 		[=](Menu *menu) {

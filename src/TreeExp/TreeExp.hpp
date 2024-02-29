@@ -15,6 +15,9 @@
 #define TREE_EXP_RANGE_BI_5		8
 #define TREE_EXP_RANGE_BI_10	9
 
+#define TREE_EXP_GATE_TRIGGER	0
+#define TREE_EXP_GATE_GATE		1
+
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +26,7 @@ struct TreeExp : Module {
 	enum	ParamIds {
 		PARAM_THRESHOLD,
 		PARAM_RANGE,
+		PARAM_GATE_MODE,
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -40,6 +44,7 @@ struct TreeExp : Module {
 
 	dsp::TSchmittTrigger<float>	trigger_in_seq;
 	dsp::PulseGenerator			trigger_out;
+	GateGenerator				gate_out;
 	bool						fire;
 
 	TreeExp();

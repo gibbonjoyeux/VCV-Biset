@@ -31,17 +31,6 @@ struct RegexWidgetCondensed;
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
 
-struct RegexClockGate {
-	bool	state;										// Gate final state
-	bool	gate;										// Gate ideal state
-	float	remaining;									// Gate remaining delay
-
-	RegexClockGate(void);
-	bool process(float delta);
-	void on(void);
-	void off(void);
-};
-
 struct RegexItem {
 	u8								type;				// Item type (Value OR Sequence)
 	struct {
@@ -106,7 +95,7 @@ struct RegexSeq {
 	dsp::PulseGenerator			clock_out;
 	dsp::PulseGenerator			clock_out_eoc;
 	bool						clock_out_eoc_next;
-	RegexClockGate				clock_out_gate;
+	GateGenerator				clock_out_gate;
 	dsp::TSchmittTrigger<float>	clock_in_reset;
 	dsp::TSchmittTrigger<float>	clock_in_1;
 	dsp::TSchmittTrigger<float>	clock_in_2;
