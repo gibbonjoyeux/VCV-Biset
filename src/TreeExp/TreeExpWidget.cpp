@@ -12,6 +12,7 @@
 TreeExpWidget::TreeExpWidget(TreeExp* _module) {
 	float		out_x, out_y;
 	float		out_step;
+	float		knob_y;
 	int			output_id;
 	int			i;
 
@@ -22,12 +23,22 @@ TreeExpWidget::TreeExpWidget(TreeExp* _module) {
 	out_x = 20.32 / 2.0;
 	out_y = 71.0 - 0.5;
 	out_step = 8.95;
+	knob_y = 15.0;//35.0;
 
 	/// ADD PARAMS
 	addParam(
-	/**/ createParamCentered<KnobBig>(mm2px(Vec(20.32 / 2.0, 35.0)),
+	/**/ createParamCentered<KnobBig>(mm2px(Vec(20.32 / 2.0, knob_y)),
 	/**/ module,
 	/**/ TreeExp::PARAM_THRESHOLD));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(20.32 / 2.0, knob_y + 10.5)),
+	/**/ module,
+	/**/ TreeExp::PARAM_THRESHOLD_MOD));
+
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(20.32 / 2.0, knob_y + 18.0)),
+	/**/ module,
+	/**/ TreeExp::INPUT_THRESHOLD));
 
 	for (i = 0; i < 5; ++i) {
 		if (i == 0)

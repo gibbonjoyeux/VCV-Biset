@@ -25,11 +25,13 @@
 struct TreeExp : Module {
 	enum	ParamIds {
 		PARAM_THRESHOLD,
+		PARAM_THRESHOLD_MOD,
 		PARAM_RANGE,
 		PARAM_GATE_MODE,
 		PARAM_COUNT
 	};
 	enum	InputIds {
+		INPUT_THRESHOLD,
 		INPUT_COUNT
 	};
 	enum	OutputIds {

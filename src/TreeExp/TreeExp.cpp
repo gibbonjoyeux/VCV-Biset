@@ -14,12 +14,14 @@ TreeExp::TreeExp() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
-	configParam(PARAM_THRESHOLD, 0, 1, 0.5, "Fire threshold", "%", 0, 100);
+	configParam(PARAM_THRESHOLD, 0, 1, 0.5, "Threshold", "%", 0, 100);
+	configParam(PARAM_THRESHOLD_MOD, -1, 1, 0, "Threshold attenuverter", "%", 0, 100);
 	configSwitch(PARAM_RANGE, 0, 10, 1, "Range",
 	/**/ {"+/-10v", "+/-5V", "+/-3V", "+/-2V", "+/-1V",
 	/**/ "+10v", "+5V", "+3V", "+2V", "+1V"});
 	configSwitch(PARAM_RANGE, 0, 1, 0, "Gate", {"Trigger", "Gate"});
 
+	configInput(INPUT_THRESHOLD, "Threshold");
 	configOutput(OUTPUT_GATE, "Gate");
 	configOutput(OUTPUT_PITCH, "Pitch");
 	for (i = 0; i < 3; ++i)
@@ -39,6 +41,8 @@ void TreeExp::process(const ProcessArgs& args) {
 	float		tree_gate;
 	float		tree_pitch;
 	float		threshold;
+	float		threshold_mod;
+	float		threshold_in;
 	int			range;
 
 	gate_mode = this->params[PARAM_GATE_MODE].getValue();
@@ -63,8 +67,12 @@ void TreeExp::process(const ProcessArgs& args) {
 
 	/// [3] COMPUTE SEQUENCE
 	if (this->fire) {
-		threshold = this->params[PARAM_THRESHOLD].getValue() * 10.0 - 5.0;
+		threshold = this->params[PARAM_THRESHOLD].getValue();
+		threshold_mod = this->params[PARAM_THRESHOLD_MOD].getValue();
+		threshold_in = this->inputs[INPUT_THRESHOLD].getVoltage();
+		threshold = (threshold * 10.0) - 5.0 + threshold_in * threshold_mod;
 		range = (int)this->params[PARAM_RANGE].getValue();
+
 		tree_gate = tree->outputs[Tree::OUTPUT + 0].getVoltage();
 		if (tree_gate >= threshold) {
 			/// TRIGGER NOTE
