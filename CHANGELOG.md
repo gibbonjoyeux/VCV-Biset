@@ -7,6 +7,7 @@
 	- [x] Added led + bloom option
 - Regex
 	- [x] Fixed clock `*` modulator
+	- [x] Change cursor color for dark room (bloom light ?)
 
 ## 2.0.10 (feb 26, 2024)
 

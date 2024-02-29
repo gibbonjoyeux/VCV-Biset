@@ -160,3 +160,10 @@ void TreeBranch::birth(Tree *tree, int index) {
 		}
 	}
 }
+
+void TreeBranch::mutate(void) {
+	int		i;
+
+	for (i = 0; i < 5; ++i)
+		this->value[i] = get_random_value();
+}

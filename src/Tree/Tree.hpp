@@ -35,6 +35,7 @@ struct TreeBranch {
 	void init(void);
 	void grow(Tree *tree, int index);
 	void birth(Tree *tree, int index);
+	void mutate(void);
 };
 
 struct Tree : Module {
@@ -49,6 +50,7 @@ struct Tree : Module {
 		PARAM_SEQ_OFFSET_MOD,
 		PARAM_SEQ_WIND_INFLUENCE,		// Sequence influence from wind
 		PARAM_SEQ_WIND_INFLUENCE_MOD,
+		PARAM_SEQ_MUTATE_CHANCE,		// Chance for branch to mutate on clock
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -95,6 +97,7 @@ struct TreeWidget : ModuleWidget {
 	Tree			*module;
 
 	TreeWidget(Tree* _module);
+	void appendContextMenu(Menu *menu) override;
 };
 
 struct TreeDisplay : LedDisplay {

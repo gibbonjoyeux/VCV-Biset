@@ -26,6 +26,8 @@ Tree::Tree() {
 	configParam(PARAM_SEQ_WIND_INFLUENCE, 0, 1, 0, "Sequence wind influence", "%", 0, 100);
 	configParam(PARAM_SEQ_WIND_INFLUENCE_MOD, 0, 1, 0, "Sequence wind influence mod", "%", 0, 100);
 
+	configParam(PARAM_SEQ_MUTATE_CHANCE, 0, 1, 0, "Branch mutation chance", "%", 0, 100);
+
 	configInput(INPUT_TREE_RESET, "Reset tree");
 	configInput(INPUT_SEQ_RESET, "Reset sequence");
 	configInput(INPUT_SEQ_CLOCK, "Clock sequence");
@@ -62,6 +64,7 @@ void Tree::process(const ProcessArgs& args) {
 	int			seq_length;
 	int			seq_offset;
 	float		seq_wind;
+	float		seq_mutate;
 	float		wind_force;
 	float		voltage;
 	bool		clock;
@@ -82,6 +85,7 @@ void Tree::process(const ProcessArgs& args) {
 	}
 
 	/// [2] HANDLE PARAMETERS
+	seq_mutate = params[PARAM_SEQ_MUTATE_CHANCE].getValue();
 	seq_length = params[PARAM_SEQ_LENGTH].getValue()
 	/**/ + params[PARAM_SEQ_LENGTH_MOD].getValue()
 	/**/ * (inputs[INPUT_SEQ_LENGTH].getVoltage() / 10.0) * 64.0;
@@ -136,6 +140,10 @@ void Tree::process(const ProcessArgs& args) {
 				voltage = -5.0;
 			outputs[OUTPUT + i].setVoltage(voltage);
 		}
+
+		/// COMPUTE MUTATION
+		if (seq_mutate > 0 && random::uniform() < seq_mutate)
+			branch->mutate();
 	}
 }
 

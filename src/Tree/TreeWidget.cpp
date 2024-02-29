@@ -126,3 +126,15 @@ TreeWidget::TreeWidget(Tree* _module) {
 	}
 
 }
+
+void TreeWidget::appendContextMenu(Menu *menu) {
+	MenuSlider	*slider;
+
+	menu->addChild(new MenuSeparator);
+
+	slider = new MenuSlider(
+	/**/ this->module->paramQuantities[Tree::PARAM_SEQ_MUTATE_CHANCE]);
+	slider->box.size.x = 200.f;
+	menu->addChild(slider);
+}
+

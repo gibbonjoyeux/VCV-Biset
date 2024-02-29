@@ -251,18 +251,18 @@ void RegexDisplay::drawLayer(const DrawArgs &args, int layer) {
 	}
 	/// DRAW CURSOR
 	if (this == APP->event->selectedWidget) {
-		nvgFillColor(args.vg, colors[0]);
+		nvgFillColor(args.vg, colors[10]);
 		nvgBeginPath(args.vg);
 		if (this->condensed) {
 			nvgRect(args.vg,
 			/**/ rect.pos.x + (float)((this->cursor < 32) ? this->cursor : 32) * this->char_width + 2.0,
 			/**/ rect.pos.y + 3.0,
-			/**/ 2, 12);
+			/**/ 1, 12);
 		} else {
 			nvgRect(args.vg,
 			/**/ rect.pos.x + (float)(this->cursor % 32) * this->char_width + 2.0,
 			/**/ rect.pos.y + 3.0 + (float)(this->cursor >= 32) * 12.0,
-			/**/ 2, 12);
+			/**/ 1, 12);
 		}
 		nvgFill(args.vg);
 	}
