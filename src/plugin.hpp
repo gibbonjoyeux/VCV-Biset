@@ -25,7 +25,7 @@ using				std::unique_ptr;
 #include "RegexExp/RegexExp.hpp"
 
 #include "Tree/Tree.hpp"
-#include "TreeExp/TreeExp.hpp"
+#include "TreeSeed/TreeSeed.hpp"
 
 #include "Gbu/Gbu.hpp"
 #include "Pkm/Pkm.hpp"
@@ -118,7 +118,7 @@ extern Model*		modelRegexCondensed;
 extern Model*		modelRegexExp;
 
 extern Model*		modelTree;
-extern Model*		modelTreeExp;
+extern Model*		modelTreeSeed;
 
 extern Model*		modelGbu;
 extern Model*		modelPkm;

@@ -173,8 +173,8 @@
 		]
 	},
 	{
-		"slug": "Biset-Tree-Exp",
-		"name": "Tree Exp",
+		"slug": "Biset-Tree-Seed",
+		"name": "Tree Seed",
 		"description": "Tree sequencer expander to create evolving melodies",
 		"tags": [
 			"Expander",

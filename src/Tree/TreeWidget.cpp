@@ -23,7 +23,10 @@ TreeWidget::TreeWidget(Tree* _module) {
 
 	module = _module;
 	setModule(module);
-	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tree.svg")));
+	if (_module)
+		setPanel(createPanel(asset::plugin(pluginInstance, "res/Tree.svg")));
+	else
+		setPanel(createPanel(asset::plugin(pluginInstance, "res/Tree-Empty.svg")));
 
 	display = createWidget<TreeDisplay>(mm2px(Vec(0.0, 0.0)));
 	display->box.size = mm2px(Vec(55.88, 60.0));

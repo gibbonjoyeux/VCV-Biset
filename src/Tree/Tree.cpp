@@ -5,6 +5,38 @@
 /// PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Save tree to svg file when grown
+//static void save_tree_as_svg(Tree *tree) {
+//	static bool		saved = false;
+//	FILE			*file;
+//	TreeBranch		*branch;
+//	int				i;
+//
+//	if (tree->branch_count >= TREE_BRANCH_MAX && saved == false) {
+//		saved = true;
+//		file = fopen("tree-save.svg", "w");
+//		if (file != NULL) {
+//			fprintf(file, "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">\n");
+//			fprintf(file, "<g stroke=\"#ecae52\" transform=\"translate(50 100) rotate(-90) scale(0.5)\">");
+//
+//			for (i = 0; i < tree->branch_count; ++i) {
+//				branch = &(tree->branches[i]);
+//				fprintf(file, "<line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke-width=\"%f\"/>\n",
+//				/**/ branch->wpos_root.x,
+//				/**/ branch->wpos_root.y,
+//				/**/ branch->wpos_tail.x,
+//				/**/ branch->wpos_tail.y,
+//				/**/ branch->width * 0.5);
+//			}
+//
+//			fprintf(file, "</g>");
+//			fprintf(file, "</svg>");
+//			fclose(file);
+//			DEBUG("SVG SAVED ! ! !");
+//		}
+//	}
+//}
+
 ////////////////////////////////////////////////////////////////////////////////
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////

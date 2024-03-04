@@ -1,5 +1,5 @@
 
-#include "TreeExp.hpp"
+#include "TreeSeed.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -9,7 +9,7 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-TreeExp::TreeExp() {
+TreeSeed::TreeSeed() {
 	int		i;
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
@@ -32,7 +32,7 @@ TreeExp::TreeExp() {
 	this->fire = false;
 }
 
-void TreeExp::process(const ProcessArgs& args) {
+void TreeSeed::process(const ProcessArgs& args) {
 	Tree		*tree;
 	Module		*exp;
 	int			gate_mode;
@@ -50,7 +50,7 @@ void TreeExp::process(const ProcessArgs& args) {
 	/// [1] OUTPUT GATE
 	out_trigger = this->trigger_out.process(args.sampleTime);
 	out_gate = this->gate_out.process(args.sampleTime);
-	if (gate_mode == TREE_EXP_GATE_TRIGGER)
+	if (gate_mode == TREE_SEED_GATE_TRIGGER)
 		this->outputs[OUTPUT_GATE].setVoltage(out_trigger * 10.0);
 	else
 		this->outputs[OUTPUT_GATE].setVoltage(out_gate * 10.0);
@@ -81,33 +81,33 @@ void TreeExp::process(const ProcessArgs& args) {
 			/// COMPUTE PITCH
 			tree_pitch = tree->outputs[Tree::OUTPUT + 1].getVoltage();
 			switch (range) {
-				case TREE_EXP_RANGE_UNI_10:
+				case TREE_SEED_RANGE_UNI_10:
 					tree_pitch = tree_pitch + 5.0;
 					break;
-				case TREE_EXP_RANGE_UNI_5:
+				case TREE_SEED_RANGE_UNI_5:
 					tree_pitch = (tree_pitch + 5.0) * 0.5;
 					break;
-				case TREE_EXP_RANGE_UNI_3:
+				case TREE_SEED_RANGE_UNI_3:
 					tree_pitch = (tree_pitch + 5.0) * 0.3;
 					break;
-				case TREE_EXP_RANGE_UNI_2:
+				case TREE_SEED_RANGE_UNI_2:
 					tree_pitch = (tree_pitch + 5.0) * 0.2;
 					break;
-				case TREE_EXP_RANGE_UNI_1:
+				case TREE_SEED_RANGE_UNI_1:
 					tree_pitch = (tree_pitch + 5.0) * 0.1;
 					break;
-				case TREE_EXP_RANGE_BI_10:
+				case TREE_SEED_RANGE_BI_10:
 					tree_pitch = tree_pitch * 2.0;
 					break;
-				case TREE_EXP_RANGE_BI_5:
+				case TREE_SEED_RANGE_BI_5:
 					break;
-				case TREE_EXP_RANGE_BI_3:
+				case TREE_SEED_RANGE_BI_3:
 					tree_pitch = tree_pitch * 0.6;	// 3 / 5
 					break;
-				case TREE_EXP_RANGE_BI_2:
+				case TREE_SEED_RANGE_BI_2:
 					tree_pitch = tree_pitch * 0.4;	// 2 / 5
 					break;
-				case TREE_EXP_RANGE_BI_1:
+				case TREE_SEED_RANGE_BI_1:
 					tree_pitch = tree_pitch * 0.2;	// 1 / 5
 					break;
 			};
@@ -130,4 +130,4 @@ void TreeExp::process(const ProcessArgs& args) {
 	}
 }
 
-Model* modelTreeExp = createModel<TreeExp, TreeExpWidget>("Biset-Tree-Exp");
+Model* modelTreeSeed = createModel<TreeSeed, TreeSeedWidget>("Biset-Tree-Seed");
