@@ -206,6 +206,10 @@ void BlankCables::drawLayer(const DrawArgs &args, int layer) {
 			if (buffer_phase < 0)
 				buffer_phase += BLANK_BUFFER;
 			voltage = cable->buffer[buffer_phase];
+			if (voltage > 10.0)
+				voltage = 10.0;
+			else if (voltage < -10.0)
+				voltage = -10.0;
 			if (voltage > 0)
 				color = color::mult({0.6274, 0.8235, 0.2862}, voltage * 0.1);
 			else

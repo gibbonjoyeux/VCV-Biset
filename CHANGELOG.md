@@ -10,9 +10,9 @@
 	- [x] Change cursor color for dark room (bloom light ?)
 - Tree
 	- [x] Added branch mutation chance (context menu)
-- [ ] New **Tree Exp** expander module !
+- [x] New **Tree Seed** expander module !
 	- [x] Sequence from Tree
-	- [ ] Polyphonic output
+	- [x] Polyphonic output
 
 ## 2.0.10 (feb 26, 2024)
 
