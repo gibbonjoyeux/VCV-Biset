@@ -28,6 +28,7 @@ struct TreeSeed : Module {
 		PARAM_THRESHOLD_MOD,
 		PARAM_RANGE,
 		PARAM_GATE_MODE,
+		PARAM_POLYPHONY,
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -45,8 +46,9 @@ struct TreeSeed : Module {
 	};
 
 	dsp::TSchmittTrigger<float>	trigger_in_seq;
-	dsp::PulseGenerator			trigger_out;
-	GateGenerator				gate_out;
+	dsp::PulseGenerator			trigger_out[16];
+	GateGenerator				gate_out[16];
+	int							poly_index;
 	bool						fire;
 
 	TreeSeed();

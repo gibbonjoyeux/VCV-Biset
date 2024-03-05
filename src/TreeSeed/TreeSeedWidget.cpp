@@ -119,4 +119,17 @@ void TreeSeedWidget::appendContextMenu(Menu *menu) {
 			));
 		}
 	));
+
+	param = &(this->module->params[TreeSeed::PARAM_POLYPHONY]);
+	menu->addChild(rack::createSubmenuItem("Polyphony", "",
+		[=](Menu *menu) {
+			int		i;
+			for (i = 0; i < 16; ++i) {
+				menu->addChild(new MenuCheckItem(rack::string::f("%d", i + 1), "",
+					[=]() { return param->getValue() == i + 1; },
+					[=]() { param->setValue(i + 1); }
+				));
+			}
+		}
+	));
 }

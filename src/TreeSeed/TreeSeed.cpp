@@ -20,6 +20,7 @@ TreeSeed::TreeSeed() {
 	/**/ {"+/-10v", "+/-5V", "+/-3V", "+/-2V", "+/-1V",
 	/**/ "+10v", "+5V", "+3V", "+2V", "+1V"});
 	configSwitch(PARAM_RANGE, 0, 1, 0, "Gate", {"Trigger", "Gate"});
+	configParam(PARAM_POLYPHONY, 1, 16, 4, "Polyphony")->snapEnabled = true;
 
 	configInput(INPUT_THRESHOLD, "Threshold");
 	configOutput(OUTPUT_GATE, "Gate");
@@ -28,7 +29,11 @@ TreeSeed::TreeSeed() {
 		configOutput(OUTPUT_CV + i, rack::string::f("CV %d", i + 1));
 
 	this->trigger_in_seq.reset();
-	this->trigger_out.reset();
+	for (i = 0; i < 16; ++i) {
+		this->trigger_out[i].reset();
+		this->gate_out[i].off();
+	}
+	this->poly_index = 0;
 	this->fire = false;
 }
 
@@ -44,16 +49,29 @@ void TreeSeed::process(const ProcessArgs& args) {
 	float		threshold_mod;
 	float		threshold_in;
 	int			range;
+	int			channels;
+	int			i;
 
 	gate_mode = this->params[PARAM_GATE_MODE].getValue();
+	channels = this->params[PARAM_POLYPHONY].getValue();
+
+	this->outputs[OUTPUT_GATE].setChannels(channels);
+	this->outputs[OUTPUT_PITCH].setChannels(channels);
+	this->outputs[OUTPUT_CV + 0].setChannels(channels);
+	this->outputs[OUTPUT_CV + 1].setChannels(channels);
+	this->outputs[OUTPUT_CV + 2].setChannels(channels);
 
 	/// [1] OUTPUT GATE
-	out_trigger = this->trigger_out.process(args.sampleTime);
-	out_gate = this->gate_out.process(args.sampleTime);
-	if (gate_mode == TREE_SEED_GATE_TRIGGER)
-		this->outputs[OUTPUT_GATE].setVoltage(out_trigger * 10.0);
-	else
-		this->outputs[OUTPUT_GATE].setVoltage(out_gate * 10.0);
+	for (i = 0; i < 16; ++i) {
+		out_trigger = this->trigger_out[i].process(args.sampleTime);
+		out_gate = this->gate_out[i].process(args.sampleTime);
+		if (i < channels) {
+			if (gate_mode == TREE_SEED_GATE_TRIGGER)
+				this->outputs[OUTPUT_GATE].setVoltage(out_trigger * 10.0, i);
+			else
+				this->outputs[OUTPUT_GATE].setVoltage(out_gate * 10.0, i);
+		}
+	}
 
 	/// [2] GET TREE MODULE
 	exp = this->leftExpander.module;
@@ -76,8 +94,8 @@ void TreeSeed::process(const ProcessArgs& args) {
 		tree_gate = tree->outputs[Tree::OUTPUT + 0].getVoltage();
 		if (tree_gate >= threshold) {
 			/// TRIGGER NOTE
-			this->trigger_out.trigger();
-			this->gate_out.on();
+			this->trigger_out[this->poly_index].trigger();
+			this->gate_out[this->poly_index].on();
 			/// COMPUTE PITCH
 			tree_pitch = tree->outputs[Tree::OUTPUT + 1].getVoltage();
 			switch (range) {
@@ -112,13 +130,17 @@ void TreeSeed::process(const ProcessArgs& args) {
 					break;
 			};
 			/// OUTPUT SEQUENCE
-			this->outputs[OUTPUT_PITCH].setVoltage(tree_pitch);
+			this->outputs[OUTPUT_PITCH].setVoltage(tree_pitch, this->poly_index);
 			this->outputs[OUTPUT_CV + 0].setVoltage(
-			/**/ tree->outputs[Tree::OUTPUT + 2].getVoltage());
+			/**/ tree->outputs[Tree::OUTPUT + 2].getVoltage(), this->poly_index);
 			this->outputs[OUTPUT_CV + 1].setVoltage(
-			/**/ tree->outputs[Tree::OUTPUT + 3].getVoltage());
+			/**/ tree->outputs[Tree::OUTPUT + 3].getVoltage(), this->poly_index);
 			this->outputs[OUTPUT_CV + 2].setVoltage(
-			/**/ tree->outputs[Tree::OUTPUT + 4].getVoltage());
+			/**/ tree->outputs[Tree::OUTPUT + 4].getVoltage(), this->poly_index);
+			/// LOOP POLYPHONIC CHANNELS
+			this->poly_index += 1;
+			if (this->poly_index >= channels)
+				this->poly_index = 0;
 		}
 		this->fire = false;
 	}
