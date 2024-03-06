@@ -1,7 +1,7 @@
 {
 	"slug": "Biset",
 	"name": "Biset",
-	"version": "2.0.10",
+	"version": "2.0.11",
 	"license": "MIT",
 	"brand": "Biset",
 	"author": "Biset",
@@ -164,7 +164,7 @@
 	{
 		"slug": "Biset-Tree",
 		"name": "Tree",
-		"description": "Evolving Tree sequencer impacted by wind",
+		"description": "Evolving Tree sequencer impacted by wind force",
 		"tags": [
 			"Sequencer",
 			"Visual",
