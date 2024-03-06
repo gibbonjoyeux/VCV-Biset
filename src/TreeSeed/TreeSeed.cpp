@@ -19,7 +19,7 @@ TreeSeed::TreeSeed() {
 	configSwitch(PARAM_RANGE, 0, 10, 1, "Range",
 	/**/ {"+/-10v", "+/-5V", "+/-3V", "+/-2V", "+/-1V",
 	/**/ "+10v", "+5V", "+3V", "+2V", "+1V"});
-	configSwitch(PARAM_RANGE, 0, 1, 0, "Gate", {"Trigger", "Gate"});
+	configSwitch(PARAM_GATE, 0, 1, 0, "Gate", {"Trigger", "Gate"});
 	configParam(PARAM_POLYPHONY, 1, 16, 4, "Polyphony")->snapEnabled = true;
 
 	configInput(INPUT_THRESHOLD, "Threshold");
@@ -52,7 +52,7 @@ void TreeSeed::process(const ProcessArgs& args) {
 	int			channels;
 	int			i;
 
-	gate_mode = this->params[PARAM_GATE_MODE].getValue();
+	gate_mode = this->params[PARAM_GATE].getValue();
 	channels = this->params[PARAM_POLYPHONY].getValue();
 
 	this->outputs[OUTPUT_GATE].setChannels(channels);

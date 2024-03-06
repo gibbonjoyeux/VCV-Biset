@@ -60,7 +60,7 @@ void TreeSeedWidget::appendContextMenu(Menu *menu) {
 
 	menu->addChild(new MenuSeparator);
 
-	param = &(this->module->params[TreeSeed::PARAM_GATE_MODE]);
+	param = &(this->module->params[TreeSeed::PARAM_GATE]);
 	menu->addChild(rack::createSubmenuItem("Gate", "",
 		[=](Menu *menu) {
 			menu->addChild(new MenuCheckItem("Trigger", "",
