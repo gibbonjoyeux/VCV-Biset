@@ -1,7 +1,13 @@
 
 # Change log
 
-## 2.0.11 (work in progress)
+## 2.0.12 (work in progress)
+
+- Tracker
+	- [ ] History system (ctrl+Z)
+- [ ] New **It's good cholesterol** effect module
+
+## 2.0.11 (waiting)
 
 - Blank
 	- [x] Added led + bloom option
