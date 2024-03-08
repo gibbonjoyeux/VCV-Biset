@@ -13,17 +13,31 @@
 
 struct IgcPlayhead {
 	float						phase;
+	float						level;
+	float						env_time;
 };
 
 struct Igc : Module {
 	enum	ParamIds {
 		PARAM_DELAY_TIME,
+		PARAM_POS,
+		PARAM_POS_MOD_1,
+		PARAM_POS_MOD_2,
+		PARAM_LVL,
+		PARAM_LVL_MOD_1,
+		PARAM_LVL_MOD_2,
+		//PARAM_ENV_TIME,
+		//PARAM_ENV_SPEED,
 		PARAM_COUNT
 	};
 	enum	InputIds {
 		INPUT_L,
 		INPUT_R,
-		INPUT_PLAYHEAD,
+		INPUT_POS_1,
+		INPUT_POS_2,
+		INPUT_LVL_1,
+		INPUT_LVL_2,
+		//INPUT_ENV_TRIGGER,
 		INPUT_COUNT
 	};
 	enum	OutputIds {

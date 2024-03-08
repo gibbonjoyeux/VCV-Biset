@@ -24,6 +24,7 @@ void IgcDisplay::draw(const DrawArgs &args) {
 }
 
 void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
+	IgcPlayhead	*playhead;
 	Rect		rect;
 	int			buffer_phase;
 	int			buffer_phase_prev;
@@ -124,10 +125,11 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 
 	nvgBeginPath(args.vg);
 	for (i = 0; i < this->module->playhead_count; ++i) {
+		playhead = &(this->module->playheads[i]);
 		nvgRect(args.vg,
 		/**/ 0,
-		/**/ this->module->playheads[i].phase * rect.size.y,
-		/**/ rect.size.x,
+		/**/ playhead->phase * rect.size.y,
+		/**/ rect.size.x * playhead->level,
 		/**/ 0.5);
 	}
 	nvgFillColor(args.vg, colors[12]);
