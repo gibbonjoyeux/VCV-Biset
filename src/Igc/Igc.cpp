@@ -160,23 +160,31 @@ void Igc::process(const ProcessArgs& args) {
 			//index = fmod(fmod(index, IGC_BUFFER) + IGC_BUFFER, IGC_BUFFER);
 		/// MODE SPEED
 		} else {
-			/// COMPUTE PHASE / INDEX
+			/// COMPUTE PHASE / RELATIVE INDEX
 			speed = simd::pow(2.f, knob_speed
 			/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
 			/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2);
-			phase = this->playheads[i].phase;
 			if (knob_speed_rev > 0)
 				speed = -speed;
 			if (this->inputs[INPUT_SPEED_REV].getPolyVoltage(i) > 0.0)
 				speed = -speed;
-			phase += 1.0 - speed;
-			phase = fmod(fmod(phase, buffer_length) + buffer_length, buffer_length);
-			this->playheads[i].phase = phase;
+			index = this->playheads[i].index;
+			index += 1.0 - speed;
+			index = fmod(fmod(index, buffer_length) + buffer_length, buffer_length);
+			this->playheads[i].index = index;
 
 			/// COMPUTE REAL INDEX
-			index = (float)this->audio_index - phase;
+			index = (float)this->audio_index - index;
 			while (index < 0)
 				index += IGC_BUFFER;
+
+			/// COMPUTE RELATIVE PHASE
+			if (this->audio_index > index)
+				phase = (float)this->audio_index - index;
+			else
+				phase = (float)this->audio_index + ((float)IGC_BUFFER - index);
+			phase = fmod(fmod(phase / (float)buffer_length, 1.0) + 1.0, 1.0);
+			this->playheads[i].phase = phase;
 		}
 
 		/// COMPUTE INTERPOLATED INDEXES

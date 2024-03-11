@@ -19,6 +19,7 @@
 
 struct IgcPlayhead {
 	float						phase;
+	float						index;
 	float						level;
 	float						env_time;
 };
