@@ -103,20 +103,20 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		if (voltage_l < -10.0)
 			voltage_l = -10.0;
 		nvgRect(args.vg,
-		/**/ rect.size.x * 0.25 - (voltage_l * 0.2) * rect.size.x * 0.25,
-		/**/ rect.size.y * t,
-		/**/ rect.size.x * 0.25 * (voltage_l * 0.2) * 2.0,
-		/**/ rect.size.y / (float)IGC_BUFFER_PRECISION * 0.5);
+		/**/ rect.size.x * t,
+		/**/ rect.size.y * 0.25 - (voltage_l * 0.2) * rect.size.y * 0.25,
+		/**/ rect.size.x / (float)IGC_BUFFER_PRECISION * 0.5,
+		/**/ rect.size.y * 0.25 * (voltage_l * 0.2) * 2.0);
 		/// DRAW POINT RIGHT
 		if (voltage_r > 10.0)
 			voltage_r = 10.0;
 		if (voltage_r < -10.0)
 			voltage_r = -10.0;
 		nvgRect(args.vg,
-		/**/ rect.size.x * 0.75 - (voltage_r * 0.2) * rect.size.x * 0.25,
-		/**/ rect.size.y * t,
-		/**/ rect.size.x * 0.25 * (voltage_r * 0.2) * 2.0,
-		/**/ rect.size.y / (float)IGC_BUFFER_PRECISION * 0.5);
+		/**/ rect.size.x * t,
+		/**/ rect.size.y * 0.75 - (voltage_l * 0.2) * rect.size.y * 0.25,
+		/**/ rect.size.x / (float)IGC_BUFFER_PRECISION * 0.5,
+		/**/ rect.size.y * 0.25 * (voltage_l * 0.2) * 2.0);
 	}
 	nvgFillColor(args.vg, {0xec / 255.0, 0xae / 255.0, 0x52 / 255.0, 1.0});
 	nvgFill(args.vg);
@@ -127,10 +127,10 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 	for (i = 0; i < this->module->playhead_count; ++i) {
 		playhead = &(this->module->playheads[i]);
 		nvgRect(args.vg,
-		/**/ 0,
-		/**/ playhead->phase * rect.size.y,
-		/**/ rect.size.x * playhead->level,
-		/**/ 0.5);
+		/**/ playhead->phase * rect.size.x,
+		/**/ rect.size.y,
+		/**/ 0.5,
+		/**/ -rect.size.y * playhead->level);
 	}
 	nvgFillColor(args.vg, colors[12]);
 	nvgFill(args.vg);
