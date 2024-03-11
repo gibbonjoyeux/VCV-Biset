@@ -28,11 +28,13 @@ Igc::Igc() {
 	configInput(INPUT_POS_2, "Playhead position 2");
 	configParam(PARAM_POS_MOD_2, -1.0, 1.0, 1.0, "Playhead position 2 mod", "");
 
-	configParam(PARAM_SPEED, 0.0, 1.0, 0.0, "Playhead speed", "");
+	configParam(PARAM_SPEED, -4.0, 4.0, 0.0, "Playhead speed", "");
 	configInput(INPUT_SPEED_1, "Playhead speed 1");
 	configParam(PARAM_SPEED_MOD_1, -1.0, 1.0, 1.0, "Playhead speed 1 mod", "");
 	configInput(INPUT_SPEED_2, "Playhead speed 2");
 	configParam(PARAM_SPEED_MOD_2, -1.0, 1.0, 1.0, "Playhead speed 2 mod", "");
+	configInput(INPUT_SPEED_REV, "Playhead speed reverse");
+	configSwitch(PARAM_SPEED_REV, 0, 1, 0, "Reverse");
 
 	configParam(PARAM_GRAIN, 0.0, 1.0, 0.0, "Grain length", "");
 	configInput(INPUT_GRAIN_1, "Grain length 1");
@@ -66,8 +68,14 @@ void Igc::process(const ProcessArgs& args) {
 	float	index_inter;
 	float	delay_time;
 	float	level;
+	float	speed;
+	float	knob_pos;
+	float	knob_lvl;
+	float	knob_speed;
+	float	knob_speed_rev;
 	float	mod_pos_1, mod_pos_2;
 	float	mod_lvl_1, mod_lvl_2;
+	float	mod_speed_1, mod_speed_2;
 	int		buffer_index_a, buffer_index_b;
 	int		buffer_length;
 	int		channels;
@@ -89,14 +97,22 @@ void Igc::process(const ProcessArgs& args) {
 	/// [2] GET PARAMETERS
 	//////////////////////////////	
 	delay_time = this->params[PARAM_DELAY_TIME].getValue();
+	knob_pos = this->params[PARAM_POS].getValue();
 	mod_pos_1 = this->params[PARAM_POS_MOD_1].getValue();
 	mod_pos_2 = this->params[PARAM_POS_MOD_2].getValue();
+	knob_lvl = this->params[PARAM_LVL].getValue();
 	mod_lvl_1 = this->params[PARAM_LVL_MOD_1].getValue();
 	mod_lvl_2 = this->params[PARAM_LVL_MOD_2].getValue();
+	knob_speed = this->params[PARAM_SPEED].getValue();
+	mod_speed_1 = this->params[PARAM_SPEED_MOD_1].getValue();
+	mod_speed_2 = this->params[PARAM_SPEED_MOD_2].getValue();
+	knob_speed_rev = this->params[PARAM_SPEED_REV].getValue();
+	buffer_length = (float)IGC_BUFFER * delay_time;
 
 	//////////////////////////////	
 	/// [3] RECORD AUDIO
 	//////////////////////////////	
+	/// RECORD TO BUFFER
 	in_l = this->inputs[INPUT_L].getVoltageSum();
 	if (this->inputs[INPUT_R].isConnected())
 		in_r = this->inputs[INPUT_R].getVoltageSum();
@@ -110,14 +126,13 @@ void Igc::process(const ProcessArgs& args) {
 	//////////////////////////////	
 	out_l = 0.0;
 	out_r = 0.0;
-	buffer_length = (float)IGC_BUFFER * delay_time;
 	channels = std::max(this->inputs[INPUT_POS_1].getChannels(),
 	/**/ this->inputs[INPUT_POS_2].getChannels());
 	this->playhead_count = channels;
 	for (i = 0; i < channels; ++i) {
 
 		/// COMPUTE LEVEL
-		level = this->params[PARAM_LVL].getValue()
+		level = knob_lvl
 		/**/ + this->inputs[INPUT_LVL_1].getPolyVoltage(i) * 0.1
 		/**/ * mod_lvl_1
 		/**/ + this->inputs[INPUT_LVL_2].getPolyVoltage(i) * 0.1
@@ -128,27 +143,47 @@ void Igc::process(const ProcessArgs& args) {
 			level = 0.0;
 		this->playheads[i].level = level;
 
-		/// COMPUTE PHASE
-		phase = this->params[PARAM_POS].getValue()
-		/**/ + this->inputs[INPUT_POS_1].getPolyVoltage(i) * 0.1 * mod_pos_1
-		/**/ + this->inputs[INPUT_POS_2].getPolyVoltage(i) * 0.1 * mod_pos_2;
-		phase = fmod(fmod(phase, 1.0) + 1.0, 1.0);
-		this->playheads[i].phase = phase;
+		/// MODE POS REL
+		if (mode == IGC_MODE_POS_REL) {
+			/// COMPUTE PHASE
+			phase = knob_pos
+			/**/ + this->inputs[INPUT_POS_1].getPolyVoltage(i) * 0.1 * mod_pos_1
+			/**/ + this->inputs[INPUT_POS_2].getPolyVoltage(i) * 0.1 * mod_pos_2;
+			phase = fmod(fmod(phase, 1.0) + 1.0, 1.0);
+			this->playheads[i].phase = phase;
 
-		/// COMPUTE REAL INDEX
-		index = (float)this->audio_index
-		/**/ - (phase * (float)buffer_length);
-		if (index < 0)
-			index += buffer_length;
-		//index = fmod(fmod(index, IGC_BUFFER) + IGC_BUFFER, IGC_BUFFER);
+			/// COMPUTE REAL INDEX
+			index = (float)this->audio_index
+			/**/ - (phase * (float)buffer_length);
+			if (index < 0)
+				index += IGC_BUFFER;
+			//index = fmod(fmod(index, IGC_BUFFER) + IGC_BUFFER, IGC_BUFFER);
+		/// MODE SPEED
+		} else {
+			/// COMPUTE PHASE / INDEX
+			speed = simd::pow(2.f, knob_speed
+			/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
+			/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2);
+			phase = this->playheads[i].phase;
+			if (knob_speed_rev > 0)
+				speed = -speed;
+			if (this->inputs[INPUT_SPEED_REV].getPolyVoltage(i) > 0.0)
+				speed = -speed;
+			phase += 1.0 - speed;
+			phase = fmod(fmod(phase, buffer_length) + buffer_length, buffer_length);
+			this->playheads[i].phase = phase;
 
-		/// COMPUTE BUFFER INDEX
+			/// COMPUTE REAL INDEX
+			index = (float)this->audio_index - phase;
+			while (index < 0)
+				index += IGC_BUFFER;
+		}
+
+		/// COMPUTE INTERPOLATED INDEXES
 		buffer_index_a = (int)index;
 		buffer_index_b = buffer_index_a + 1;
-		if (buffer_index_b >= buffer_length)
+		if (buffer_index_b >= IGC_BUFFER)
 			buffer_index_b = 0;
-		//if (buffer_index_b >= IGC_BUFFER)
-		//	buffer_index_b = 0;
 		index_inter = index - (float)buffer_index_a;
 
 		/// COMPUTE INTERPOLATED VALUE
@@ -156,6 +191,12 @@ void Igc::process(const ProcessArgs& args) {
 		/**/ + this->audio[0][buffer_index_b] * index_inter) * level;
 		out_r += (this->audio[1][buffer_index_a] * (1.0 - index_inter)
 		/**/ + this->audio[1][buffer_index_b] * index_inter) * level;
+
+		/// COMPUTE ANTI-CLICK FILTER
+		// TODO: If buffer_index_a is just after the writing playhead in the
+		// buffer (so at the end of the moving circular buffer where the
+		// writing playhead is the beginning) : Lerp value to writing playhead
+		// just wrote value
 	}
 	this->outputs[OUTPUT_L].setVoltage(out_l);
 	this->outputs[OUTPUT_R].setVoltage(out_r);

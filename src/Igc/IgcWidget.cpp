@@ -35,7 +35,7 @@ IgcWidget::IgcWidget(Igc* _module) {
 	grain_y = 10.0;
 
 	lvl_x = 45.0;
-	lvl_y = 40.0;
+	lvl_y = 45.0;
 
 	mode_x = 5.0;
 	mode_y = 35.0;
@@ -102,6 +102,14 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(speed_x + 5.0, speed_y + 9.0 + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_SPEED_MOD_2));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(speed_x, speed_y + 22.0)),
+	/**/ module,
+	/**/ Igc::INPUT_SPEED_REV));
+	addParam(
+	/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(speed_x + 6.5, speed_y + 22.0)),
+	/**/ module,
+	/**/ Igc::PARAM_SPEED_REV));
 
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(grain_x, grain_y)),

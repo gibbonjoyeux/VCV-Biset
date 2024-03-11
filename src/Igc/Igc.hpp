@@ -6,6 +6,7 @@
 
 #define IGC_BUFFER				480000	// 10s at 48000Hz sample rate
 #define IGC_BUFFER_PRECISION	96		// Display precision
+#define IGC_BUFFER_SAFE			32		// Safe zone to remove clicks & pops
 
 #define IGC_MODE_POS_REL		0
 #define IGC_MODE_POS_ABS		1
@@ -32,6 +33,7 @@ struct Igc : Module {
 		PARAM_SPEED,
 		PARAM_SPEED_MOD_1,
 		PARAM_SPEED_MOD_2,
+		PARAM_SPEED_REV,
 		PARAM_GRAIN,
 		PARAM_GRAIN_MOD_1,
 		PARAM_GRAIN_MOD_2,
@@ -49,6 +51,7 @@ struct Igc : Module {
 		INPUT_POS_2,
 		INPUT_SPEED_1,
 		INPUT_SPEED_2,
+		INPUT_SPEED_REV,
 		INPUT_GRAIN_1,
 		INPUT_GRAIN_2,
 		INPUT_LVL_1,
