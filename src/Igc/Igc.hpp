@@ -45,6 +45,8 @@ struct Igc : Module {
 		PARAM_LVL,
 		PARAM_LVL_MOD_1,
 		PARAM_LVL_MOD_2,
+		PARAM_MODE_HD,
+		PARAM_MODE_ANTICLICK,
 		PARAM_COUNT
 	};
 	enum	InputIds {
@@ -98,6 +100,7 @@ struct IgcWidget : ModuleWidget {
 	Igc							*module;
 
 	IgcWidget(Igc* _module);
+	void appendContextMenu(Menu *menu) override;
 };
 
 struct IgcDisplay : LedDisplay {

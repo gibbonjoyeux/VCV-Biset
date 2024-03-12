@@ -14,18 +14,19 @@ Igc::Igc() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
-	//configParam(PARAM_DELAY_TIME, 0.02, 10.0, 1.0, "Delay time", "s");
+	configSwitch(PARAM_MODE_HD, 0, 1, 1, "Mode HD");
+	configSwitch(PARAM_MODE_ANTICLICK, 0, 1, 1, "Mode Anti-click");
+
 	configParam<ParamQuantityLinearRatio>(PARAM_DELAY_TIME, -9, +9, 0.0, "Delay time", "s");
 	configInput(INPUT_DELAY_CLOCK, "Delay clock");
 	configInput(INPUT_DELAY_TIME, "Delay time");
 	configParam(PARAM_DELAY_TIME_MOD, 0.0, 1.0, 1.0, "Delay time mod");
-	configParam(PARAM_DELAY_PPQN, 1, 96, 1, "Delay clock ppqn");
+	configSwitch(PARAM_DELAY_PPQN, 0, 9, 0, "Delay clock ppqn", {
+		"1", "4", "8", "12", "24", "32", "48", "64", "96"
+	});
 
 	configSwitch(PARAM_MODE, 0, 3, 0, "Mode", {
-		"Pos relative",
-		"Pos absolute",
-		"Speed",
-		"Grain"
+		"Pos relative", "Pos absolute", "Speed", "Grain"
 	});
 
 	configParam(PARAM_POS, 0.0, 1.0, 0.0, "Playhead position", "");
@@ -99,6 +100,9 @@ void Igc::process(const ProcessArgs& args) {
 	int		mode;
 	int		ppqn;
 	int		i;
+	int		param_ppqn;
+	bool	param_hd;
+	bool	param_anticlick;
 
 	//////////////////////////////	
 	/// [1] GET ALGORITHM
@@ -114,6 +118,9 @@ void Igc::process(const ProcessArgs& args) {
 	//////////////////////////////	
 	/// [2] GET PARAMETERS
 	//////////////////////////////	
+	param_hd = this->params[PARAM_MODE_HD].getValue();
+	param_anticlick = this->params[PARAM_MODE_ANTICLICK].getValue();
+	param_ppqn = this->params[PARAM_DELAY_PPQN].getValue();
 	knob_delay = this->params[PARAM_DELAY_TIME].getValue();
 	knob_pos = this->params[PARAM_POS].getValue();
 	mod_pos_1 = this->params[PARAM_POS_MOD_1].getValue();
@@ -132,7 +139,24 @@ void Igc::process(const ProcessArgs& args) {
 	//////////////////////////////	
 	/// CLOCK MODE
 	if (this->inputs[INPUT_DELAY_CLOCK].isConnected()) {
-		ppqn = 1;	// TODO: get from context menu parameter
+		if (param_ppqn == 0)
+			ppqn = 1;
+		else if (param_ppqn == 1)
+			ppqn = 4;
+		else if (param_ppqn == 2)
+			ppqn = 8;
+		else if (param_ppqn == 3)
+			ppqn = 12;
+		else if (param_ppqn == 4)
+			ppqn = 24;
+		else if (param_ppqn == 5)
+			ppqn = 32;
+		else if (param_ppqn == 6)
+			ppqn = 48;
+		else if (param_ppqn == 7)
+			ppqn = 64;
+		else
+			ppqn = 96;
 		this->clock_between_count += 1;
 		/// ON TRIGGER
 		if (this->trigger_clock.process(inputs[INPUT_DELAY_CLOCK].getVoltage())) {
@@ -196,7 +220,7 @@ void Igc::process(const ProcessArgs& args) {
 			level = 0.0;
 		this->playheads[i].level = level;
 
-		/// MODE POS REL
+		/// MODE PLAYHEAD POS REL
 		if (mode == IGC_MODE_POS_REL) {
 			/// COMPUTE PHASE
 			phase = knob_pos
@@ -250,34 +274,40 @@ void Igc::process(const ProcessArgs& args) {
 			this->playheads[i].phase = phase;
 		}
 
-		/// COMPUTE INTERPOLATED INDEXES
-		buffer_index_a = (int)index;
-		buffer_index_b = buffer_index_a + 1;
-		if (buffer_index_b >= IGC_BUFFER)
-			buffer_index_b = 0;
-		index_inter = index - (float)buffer_index_a;
-
-		/// COMPUTE INTERPOLATED VALUE
-		// TODO: Only if HD in ON
-		voice_l = (this->audio[0][buffer_index_a] * (1.0 - index_inter)
-		/**/ + this->audio[0][buffer_index_b] * index_inter);
-		voice_r = (this->audio[1][buffer_index_a] * (1.0 - index_inter)
-		/**/ + this->audio[1][buffer_index_b] * index_inter);
+		/// COMPUTE PLAYHEAD OUTPUT
+		if (param_hd) {
+			/// COMPUTE INTERPOLATED INDEXES
+			buffer_index_a = (int)index;
+			buffer_index_b = buffer_index_a + 1;
+			if (buffer_index_b >= IGC_BUFFER)
+				buffer_index_b = 0;
+			index_inter = index - (float)buffer_index_a;
+			/// COMPUTE INTERPOLATED VALUE
+			voice_l = (this->audio[0][buffer_index_a] * (1.0 - index_inter)
+			/**/ + this->audio[0][buffer_index_b] * index_inter);
+			voice_r = (this->audio[1][buffer_index_a] * (1.0 - index_inter)
+			/**/ + this->audio[1][buffer_index_b] * index_inter);
+		} else {
+			buffer_index_a = (int)index;
+			voice_l = this->audio[0][buffer_index_a];
+			voice_r = this->audio[1][buffer_index_a];
+		}
 
 		/// COMPUTE ANTI-CLICK FILTER
-		// TODO: Only if Anti-click in ON
-		// Ease toward just written audio when near buffer end
-		if (this->audio_index > index) {
-			dist = (float)buffer_length
-			/**/ - ((float)this->audio_index - index);
-		} else {
-			dist = (float)buffer_length
-			/**/ - ((float)this->audio_index + ((float)IGC_BUFFER - index));
-		}
-		if (dist < IGC_BUFFER_SAFE) {
-			t = dist / (float)IGC_BUFFER_SAFE;
-			voice_l = voice_l * t + in_l * (1.0 - t);
-			voice_r = voice_r * t + in_r * (1.0 - t);
+		if (param_anticlick) {
+			// Ease toward just written audio when near buffer end
+			if (this->audio_index > index) {
+				dist = (float)buffer_length
+				/**/ - ((float)this->audio_index - index);
+			} else {
+				dist = (float)buffer_length
+				/**/ - ((float)this->audio_index + ((float)IGC_BUFFER - index));
+			}
+			if (dist < IGC_BUFFER_SAFE) {
+				t = dist / (float)IGC_BUFFER_SAFE;
+				voice_l = voice_l * t + in_l * (1.0 - t);
+				voice_r = voice_r * t + in_r * (1.0 - t);
+			}
 		}
 
 		/// ADD VOICE TO AUDIO

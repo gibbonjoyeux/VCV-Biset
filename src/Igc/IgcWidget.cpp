@@ -189,5 +189,56 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ createOutputCentered<Outlet>(mm2px(Vec(90, 100)),
 	/**/ module,
 	/**/ Igc::OUTPUT_R));
+}
 
+void IgcWidget::appendContextMenu(Menu *menu) {
+	Param		*param;
+
+	menu->addChild(new MenuSeparator());
+
+	param = &(this->module->params[Igc::PARAM_MODE_HD]);
+	menu->addChild(new MenuCheckItem("Mode HD", "",
+		[=]() { return param->getValue() == 1; },
+		[=]() { param->setValue(!(int)param->getValue()); }
+	));
+
+	param = &(this->module->params[Igc::PARAM_MODE_ANTICLICK]);
+	menu->addChild(new MenuCheckItem("Mode anti-click", "",
+		[=]() { return param->getValue() == 1; },
+		[=]() { param->setValue(!(int)param->getValue()); }
+	));
+
+	param = &(this->module->params[Igc::PARAM_DELAY_PPQN]);
+	menu->addChild(rack::createSubmenuItem("Click PPQN", "",
+		[=](Menu *menu) {
+			menu->addChild(new MenuCheckItem("1", "",
+				[=]() { return param->getValue() == 1; },
+				[=]() { param->setValue(1); }
+			));
+			menu->addChild(new MenuCheckItem("4", "",
+				[=]() { return param->getValue() == 4; },
+				[=]() { param->setValue(4); }
+			));
+			menu->addChild(new MenuCheckItem("8", "",
+				[=]() { return param->getValue() == 8; },
+				[=]() { param->setValue(8); }
+			));
+			menu->addChild(new MenuCheckItem("12", "",
+				[=]() { return param->getValue() == 12; },
+				[=]() { param->setValue(12); }
+			));
+			menu->addChild(new MenuCheckItem("24", "",
+				[=]() { return param->getValue() == 24; },
+				[=]() { param->setValue(24); }
+			));
+			menu->addChild(new MenuCheckItem("48", "",
+				[=]() { return param->getValue() == 48; },
+				[=]() { param->setValue(48); }
+			));
+			menu->addChild(new MenuCheckItem("96", "",
+				[=]() { return param->getValue() == 96; },
+				[=]() { param->setValue(96); }
+			));
+		}
+	));
 }
