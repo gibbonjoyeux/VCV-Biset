@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 Igc::Igc() {
+	int		i;
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
@@ -18,6 +19,7 @@ Igc::Igc() {
 	configInput(INPUT_DELAY_CLOCK, "Delay clock");
 	configInput(INPUT_DELAY_TIME, "Delay time");
 	configParam(PARAM_DELAY_TIME_MOD, 0.0, 1.0, 1.0, "Delay time mod");
+	configParam(PARAM_DELAY_PPQN, 1, 96, 1, "Delay clock ppqn");
 
 	configSwitch(PARAM_MODE, 0, 3, 0, "Mode", {
 		"Pos relative",
@@ -38,7 +40,8 @@ Igc::Igc() {
 	configInput(INPUT_SPEED_2, "Playhead speed 2");
 	configParam(PARAM_SPEED_MOD_2, -1.0, 1.0, 1.0, "Playhead speed 2 mod", "");
 	configInput(INPUT_SPEED_REV, "Playhead speed reverse");
-	configSwitch(PARAM_SPEED_REV, 0, 1, 0, "Reverse");
+	configSwitch(PARAM_SPEED_REV, 0, 1, 0, "Speed reverse");
+	configSwitch(PARAM_SPEED_ROUND, 0, 1, 0, "Speed round");
 
 	configParam(PARAM_GRAIN, 0.0, 1.0, 0.0, "Grain length", "");
 	configInput(INPUT_GRAIN_1, "Grain length 1");
@@ -65,11 +68,17 @@ Igc::Igc() {
 	this->clock_between = 0;
 	this->clock_between_count = 0;
 	this->delay_time = 1.0;
+	for (i = 0; i < 16; ++i) {
+		this->playheads[i].speed = 1.0;
+	}
 }
 
 void Igc::process(const ProcessArgs& args) {
 	float	in_l, in_r;
 	float	out_l, out_r;
+	float	voice_l, voice_r;
+	float	t;
+	float	dist;
 	float	phase;
 	float	index;
 	float	index_inter;
@@ -80,6 +89,7 @@ void Igc::process(const ProcessArgs& args) {
 	float	knob_lvl;
 	float	knob_speed;
 	float	knob_speed_rev;
+	float	knob_speed_round;
 	float	mod_pos_1, mod_pos_2;
 	float	mod_lvl_1, mod_lvl_2;
 	float	mod_speed_1, mod_speed_2;
@@ -115,6 +125,7 @@ void Igc::process(const ProcessArgs& args) {
 	mod_speed_1 = this->params[PARAM_SPEED_MOD_1].getValue();
 	mod_speed_2 = this->params[PARAM_SPEED_MOD_2].getValue();
 	knob_speed_rev = this->params[PARAM_SPEED_REV].getValue();
+	knob_speed_round = this->params[PARAM_SPEED_ROUND].getValue();
 
 	//////////////////////////////	
 	/// [3] COMPUTE DELAY TIME
@@ -131,6 +142,13 @@ void Igc::process(const ProcessArgs& args) {
 			/// COMPUTE DELAY TIME
 			this->delay_time = ((float)this->clock_between / args.sampleRate)
 			/**/ * (float)ppqn;
+			/// COMPUTE DELAY TIME MULTIPLICATION
+			knob_delay = (int)knob_delay;
+			if (knob_delay >= 0.0)
+				knob_delay = 1.0 + knob_delay;
+			else
+				knob_delay = 1.0 / (1.0 + -knob_delay);
+			this->delay_time *= knob_delay;
 			if (this->delay_time > 10.0)
 				this->delay_time = 10.0;
 		}
@@ -195,14 +213,24 @@ void Igc::process(const ProcessArgs& args) {
 			//index = fmod(fmod(index, IGC_BUFFER) + IGC_BUFFER, IGC_BUFFER);
 		/// MODE SPEED
 		} else {
-			/// COMPUTE PHASE / RELATIVE INDEX
-			speed = std::pow(2.f, knob_speed
+			/// COMPUTE SPEED
+			speed = knob_speed
 			/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
-			/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2);
+			/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2;
+			if (knob_speed_round)
+				speed = std::round(speed);
+			speed = std::pow(2.f, speed);
 			if (knob_speed_rev > 0)
 				speed = -speed;
 			if (this->inputs[INPUT_SPEED_REV].getPolyVoltage(i) > 0.0)
 				speed = -speed;
+
+			/// EASE SPEED
+			// TODO: use parameter (context menu ?)
+			speed = speed * 0.0005 + this->playheads[i].speed * 0.9995;
+			this->playheads[i].speed = speed;
+
+			/// COMPUTE PHASE / RELATIVE INDEX
 			index = this->playheads[i].index;
 			index += 1.0 - speed;
 			index = fmod(fmod(index, buffer_length) + buffer_length, buffer_length);
@@ -230,16 +258,31 @@ void Igc::process(const ProcessArgs& args) {
 		index_inter = index - (float)buffer_index_a;
 
 		/// COMPUTE INTERPOLATED VALUE
-		out_l += (this->audio[0][buffer_index_a] * (1.0 - index_inter)
-		/**/ + this->audio[0][buffer_index_b] * index_inter) * level;
-		out_r += (this->audio[1][buffer_index_a] * (1.0 - index_inter)
-		/**/ + this->audio[1][buffer_index_b] * index_inter) * level;
+		// TODO: Only if HD in ON
+		voice_l = (this->audio[0][buffer_index_a] * (1.0 - index_inter)
+		/**/ + this->audio[0][buffer_index_b] * index_inter);
+		voice_r = (this->audio[1][buffer_index_a] * (1.0 - index_inter)
+		/**/ + this->audio[1][buffer_index_b] * index_inter);
 
 		/// COMPUTE ANTI-CLICK FILTER
-		// TODO: If buffer_index_a is just after the writing playhead in the
-		// buffer (so at the end of the moving circular buffer where the
-		// writing playhead is the beginning) : Lerp value to writing playhead
-		// just wrote value
+		// TODO: Only if Anti-click in ON
+		// Ease toward just written audio when near buffer end
+		if (this->audio_index > index) {
+			dist = (float)buffer_length
+			/**/ - ((float)this->audio_index - index);
+		} else {
+			dist = (float)buffer_length
+			/**/ - ((float)this->audio_index + ((float)IGC_BUFFER - index));
+		}
+		if (dist < IGC_BUFFER_SAFE) {
+			t = dist / (float)IGC_BUFFER_SAFE;
+			voice_l = voice_l * t + in_l * (1.0 - t);
+			voice_r = voice_r * t + in_r * (1.0 - t);
+		}
+
+		/// ADD VOICE TO AUDIO
+		out_l += voice_l * level;
+		out_r += voice_r * level;
 	}
 	this->outputs[OUTPUT_L].setVoltage(out_l);
 	this->outputs[OUTPUT_R].setVoltage(out_r);

@@ -126,6 +126,10 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(speed_x + 6.5, speed_y + 22.0)),
 	/**/ module,
 	/**/ Igc::PARAM_SPEED_REV));
+	addParam(
+	/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(speed_x - 6.5, speed_y + 22.0)),
+	/**/ module,
+	/**/ Igc::PARAM_SPEED_ROUND));
 
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(grain_x, grain_y)),

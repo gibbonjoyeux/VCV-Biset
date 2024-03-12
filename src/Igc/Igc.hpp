@@ -6,7 +6,7 @@
 
 #define IGC_BUFFER				480000	// 10s at 48000Hz sample rate
 #define IGC_BUFFER_PRECISION	96		// Display precision
-#define IGC_BUFFER_SAFE			32		// Safe zone to remove clicks & pops
+#define IGC_BUFFER_SAFE			128		// Safe zone to remove clicks & pops
 
 #define IGC_MODE_POS_REL		0
 #define IGC_MODE_POS_ABS		1
@@ -21,6 +21,7 @@ struct IgcPlayhead {
 	float						phase;
 	float						index;
 	float						level;
+	float						speed;
 	float						env_time;
 };
 
@@ -28,6 +29,7 @@ struct Igc : Module {
 	enum	ParamIds {
 		PARAM_DELAY_TIME,
 		PARAM_DELAY_TIME_MOD,
+		PARAM_DELAY_PPQN,
 		PARAM_MODE,
 		PARAM_POS,
 		PARAM_POS_MOD_1,
@@ -36,14 +38,13 @@ struct Igc : Module {
 		PARAM_SPEED_MOD_1,
 		PARAM_SPEED_MOD_2,
 		PARAM_SPEED_REV,
+		PARAM_SPEED_ROUND,
 		PARAM_GRAIN,
 		PARAM_GRAIN_MOD_1,
 		PARAM_GRAIN_MOD_2,
 		PARAM_LVL,
 		PARAM_LVL_MOD_1,
 		PARAM_LVL_MOD_2,
-		//PARAM_ENV_TIME,
-		//PARAM_ENV_SPEED,
 		PARAM_COUNT
 	};
 	enum	InputIds {
