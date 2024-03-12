@@ -27,6 +27,7 @@ struct IgcPlayhead {
 struct Igc : Module {
 	enum	ParamIds {
 		PARAM_DELAY_TIME,
+		PARAM_DELAY_TIME_MOD,
 		PARAM_MODE,
 		PARAM_POS,
 		PARAM_POS_MOD_1,
@@ -48,6 +49,8 @@ struct Igc : Module {
 	enum	InputIds {
 		INPUT_L,
 		INPUT_R,
+		INPUT_DELAY_TIME,
+		INPUT_DELAY_CLOCK,
 		INPUT_POS_1,
 		INPUT_POS_2,
 		INPUT_SPEED_1,
@@ -72,6 +75,11 @@ struct Igc : Module {
 		LIGHT_MODE_GRAIN,
 		LIGHT_COUNT
 	};
+
+	dsp::TSchmittTrigger<float>	trigger_clock;
+	int							clock_between;
+	int							clock_between_count;
+	float						delay_time;
 
 	dsp::TSchmittTrigger<float>	trigger_env[16];
 	IgcPlayhead					playheads[16];

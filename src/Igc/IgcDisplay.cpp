@@ -41,13 +41,12 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		return;
 
 	rect = box.zeroPos();
-	delay_time = this->module->params[Igc::PARAM_DELAY_TIME].getValue();
+	delay_time = this->module->delay_time;
 
 	nvgScissor(args.vg, rect.pos.x, rect.pos.y, rect.size.x, rect.size.y);
 
 	/// [1] DRAW AUDIO RECORDING
 
-	/// WAVE AS BLOCKS
 	nvgBeginPath(args.vg);
 	buffer_phase_prev = this->module->audio_index - 1;
 	if (buffer_phase_prev < 0)
@@ -61,7 +60,7 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		/// COMPUTE VOLTAGE
 		/// COMPUTE BUFFER PHASE
 		buffer_phase = this->module->audio_index - 1
-		/**/ - t * (float)IGC_BUFFER * delay_time;
+		/**/ - t * (float)IGC_BUFFER * (delay_time * 0.1);
 		if (buffer_phase < 0)
 			buffer_phase += IGC_BUFFER;
 		/// COMPUTE VOLTAGE

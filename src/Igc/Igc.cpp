@@ -13,7 +13,10 @@ Igc::Igc() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
-	configParam(PARAM_DELAY_TIME, 0.002, 1.0, 0.1, "Delay time", "s", 0, 10.0);
+	configParam(PARAM_DELAY_TIME, 0.02, 10.0, 1.0, "Delay time", "s");
+	configInput(INPUT_DELAY_CLOCK, "Delay clock");
+	configInput(INPUT_DELAY_TIME, "Delay time");
+	configParam(PARAM_DELAY_TIME_MOD, 0.0, 1.0, 1.0, "Delay time mod");
 
 	configSwitch(PARAM_MODE, 0, 3, 0, "Mode", {
 		"Pos relative",
@@ -58,6 +61,9 @@ Igc::Igc() {
 
 	this->audio_index = 0;
 	this->playhead_count = 0;
+	this->clock_between = 0;
+	this->clock_between_count = 0;
+	this->delay_time = 1.0;
 }
 
 void Igc::process(const ProcessArgs& args) {
@@ -80,6 +86,7 @@ void Igc::process(const ProcessArgs& args) {
 	int		buffer_length;
 	int		channels;
 	int		mode;
+	int		ppqn;
 	int		i;
 
 	//////////////////////////////	
@@ -107,12 +114,35 @@ void Igc::process(const ProcessArgs& args) {
 	mod_speed_1 = this->params[PARAM_SPEED_MOD_1].getValue();
 	mod_speed_2 = this->params[PARAM_SPEED_MOD_2].getValue();
 	knob_speed_rev = this->params[PARAM_SPEED_REV].getValue();
-	buffer_length = (float)IGC_BUFFER * delay_time;
+
+	//////////////////////////////	
+	/// [3] COMPUTE DELAY TIME
+	//////////////////////////////	
+	/// CLOCK MODE
+	if (this->inputs[INPUT_DELAY_CLOCK].isConnected()) {
+		ppqn = 1;	// TODO: get from context menu parameter
+		this->clock_between_count += 1;
+		/// ON TRIGGER
+		if (this->trigger_clock.process(inputs[INPUT_DELAY_CLOCK].getVoltage())) {
+			/// COMPUTE CLOCK RATE
+			this->clock_between = this->clock_between_count;
+			this->clock_between_count = 0;
+			/// COMPUTE DELAY TIME
+			this->delay_time = ((float)this->clock_between / args.sampleRate)
+			/**/ * (float)ppqn;
+			if (this->delay_time > 10.0)
+				this->delay_time = 10.0;
+		}
+	/// TIME MODE
+	} else {
+		this->delay_time = delay_time;
+	}
+
 
 	//////////////////////////////	
 	/// [3] RECORD AUDIO
 	//////////////////////////////	
-	/// RECORD TO BUFFER
+	buffer_length = (float)IGC_BUFFER * (this->delay_time * 0.1);
 	in_l = this->inputs[INPUT_L].getVoltageSum();
 	if (this->inputs[INPUT_R].isConnected())
 		in_r = this->inputs[INPUT_R].getVoltageSum();

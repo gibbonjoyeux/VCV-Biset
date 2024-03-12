@@ -16,6 +16,7 @@ IgcWidget::IgcWidget(Igc* _module) {
 	float			grain_x, grain_y;
 	float			lvl_x, lvl_y;
 	float			mode_x, mode_y;
+	float			delay_x, delay_y;
 
 	module = _module;
 	setModule(module);
@@ -40,6 +41,9 @@ IgcWidget::IgcWidget(Igc* _module) {
 	mode_x = 5.0;
 	mode_y = 35.0;
 
+	delay_x = speed_x;
+	delay_y = 100.0;
+
 	///  MODE SWITCH
 	addParam(
 	/**/ createParamCentered<ButtonTriggerState>(mm2px(Vec(mode_x, mode_y - 1.0)),
@@ -57,9 +61,21 @@ IgcWidget::IgcWidget(Igc* _module) {
 
 	/// ADD PARAMS
 	addParam(
-	/**/ createParamCentered<KnobBig>(mm2px(Vec(speed_x, 110)),
+	/**/ createParamCentered<KnobBig>(mm2px(Vec(delay_x, delay_y)),
 	/**/ module,
 	/**/ Igc::PARAM_DELAY_TIME));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(delay_x - 5.0, delay_y + 10.0)),
+	/**/ module,
+	/**/ Igc::INPUT_DELAY_CLOCK));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(delay_x + 5.0, delay_y + 10.0)),
+	/**/ module,
+	/**/ Igc::INPUT_DELAY_TIME));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(delay_x + 5.0, delay_y + 16.5)),
+	/**/ module,
+	/**/ Igc::PARAM_DELAY_TIME_MOD));
 
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(pos_x, pos_y)),
