@@ -237,6 +237,20 @@ struct ParamQuantityClock : ParamQuantity {
 	}
 };
 
+/// ParamQuantity mapping linear -/+ value to positive ratio
+/// Ex: -9/+9 -> 0.1/10.0
+struct ParamQuantityLinearRatio : ParamQuantity {
+	float getDisplayValue() override {
+		float	value;
+
+		value = getValue();
+		if (value >= 0.0)
+			return (1.0 + value);
+		else
+			return (1.0 / (1.0 - value));
+	}
+};
+
 /// ParamQuantity for set of connected switches (only one active)
 struct ParamQuantityMode : SwitchQuantity {
 	int		mode_min;

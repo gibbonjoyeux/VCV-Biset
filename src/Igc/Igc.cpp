@@ -13,7 +13,8 @@ Igc::Igc() {
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
-	configParam(PARAM_DELAY_TIME, 0.02, 10.0, 1.0, "Delay time", "s");
+	//configParam(PARAM_DELAY_TIME, 0.02, 10.0, 1.0, "Delay time", "s");
+	configParam<ParamQuantityLinearRatio>(PARAM_DELAY_TIME, -9, +9, 0.0, "Delay time", "s");
 	configInput(INPUT_DELAY_CLOCK, "Delay clock");
 	configInput(INPUT_DELAY_TIME, "Delay time");
 	configParam(PARAM_DELAY_TIME_MOD, 0.0, 1.0, 1.0, "Delay time mod");
@@ -72,9 +73,9 @@ void Igc::process(const ProcessArgs& args) {
 	float	phase;
 	float	index;
 	float	index_inter;
-	float	delay_time;
 	float	level;
 	float	speed;
+	float	knob_delay;
 	float	knob_pos;
 	float	knob_lvl;
 	float	knob_speed;
@@ -103,7 +104,7 @@ void Igc::process(const ProcessArgs& args) {
 	//////////////////////////////	
 	/// [2] GET PARAMETERS
 	//////////////////////////////	
-	delay_time = this->params[PARAM_DELAY_TIME].getValue();
+	knob_delay = this->params[PARAM_DELAY_TIME].getValue();
 	knob_pos = this->params[PARAM_POS].getValue();
 	mod_pos_1 = this->params[PARAM_POS_MOD_1].getValue();
 	mod_pos_2 = this->params[PARAM_POS_MOD_2].getValue();
@@ -135,7 +136,11 @@ void Igc::process(const ProcessArgs& args) {
 		}
 	/// TIME MODE
 	} else {
-		this->delay_time = delay_time;
+		if (knob_delay >= 0.0)
+			knob_delay = 1.0 + knob_delay;
+		else
+			knob_delay = 1.0 / (1.0 + -knob_delay);
+		this->delay_time = knob_delay;
 	}
 
 
@@ -191,7 +196,7 @@ void Igc::process(const ProcessArgs& args) {
 		/// MODE SPEED
 		} else {
 			/// COMPUTE PHASE / RELATIVE INDEX
-			speed = simd::pow(2.f, knob_speed
+			speed = std::pow(2.f, knob_speed
 			/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
 			/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2);
 			if (knob_speed_rev > 0)
