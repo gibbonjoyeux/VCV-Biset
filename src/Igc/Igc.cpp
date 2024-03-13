@@ -70,40 +70,44 @@ Igc::Igc() {
 	this->clock_between_count = 0;
 	this->delay_time = 1.0;
 	this->delay_time_aim = 1.0;
+	this->abs_phase = 0.0;
 	for (i = 0; i < 16; ++i) {
 		this->playheads[i].speed = 1.0;
+		this->playheads[i].index_rel = 0.0;
 	}
 }
 
 void Igc::process(const ProcessArgs& args) {
-	float	in_l, in_r;
-	float	out_l, out_r;
-	float	voice_l, voice_r;
-	float	t;
-	float	dist;
-	float	phase;
-	float	index;
-	float	index_inter;
-	float	level;
-	float	speed;
-	float	knob_delay;
-	float	knob_pos;
-	float	knob_lvl;
-	float	knob_speed;
-	float	knob_speed_rev;
-	float	knob_speed_round;
-	float	mod_pos_1, mod_pos_2;
-	float	mod_lvl_1, mod_lvl_2;
-	float	mod_speed_1, mod_speed_2;
-	int		buffer_index_a, buffer_index_b;
-	int		buffer_length;
-	int		channels;
-	int		mode;
-	int		ppqn;
-	int		i;
-	int		param_ppqn;
-	bool	param_hd;
-	bool	param_anticlick;
+	IgcPlayhead	*playhead;
+	float		in_l, in_r;
+	float		out_l, out_r;
+	float		voice_l, voice_r;
+	float		t;
+	float		dist, dist_1, dist_2;
+	float		phase;
+	float		index;
+	float		index_inter;
+	float		index_rel;
+	float		level;
+	float		speed;
+	float		knob_delay;
+	float		knob_pos;
+	float		knob_lvl;
+	float		knob_speed;
+	float		knob_speed_rev;
+	float		knob_speed_round;
+	float		mod_pos_1, mod_pos_2;
+	float		mod_lvl_1, mod_lvl_2;
+	float		mod_speed_1, mod_speed_2;
+	int			buffer_index_a, buffer_index_b;
+	int			buffer_length;
+	int			channels;
+	int			mode;
+	int			ppqn;
+	int			i;
+	int			param_ppqn;
+	bool		param_hd;
+	bool		param_anticlick;
 
 	//////////////////////////////	
 	/// [1] GET ALGORITHM
@@ -164,6 +168,7 @@ void Igc::process(const ProcessArgs& args) {
 			/// COMPUTE CLOCK RATE
 			this->clock_between = this->clock_between_count;
 			this->clock_between_count = 0;
+			/// TODO: COUNT PPQN FOR POS ABS MODE PHASE
 			/// COMPUTE DELAY TIME
 			this->delay_time_aim = ((float)this->clock_between / args.sampleRate)
 			/**/ * (float)ppqn;
@@ -205,12 +210,18 @@ void Igc::process(const ProcessArgs& args) {
 	//////////////////////////////	
 	/// [4] READ AUDIO
 	//////////////////////////////	
+	if (mode == IGC_MODE_POS_ABS) {
+		this->abs_phase += 1.0 / (float)buffer_length;
+		this->abs_phase -= (int)this->abs_phase;
+	}
 	out_l = 0.0;
 	out_r = 0.0;
 	channels = std::max(this->inputs[INPUT_POS_1].getChannels(),
 	/**/ this->inputs[INPUT_POS_2].getChannels());
 	this->playhead_count = channels;
 	for (i = 0; i < channels; ++i) {
+
+		playhead = &(this->playheads[i]);
 
 		/// COMPUTE LEVEL
 		level = knob_lvl
@@ -222,16 +233,17 @@ void Igc::process(const ProcessArgs& args) {
 			level = 1.0;
 		if (level < 0.0)
 			level = 0.0;
-		this->playheads[i].level = level;
+		playhead->level = level;
 
-		/// MODE PLAYHEAD POS REL
+		/// MODE POS REL
 		if (mode == IGC_MODE_POS_REL) {
+
 			/// COMPUTE PHASE
 			phase = knob_pos
 			/**/ + this->inputs[INPUT_POS_1].getPolyVoltage(i) * 0.1 * mod_pos_1
 			/**/ + this->inputs[INPUT_POS_2].getPolyVoltage(i) * 0.1 * mod_pos_2;
 			phase = fmod(fmod(phase, 1.0) + 1.0, 1.0);
-			this->playheads[i].phase = phase;
+			playhead->phase = phase;
 
 			/// COMPUTE REAL INDEX
 			index = (float)this->audio_index
@@ -239,8 +251,26 @@ void Igc::process(const ProcessArgs& args) {
 			if (index < 0)
 				index += IGC_BUFFER;
 			//index = fmod(fmod(index, IGC_BUFFER) + IGC_BUFFER, IGC_BUFFER);
+
+		/// MODE POS ABSOLUTE
+		} else if (mode == IGC_MODE_POS_ABS) {
+
+			/// COMPUTE PHASE
+			phase = this->abs_phase - (knob_pos
+			/**/ + this->inputs[INPUT_POS_1].getPolyVoltage(i) * 0.1 * mod_pos_1
+			/**/ + this->inputs[INPUT_POS_2].getPolyVoltage(i) * 0.1 * mod_pos_2);
+			phase = fmod(fmod(phase, 1.0) + 1.0, 1.0);
+			playhead->phase = phase;
+
+			/// COMPUTE REAL INDEX
+			index = (float)this->audio_index
+			/**/ - (phase * (float)buffer_length);
+			if (index < 0)
+				index += IGC_BUFFER;
+
 		/// MODE SPEED
 		} else {
+
 			/// COMPUTE SPEED
 			speed = knob_speed
 			/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
@@ -255,17 +285,18 @@ void Igc::process(const ProcessArgs& args) {
 
 			/// EASE SPEED
 			// TODO: use parameter (context menu ?)
-			speed = speed * 0.0005 + this->playheads[i].speed * 0.9995;
-			this->playheads[i].speed = speed;
+			speed = speed * 0.0005 + playhead->speed * 0.9995;
+			playhead->speed = speed;
 
 			/// COMPUTE PHASE / RELATIVE INDEX
-			index = this->playheads[i].index;
-			index += 1.0 - speed;
-			index = fmod(fmod(index, buffer_length) + buffer_length, buffer_length);
-			this->playheads[i].index = index;
+			index_rel = playhead->index_rel;
+			index_rel += 1.0 - speed;
+			index_rel = fmod(fmod(index_rel, buffer_length)
+			/**/ + buffer_length, buffer_length);
+			playhead->index_rel = index_rel;
 
 			/// COMPUTE REAL INDEX
-			index = (float)this->audio_index - index;
+			index = (float)this->audio_index - index_rel;
 			while (index < 0)
 				index += IGC_BUFFER;
 
@@ -275,7 +306,8 @@ void Igc::process(const ProcessArgs& args) {
 			else
 				phase = (float)this->audio_index + ((float)IGC_BUFFER - index);
 			phase = fmod(fmod(phase / (float)buffer_length, 1.0) + 1.0, 1.0);
-			this->playheads[i].phase = phase;
+			playhead->phase = phase;
+
 		}
 
 		/// COMPUTE PLAYHEAD OUTPUT
@@ -299,6 +331,8 @@ void Igc::process(const ProcessArgs& args) {
 
 		/// COMPUTE ANTI-CLICK FILTER
 		if (param_anticlick) {
+
+			/// ALGO 1
 			// Ease toward just written audio when near buffer end
 			if (this->audio_index > index) {
 				dist = (float)buffer_length
@@ -307,12 +341,37 @@ void Igc::process(const ProcessArgs& args) {
 				dist = (float)buffer_length
 				/**/ - ((float)this->audio_index + ((float)IGC_BUFFER - index));
 			}
-			if (dist < IGC_BUFFER_SAFE) {
-				t = dist / (float)IGC_BUFFER_SAFE;
+			if (dist < IGC_CLICK_SAFE_TIME) {
+				t = dist / (float)IGC_CLICK_SAFE_TIME;
 				voice_l = voice_l * t + in_l * (1.0 - t);
 				voice_r = voice_r * t + in_r * (1.0 - t);
 			}
+
+			/// ALGO 2
+			/// COMPUTE MINIMUM JUMP DISTANCE
+			dist_1 = index - playhead->index; if (dist_1 < 0)
+				dist_1 = -dist_1;
+			dist_2 = index + ((float)IGC_BUFFER - playhead->index);
+			if (dist_2 < 0)
+				dist_2 = -dist_2;
+			dist = (dist_1 < dist_2) ? dist_1 : dist_2;
+			/// SWITCH ON ANTI-CLICK
+			if (dist > IGC_CLICK_DIST_THRESHOLD)
+				playhead->click_remaining = IGC_CLICK_SAFE_TIME;
+			/// COMPUTE ANTI-CLICK
+			if (playhead->click_remaining > 0) {
+				t = playhead->click_remaining / (float)IGC_CLICK_SAFE_TIME;
+				voice_l = voice_l * (1.0 - t) + playhead->click_value_l * t;
+				voice_r = voice_r * (1.0 - t) + playhead->click_value_r * t;
+				playhead->click_remaining -= 1.0;
+			/// SAVE PREVIOUS VALUE
+			} else {
+				playhead->click_value_l = voice_l;
+				playhead->click_value_r = voice_r;
+			}
 		}
+
+		playhead->index = index;
 
 		/// ADD VOICE TO AUDIO
 		out_l += voice_l * level;

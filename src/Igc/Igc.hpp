@@ -4,25 +4,30 @@
 
 #include "../plugin.hpp"
 
-#define IGC_BUFFER				480000	// 10s at 48000Hz sample rate
-#define IGC_BUFFER_PRECISION	96		// Display precision
-#define IGC_BUFFER_SAFE			128		// Safe zone to remove clicks & pops
+#define IGC_BUFFER					480000	// 10s at 48000Hz sample rate
+#define IGC_BUFFER_PRECISION		96		// Display precision
+#define IGC_CLICK_SAFE_TIME			128		// Anti-click length
+#define IGC_CLICK_DIST_THRESHOLD	32		// Playhead jump threshold before removing
 
-#define IGC_MODE_POS_REL		0
-#define IGC_MODE_POS_ABS		1
-#define IGC_MODE_SPEED			2
-#define IGC_MODE_GRAIN			3
+#define IGC_MODE_POS_REL			0
+#define IGC_MODE_POS_ABS			1
+#define IGC_MODE_SPEED				2
+#define IGC_MODE_GRAIN				3
 
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
 
 struct IgcPlayhead {
-	float						phase;
-	float						index;
-	float						level;
-	float						speed;
-	float						env_time;
+	float						phase;		// Pos rel to cursor in truncated buffer
+	float						index;		// Pos abs in full buffer
+	float						index_rel;	// Pos rel to cursor in full buffer
+	float						level;		// Level
+	float						speed;		// Speed
+
+	float						click_value_l;
+	float						click_value_r;
+	float						click_remaining;
 };
 
 struct Igc : Module {
@@ -88,6 +93,7 @@ struct Igc : Module {
 	dsp::TSchmittTrigger<float>	trigger_env[16];
 	IgcPlayhead					playheads[16];
 	int							playhead_count;
+	float						abs_phase;
 
 	float						audio[2][IGC_BUFFER];
 	int							audio_index;
