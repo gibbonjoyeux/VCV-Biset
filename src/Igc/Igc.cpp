@@ -69,6 +69,7 @@ Igc::Igc() {
 	this->clock_between = 0;
 	this->clock_between_count = 0;
 	this->delay_time = 1.0;
+	this->delay_time_aim = 1.0;
 	for (i = 0; i < 16; ++i) {
 		this->playheads[i].speed = 1.0;
 	}
@@ -164,7 +165,7 @@ void Igc::process(const ProcessArgs& args) {
 			this->clock_between = this->clock_between_count;
 			this->clock_between_count = 0;
 			/// COMPUTE DELAY TIME
-			this->delay_time = ((float)this->clock_between / args.sampleRate)
+			this->delay_time_aim = ((float)this->clock_between / args.sampleRate)
 			/**/ * (float)ppqn;
 			/// COMPUTE DELAY TIME MULTIPLICATION
 			knob_delay = (int)knob_delay;
@@ -172,10 +173,13 @@ void Igc::process(const ProcessArgs& args) {
 				knob_delay = 1.0 + knob_delay;
 			else
 				knob_delay = 1.0 / (1.0 + -knob_delay);
-			this->delay_time *= knob_delay;
-			if (this->delay_time > 10.0)
-				this->delay_time = 10.0;
+			this->delay_time_aim *= knob_delay;
+			if (this->delay_time_aim > 10.0)
+				this->delay_time_aim = 10.0;
 		}
+		/// GO TOWARD AIM DELAY TIME
+		this->delay_time = this->delay_time * 0.9999
+		/**/ + this->delay_time_aim * 0.0001;
 	/// TIME MODE
 	} else {
 		if (knob_delay >= 0.0)

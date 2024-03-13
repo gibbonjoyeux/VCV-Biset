@@ -83,6 +83,7 @@ struct Igc : Module {
 	int							clock_between;
 	int							clock_between_count;
 	float						delay_time;
+	float						delay_time_aim;
 
 	dsp::TSchmittTrigger<float>	trigger_env[16];
 	IgcPlayhead					playheads[16];
