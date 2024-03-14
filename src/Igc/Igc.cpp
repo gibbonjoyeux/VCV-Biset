@@ -20,7 +20,7 @@ Igc::Igc() {
 	configParam<ParamQuantityLinearRatio>(PARAM_DELAY_TIME, -9, +9, 0.0, "Delay time", "s");
 	configInput(INPUT_DELAY_CLOCK, "Delay clock");
 	configInput(INPUT_DELAY_TIME, "Delay time");
-	configParam(PARAM_DELAY_TIME_MOD, 0.0, 1.0, 1.0, "Delay time mod");
+	configParam(PARAM_DELAY_TIME_MOD, 0.0, 1.0, 0.0, "Delay time mod", "%", 0, 100);
 	configSwitch(PARAM_DELAY_PPQN, 0, 9, 0, "Delay clock ppqn", {
 		"1", "4", "8", "12", "24", "32", "48", "64", "96"
 	});
@@ -57,6 +57,9 @@ Igc::Igc() {
 	configParam(PARAM_LVL_MOD_1, -1.0, 1.0, 0.0, "Playhead level 1 mod", "%", 0, 100);
 	configInput(INPUT_LVL_2, "Playhead level 2");
 	configParam(PARAM_LVL_MOD_2, -1.0, 1.0, 0.0, "Playhead level 2 mod", "%", 0, 100);
+
+	configParam(PARAM_LVL_SHAPE_FORCE, 0.0, 1.0, 0.0, "Global level shape force", "%", 0, 100);
+	configParam(PARAM_LVL_SHAPE_WAVE, 0.0, 1.0, 0.5, "Global level shape wave", "%", 0, 100);
 
 	configInput(INPUT_L, "Left / Mono");
 	configInput(INPUT_R, "Right");
@@ -97,6 +100,7 @@ void Igc::process(const ProcessArgs& args) {
 	float		knob_lvl;
 	float		knob_speed;
 	float		knob_speed_rev;
+	float		knob_shape_force, knob_shape_wave;
 	float		mode_round;
 	float		mod_pos_1, mod_pos_2;
 	float		mod_lvl_1, mod_lvl_2;
@@ -145,6 +149,13 @@ void Igc::process(const ProcessArgs& args) {
 	mod_speed_1 = this->params[PARAM_SPEED_MOD_1].getValue();
 	mod_speed_2 = this->params[PARAM_SPEED_MOD_2].getValue();
 	knob_speed_rev = this->params[PARAM_SPEED_REV].getValue();
+
+	knob_shape_force = this->params[PARAM_LVL_SHAPE_FORCE].getValue()
+	/**/ + this->params[PARAM_LVL_SHAPE_FORCE_MOD].getValue()
+	/**/ * this->inputs[INPUT_LVL_SHAPE_FORCE].getVoltage() * 0.1;
+	knob_shape_wave = this->params[PARAM_LVL_SHAPE_WAVE].getValue()
+	/**/ + this->params[PARAM_LVL_SHAPE_WAVE_MOD].getValue()
+	/**/ * this->inputs[INPUT_LVL_SHAPE_WAVE].getVoltage() * 0.1;
 
 	//////////////////////////////	
 	/// [3] COMPUTE DELAY TIME
@@ -229,18 +240,6 @@ void Igc::process(const ProcessArgs& args) {
 	for (i = 0; i < channels; ++i) {
 
 		playhead = &(this->playheads[i]);
-
-		/// COMPUTE LEVEL
-		level = knob_lvl
-		/**/ + this->inputs[INPUT_LVL_1].getPolyVoltage(i) * 0.1
-		/**/ * mod_lvl_1
-		/**/ + this->inputs[INPUT_LVL_2].getPolyVoltage(i) * 0.1
-		/**/ * mod_lvl_2;
-		if (level > 1.0)
-			level = 1.0;
-		if (level < 0.0)
-			level = 0.0;
-		playhead->level = level;
 
 		/// MODE POS REL
 		if (mode == IGC_MODE_POS_REL) {
@@ -329,6 +328,34 @@ void Igc::process(const ProcessArgs& args) {
 
 		}
 
+		/// COMPUTE LEVEL
+		level = knob_lvl
+		/**/ + this->inputs[INPUT_LVL_1].getPolyVoltage(i) * 0.1
+		/**/ * mod_lvl_1
+		/**/ + this->inputs[INPUT_LVL_2].getPolyVoltage(i) * 0.1
+		/**/ * mod_lvl_2;
+		if (level > 1.0)
+			level = 1.0;
+		if (level < 0.0)
+			level = 0.0;
+		if (knob_shape_force > 0.0) {
+			if (knob_shape_wave < 0.01)
+				knob_shape_wave = 0.01;
+			if (knob_shape_wave > 0.99)
+				knob_shape_wave = 0.99;
+			/// WAVE UP
+			if (phase < knob_shape_wave) {
+				level *= 1.0 - (knob_shape_force
+				/**/ * (1.0 - (phase / knob_shape_wave)));
+			/// WAVE DOWN
+			} else {
+				level *= 1.0 - knob_shape_force * ((phase - knob_shape_wave)
+				/**/ / (1.0 - knob_shape_wave));
+			}
+		}
+		level = playhead->level * 0.99 + level * 0.01;
+		playhead->level = level;
+
 		/// COMPUTE PLAYHEAD OUTPUT
 		if (param_hd) {
 			/// COMPUTE INTERPOLATED INDEXES
@@ -353,6 +380,7 @@ void Igc::process(const ProcessArgs& args) {
 
 			/// ALGO 1
 			// Ease toward just written audio when near buffer end
+			// TODO: Check if useful
 			if (this->audio_index > index) {
 				dist = (float)buffer_length
 				/**/ - ((float)this->audio_index - index);
