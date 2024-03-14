@@ -6,8 +6,8 @@
 
 #define IGC_BUFFER					480000	// 10s at 48000Hz sample rate
 #define IGC_BUFFER_PRECISION		96		// Display precision
-#define IGC_CLICK_SAFE_TIME			128		// Anti-click length
-#define IGC_CLICK_DIST_THRESHOLD	32		// Playhead jump threshold before removing
+#define IGC_CLICK_SAFE_LENGTH		64		// Anti-click algorithm length
+#define IGC_CLICK_DIST_THRESHOLD	24		// Playhead jump threshold before removing
 
 #define IGC_MODE_POS_REL			0
 #define IGC_MODE_POS_ABS			1
@@ -24,15 +24,30 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 struct IgcPlayhead {
-	float						phase;		// Pos rel to cursor in truncated buffer
-	float						index;		// Pos abs in full buffer
-	float						index_rel;	// Pos rel to cursor in full buffer
-	float						level;		// Level
-	float						speed;		// Speed
 
-	float						click_value_l;
-	float						click_value_r;
+	//
+	// phase: Position (phase) relative to writting playhead in delay buffer
+	// index: Position (index) absolute in full buffer
+	// index_rel: Position (index) relative in full buffer
+	// level: Playhead level
+	// speed: Playhead speed (index)
+	//
+	// click_prev_l: last output before click (left channel)
+	// click_prev_r: last output before click (right channel)
+	// click_remaining: Remaining samples (index) before anti-click ends
+	//
+
+	float						phase;
+	float						index;
+	float						index_rel;
+	float						level;
+	float						speed;
+
+	float						click_prev_l;
+	float						click_prev_r;
 	float						click_remaining;
+
+	//dsp::TSchmittTrigger<float>	trigger;
 };
 
 struct Igc : Module {
@@ -79,7 +94,6 @@ struct Igc : Module {
 		INPUT_LVL_2,
 		INPUT_LVL_SHAPE_FORCE,
 		INPUT_LVL_SHAPE_WAVE,
-		//INPUT_ENV_TRIGGER,
 		INPUT_COUNT
 	};
 	enum	OutputIds {
@@ -98,13 +112,26 @@ struct Igc : Module {
 		LIGHT_COUNT
 	};
 
+	//
+	// trigger_clock: Main clock controling delay time
+	// clock_past_samples: Time (samples) past since last clock trigger
+	// delay_time: Current delay time (in sec) - Slowly ease into delay_time_aim
+	// delay_time_aim: Aimed delay time (in sec)
+	//
+	// playheads: Polyphonic playheads
+	// playhead_count: Number of polyphonic playheads
+	// abs_phase: For position absolute mode, writing position (phase) in delay
+	//            buffer. Made to simulate non-circular buffer (compensation)
+	//
+	// audio: Audio buffer to read and write
+	// audio_index: Writing playhead index in audio buffer (circular)
+	//
+
 	dsp::TSchmittTrigger<float>	trigger_clock;
-	int							clock_between;
-	int							clock_between_count;
+	int							clock_samples_count;
 	float						delay_time;
 	float						delay_time_aim;
 
-	dsp::TSchmittTrigger<float>	trigger_env[16];
 	IgcPlayhead					playheads[16];
 	int							playhead_count;
 	float						abs_phase;

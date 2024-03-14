@@ -71,8 +71,7 @@ Igc::Igc() {
 
 	this->audio_index = 0;
 	this->playhead_count = 0;
-	this->clock_between = 0;
-	this->clock_between_count = 0;
+	this->clock_samples_count = 0;
 	this->delay_time = 1.0;
 	this->delay_time_aim = 1.0;
 	this->abs_phase = 0.0;
@@ -180,16 +179,14 @@ void Igc::process(const ProcessArgs& args) {
 			ppqn = 64;
 		else
 			ppqn = 96;
-		this->clock_between_count += 1;
+		this->clock_samples_count += 1;
 		/// ON TRIGGER
 		if (this->trigger_clock.process(inputs[INPUT_DELAY_CLOCK].getVoltage())) {
-			/// COMPUTE CLOCK RATE
-			this->clock_between = this->clock_between_count;
-			this->clock_between_count = 0;
-			/// TODO: COUNT PPQN FOR POS ABS MODE PHASE
 			/// COMPUTE DELAY TIME
-			this->delay_time_aim = ((float)this->clock_between / args.sampleRate)
-			/**/ * (float)ppqn;
+			this->delay_time_aim = ((float)this->clock_samples_count
+			/**/ / args.sampleRate) * (float)ppqn;
+			this->clock_samples_count = 0;
+			// TODO: Count ppqn for pos abs mode (reset phase)
 			/// COMPUTE DELAY TIME MULTIPLICATION
 			knob_delay = (int)knob_delay;
 			if (knob_delay >= 0.0)
@@ -379,8 +376,9 @@ void Igc::process(const ProcessArgs& args) {
 		if (param_anticlick) {
 
 			/// ALGO 1
-			// Ease toward just written audio when near buffer end
-			// TODO: Check if useful
+			/// -> When close to delay buffer ending point, progressively ease
+			///    into delay buffer starting point.
+			///
 			if (this->audio_index > index) {
 				dist = (float)buffer_length
 				/**/ - ((float)this->audio_index - index);
@@ -388,33 +386,39 @@ void Igc::process(const ProcessArgs& args) {
 				dist = (float)buffer_length
 				/**/ - ((float)this->audio_index + ((float)IGC_BUFFER - index));
 			}
-			if (dist < IGC_CLICK_SAFE_TIME) {
-				t = dist / (float)IGC_CLICK_SAFE_TIME;
+			if (dist < IGC_CLICK_SAFE_LENGTH) {
+				t = dist / (float)IGC_CLICK_SAFE_LENGTH;
 				voice_l = voice_l * t + in_l * (1.0 - t);
 				voice_r = voice_r * t + in_r * (1.0 - t);
 			}
 
 			/// ALGO 2
-			/// COMPUTE MINIMUM JUMP DISTANCE
+			/// -> "Paralize" signal on big jumps in the buffer just before
+			///    click and slowly come back to signal.
+			///
+			//// COMPUTE JUMP DISTANCE
+			///// JUMP FOREWARD
 			dist_1 = index - playhead->index; if (dist_1 < 0)
 				dist_1 = -dist_1;
+			///// JUMP BACKWARD
 			dist_2 = index + ((float)IGC_BUFFER - playhead->index);
 			if (dist_2 < 0)
 				dist_2 = -dist_2;
+			///// JUMP SMALLEST
 			dist = (dist_1 < dist_2) ? dist_1 : dist_2;
-			/// SWITCH ON ANTI-CLICK
+			//// FIRE ANTI-CLICK
 			if (dist > IGC_CLICK_DIST_THRESHOLD)
-				playhead->click_remaining = IGC_CLICK_SAFE_TIME;
-			/// COMPUTE ANTI-CLICK
+				playhead->click_remaining = IGC_CLICK_SAFE_LENGTH;
+			//// COMPUTE ANTI-CLICK
 			if (playhead->click_remaining > 0) {
-				t = playhead->click_remaining / (float)IGC_CLICK_SAFE_TIME;
-				voice_l = voice_l * (1.0 - t) + playhead->click_value_l * t;
-				voice_r = voice_r * (1.0 - t) + playhead->click_value_r * t;
+				t = playhead->click_remaining / (float)IGC_CLICK_SAFE_LENGTH;
+				voice_l = voice_l * (1.0 - t) + playhead->click_prev_l * t;
+				voice_r = voice_r * (1.0 - t) + playhead->click_prev_r * t;
 				playhead->click_remaining -= 1.0;
-			/// SAVE PREVIOUS VALUE
+			//// SAVE PREVIOUS VALUE
 			} else {
-				playhead->click_value_l = voice_l;
-				playhead->click_value_r = voice_r;
+				playhead->click_prev_l = voice_l;
+				playhead->click_prev_r = voice_r;
 			}
 		}
 

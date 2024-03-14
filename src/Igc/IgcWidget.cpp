@@ -240,7 +240,7 @@ void IgcWidget::appendContextMenu(Menu *menu) {
 	));
 
 	param = &(this->module->params[Igc::PARAM_DELAY_PPQN]);
-	menu->addChild(rack::createSubmenuItem("Click PPQN", "",
+	menu->addChild(rack::createSubmenuItem("Clock PPQN", "",
 		[=](Menu *menu) {
 			menu->addChild(new MenuCheckItem("1", "",
 				[=]() { return param->getValue() == 1; },
