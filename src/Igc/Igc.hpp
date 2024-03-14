@@ -14,6 +14,11 @@
 #define IGC_MODE_SPEED				2
 #define IGC_MODE_GRAIN				3
 
+#define IGC_ROUND_NONE				0
+#define IGC_ROUND_KNOB				1
+#define IGC_ROUND_KNOB_INPUT		2
+#define IGC_ROUND_ALL				3
+
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,6 +86,9 @@ struct Igc : Module {
 		LIGHT_MODE_POS_ABS,
 		LIGHT_MODE_SPEED,
 		LIGHT_MODE_GRAIN,
+		LIGHT_ROUND_KNOB,
+		LIGHT_ROUND_INPUT_1,
+		LIGHT_ROUND_INPUT_2,
 		LIGHT_COUNT
 	};
 

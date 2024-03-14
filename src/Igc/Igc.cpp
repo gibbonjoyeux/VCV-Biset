@@ -31,30 +31,32 @@ Igc::Igc() {
 
 	configParam(PARAM_POS, 0.0, 1.0, 0.0, "Playhead position", "");
 	configInput(INPUT_POS_1, "Playhead position 1");
-	configParam(PARAM_POS_MOD_1, -1.0, 1.0, 1.0, "Playhead position 1 mod", "");
+	configParam(PARAM_POS_MOD_1, -1.0, 1.0, 0.0, "Playhead position 1 mod", "%", 0, 100);
 	configInput(INPUT_POS_2, "Playhead position 2");
-	configParam(PARAM_POS_MOD_2, -1.0, 1.0, 1.0, "Playhead position 2 mod", "");
+	configParam(PARAM_POS_MOD_2, -1.0, 1.0, 0.0, "Playhead position 2 mod", "%", 0, 100);
 
 	configParam(PARAM_SPEED, -4.0, 4.0, 0.0, "Playhead speed", "");
 	configInput(INPUT_SPEED_1, "Playhead speed 1");
-	configParam(PARAM_SPEED_MOD_1, -1.0, 1.0, 1.0, "Playhead speed 1 mod", "");
+	configParam(PARAM_SPEED_MOD_1, -1.0, 1.0, 0.0, "Playhead speed 1 mod", "%", 0, 100);
 	configInput(INPUT_SPEED_2, "Playhead speed 2");
-	configParam(PARAM_SPEED_MOD_2, -1.0, 1.0, 1.0, "Playhead speed 2 mod", "");
+	configParam(PARAM_SPEED_MOD_2, -1.0, 1.0, 0.0, "Playhead speed 2 mod", "%", 0, 100);
 	configInput(INPUT_SPEED_REV, "Playhead speed reverse");
 	configSwitch(PARAM_SPEED_REV, 0, 1, 0, "Speed reverse");
-	configSwitch(PARAM_SPEED_ROUND, 0, 1, 0, "Speed round");
+	configSwitch(PARAM_SPEED_ROUND, 0, 3, 0, "Speed round", {
+		"None", "Knob", "Knob + 1st input", "All"
+	});
 
 	configParam(PARAM_GRAIN, 0.0, 1.0, 0.0, "Grain length", "");
 	configInput(INPUT_GRAIN_1, "Grain length 1");
-	configParam(PARAM_GRAIN_MOD_1, -1.0, 1.0, 1.0, "Grain length 1 mod", "");
+	configParam(PARAM_GRAIN_MOD_1, -1.0, 1.0, 0.0, "Grain length 1 mod", "%", 0, 100);
 	configInput(INPUT_GRAIN_2, "Grain length 2");
-	configParam(PARAM_GRAIN_MOD_2, -1.0, 1.0, 1.0, "Grain length 2 mod", "");
+	configParam(PARAM_GRAIN_MOD_2, -1.0, 1.0, 0.0, "Grain length 2 mod", "%", 0, 100);
 
 	configParam(PARAM_LVL, 0.0, 1.0, 1.0, "Playhead level", "");
 	configInput(INPUT_LVL_1, "Playhead level 1");
-	configParam(PARAM_LVL_MOD_1, -1.0, 1.0, 1.0, "Playhead level 1 mod", "");
+	configParam(PARAM_LVL_MOD_1, -1.0, 1.0, 0.0, "Playhead level 1 mod", "%", 0, 100);
 	configInput(INPUT_LVL_2, "Playhead level 2");
-	configParam(PARAM_LVL_MOD_2, -1.0, 1.0, 1.0, "Playhead level 2 mod", "");
+	configParam(PARAM_LVL_MOD_2, -1.0, 1.0, 0.0, "Playhead level 2 mod", "%", 0, 100);
 
 	configInput(INPUT_L, "Left / Mono");
 	configInput(INPUT_R, "Right");
@@ -95,7 +97,7 @@ void Igc::process(const ProcessArgs& args) {
 	float		knob_lvl;
 	float		knob_speed;
 	float		knob_speed_rev;
-	float		knob_speed_round;
+	float		mode_round;
 	float		mod_pos_1, mod_pos_2;
 	float		mod_lvl_1, mod_lvl_2;
 	float		mod_speed_1, mod_speed_2;
@@ -113,11 +115,17 @@ void Igc::process(const ProcessArgs& args) {
 	/// [1] GET ALGORITHM
 	//////////////////////////////	
 	mode = params[PARAM_MODE].getValue();
+	mode_round = this->params[PARAM_SPEED_ROUND].getValue();
 	if (args.frame % 32 == 0) {
+		/// LIGHTS MODE
 		lights[LIGHT_MODE_POS_REL].setBrightness(mode == IGC_MODE_POS_REL);
 		lights[LIGHT_MODE_POS_ABS].setBrightness(mode == IGC_MODE_POS_ABS);
 		lights[LIGHT_MODE_SPEED].setBrightness(mode == IGC_MODE_SPEED);
 		lights[LIGHT_MODE_GRAIN].setBrightness(mode == IGC_MODE_GRAIN);
+		/// LIGHTS ROUND
+		lights[LIGHT_ROUND_KNOB].setBrightness(mode_round > IGC_ROUND_NONE);
+		lights[LIGHT_ROUND_INPUT_1].setBrightness(mode_round > IGC_ROUND_KNOB);
+		lights[LIGHT_ROUND_INPUT_2].setBrightness(mode_round == IGC_ROUND_ALL);
 	}
 
 	//////////////////////////////	
@@ -137,7 +145,6 @@ void Igc::process(const ProcessArgs& args) {
 	mod_speed_1 = this->params[PARAM_SPEED_MOD_1].getValue();
 	mod_speed_2 = this->params[PARAM_SPEED_MOD_2].getValue();
 	knob_speed_rev = this->params[PARAM_SPEED_REV].getValue();
-	knob_speed_round = this->params[PARAM_SPEED_ROUND].getValue();
 
 	//////////////////////////////	
 	/// [3] COMPUTE DELAY TIME
@@ -272,11 +279,23 @@ void Igc::process(const ProcessArgs& args) {
 		} else {
 
 			/// COMPUTE SPEED
-			speed = knob_speed
-			/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
-			/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2;
-			if (knob_speed_round)
-				speed = std::round(speed);
+			if (mode_round == IGC_ROUND_NONE) {
+				speed = knob_speed
+				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
+				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2;
+			} else if (mode_round == IGC_ROUND_KNOB) {
+				speed = std::round(knob_speed)
+				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
+				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2;
+			} else if (mode_round == IGC_ROUND_KNOB_INPUT) {
+				speed = std::round(knob_speed
+				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1)
+				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2;
+			} else {
+				speed = std::round(knob_speed
+				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
+				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2);
+			}
 			speed = std::pow(2.f, speed);
 			if (knob_speed_rev > 0)
 				speed = -speed;

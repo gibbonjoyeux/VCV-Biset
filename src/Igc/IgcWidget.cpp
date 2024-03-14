@@ -102,6 +102,8 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(speed_x, speed_y)),
 	/**/ module,
 	/**/ Igc::PARAM_SPEED));
+	addChild(createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(speed_x, speed_y - 6.5)),
+	/**/ module, Igc::LIGHT_ROUND_KNOB));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(speed_x - 5.0, speed_y + 9.0)),
 	/**/ module,
@@ -110,6 +112,8 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(speed_x - 5.0, speed_y + 9.0 + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_SPEED_MOD_1));
+	addChild(createLightCentered<SmallLight<BlueLight>>(mm2px(Vec(speed_x - 9.5, speed_y + 9.0)),
+	/**/ module, Igc::LIGHT_ROUND_INPUT_1));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(speed_x + 5.0, speed_y + 9.0)),
 	/**/ module,
@@ -118,6 +122,8 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(speed_x + 5.0, speed_y + 9.0 + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_SPEED_MOD_2));
+	addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(speed_x + 9.5, speed_y + 9.0)),
+	/**/ module, Igc::LIGHT_ROUND_INPUT_2));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(speed_x, speed_y + 22.0)),
 	/**/ module,
@@ -127,7 +133,7 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ module,
 	/**/ Igc::PARAM_SPEED_REV));
 	addParam(
-	/**/ createParamCentered<ButtonSwitch>(mm2px(Vec(speed_x - 6.5, speed_y + 22.0)),
+	/**/ createParamCentered<ButtonTriggerState>(mm2px(Vec(speed_x - 6.5, speed_y + 22.0)),
 	/**/ module,
 	/**/ Igc::PARAM_SPEED_ROUND));
 
