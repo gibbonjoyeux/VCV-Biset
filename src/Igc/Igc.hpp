@@ -47,6 +47,8 @@ struct IgcPlayhead {
 	float						click_prev_r;
 	float						click_remaining;
 
+	float						wavetable_index;
+
 	//dsp::TSchmittTrigger<float>	trigger;
 };
 

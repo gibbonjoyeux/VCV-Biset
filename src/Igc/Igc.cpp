@@ -35,7 +35,7 @@ Igc::Igc() {
 	configInput(INPUT_POS_2, "Playhead position 2");
 	configParam(PARAM_POS_MOD_2, -1.0, 1.0, 0.0, "Playhead position 2 mod", "%", 0, 100);
 
-	configParam(PARAM_SPEED, -4.0, 4.0, 0.0, "Playhead speed", "");
+	configParam(PARAM_SPEED, -4.0, 4.0, 0.0, "Playhead speed", " v/oct");
 	configInput(INPUT_SPEED_1, "Playhead speed 1");
 	configParam(PARAM_SPEED_MOD_1, -1.0, 1.0, 0.0, "Playhead speed 1 mod", "%", 0, 100);
 	configInput(INPUT_SPEED_2, "Playhead speed 2");
@@ -46,13 +46,13 @@ Igc::Igc() {
 		"None", "Knob", "Knob + 1st input", "All"
 	});
 
-	configParam(PARAM_GRAIN, 0.0, 1.0, 0.0, "Grain length", "");
+	configParam(PARAM_GRAIN, 0.0, 1.0, 0.0, "Grain length", "%", 0, 100);
 	configInput(INPUT_GRAIN_1, "Grain length 1");
 	configParam(PARAM_GRAIN_MOD_1, -1.0, 1.0, 0.0, "Grain length 1 mod", "%", 0, 100);
 	configInput(INPUT_GRAIN_2, "Grain length 2");
 	configParam(PARAM_GRAIN_MOD_2, -1.0, 1.0, 0.0, "Grain length 2 mod", "%", 0, 100);
 
-	configParam(PARAM_LVL, 0.0, 1.0, 1.0, "Playhead level", "");
+	configParam(PARAM_LVL, 0.0, 1.0, 1.0, "Playhead level", "%", 0, 100);
 	configInput(INPUT_LVL_1, "Playhead level 1");
 	configParam(PARAM_LVL_MOD_1, -1.0, 1.0, 0.0, "Playhead level 1 mod", "%", 0, 100);
 	configInput(INPUT_LVL_2, "Playhead level 2");
