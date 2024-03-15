@@ -397,16 +397,18 @@ void Igc::process(const ProcessArgs& args) {
 			///    click and slowly come back to signal.
 			///
 			//// COMPUTE JUMP DISTANCE
-			///// JUMP FOREWARD
+			///// JUMP DIRECT
 			dist_1 = index - playhead->index;
 			if (dist_1 < 0)
 				dist_1 = -dist_1;
-			///// JUMP BACKWARD
-			dist_2 = index + ((float)IGC_BUFFER - playhead->index);
-			if (dist_2 < 0)
-				dist_2 = -dist_2;
+			///// JUMP CIRCULAR
+			if (index < playhead->index)
+				dist_2 = index + ((float)IGC_BUFFER - playhead->index);
+			else
+				dist_2 = playhead->index + ((float)IGC_BUFFER - index);
 			///// JUMP SMALLEST
 			dist = (dist_1 < dist_2) ? dist_1 : dist_2;
+
 			//// FIRE ANTI-CLICK
 			if (dist > IGC_CLICK_DIST_THRESHOLD)
 				playhead->click_remaining = IGC_CLICK_SAFE_LENGTH;
@@ -416,7 +418,7 @@ void Igc::process(const ProcessArgs& args) {
 				voice_l = voice_l * (1.0 - t) + playhead->click_prev_l * t;
 				voice_r = voice_r * (1.0 - t) + playhead->click_prev_r * t;
 				playhead->click_remaining -= 1.0;
-			//// SAVE PREVIOUS VALUE
+			//// PREPARE ANTI-CLICK (SAVE PREVIOUS VALUE)
 			} else {
 				playhead->click_prev_l = voice_l;
 				playhead->click_prev_r = voice_r;
