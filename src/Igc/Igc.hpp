@@ -27,6 +27,7 @@ struct IgcPlayhead {
 
 	//
 	// phase: Position (phase) relative to writting playhead in delay buffer
+	// phase_prev: Previously drawn phase (only for display, updated on display)
 	// index: Position (index) absolute in full buffer
 	// index_rel: Position (index) relative in full buffer
 	// level: Playhead level
@@ -38,6 +39,7 @@ struct IgcPlayhead {
 	//
 
 	float						phase;
+	float						phase_prev;
 	float						index;
 	float						index_rel;
 	float						level;

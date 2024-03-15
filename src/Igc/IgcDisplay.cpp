@@ -34,6 +34,9 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 	float		voltage_diff_l, voltage_diff_r;
 	float		voltage_diff_max_l, voltage_diff_max_r;
 	float		delay_time;
+	float		dist_1, dist_1_abs;
+	float		dist_2, dist_2_abs;
+	float		offset, offset_abs;
 	float		t;
 	int			i;
 
@@ -122,17 +125,64 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 
 	/// [2] DRAW PLAYHEADS
 
-	nvgBeginPath(args.vg);
-	for (i = 0; i < this->module->playhead_count; ++i) {
-		playhead = &(this->module->playheads[i]);
-		nvgRect(args.vg,
-		/**/ playhead->phase * rect.size.x,
-		/**/ rect.size.y,
-		/**/ 0.5,
-		/**/ -rect.size.y * playhead->level);
-	}
+	nvgGlobalAlpha(args.vg, 0.5);
 	nvgFillColor(args.vg, colors[12]);
-	nvgFill(args.vg);
+	nvgStrokeColor(args.vg, colors[12]);
+	nvgStrokeWidth(args.vg, 0.5);
+	/// DRAW TRAIL
+	for (i = 0; i < this->module->playhead_count; ++i) {
+
+		playhead = &(this->module->playheads[i]);
+		if (playhead->level < 0.005)
+			continue;
+
+		/// COMPUTE TRAIL
+		//// JUMP DIRECT
+		dist_1 = playhead->phase - playhead->phase_prev;
+		dist_1_abs = (dist_1 <  0) ? -dist_1 : +dist_1;
+		//// JUMP CIRCULAR
+		if (playhead->phase < playhead->phase_prev) {
+			dist_2_abs = playhead->phase + (1.0 - playhead->phase_prev);
+			dist_2 = dist_2_abs;
+		} else {
+			dist_2_abs = playhead->phase_prev + (1.0 - playhead->phase);
+			dist_2 = -dist_2_abs;
+		}
+		//// JUMP SMALLEST
+		if (dist_1_abs < dist_2_abs)
+			offset = dist_1 * rect.size.x;
+		else
+			offset = dist_2 * rect.size.x;
+		offset_abs = (offset < 0) ? -offset : offset;
+		if (offset_abs > 10)
+			offset = (offset < 0) ? -10 : 10;
+
+		/// DRAW PLAYHEAD
+		nvgBeginPath(args.vg);
+
+		nvgMoveTo(args.vg,
+		/**/ playhead->phase * rect.size.x,
+		/**/ rect.size.y);
+		nvgLineTo(args.vg,
+		/**/ playhead->phase * rect.size.x,
+		/**/ (1.0 - playhead->level) * rect.size.y);
+		nvgQuadTo(args.vg,
+		/**/ playhead->phase * rect.size.x - offset * 0.333,
+		/**/ rect.size.y,
+		/**/ playhead->phase * rect.size.x - offset,
+		/**/ rect.size.y);
+		nvgLineTo(args.vg,
+		/**/ playhead->phase * rect.size.x,
+		/**/ rect.size.y);
+
+		nvgFill(args.vg);
+		nvgStroke(args.vg);
+		nvgClosePath(args.vg);
+
+		/// UPDATE PREVIOUS PHASE (TRAIL)
+		playhead->phase_prev = playhead->phase;
+	}
+	nvgGlobalAlpha(args.vg, 1.0);
 
 	nvgResetScissor(args.vg);
 }

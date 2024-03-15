@@ -398,7 +398,8 @@ void Igc::process(const ProcessArgs& args) {
 			///
 			//// COMPUTE JUMP DISTANCE
 			///// JUMP FOREWARD
-			dist_1 = index - playhead->index; if (dist_1 < 0)
+			dist_1 = index - playhead->index;
+			if (dist_1 < 0)
 				dist_1 = -dist_1;
 			///// JUMP BACKWARD
 			dist_2 = index + ((float)IGC_BUFFER - playhead->index);
