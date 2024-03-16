@@ -93,6 +93,9 @@ void TreeSeed::process(const ProcessArgs& args) {
 
 		tree_gate = tree->outputs[Tree::OUTPUT + 0].getVoltage();
 		if (tree_gate >= threshold) {
+			/// CANCEL PREVIOUS NOTES GATES
+			for (i = 0; i < 16; ++i)
+				this->gate_out[i].off();
 			/// TRIGGER NOTE
 			this->trigger_out[this->poly_index].trigger();
 			this->gate_out[this->poly_index].on();

@@ -40,7 +40,7 @@ struct GateGenerator {
 	void off(void) {
 		this->gate = false;
 		this->state = false;
-		this->remaining = 0.0;
+		this->remaining = 1e-3f;
 	}
 };
 
