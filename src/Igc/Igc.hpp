@@ -29,9 +29,11 @@ struct IgcPlayhead {
 	// phase: Position (phase) relative to writting playhead in delay buffer
 	// phase_prev: Previously drawn phase (only for display, updated on display)
 	// index: Position (index) absolute in full buffer
-	// index_rel: Position (index) relative in full buffer
+	// index_rel: Position (index) relative in full buffer (used in speed mode)
 	// level: Playhead level
 	// speed: Playhead speed (index)
+	// grain_phase: Position (phase) relative to writing playhead in delay buffer
+	// grain_time: Time past (seconds) in the current grain (used in grain mode)
 	//
 	// click_prev_l: last output before click (left channel)
 	// click_prev_r: last output before click (right channel)
@@ -44,6 +46,11 @@ struct IgcPlayhead {
 	float						index_rel;
 	float						level;
 	float						speed;
+
+	float						grain_phase;
+	float						grain_time;
+	float						grain_length;
+	float						grain_speed;
 
 	float						click_prev_l;
 	float						click_prev_r;

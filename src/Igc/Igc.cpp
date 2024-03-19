@@ -17,16 +17,16 @@ Igc::Igc() {
 	configSwitch(PARAM_MODE_HD, 0, 1, 1, "Mode HD");
 	configSwitch(PARAM_MODE_ANTICLICK, 0, 1, 1, "Mode Anti-click");
 
+	configSwitch(PARAM_MODE, 0, 3, 0, "Mode", {
+		"Pos relative", "Pos absolute", "Speed", "Grain"
+	});
+
 	configParam<ParamQuantityLinearRatio>(PARAM_DELAY_TIME, -9, +9, 0.0, "Delay time", "s");
 	configInput(INPUT_DELAY_CLOCK, "Delay clock");
 	configInput(INPUT_DELAY_TIME, "Delay time");
-	configParam(PARAM_DELAY_TIME_MOD, 0.0, 1.0, 0.0, "Delay time mod", "%", 0, 100);
+	configParam(PARAM_DELAY_TIME_MOD, -1.0, 1.0, 0.0, "Delay time mod", "%", 0, 100);
 	configSwitch(PARAM_DELAY_PPQN, 0, 9, 0, "Delay clock ppqn", {
 		"1", "4", "8", "12", "24", "32", "48", "64", "96"
-	});
-
-	configSwitch(PARAM_MODE, 0, 3, 0, "Mode", {
-		"Pos relative", "Pos absolute", "Speed", "Grain"
 	});
 
 	configParam(PARAM_POS, 0.0, 1.0, 0.0, "Playhead position", "");
@@ -46,7 +46,7 @@ Igc::Igc() {
 		"None", "Knob", "Knob + 1st input", "All"
 	});
 
-	configParam(PARAM_GRAIN, 0.0, 1.0, 0.0, "Grain length", "%", 0, 100);
+	configParam(PARAM_GRAIN, 0.001, 2.0, 0.1, "Grain length", "s");
 	configInput(INPUT_GRAIN_1, "Grain length 1");
 	configParam(PARAM_GRAIN_MOD_1, -1.0, 1.0, 0.0, "Grain length 1 mod", "%", 0, 100);
 	configInput(INPUT_GRAIN_2, "Grain length 2");
@@ -59,7 +59,9 @@ Igc::Igc() {
 	configParam(PARAM_LVL_MOD_2, -1.0, 1.0, 0.0, "Playhead level 2 mod", "%", 0, 100);
 
 	configParam(PARAM_LVL_SHAPE_FORCE, 0.0, 1.0, 0.0, "Global level shape force", "%", 0, 100);
+	configParam(PARAM_LVL_SHAPE_FORCE_MOD, -1.0, 1.0, 0.0, "Global level shape force mod", "%", 0, 100);
 	configParam(PARAM_LVL_SHAPE_WAVE, 0.0, 1.0, 0.5, "Global level shape wave", "%", 0, 100);
+	configParam(PARAM_LVL_SHAPE_WAVE_MOD, -1.0, 1.0, 0.0, "Global level shape wave mod", "%", 0, 100);
 
 	configInput(INPUT_L, "Left / Mono");
 	configInput(INPUT_R, "Right");
@@ -78,6 +80,8 @@ Igc::Igc() {
 	for (i = 0; i < 16; ++i) {
 		this->playheads[i].speed = 1.0;
 		this->playheads[i].index_rel = 0.0;
+		this->playheads[i].grain_phase = 0.0;
+		this->playheads[i].grain_time = 0.0;
 	}
 }
 
@@ -94,16 +98,19 @@ void Igc::process(const ProcessArgs& args) {
 	float		index_rel;
 	float		level;
 	float		speed;
+	float		shape;
 	float		knob_delay;
 	float		knob_pos;
 	float		knob_lvl;
 	float		knob_speed;
 	float		knob_speed_rev;
 	float		knob_shape_force, knob_shape_wave;
+	float		knob_grain;
 	float		mode_round;
 	float		mod_pos_1, mod_pos_2;
 	float		mod_lvl_1, mod_lvl_2;
 	float		mod_speed_1, mod_speed_2;
+	float		mod_grain_1, mod_grain_2;
 	int			buffer_index_a, buffer_index_b;
 	int			buffer_length;
 	int			channels;
@@ -137,7 +144,6 @@ void Igc::process(const ProcessArgs& args) {
 	param_hd = this->params[PARAM_MODE_HD].getValue();
 	param_anticlick = this->params[PARAM_MODE_ANTICLICK].getValue();
 	param_ppqn = this->params[PARAM_DELAY_PPQN].getValue();
-	knob_delay = this->params[PARAM_DELAY_TIME].getValue();
 	knob_pos = this->params[PARAM_POS].getValue();
 	mod_pos_1 = this->params[PARAM_POS_MOD_1].getValue();
 	mod_pos_2 = this->params[PARAM_POS_MOD_2].getValue();
@@ -148,7 +154,17 @@ void Igc::process(const ProcessArgs& args) {
 	mod_speed_1 = this->params[PARAM_SPEED_MOD_1].getValue();
 	mod_speed_2 = this->params[PARAM_SPEED_MOD_2].getValue();
 	knob_speed_rev = this->params[PARAM_SPEED_REV].getValue();
+	knob_grain = this->params[PARAM_GRAIN].getValue();
+	mod_grain_1 = this->params[PARAM_GRAIN_MOD_1].getValue();
+	mod_grain_2 = this->params[PARAM_GRAIN_MOD_2].getValue();
 
+	knob_delay = this->params[PARAM_DELAY_TIME].getValue()
+	/**/ + this->params[PARAM_DELAY_TIME_MOD].getValue()
+	/**/ * this->inputs[INPUT_DELAY_TIME].getVoltage() * 1.8;	// -5:+5 -9:+9
+	if (knob_delay < -9.0)
+		knob_delay = -9.0;
+	if (knob_delay > 9.0)
+		knob_delay = 9.0;
 	knob_shape_force = this->params[PARAM_LVL_SHAPE_FORCE].getValue()
 	/**/ + this->params[PARAM_LVL_SHAPE_FORCE_MOD].getValue()
 	/**/ * this->inputs[INPUT_LVL_SHAPE_FORCE].getVoltage() * 0.1;
@@ -271,7 +287,7 @@ void Igc::process(const ProcessArgs& args) {
 			if (index < 0)
 				index += IGC_BUFFER;
 
-		/// MODE SPEED
+		/// MODE SPEED / GRAIN
 		} else {
 
 			/// COMPUTE SPEED
@@ -298,30 +314,75 @@ void Igc::process(const ProcessArgs& args) {
 			if (this->inputs[INPUT_SPEED_REV].getPolyVoltage(i) > 0.0)
 				speed = -speed;
 
-			/// EASE SPEED
-			// TODO: use parameter (context menu ?)
-			speed = speed * 0.0005 + playhead->speed * 0.9995;
-			playhead->speed = speed;
+			/// MODE SPEED
+			if (mode == IGC_MODE_SPEED) {
 
-			/// COMPUTE PHASE / RELATIVE INDEX
-			index_rel = playhead->index_rel;
-			index_rel += 1.0 - speed;
-			index_rel = fmod(fmod(index_rel, buffer_length)
-			/**/ + buffer_length, buffer_length);
-			playhead->index_rel = index_rel;
+				/// EASE SPEED
+				// TODO: use parameter (context menu ?)
+				speed = speed * 0.0005 + playhead->speed * 0.9995;
+				playhead->speed = speed;
 
-			/// COMPUTE REAL INDEX
-			index = (float)this->audio_index - index_rel;
-			while (index < 0)
-				index += IGC_BUFFER;
+				/// COMPUTE PHASE / RELATIVE INDEX
+				index_rel = playhead->index_rel;
+				index_rel += 1.0 - speed;
+				index_rel = fmod(fmod(index_rel, buffer_length)
+				/**/ + buffer_length, buffer_length);
+				playhead->index_rel = index_rel;
 
-			/// COMPUTE RELATIVE PHASE
-			if (this->audio_index > index)
-				phase = (float)this->audio_index - index;
-			else
-				phase = (float)this->audio_index + ((float)IGC_BUFFER - index);
-			phase = fmod(fmod(phase / (float)buffer_length, 1.0) + 1.0, 1.0);
-			playhead->phase = phase;
+				/// COMPUTE REAL INDEX
+				index = (float)this->audio_index - index_rel;
+				while (index < 0)
+					index += IGC_BUFFER;
+
+				/// COMPUTE RELATIVE PHASE
+				if (this->audio_index > index)
+					phase = (float)this->audio_index - index;
+				else
+					phase = (float)this->audio_index + ((float)IGC_BUFFER - index);
+				phase = fmod(fmod(phase / (float)buffer_length, 1.0) + 1.0, 1.0);
+				playhead->phase = phase;
+
+			/// MODE GRAIN
+			} else {
+
+				/// RESTART GRAIN
+				if (playhead->grain_time >= playhead->grain_length) {
+					/// RESET GRAIN PHASE
+					phase = knob_pos
+					/**/ + this->inputs[INPUT_POS_1].getPolyVoltage(i)
+					/**/ * 0.1 * mod_pos_1
+					/**/ + this->inputs[INPUT_POS_2].getPolyVoltage(i)
+					/**/ * 0.1 * mod_pos_2;
+					/// SET GRAIN LENGTH + SPEED
+					playhead->grain_length = knob_grain
+					/**/ + this->inputs[INPUT_GRAIN_1].getPolyVoltage(i)
+					/**/ * mod_grain_1
+					/**/ + this->inputs[INPUT_GRAIN_2].getPolyVoltage(i)
+					/**/ * mod_grain_2;
+					if (playhead->grain_length < 0.01)
+						playhead->grain_length = 0.01;
+					if (playhead->grain_length > 2.0)
+						playhead->grain_length = 2.0;
+					playhead->grain_time = 0.0;
+					playhead->speed = speed;
+				} else {
+					phase = playhead->phase;
+					playhead->grain_time += args.sampleTime;
+				}
+
+				/// COMPUTE PHASE
+				phase += 1.0 / (float)buffer_length;
+				phase -= (1.0 / (float)buffer_length) * playhead->speed;
+				phase = fmod(fmod(phase, 1.0) + 1.0, 1.0);
+				playhead->phase = phase;
+
+				/// COMPUTE REAL INDEX
+				index = (float)this->audio_index
+				/**/ - (phase * (float)buffer_length);
+				if (index < 0)
+					index += IGC_BUFFER;
+
+			}
 
 		}
 
@@ -336,6 +397,8 @@ void Igc::process(const ProcessArgs& args) {
 		if (level < 0.0)
 			level = 0.0;
 		if (knob_shape_force > 0.0) {
+			if (knob_shape_force > 1.0)
+				knob_shape_force = 1.0;
 			if (knob_shape_wave < 0.01)
 				knob_shape_wave = 0.01;
 			if (knob_shape_wave > 0.99)
@@ -352,6 +415,21 @@ void Igc::process(const ProcessArgs& args) {
 		}
 		level = playhead->level * 0.99 + level * 0.01;
 		playhead->level = level;
+
+		if (mode == IGC_MODE_GRAIN) {
+			if (playhead->grain_time < (playhead->grain_length / 2.0)) {
+				shape = (playhead->grain_time / (playhead->grain_length / 2.0));
+			} else {
+				shape = 1.0
+				/**/ - ((playhead->grain_time - (playhead->grain_length / 2.0))
+				/**/ / (playhead->grain_length / 2.0));
+			}
+			shape = (1.0 - shape);
+			shape = shape * shape * shape;
+			shape = (1.0 - shape);
+			level *= shape;
+			playhead->level = level;
+		}
 
 		/// COMPUTE PLAYHEAD OUTPUT
 		if (param_hd) {
