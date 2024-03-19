@@ -46,7 +46,7 @@ Igc::Igc() {
 		"None", "Knob", "Knob + 1st input", "All"
 	});
 
-	configParam(PARAM_GRAIN, 0.001, 2.0, 0.1, "Grain length", "s");
+	configParam<ParamQuantityLinearRatio>(PARAM_GRAIN, -9, 1.0, -4, "Grain length", "s");
 	configInput(INPUT_GRAIN_1, "Grain length 1");
 	configParam(PARAM_GRAIN_MOD_1, -1.0, 1.0, 0.0, "Grain length 1 mod", "%", 0, 100);
 	configInput(INPUT_GRAIN_2, "Grain length 2");
@@ -99,6 +99,7 @@ void Igc::process(const ProcessArgs& args) {
 	float		level;
 	float		speed;
 	float		shape;
+	float		length;
 	float		knob_delay;
 	float		knob_pos;
 	float		knob_lvl;
@@ -353,16 +354,24 @@ void Igc::process(const ProcessArgs& args) {
 					/**/ * 0.1 * mod_pos_1
 					/**/ + this->inputs[INPUT_POS_2].getPolyVoltage(i)
 					/**/ * 0.1 * mod_pos_2;
-					/// SET GRAIN LENGTH + SPEED
-					playhead->grain_length = knob_grain
+
+					/// GET GRAIN LENGTH
+					length = knob_grain
 					/**/ + this->inputs[INPUT_GRAIN_1].getPolyVoltage(i)
-					/**/ * mod_grain_1
+					/**/ * mod_grain_1 * 1.0
 					/**/ + this->inputs[INPUT_GRAIN_2].getPolyVoltage(i)
-					/**/ * mod_grain_2;
-					if (playhead->grain_length < 0.01)
-						playhead->grain_length = 0.01;
-					if (playhead->grain_length > 2.0)
-						playhead->grain_length = 2.0;
+					/**/ * mod_grain_2 * 1.0;
+					if (length < -9.0)
+						length = -9.0;
+					if (length > 1.0)
+						length = 1.0;
+					/// GET GRAIN LENGTH RANGE
+					if (length >= 0.0)
+						length = 1.0 + length;
+					else
+						length = 1.0 / (1.0 + -length);
+					/// INIT GRAIN
+					playhead->grain_length = length;
 					playhead->grain_time = 0.0;
 					playhead->speed = speed;
 				} else {
