@@ -46,7 +46,7 @@ Igc::Igc() {
 		"None", "Knob", "Knob + 1st input", "All"
 	});
 
-	configParam<ParamQuantityLinearRatio>(PARAM_GRAIN, -9, 1.0, -4, "Grain length", "s");
+	configParam(PARAM_GRAIN, 0.0, 1.0, 0.5, "Grain length", "%", 0, 100);
 	configInput(INPUT_GRAIN_1, "Grain length 1");
 	configParam(PARAM_GRAIN_MOD_1, -1.0, 1.0, 0.0, "Grain length 1 mod", "%", 0, 100);
 	configInput(INPUT_GRAIN_2, "Grain length 2");
@@ -358,18 +358,15 @@ void Igc::process(const ProcessArgs& args) {
 					/// GET GRAIN LENGTH
 					length = knob_grain
 					/**/ + this->inputs[INPUT_GRAIN_1].getPolyVoltage(i)
-					/**/ * mod_grain_1 * 1.0
+					/**/ * mod_grain_1 * 0.1
 					/**/ + this->inputs[INPUT_GRAIN_2].getPolyVoltage(i)
-					/**/ * mod_grain_2 * 1.0;
-					if (length < -9.0)
-						length = -9.0;
+					/**/ * mod_grain_2 * 0.1;
+					if (length < 0.0)
+						length = 0.0;
 					if (length > 1.0)
 						length = 1.0;
-					/// GET GRAIN LENGTH RANGE
-					if (length >= 0.0)
-						length = 1.0 + length;
-					else
-						length = 1.0 / (1.0 + -length);
+					/// GET GRAIN REMAPPED LENGTH [0.1:2.0]
+					length = 0.1 + length * 1.9;
 					/// INIT GRAIN
 					playhead->grain_length = length;
 					playhead->grain_time = 0.0;
