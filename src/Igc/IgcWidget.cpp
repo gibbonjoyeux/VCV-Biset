@@ -15,34 +15,37 @@ IgcWidget::IgcWidget(Igc* _module) {
 	float			speed_x, speed_y;
 	float			grain_x, grain_y;
 	float			lvl_x, lvl_y;
+	float			shape_x, shape_y;
 	float			mode_x, mode_y;
 	float			delay_x, delay_y;
 
 	module = _module;
 	setModule(module);
-	setPanel(createPanel(asset::plugin(pluginInstance, "res/Tracker.svg")));
+	setPanel(createPanel(asset::plugin(pluginInstance, "res/Igc.svg")));
 
-	display = createWidget<IgcDisplay>(mm2px(Vec(0.0, 60.0)));
-	display->box.size = mm2px(Vec(100, 25.0));
+	display = createWidget<IgcDisplay>(mm2px(Vec(0.0, 65.0)));
+	display->box.size = mm2px(Vec(101.6, 25.0));
 	display->module = module;
 	display->moduleWidget = this;
 	addChild(display);
 
-	pos_x = 15.0;
-	pos_y = 10.0;
-	speed_x = 45.0;
-	speed_y = 10.0;
-	grain_x = 75.0;
-	grain_y = 10.0;
+	pos_x = 101.6 * 0.2;
+	pos_y = 11.5;
+	speed_x = 101.6 * 0.5;
+	speed_y = 14.0;
+	grain_x = 101.6 * 0.8;
+	grain_y = 11.5;
 
-	lvl_x = 45.0;
+	lvl_x = pos_x;
 	lvl_y = 45.0;
+	shape_x = grain_x;
+	shape_y = lvl_y;
 
-	mode_x = 5.0;
-	mode_y = 35.0;
+	mode_x = 101.6 * 0.5;
+	mode_y = 45.0;
 
 	delay_x = speed_x;
-	delay_y = 100.0;
+	delay_y = 98.5;
 
 	///  MODE SWITCH
 	addParam(
@@ -50,13 +53,13 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ module,
 	/**/ Igc::PARAM_MODE));
 	/// ALGO LIGHTS
-	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(mode_x, mode_y + 5.0)),
+	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(mode_x - 7.5, mode_y + 4.0)),
 	/**/ module, Igc::LIGHT_MODE_POS_REL));
-	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(mode_x, mode_y + 10.0)),
+	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(mode_x - 2.5, mode_y + 4.0)),
 	/**/ module, Igc::LIGHT_MODE_POS_ABS));
-	addChild(createLightCentered<MediumLight<BlueLight>>(mm2px(Vec(mode_x, mode_y + 15.0)),
+	addChild(createLightCentered<MediumLight<BlueLight>>(mm2px(Vec(mode_x + 2.5, mode_y + 4.0)),
 	/**/ module, Igc::LIGHT_MODE_SPEED));
-	addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(mode_x, mode_y + 20.0)),
+	addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(mode_x + 7.5, mode_y + 4.0)),
 	/**/ module, Igc::LIGHT_MODE_GRAIN));
 
 	/// ADD PARAMS
@@ -180,44 +183,44 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ Igc::PARAM_LVL_MOD_2));
 
 	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(lvl_x + 15.0, lvl_y)),
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(shape_x - 5.0, shape_y)),
 	/**/ module,
 	/**/ Igc::PARAM_LVL_SHAPE_FORCE));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(lvl_x + 15.0, lvl_y + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(shape_x - 5.0, shape_y + 9.0)),
 	/**/ module,
 	/**/ Igc::INPUT_LVL_SHAPE_FORCE));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(lvl_x + 15.0, lvl_y + 9.0 + 6.5)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(shape_x - 5.0, shape_y + 9.0 + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_LVL_SHAPE_FORCE_MOD));
 	addParam(
-	/**/ createParamCentered<KnobMedium>(mm2px(Vec(lvl_x + 25.0, lvl_y)),
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(shape_x + 5.0, shape_y)),
 	/**/ module,
 	/**/ Igc::PARAM_LVL_SHAPE_WAVE));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(lvl_x + 25.0, lvl_y + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(shape_x + 5.0, shape_y + 9.0)),
 	/**/ module,
 	/**/ Igc::INPUT_LVL_SHAPE_WAVE));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(lvl_x + 25.0, lvl_y + 9.0 + 6.5)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(shape_x + 5.0, shape_y + 9.0 + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_LVL_SHAPE_WAVE_MOD));
 
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(5, 90)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(10, 98)),
 	/**/ module,
 	/**/ Igc::INPUT_L));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(5, 100)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(10, 108)),
 	/**/ module,
 	/**/ Igc::INPUT_R));
 	addOutput(
-	/**/ createOutputCentered<Outlet>(mm2px(Vec(90, 90)),
+	/**/ createOutputCentered<Outlet>(mm2px(Vec(101.6 - 10.0, 98)),
 	/**/ module,
 	/**/ Igc::OUTPUT_L));
 	addOutput(
-	/**/ createOutputCentered<Outlet>(mm2px(Vec(90, 100)),
+	/**/ createOutputCentered<Outlet>(mm2px(Vec(101.6 - 10.0, 108)),
 	/**/ module,
 	/**/ Igc::OUTPUT_R));
 }
