@@ -18,6 +18,7 @@ IgcWidget::IgcWidget(Igc* _module) {
 	float			shape_x, shape_y;
 	float			mode_x, mode_y;
 	float			delay_x, delay_y;
+	float			mod_step_x, mod_step_y;
 
 	module = _module;
 	setModule(module);
@@ -32,7 +33,7 @@ IgcWidget::IgcWidget(Igc* _module) {
 	pos_x = 101.6 * 0.2;
 	pos_y = 11.5;
 	speed_x = 101.6 * 0.5;
-	speed_y = 14.0;
+	speed_y = 14.5;
 	grain_x = 101.6 * 0.8;
 	grain_y = 11.5;
 
@@ -42,10 +43,13 @@ IgcWidget::IgcWidget(Igc* _module) {
 	shape_y = lvl_y;
 
 	mode_x = 101.6 * 0.5;
-	mode_y = 45.0;
+	mode_y = 48.5;
 
 	delay_x = speed_x;
 	delay_y = 98.5;
+
+	mod_step_x = 6.5;
+	mod_step_y = 8.0;
 
 	///  MODE SWITCH
 	addParam(
@@ -68,15 +72,15 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ module,
 	/**/ Igc::PARAM_DELAY_TIME));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(delay_x - 5.0, delay_y + 10.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(delay_x - mod_step_x, delay_y + 10.0)),
 	/**/ module,
 	/**/ Igc::INPUT_DELAY_CLOCK));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(delay_x + 5.0, delay_y + 10.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(delay_x + mod_step_x, delay_y + 10.0)),
 	/**/ module,
 	/**/ Igc::INPUT_DELAY_TIME));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(delay_x + 5.0, delay_y + 16.5)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(delay_x + mod_step_x, delay_y + 16.5)),
 	/**/ module,
 	/**/ Igc::PARAM_DELAY_TIME_MOD));
 
@@ -85,19 +89,19 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ module,
 	/**/ Igc::PARAM_POS));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(pos_x - 5.0, pos_y + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(pos_x - mod_step_x, pos_y + mod_step_y)),
 	/**/ module,
 	/**/ Igc::INPUT_POS_1));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(pos_x - 5.0, pos_y + 9.0 + 6.5)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(pos_x - mod_step_x, pos_y + mod_step_y + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_POS_MOD_1));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(pos_x + 5.0, pos_y + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(pos_x + mod_step_x, pos_y + mod_step_y)),
 	/**/ module,
 	/**/ Igc::INPUT_POS_2));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(pos_x + 5.0, pos_y + 9.0 + 6.5)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(pos_x + mod_step_x, pos_y + mod_step_y + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_POS_MOD_2));
 
@@ -105,27 +109,27 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(speed_x, speed_y)),
 	/**/ module,
 	/**/ Igc::PARAM_SPEED));
-	addChild(createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(speed_x, speed_y - 6.5)),
+	addChild(createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(speed_x, speed_y - 7.2)),
 	/**/ module, Igc::LIGHT_ROUND_KNOB));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(speed_x - 5.0, speed_y + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(speed_x - mod_step_x, speed_y + mod_step_y)),
 	/**/ module,
 	/**/ Igc::INPUT_SPEED_1));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(speed_x - 5.0, speed_y + 9.0 + 6.5)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(speed_x - mod_step_x, speed_y + mod_step_y + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_SPEED_MOD_1));
-	addChild(createLightCentered<SmallLight<BlueLight>>(mm2px(Vec(speed_x - 9.5, speed_y + 9.0)),
+	addChild(createLightCentered<SmallLight<BlueLight>>(mm2px(Vec(speed_x - mod_step_x - 5.0, speed_y + mod_step_y)),
 	/**/ module, Igc::LIGHT_ROUND_INPUT_1));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(speed_x + 5.0, speed_y + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(speed_x + mod_step_x, speed_y + mod_step_y)),
 	/**/ module,
 	/**/ Igc::INPUT_SPEED_2));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(speed_x + 5.0, speed_y + 9.0 + 6.5)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(speed_x + mod_step_x, speed_y + mod_step_y + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_SPEED_MOD_2));
-	addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(speed_x + 9.5, speed_y + 9.0)),
+	addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(speed_x + mod_step_x + 5.0, speed_y + mod_step_y)),
 	/**/ module, Igc::LIGHT_ROUND_INPUT_2));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(speed_x, speed_y + 22.0)),
@@ -139,25 +143,29 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ createParamCentered<ButtonTriggerState>(mm2px(Vec(speed_x - 6.5, speed_y + 22.0)),
 	/**/ module,
 	/**/ Igc::PARAM_SPEED_ROUND));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(speed_x, speed_y + mod_step_y + 3.25)),
+	/**/ module,
+	/**/ Igc::PARAM_SPEED_SLEW));
 
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(grain_x, grain_y)),
 	/**/ module,
 	/**/ Igc::PARAM_GRAIN));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(grain_x - 5.0, grain_y + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(grain_x - mod_step_x, grain_y + mod_step_y)),
 	/**/ module,
 	/**/ Igc::INPUT_GRAIN_1));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(grain_x - 5.0, grain_y + 9.0 + 6.5)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(grain_x - mod_step_x, grain_y + mod_step_y + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_GRAIN_MOD_1));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(grain_x + 5.0, grain_y + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(grain_x + mod_step_x, grain_y + mod_step_y)),
 	/**/ module,
 	/**/ Igc::INPUT_GRAIN_2));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(grain_x + 5.0, grain_y + 9.0 + 6.5)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(grain_x + mod_step_x, grain_y + mod_step_y + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_GRAIN_MOD_2));
 
@@ -166,19 +174,19 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ module,
 	/**/ Igc::PARAM_LVL));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(lvl_x - 5.0, lvl_y + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(lvl_x - mod_step_x, lvl_y + mod_step_y)),
 	/**/ module,
 	/**/ Igc::INPUT_LVL_1));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(lvl_x - 5.0, lvl_y + 9.0 + 6.5)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(lvl_x - mod_step_x, lvl_y + mod_step_y + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_LVL_MOD_1));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(lvl_x + 5.0, lvl_y + 9.0)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(lvl_x + mod_step_x, lvl_y + mod_step_y)),
 	/**/ module,
 	/**/ Igc::INPUT_LVL_2));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(lvl_x + 5.0, lvl_y + 9.0 + 6.5)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(lvl_x + mod_step_x, lvl_y + mod_step_y + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_LVL_MOD_2));
 

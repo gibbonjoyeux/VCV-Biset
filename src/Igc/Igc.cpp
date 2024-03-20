@@ -45,6 +45,7 @@ Igc::Igc() {
 	configSwitch(PARAM_SPEED_ROUND, 0, 3, 0, "Speed round", {
 		"None", "Knob", "Knob + 1st input", "All"
 	});
+	configParam(PARAM_SPEED_SLEW, 0, 1, 0.5, "Speed slew");
 
 	configParam(PARAM_GRAIN, 0.0, 1.0, 0.5, "Grain length", "%", 0, 100);
 	configInput(INPUT_GRAIN_1, "Grain length 1");
@@ -105,6 +106,7 @@ void Igc::process(const ProcessArgs& args) {
 	float		knob_lvl;
 	float		knob_speed;
 	float		knob_speed_rev;
+	float		knob_speed_slew;
 	float		knob_shape_force, knob_shape_wave;
 	float		knob_grain;
 	float		mode_round;
@@ -155,6 +157,7 @@ void Igc::process(const ProcessArgs& args) {
 	mod_speed_1 = this->params[PARAM_SPEED_MOD_1].getValue();
 	mod_speed_2 = this->params[PARAM_SPEED_MOD_2].getValue();
 	knob_speed_rev = this->params[PARAM_SPEED_REV].getValue();
+	knob_speed_slew = this->params[PARAM_SPEED_SLEW].getValue();
 	knob_grain = this->params[PARAM_GRAIN].getValue();
 	mod_grain_1 = this->params[PARAM_GRAIN_MOD_1].getValue();
 	mod_grain_2 = this->params[PARAM_GRAIN_MOD_2].getValue();
@@ -172,6 +175,9 @@ void Igc::process(const ProcessArgs& args) {
 	knob_shape_wave = this->params[PARAM_LVL_SHAPE_WAVE].getValue()
 	/**/ + this->params[PARAM_LVL_SHAPE_WAVE_MOD].getValue()
 	/**/ * this->inputs[INPUT_LVL_SHAPE_WAVE].getVoltage() * 0.1;
+	knob_speed_slew = (1.0 - knob_speed_slew);
+	knob_speed_slew = knob_speed_slew * knob_speed_slew * knob_speed_slew;
+	knob_speed_slew = 0.995 + (1.0 - knob_speed_slew) * 0.0049;
 
 	//////////////////////////////	
 	/// [3] COMPUTE DELAY TIME
@@ -309,7 +315,7 @@ void Igc::process(const ProcessArgs& args) {
 				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
 				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2);
 			}
-			speed = std::pow(2.f, speed);
+			speed = std::pow(2.f, speed);	// BOTTLENECK -> LOOKUP TABLE ? SIMD ?
 			if (knob_speed_rev > 0)
 				speed = -speed;
 			if (this->inputs[INPUT_SPEED_REV].getPolyVoltage(i) > 0.0)
@@ -319,8 +325,8 @@ void Igc::process(const ProcessArgs& args) {
 			if (mode == IGC_MODE_SPEED) {
 
 				/// EASE SPEED
-				// TODO: use parameter (context menu ?)
-				speed = speed * 0.0005 + playhead->speed * 0.9995;
+				speed = speed * (1.0 - knob_speed_slew)
+				/**/ + playhead->speed * knob_speed_slew;
 				playhead->speed = speed;
 
 				/// COMPUTE PHASE / RELATIVE INDEX
