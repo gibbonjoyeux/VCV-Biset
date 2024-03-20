@@ -19,6 +19,7 @@ IgcWidget::IgcWidget(Igc* _module) {
 	float			mode_x, mode_y;
 	float			delay_x, delay_y;
 	float			mod_step_x, mod_step_y;
+	float			mix_x, mix_y;
 
 	module = _module;
 	setModule(module);
@@ -43,10 +44,12 @@ IgcWidget::IgcWidget(Igc* _module) {
 	shape_y = lvl_y;
 
 	mode_x = 101.6 * 0.5;
-	mode_y = 48.5;
+	mode_y = 52.0;
 
-	delay_x = speed_x;
-	delay_y = 98.5;
+	delay_x = speed_x + 20.0;
+	delay_y = 101.5;
+	mix_x = 33.0;
+	mix_y = 99.5;
 
 	mod_step_x = 6.5;
 	mod_step_y = 8.0;
@@ -144,7 +147,7 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ module,
 	/**/ Igc::PARAM_SPEED_ROUND));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(speed_x, speed_y + mod_step_y + 3.25)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(speed_x, speed_y + 22.0 + 6.5)),
 	/**/ module,
 	/**/ Igc::PARAM_SPEED_SLEW));
 
@@ -216,21 +219,58 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ Igc::PARAM_LVL_SHAPE_WAVE_MOD));
 
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(10, 98)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(5, 98)),
 	/**/ module,
 	/**/ Igc::INPUT_L));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(10, 108)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(5, 108)),
 	/**/ module,
 	/**/ Igc::INPUT_R));
 	addOutput(
-	/**/ createOutputCentered<Outlet>(mm2px(Vec(101.6 - 10.0, 98)),
+	/**/ createOutputCentered<Outlet>(mm2px(Vec(101.6 - 5.0, 98)),
 	/**/ module,
 	/**/ Igc::OUTPUT_L));
 	addOutput(
-	/**/ createOutputCentered<Outlet>(mm2px(Vec(101.6 - 10.0, 108)),
+	/**/ createOutputCentered<Outlet>(mm2px(Vec(101.6 - 5.0, 108)),
 	/**/ module,
 	/**/ Igc::OUTPUT_R));
+
+	addParam(
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(mix_x, mix_y)),
+	/**/ module,
+	/**/ Igc::PARAM_MIX_LVL_IN));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(mix_x, mix_y + 9.0)),
+	/**/ module,
+	/**/ Igc::INPUT_MIX_LVL_IN));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(mix_x, mix_y + 9.0 + 6.5)),
+	/**/ module,
+	/**/ Igc::PARAM_MIX_LVL_IN_MOD));
+	addParam(
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(mix_x + 10.0, mix_y)),
+	/**/ module,
+	/**/ Igc::PARAM_MIX_LVL_OUT));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(mix_x + 10.0, mix_y + 9.0)),
+	/**/ module,
+	/**/ Igc::INPUT_MIX_LVL_OUT));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(mix_x + 10.0, mix_y + 9.0 + 6.5)),
+	/**/ module,
+	/**/ Igc::PARAM_MIX_LVL_OUT_MOD));
+	addParam(
+	/**/ createParamCentered<KnobMedium>(mm2px(Vec(mix_x + 20.0, mix_y)),
+	/**/ module,
+	/**/ Igc::PARAM_MIX));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(mix_x + 20.0, mix_y + 9.0)),
+	/**/ module,
+	/**/ Igc::INPUT_MIX));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(mix_x + 20.0, mix_y + 9.0 + 6.5)),
+	/**/ module,
+	/**/ Igc::PARAM_MIX_MOD));
 }
 
 void IgcWidget::appendContextMenu(Menu *menu) {

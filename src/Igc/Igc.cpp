@@ -25,9 +25,17 @@ Igc::Igc() {
 	configInput(INPUT_DELAY_CLOCK, "Delay clock");
 	configInput(INPUT_DELAY_TIME, "Delay time");
 	configParam(PARAM_DELAY_TIME_MOD, -1.0, 1.0, 0.0, "Delay time mod", "%", 0, 100);
-	configSwitch(PARAM_DELAY_PPQN, 0, 9, 0, "Delay clock ppqn", {
-		"1", "4", "8", "12", "24", "32", "48", "64", "96"
-	});
+	configParam(PARAM_DELAY_PPQN, 1.0, 96.0, 1.0, "Delay click ppqn");
+
+	configParam(PARAM_MIX_LVL_IN, 0.0, 2.0, 1.0, "In level", "%", 0, 100);
+	configInput(INPUT_MIX_LVL_IN, "In level");
+	configParam(PARAM_MIX_LVL_IN_MOD, -1.0, 1.0, 0.0, "In level mod", "%", 0, 100);
+	configParam(PARAM_MIX_LVL_OUT, 0.0, 2.0, 1.0, "Out level", "%", 0, 100);
+	configInput(INPUT_MIX_LVL_OUT, "Out level");
+	configParam(PARAM_MIX_LVL_OUT_MOD, -1.0, 1.0, 0.0, "Out level mod", "%", 0, 100);
+	configParam(PARAM_MIX, 0.0, 1.0, 1.0, "Mix", "%", 0, 100);
+	configInput(INPUT_MIX, "Mix");
+	configParam(PARAM_MIX_MOD, -1.0, 1.0, 0.0, "Mix mod", "%", 0, 100);
 
 	configParam(PARAM_POS, 0.0, 1.0, 0.0, "Playhead position", "");
 	configInput(INPUT_POS_1, "Playhead position 1");
@@ -45,7 +53,7 @@ Igc::Igc() {
 	configSwitch(PARAM_SPEED_ROUND, 0, 3, 0, "Speed round", {
 		"None", "Knob", "Knob + 1st input", "All"
 	});
-	configParam(PARAM_SPEED_SLEW, 0, 1, 0.5, "Speed slew");
+	configParam(PARAM_SPEED_SLEW, 0, 1, 0.5, "Speed slew", "%", 0, 100);
 
 	configParam(PARAM_GRAIN, 0.0, 1.0, 0.5, "Grain length", "%", 0, 100);
 	configInput(INPUT_GRAIN_1, "Grain length 1");
@@ -109,6 +117,7 @@ void Igc::process(const ProcessArgs& args) {
 	float		knob_speed_slew;
 	float		knob_shape_force, knob_shape_wave;
 	float		knob_grain;
+	float		knob_mix_in, knob_mix_out, knob_mix;
 	float		mode_round;
 	float		mod_pos_1, mod_pos_2;
 	float		mod_lvl_1, mod_lvl_2;
@@ -118,9 +127,8 @@ void Igc::process(const ProcessArgs& args) {
 	int			buffer_length;
 	int			channels;
 	int			mode;
-	int			ppqn;
 	int			i;
-	int			param_ppqn;
+	float		param_ppqn;
 	bool		param_hd;
 	bool		param_anticlick;
 
@@ -178,36 +186,39 @@ void Igc::process(const ProcessArgs& args) {
 	knob_speed_slew = (1.0 - knob_speed_slew);
 	knob_speed_slew = knob_speed_slew * knob_speed_slew * knob_speed_slew;
 	knob_speed_slew = 0.995 + (1.0 - knob_speed_slew) * 0.0049;
+	knob_mix_in = this->params[PARAM_MIX_LVL_IN].getValue()
+	/**/ + this->params[PARAM_MIX_LVL_IN_MOD].getValue()
+	/**/ * this->inputs[INPUT_MIX_LVL_IN].getVoltage() * 0.1;
+	if (knob_mix_in < 0.0)
+		knob_mix_in = 0.0;
+	if (knob_mix_in > 2.0)
+		knob_mix_in = 2.0;
+	knob_mix_out = this->params[PARAM_MIX_LVL_OUT].getValue()
+	/**/ + this->params[PARAM_MIX_LVL_OUT_MOD].getValue()
+	/**/ * this->inputs[INPUT_MIX_LVL_OUT].getVoltage() * 0.1;
+	if (knob_mix_out < 0.0)
+		knob_mix_out = 0.0;
+	if (knob_mix_out > 2.0)
+		knob_mix_out = 2.0;
+	knob_mix = this->params[PARAM_MIX].getValue()
+	/**/ + this->params[PARAM_MIX_MOD].getValue()
+	/**/ * this->inputs[INPUT_MIX].getVoltage() * 0.1;
+	if (knob_mix < 0.0)
+		knob_mix = 0.0;
+	if (knob_mix > 1.0)
+		knob_mix = 1.0;
 
 	//////////////////////////////	
 	/// [3] COMPUTE DELAY TIME
 	//////////////////////////////	
 	/// CLOCK MODE
 	if (this->inputs[INPUT_DELAY_CLOCK].isConnected()) {
-		if (param_ppqn == 0)
-			ppqn = 1;
-		else if (param_ppqn == 1)
-			ppqn = 4;
-		else if (param_ppqn == 2)
-			ppqn = 8;
-		else if (param_ppqn == 3)
-			ppqn = 12;
-		else if (param_ppqn == 4)
-			ppqn = 24;
-		else if (param_ppqn == 5)
-			ppqn = 32;
-		else if (param_ppqn == 6)
-			ppqn = 48;
-		else if (param_ppqn == 7)
-			ppqn = 64;
-		else
-			ppqn = 96;
 		this->clock_samples_count += 1;
 		/// ON TRIGGER
 		if (this->trigger_clock.process(inputs[INPUT_DELAY_CLOCK].getVoltage())) {
 			/// COMPUTE DELAY TIME
 			this->delay_time_aim = ((float)this->clock_samples_count
-			/**/ / args.sampleRate) * (float)ppqn;
+			/**/ / args.sampleRate) * param_ppqn;
 			this->clock_samples_count = 0;
 			// TODO: Count ppqn for pos abs mode (reset phase)
 			/// COMPUTE DELAY TIME MULTIPLICATION
@@ -242,6 +253,8 @@ void Igc::process(const ProcessArgs& args) {
 		in_r = this->inputs[INPUT_R].getVoltageSum();
 	else
 		in_r = in_l;
+	in_l *= knob_mix_in;
+	in_r *= knob_mix_in;
 	this->audio[0][this->audio_index] = in_l;
 	this->audio[1][this->audio_index] = in_r;
 
@@ -521,8 +534,10 @@ void Igc::process(const ProcessArgs& args) {
 		out_l += voice_l * level;
 		out_r += voice_r * level;
 	}
-	this->outputs[OUTPUT_L].setVoltage(out_l);
-	this->outputs[OUTPUT_R].setVoltage(out_r);
+	this->outputs[OUTPUT_L].setVoltage(
+	/**/ in_l * (1.0 - knob_mix) + (out_l * knob_mix_out) * knob_mix);
+	this->outputs[OUTPUT_R].setVoltage(
+	/**/ in_r * (1.0 - knob_mix) + (out_r * knob_mix_out) * knob_mix);
 
 	//////////////////////////////	
 	/// [5] LOOP AUDIO
