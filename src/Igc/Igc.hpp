@@ -149,6 +149,7 @@ struct Igc : Module {
 	//
 
 	dsp::TSchmittTrigger<float>	trigger_clock;
+	int							clock_trigger_count;
 	int							clock_samples_count;
 	float						delay_time;
 	float						delay_time_aim;

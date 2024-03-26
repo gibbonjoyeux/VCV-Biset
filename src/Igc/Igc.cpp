@@ -83,6 +83,7 @@ Igc::Igc() {
 	this->audio_index = 0;
 	this->playhead_count = 0;
 	this->clock_samples_count = 0;
+	this->clock_trigger_count = 0;
 	this->delay_time = 1.0;
 	this->delay_time_aim = 1.0;
 	this->abs_phase = 0.0;
@@ -135,6 +136,7 @@ void Igc::process(const ProcessArgs& args) {
 	//////////////////////////////	
 	/// [1] GET ALGORITHM
 	//////////////////////////////	
+
 	mode = params[PARAM_MODE].getValue();
 	mode_round = this->params[PARAM_SPEED_ROUND].getValue();
 	if (args.frame % 32 == 0) {
@@ -152,6 +154,7 @@ void Igc::process(const ProcessArgs& args) {
 	//////////////////////////////	
 	/// [2] GET PARAMETERS
 	//////////////////////////////	
+
 	param_hd = this->params[PARAM_MODE_HD].getValue();
 	param_anticlick = this->params[PARAM_MODE_ANTICLICK].getValue();
 	param_ppqn = this->params[PARAM_DELAY_PPQN].getValue();
@@ -211,6 +214,7 @@ void Igc::process(const ProcessArgs& args) {
 	//////////////////////////////	
 	/// [3] COMPUTE DELAY TIME
 	//////////////////////////////	
+
 	/// CLOCK MODE
 	if (this->inputs[INPUT_DELAY_CLOCK].isConnected()) {
 		this->clock_samples_count += 1;
@@ -220,7 +224,11 @@ void Igc::process(const ProcessArgs& args) {
 			this->delay_time_aim = ((float)this->clock_samples_count
 			/**/ / args.sampleRate) * param_ppqn;
 			this->clock_samples_count = 0;
-			// TODO: Count ppqn for pos abs mode (reset phase)
+			this->clock_trigger_count += 1;
+			if (this->clock_trigger_count >= param_ppqn) {
+				this->clock_trigger_count = 0;
+				this->abs_phase = 0.0;
+			}
 			/// COMPUTE DELAY TIME MULTIPLICATION
 			knob_delay = (int)knob_delay;
 			if (knob_delay >= 0.0)
@@ -247,6 +255,7 @@ void Igc::process(const ProcessArgs& args) {
 	//////////////////////////////	
 	/// [3] RECORD AUDIO
 	//////////////////////////////	
+
 	buffer_length = (float)IGC_BUFFER * (this->delay_time * 0.1);
 	in_l = this->inputs[INPUT_L].getVoltageSum();
 	if (this->inputs[INPUT_R].isConnected())
@@ -261,14 +270,25 @@ void Igc::process(const ProcessArgs& args) {
 	//////////////////////////////	
 	/// [4] READ AUDIO
 	//////////////////////////////	
-	if (mode == IGC_MODE_POS_ABS) {
-		this->abs_phase += 1.0 / (float)buffer_length;
-		this->abs_phase -= (int)this->abs_phase;
+
+	/// HANDLE POLYPHONY COUNT
+	if (mode == IGC_MODE_SPEED) {
+		channels = std::max(this->inputs[INPUT_SPEED_1].getChannels(),
+		/**/ this->inputs[INPUT_SPEED_2].getChannels());
+	} else {
+		channels = std::max(this->inputs[INPUT_POS_1].getChannels(),
+		/**/ this->inputs[INPUT_POS_2].getChannels());
+		if (mode == IGC_MODE_POS_ABS) {
+			this->abs_phase += 1.0 / (float)buffer_length;
+			this->abs_phase -= (int)this->abs_phase;
+		}
 	}
+	if (channels <= 0)
+		channels = 1;
+
+	/// READ PLAYHEADS
 	out_l = 0.0;
 	out_r = 0.0;
-	channels = std::max(this->inputs[INPUT_POS_1].getChannels(),
-	/**/ this->inputs[INPUT_POS_2].getChannels());
 	this->playhead_count = channels;
 	for (i = 0; i < channels; ++i) {
 
@@ -542,6 +562,7 @@ void Igc::process(const ProcessArgs& args) {
 	//////////////////////////////	
 	/// [5] LOOP AUDIO
 	//////////////////////////////	
+
 	this->audio_index += 1;
 	if (this->audio_index >= IGC_BUFFER)
 		this->audio_index = 0;
