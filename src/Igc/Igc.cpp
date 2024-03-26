@@ -20,6 +20,9 @@ Igc::Igc() {
 	configSwitch(PARAM_MODE, 0, 3, 0, "Mode", {
 		"Pos relative", "Pos absolute", "Speed", "Grain"
 	});
+	configSwitch(PARAM_MODE_OUTPUT, 0, 1, 0, "Output mode", {
+		"Stereo", "Stereo spread"
+	});
 
 	configParam<ParamQuantityLinearRatio>(PARAM_DELAY_TIME, -9, +9, 0.0, "Delay time", "s");
 	configInput(INPUT_DELAY_CLOCK, "Delay clock");
@@ -128,6 +131,7 @@ void Igc::process(const ProcessArgs& args) {
 	int			buffer_length;
 	int			channels;
 	int			mode;
+	int			mode_out;
 	int			i;
 	float		param_ppqn;
 	bool		param_hd;
@@ -138,6 +142,7 @@ void Igc::process(const ProcessArgs& args) {
 	//////////////////////////////	
 
 	mode = params[PARAM_MODE].getValue();
+	mode_out = params[PARAM_MODE_OUTPUT].getValue();
 	mode_round = this->params[PARAM_SPEED_ROUND].getValue();
 	if (args.frame % 32 == 0) {
 		/// LIGHTS MODE
@@ -145,6 +150,9 @@ void Igc::process(const ProcessArgs& args) {
 		lights[LIGHT_MODE_POS_ABS].setBrightness(mode == IGC_MODE_POS_ABS);
 		lights[LIGHT_MODE_SPEED].setBrightness(mode == IGC_MODE_SPEED);
 		lights[LIGHT_MODE_GRAIN].setBrightness(mode == IGC_MODE_GRAIN);
+		/// LIGHTS MODE OUTPUT
+		lights[LIGHT_MODE_OUT_STEREO].setBrightness(mode_out == IGC_MODE_OUT_STEREO);
+		lights[LIGHT_MODE_OUT_STEREO_SPREAD].setBrightness(mode_out == IGC_MODE_OUT_STEREO_SPREAD);
 		/// LIGHTS ROUND
 		lights[LIGHT_ROUND_KNOB].setBrightness(mode_round > IGC_ROUND_NONE);
 		lights[LIGHT_ROUND_INPUT_1].setBrightness(mode_round > IGC_ROUND_KNOB);
@@ -551,8 +559,19 @@ void Igc::process(const ProcessArgs& args) {
 		playhead->index = index;
 
 		/// ADD VOICE TO AUDIO
-		out_l += voice_l * level;
-		out_r += voice_r * level;
+		//// MODE STEREO
+		if (mode_out == IGC_MODE_OUT_STEREO) {
+			out_l += voice_l * level;
+			out_r += voice_r * level;
+		//// MODE STEREO SPREAD
+		} else {
+			if (channels > 1)
+				t = (float)i / (float)(channels - 1);
+			else
+				t = 0.5;
+			out_l += voice_l * level * (1.0 - t);
+			out_r += voice_r * level * t;
+		}
 	}
 	this->outputs[OUTPUT_L].setVoltage(
 	/**/ in_l * (1.0 - knob_mix) + (out_l * knob_mix_out) * knob_mix);
