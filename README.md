@@ -45,19 +45,23 @@ It can be used to build complex **tracks** or for **live performance**.
 
 ## Other modules
 
+### Tree
+
+**Tree** is a random sequencer based on Tree growth simulation.
+Wind goes through its leaves and makes your sequence less repetitive !
+**Seed** is a small expander allowing you to really easily build evolving
+melodies from **Tree**.
+
+[Tree manual](./doc/Manual-Tree.pdf)
+
+![Tree](./doc/Biset-Tree.png)
+
 ### Blank
 
 **Blank** is definitely not a blank module. Try it.
 Animated cables and on hover scope !
 
 ![Blank](./doc/Biset-Blank.png)
-
-### Tree
-
-**Tree** is a random sequencer based on Tree growth simulation.
-Wind goes through its leaves and makes your sequence less repetitive !
-
-![Tree](./doc/Biset-Tree.png)
 
 ### Segfault
 
