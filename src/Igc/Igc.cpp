@@ -18,7 +18,7 @@ Igc::Igc() {
 	configSwitch(PARAM_MODE_ANTICLICK, 0, 1, 1, "Mode Anti-click");
 
 	configSwitch(PARAM_MODE, 0, 3, 0, "Mode", {
-		"Pos relative", "Pos absolute", "Speed", "Grain"
+		"Phase", "Phase beat", "Speed", "Grain"
 	});
 	configSwitch(PARAM_MODE_OUTPUT, 0, 1, 0, "Output mode", {
 		"Stereo", "Stereo spread"
@@ -41,11 +41,11 @@ Igc::Igc() {
 	configInput(INPUT_MIX, "Mix");
 	configParam(PARAM_MIX_MOD, -1.0, 1.0, 0.0, "Mix mod", "%", 0, 100);
 
-	configParam(PARAM_POS, 0.0, 1.0, 0.0, "Playhead position", "");
-	configInput(INPUT_POS_1, "Playhead position 1");
-	configParam(PARAM_POS_MOD_1, -1.0, 1.0, 0.0, "Playhead position 1 mod", "%", 0, 100);
-	configInput(INPUT_POS_2, "Playhead position 2");
-	configParam(PARAM_POS_MOD_2, -1.0, 1.0, 0.0, "Playhead position 2 mod", "%", 0, 100);
+	configParam(PARAM_PHASE, 0.0, 1.0, 0.0, "Playhead phase", "");
+	configInput(INPUT_PHASE_1, "Playhead phase 1");
+	configParam(PARAM_PHASE_MOD_1, -1.0, 1.0, 0.0, "Playhead phase 1 mod", "%", 0, 100);
+	configInput(INPUT_PHASE_2, "Playhead phase 2");
+	configParam(PARAM_PHASE_MOD_2, -1.0, 1.0, 0.0, "Playhead phase 2 mod", "%", 0, 100);
 
 	configParam(PARAM_SPEED, -4.0, 4.0, 0.0, "Playhead speed", " v/oct");
 	configInput(INPUT_SPEED_1, "Playhead speed 1");
@@ -115,7 +115,7 @@ void Igc::process(const ProcessArgs& args) {
 	float		shape;
 	float		length;
 	float		knob_delay;
-	float		knob_pos;
+	float		knob_phase;
 	float		knob_lvl;
 	float		knob_speed;
 	float		knob_speed_rev;
@@ -124,7 +124,7 @@ void Igc::process(const ProcessArgs& args) {
 	float		knob_grain;
 	float		knob_mix_in, knob_mix_out, knob_mix;
 	float		mode_round;
-	float		mod_pos_1, mod_pos_2;
+	float		mod_phase_1, mod_phase_2;
 	float		mod_lvl_1, mod_lvl_2;
 	float		mod_speed_1, mod_speed_2;
 	float		mod_grain_1, mod_grain_2;
@@ -147,8 +147,8 @@ void Igc::process(const ProcessArgs& args) {
 	mode_round = this->params[PARAM_SPEED_ROUND].getValue();
 	if (args.frame % 32 == 0) {
 		/// LIGHTS MODE
-		lights[LIGHT_MODE_POS_REL].setBrightness(mode == IGC_MODE_POS_REL);
-		lights[LIGHT_MODE_POS_ABS].setBrightness(mode == IGC_MODE_POS_ABS);
+		lights[LIGHT_MODE_PHASE].setBrightness(mode == IGC_MODE_PHASE);
+		lights[LIGHT_MODE_PHASE_BEAT].setBrightness(mode == IGC_MODE_PHASE_BEAT);
 		lights[LIGHT_MODE_SPEED].setBrightness(mode == IGC_MODE_SPEED);
 		lights[LIGHT_MODE_GRAIN].setBrightness(mode == IGC_MODE_GRAIN);
 		/// LIGHTS MODE OUTPUT
@@ -167,9 +167,9 @@ void Igc::process(const ProcessArgs& args) {
 	param_hd = this->params[PARAM_MODE_HD].getValue();
 	param_anticlick = this->params[PARAM_MODE_ANTICLICK].getValue();
 	param_ppqn = this->params[PARAM_DELAY_PPQN].getValue();
-	knob_pos = this->params[PARAM_POS].getValue();
-	mod_pos_1 = this->params[PARAM_POS_MOD_1].getValue();
-	mod_pos_2 = this->params[PARAM_POS_MOD_2].getValue();
+	knob_phase = this->params[PARAM_PHASE].getValue();
+	mod_phase_1 = this->params[PARAM_PHASE_MOD_1].getValue();
+	mod_phase_2 = this->params[PARAM_PHASE_MOD_2].getValue();
 	knob_lvl = this->params[PARAM_LVL].getValue();
 	mod_lvl_1 = this->params[PARAM_LVL_MOD_1].getValue();
 	mod_lvl_2 = this->params[PARAM_LVL_MOD_2].getValue();
@@ -278,7 +278,7 @@ void Igc::process(const ProcessArgs& args) {
 	this->audio[1][this->audio_index] = in_r;
 
 	/// ADVANCE WRITING PHASE
-	if (mode == IGC_MODE_POS_ABS) {
+	if (mode == IGC_MODE_PHASE_BEAT) {
 		this->abs_phase += 1.0 / (float)buffer_length;
 		this->abs_phase -= (int)this->abs_phase;
 		if (this->trigger_reset.process(inputs[INPUT_RESET].getVoltage()))
@@ -294,8 +294,8 @@ void Igc::process(const ProcessArgs& args) {
 		channels = std::max(this->inputs[INPUT_SPEED_1].getChannels(),
 		/**/ this->inputs[INPUT_SPEED_2].getChannels());
 	} else {
-		channels = std::max(this->inputs[INPUT_POS_1].getChannels(),
-		/**/ this->inputs[INPUT_POS_2].getChannels());
+		channels = std::max(this->inputs[INPUT_PHASE_1].getChannels(),
+		/**/ this->inputs[INPUT_PHASE_2].getChannels());
 	}
 	if (channels <= 0)
 		channels = 1;
@@ -308,13 +308,13 @@ void Igc::process(const ProcessArgs& args) {
 
 		playhead = &(this->playheads[i]);
 
-		/// MODE POS REL
-		if (mode == IGC_MODE_POS_REL) {
+		/// MODE PHASE REL
+		if (mode == IGC_MODE_PHASE) {
 
-			/// COMPUTE PHASE
-			phase = knob_pos
-			/**/ + this->inputs[INPUT_POS_1].getPolyVoltage(i) * 0.1 * mod_pos_1
-			/**/ + this->inputs[INPUT_POS_2].getPolyVoltage(i) * 0.1 * mod_pos_2;
+			/// COMPUTE PHASE (RELATIVE)
+			phase = knob_phase
+			/**/ + this->inputs[INPUT_PHASE_1].getPolyVoltage(i) * 0.1 * mod_phase_1
+			/**/ + this->inputs[INPUT_PHASE_2].getPolyVoltage(i) * 0.1 * mod_phase_2;
 			phase = fmod(fmod(phase, 1.0) + 1.0, 1.0);
 			playhead->phase = phase;
 
@@ -325,13 +325,13 @@ void Igc::process(const ProcessArgs& args) {
 				index += IGC_BUFFER;
 			//index = fmod(fmod(index, IGC_BUFFER) + IGC_BUFFER, IGC_BUFFER);
 
-		/// MODE POS ABSOLUTE
-		} else if (mode == IGC_MODE_POS_ABS) {
+		/// MODE PHASE BEAT (ABSOLUTE)
+		} else if (mode == IGC_MODE_PHASE_BEAT) {
 
 			/// COMPUTE PHASE
-			phase = this->abs_phase - (knob_pos
-			/**/ + this->inputs[INPUT_POS_1].getPolyVoltage(i) * 0.1 * mod_pos_1
-			/**/ + this->inputs[INPUT_POS_2].getPolyVoltage(i) * 0.1 * mod_pos_2);
+			phase = this->abs_phase - (knob_phase
+			/**/ + this->inputs[INPUT_PHASE_1].getPolyVoltage(i) * 0.1 * mod_phase_1
+			/**/ + this->inputs[INPUT_PHASE_2].getPolyVoltage(i) * 0.1 * mod_phase_2);
 			phase = fmod(fmod(phase, 1.0) + 1.0, 1.0);
 			playhead->phase = phase;
 
@@ -402,11 +402,11 @@ void Igc::process(const ProcessArgs& args) {
 				/// RESTART GRAIN
 				if (playhead->grain_time >= playhead->grain_length) {
 					/// RESET GRAIN PHASE
-					phase = knob_pos
-					/**/ + this->inputs[INPUT_POS_1].getPolyVoltage(i)
-					/**/ * 0.1 * mod_pos_1
-					/**/ + this->inputs[INPUT_POS_2].getPolyVoltage(i)
-					/**/ * 0.1 * mod_pos_2;
+					phase = knob_phase
+					/**/ + this->inputs[INPUT_PHASE_1].getPolyVoltage(i)
+					/**/ * 0.1 * mod_phase_1
+					/**/ + this->inputs[INPUT_PHASE_2].getPolyVoltage(i)
+					/**/ * 0.1 * mod_phase_2;
 
 					/// GET GRAIN LENGTH
 					length = knob_grain

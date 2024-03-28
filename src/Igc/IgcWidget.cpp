@@ -66,9 +66,9 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ Igc::PARAM_MODE));
 	/// ALGO LIGHTS
 	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(mode_x - 7.5, mode_y + 4.0)),
-	/**/ module, Igc::LIGHT_MODE_POS_REL));
+	/**/ module, Igc::LIGHT_MODE_PHASE));
 	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(mode_x - 2.5, mode_y + 4.0)),
-	/**/ module, Igc::LIGHT_MODE_POS_ABS));
+	/**/ module, Igc::LIGHT_MODE_PHASE_BEAT));
 	addChild(createLightCentered<MediumLight<BlueLight>>(mm2px(Vec(mode_x + 2.5, mode_y + 4.0)),
 	/**/ module, Igc::LIGHT_MODE_SPEED));
 	addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(mode_x + 7.5, mode_y + 4.0)),
@@ -108,23 +108,23 @@ IgcWidget::IgcWidget(Igc* _module) {
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(pos_x, pos_y)),
 	/**/ module,
-	/**/ Igc::PARAM_POS));
+	/**/ Igc::PARAM_PHASE));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(pos_x - mod_step_x, pos_y + mod_step_y + 6.5)),
 	/**/ module,
-	/**/ Igc::INPUT_POS_1));
+	/**/ Igc::INPUT_PHASE_1));
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(pos_x - mod_step_x, pos_y + mod_step_y)),
 	/**/ module,
-	/**/ Igc::PARAM_POS_MOD_1));
+	/**/ Igc::PARAM_PHASE_MOD_1));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(pos_x + mod_step_x, pos_y + mod_step_y + 6.5)),
 	/**/ module,
-	/**/ Igc::INPUT_POS_2));
+	/**/ Igc::INPUT_PHASE_2));
 	addParam(
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(pos_x + mod_step_x, pos_y + mod_step_y)),
 	/**/ module,
-	/**/ Igc::PARAM_POS_MOD_2));
+	/**/ Igc::PARAM_PHASE_MOD_2));
 
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(speed_x, speed_y)),

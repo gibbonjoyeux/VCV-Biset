@@ -9,8 +9,8 @@
 #define IGC_CLICK_SAFE_LENGTH		64		// Anti-click algorithm length
 #define IGC_CLICK_DIST_THRESHOLD	24		// Playhead jump threshold before removing
 
-#define IGC_MODE_POS_REL			0
-#define IGC_MODE_POS_ABS			1
+#define IGC_MODE_PHASE				0
+#define IGC_MODE_PHASE_BEAT			1
 #define IGC_MODE_SPEED				2
 #define IGC_MODE_GRAIN				3
 
@@ -71,9 +71,9 @@ struct Igc : Module {
 		PARAM_DELAY_PPQN,
 		PARAM_MODE,
 		PARAM_MODE_OUTPUT,
-		PARAM_POS,
-		PARAM_POS_MOD_1,
-		PARAM_POS_MOD_2,
+		PARAM_PHASE,
+		PARAM_PHASE_MOD_1,
+		PARAM_PHASE_MOD_2,
 		PARAM_SPEED,
 		PARAM_SPEED_MOD_1,
 		PARAM_SPEED_MOD_2,
@@ -105,8 +105,8 @@ struct Igc : Module {
 		INPUT_R,
 		INPUT_DELAY_TIME,
 		INPUT_DELAY_CLOCK,
-		INPUT_POS_1,
-		INPUT_POS_2,
+		INPUT_PHASE_1,
+		INPUT_PHASE_2,
 		INPUT_SPEED_1,
 		INPUT_SPEED_2,
 		INPUT_SPEED_REV,
@@ -128,8 +128,8 @@ struct Igc : Module {
 		OUTPUT_COUNT
 	};
 	enum	LightIds {
-		LIGHT_MODE_POS_REL,
-		LIGHT_MODE_POS_ABS,
+		LIGHT_MODE_PHASE,
+		LIGHT_MODE_PHASE_BEAT,
 		LIGHT_MODE_SPEED,
 		LIGHT_MODE_GRAIN,
 		LIGHT_MODE_OUT_STEREO,
