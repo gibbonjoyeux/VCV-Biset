@@ -179,6 +179,20 @@ struct IgcWidget : ModuleWidget {
 	void appendContextMenu(Menu *menu) override;
 };
 
+struct IgcIoWidget : widget::Widget {
+	Igc							*module;
+	widget::FramebufferWidget	*fb;
+	widget::SvgWidget			*sw_in;
+	widget::SvgWidget			*sw_out;
+	int							mode_input;
+	int							mode_output;
+	int							i;
+
+	IgcIoWidget();
+	void step(void) override;
+	//void set_mode(int mode);
+};
+
 struct IgcDisplay : LedDisplay {
 	Igc							*module;
 	ModuleWidget				*moduleWidget;

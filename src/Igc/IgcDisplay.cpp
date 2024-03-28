@@ -116,9 +116,9 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 			voltage_r = -10.0;
 		nvgRect(args.vg,
 		/**/ rect.size.x * t,
-		/**/ rect.size.y * 0.75 - (voltage_l * 0.2) * rect.size.y * 0.25,
+		/**/ rect.size.y * 0.75 - (voltage_r * 0.2) * rect.size.y * 0.25,
 		/**/ rect.size.x / (float)IGC_BUFFER_PRECISION * 0.5,
-		/**/ rect.size.y * 0.25 * (voltage_l * 0.2) * 2.0);
+		/**/ rect.size.y * 0.25 * (voltage_r * 0.2) * 2.0);
 	}
 	nvgFillColor(args.vg, {0xec / 255.0, 0xae / 255.0, 0x52 / 255.0, 1.0});
 	nvgFill(args.vg);

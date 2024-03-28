@@ -11,6 +11,7 @@
 
 IgcWidget::IgcWidget(Igc* _module) {
 	IgcDisplay		*display;
+	IgcIoWidget		*widget_io;
 	float			pos_x, pos_y;
 	float			speed_x, speed_y;
 	float			grain_x, grain_y;
@@ -31,6 +32,10 @@ IgcWidget::IgcWidget(Igc* _module) {
 	display->moduleWidget = this;
 	addChild(display);
 
+	widget_io = createWidget<IgcIoWidget>(mm2px(Vec(0.0, 0.0)));
+	widget_io->module = module;
+	addChild(widget_io);
+
 	pos_x = 101.6 * 0.2;
 	pos_y = 11.5;
 	speed_x = 101.6 * 0.5;
@@ -46,9 +51,9 @@ IgcWidget::IgcWidget(Igc* _module) {
 	mode_x = 101.6 * 0.5;
 	mode_y = 52.0;
 
-	delay_x = speed_x + 20.0;
+	delay_x = speed_x + 16.0;
 	delay_y = 101.5;
-	mix_x = 33.0;
+	mix_x = 31.0;
 	mix_y = 99.5;
 
 	mod_step_x = 6.5;
@@ -70,12 +75,12 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ module, Igc::LIGHT_MODE_GRAIN));
 
 	addParam(
-	/**/ createParamCentered<ButtonTriggerState>(mm2px(Vec(101.6 - 13.0, 98.0)),
+	/**/ createParamCentered<ButtonTriggerState>(mm2px(Vec(101.6 - 14.0, 103 + 13)),
 	/**/ module,
 	/**/ Igc::PARAM_MODE_OUTPUT));
-	addChild(createLightCentered<MediumLight<YellowLight>>(mm2px(Vec(101.6 - 13.0, 98 + 6)),
+	addChild(createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(101.6 - 14.0, 103 - 8)),
 	/**/ module, Igc::LIGHT_MODE_OUT_STEREO));
-	addChild(createLightCentered<MediumLight<BlueLight>>(mm2px(Vec(101.6 - 13.0, 98 + 10.0)),
+	addChild(createLightCentered<SmallLight<BlueLight>>(mm2px(Vec(101.6 - 14.0, 103 + 8)),
 	/**/ module, Igc::LIGHT_MODE_OUT_STEREO_SPREAD));
 
 	/// ADD PARAMS

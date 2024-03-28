@@ -449,26 +449,31 @@ void Igc::process(const ProcessArgs& args) {
 			level = 1.0;
 		if (level < 0.0)
 			level = 0.0;
+
+		/// COMPUTE LEVEL SHAPE
 		if (knob_shape_force > 0.0) {
 			if (knob_shape_force > 1.0)
 				knob_shape_force = 1.0;
-			if (knob_shape_wave < 0.01)
-				knob_shape_wave = 0.01;
-			if (knob_shape_wave > 0.99)
-				knob_shape_wave = 0.99;
 			/// WAVE UP
 			if (phase < knob_shape_wave) {
-				level *= 1.0 - (knob_shape_force
-				/**/ * (1.0 - (phase / knob_shape_wave)));
+				/// AVOID ZERO DIVISION
+				if (knob_shape_wave > 0.0001) {
+					level *= 1.0 - (knob_shape_force
+					/**/ * (1.0 - (phase / knob_shape_wave)));
+				}
 			/// WAVE DOWN
 			} else {
-				level *= 1.0 - knob_shape_force * ((phase - knob_shape_wave)
-				/**/ / (1.0 - knob_shape_wave));
+				/// AVOID ZERO DIVISION
+				if (knob_shape_wave < 0.9999) {
+					level *= 1.0 - knob_shape_force * ((phase - knob_shape_wave)
+					/**/ / (1.0 - knob_shape_wave));
+				}
 			}
 		}
 		level = playhead->level * 0.99 + level * 0.01;
 		playhead->level = level;
 
+		/// COMPUTE GRAIN LEVEL
 		if (mode == IGC_MODE_GRAIN) {
 			if (playhead->grain_time < (playhead->grain_length / 2.0)) {
 				shape = (playhead->grain_time / (playhead->grain_length / 2.0));
