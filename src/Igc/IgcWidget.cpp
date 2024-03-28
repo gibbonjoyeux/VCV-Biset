@@ -93,6 +93,10 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ module,
 	/**/ Igc::INPUT_DELAY_CLOCK));
 	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(delay_x, delay_y + 14.5)),
+	/**/ module,
+	/**/ Igc::INPUT_RESET));
+	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(delay_x + 7.5, delay_y + 14.5)),
 	/**/ module,
 	/**/ Igc::INPUT_DELAY_TIME));

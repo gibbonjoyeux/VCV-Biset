@@ -119,6 +119,7 @@ struct Igc : Module {
 		INPUT_MIX_LVL_IN,
 		INPUT_MIX_LVL_OUT,
 		INPUT_MIX,
+		INPUT_RESET,
 		INPUT_COUNT
 	};
 	enum	OutputIds {
@@ -141,7 +142,9 @@ struct Igc : Module {
 
 	//
 	// trigger_clock: Main clock controling delay time
-	// clock_past_samples: Time (samples) past since last clock trigger
+	// trigger_reset: abs_phase phase reset (position absolute mode)
+	// clock_trigger_count: Number of clock trigger past for PPQN count
+	// clock_sample_count: Time (samples) past since last clock trigger
 	// delay_time: Current delay time (in sec) - Slowly ease into delay_time_aim
 	// delay_time_aim: Aimed delay time (in sec)
 	//
@@ -155,6 +158,7 @@ struct Igc : Module {
 	//
 
 	dsp::TSchmittTrigger<float>	trigger_clock;
+	dsp::TSchmittTrigger<float>	trigger_reset;
 	int							clock_trigger_count;
 	int							clock_samples_count;
 	float						delay_time;

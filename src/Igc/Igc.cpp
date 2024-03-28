@@ -24,6 +24,7 @@ Igc::Igc() {
 		"Stereo", "Stereo spread"
 	});
 
+	configInput(INPUT_RESET, "Reset");
 	configParam<ParamQuantityLinearRatio>(PARAM_DELAY_TIME, -9, +9, 0.0, "Delay time", "s");
 	configInput(INPUT_DELAY_CLOCK, "Delay clock");
 	configInput(INPUT_DELAY_TIME, "Delay time");
@@ -264,6 +265,7 @@ void Igc::process(const ProcessArgs& args) {
 	/// [3] RECORD AUDIO
 	//////////////////////////////	
 
+	/// WRITE AUDIO TO BUFFER
 	buffer_length = (float)IGC_BUFFER * (this->delay_time * 0.1);
 	in_l = this->inputs[INPUT_L].getVoltageSum();
 	if (this->inputs[INPUT_R].isConnected())
@@ -274,6 +276,14 @@ void Igc::process(const ProcessArgs& args) {
 	in_r *= knob_mix_in;
 	this->audio[0][this->audio_index] = in_l;
 	this->audio[1][this->audio_index] = in_r;
+
+	/// ADVANCE WRITING PHASE
+	if (mode == IGC_MODE_POS_ABS) {
+		this->abs_phase += 1.0 / (float)buffer_length;
+		this->abs_phase -= (int)this->abs_phase;
+		if (this->trigger_reset.process(inputs[INPUT_RESET].getVoltage()))
+			this->abs_phase = 0.0;
+	}
 
 	//////////////////////////////	
 	/// [4] READ AUDIO
@@ -286,10 +296,6 @@ void Igc::process(const ProcessArgs& args) {
 	} else {
 		channels = std::max(this->inputs[INPUT_POS_1].getChannels(),
 		/**/ this->inputs[INPUT_POS_2].getChannels());
-		if (mode == IGC_MODE_POS_ABS) {
-			this->abs_phase += 1.0 / (float)buffer_length;
-			this->abs_phase -= (int)this->abs_phase;
-		}
 	}
 	if (channels <= 0)
 		channels = 1;
