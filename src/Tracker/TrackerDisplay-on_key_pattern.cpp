@@ -55,18 +55,20 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 
 	/// ON RELEASE
 	if (e.action == GLFW_RELEASE) {
-		pattern = g_editor->pattern;
-		/// KEY ON NOTE
-		if (g_editor->pattern_col < pattern->note_count) {
-			col_note = pattern->notes[g_editor->pattern_col];
-			line_note = &(col_note->lines[g_editor->pattern_line]);
-			if (g_editor->pattern_cell == 0) {
-				key = key_midi(e);
-				/// NOTE STOP
-				if (key >= 0) {
-					g_editor->live_stop(key);
-					g_editor->live_states[key] = NOTE_STATE_STOP;
-					e.consume(this);
+		if (g_editor->pattern) {
+			pattern = g_editor->pattern;
+			/// KEY ON NOTE
+			if (g_editor->pattern_col < pattern->note_count) {
+				col_note = pattern->notes[g_editor->pattern_col];
+				line_note = &(col_note->lines[g_editor->pattern_line]);
+				if (g_editor->pattern_cell == 0) {
+					key = key_midi(e);
+					/// NOTE STOP
+					if (key >= 0) {
+						g_editor->live_stop(key);
+						g_editor->live_states[key] = NOTE_STATE_STOP;
+						e.consume(this);
+					}
 				}
 			}
 		}

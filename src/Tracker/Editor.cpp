@@ -300,6 +300,7 @@ void Editor::set_pattern(int index) {
 	}
 	this->pattern_id = index;
 	this->pattern = &(g_timeline->patterns[index]);
+	this->pattern_clamp_cursor();
 }
 
 void Editor::pattern_move_cursor_x(int delta_x) {
