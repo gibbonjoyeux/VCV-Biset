@@ -148,10 +148,17 @@ void PatternReader::process(
 					cv_phase = (((float)line + phase) - phase_prev)
 					/**/ / (phase_next - phase_prev);
 				}
+				/// COMPUTE CV PHASE CURVE
+				if (cv_next->curve > 50) {
+					cv_phase = 1.0 - pow(1.0 - cv_phase,
+					/**/ ((cv_next->curve - 51.0) / 48.0) * 4.0 + 1.0);
+				} else if (cv_next->curve < 50) {
+					cv_phase = pow(cv_phase,
+					/**/ (49.0 - cv_next->curve) / 49.0 * 4.0 + 1.0);
+				}
 				/// COMPUTE CV VALUE
-				cv_value = (float)cv_prev->value +
-				/**/ ((float)cv_next->value - (float)cv_prev->value)
-				/**/ * cv_phase;
+				cv_value = (float)cv_prev->value * (1.0 - cv_phase)
+				/**/ + (float)cv_next->value * cv_phase;
 			//// WITHOUT BOTH INTERPOLATION LINES
 			} else {
 				if (cv_prev) {
