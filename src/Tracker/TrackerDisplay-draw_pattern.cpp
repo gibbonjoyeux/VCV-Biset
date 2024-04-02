@@ -51,6 +51,9 @@ static void visual_cv(
 	float					sx, sy;
 	int						line_prev, line_next;
 	int						value;
+	float					point_x, point_y;
+	float					point_prev_x, point_prev_y;
+	float					curve;
 	bool					first_point;
 
 	/// [1] OFFSET COORD WITH CAMERA
@@ -78,6 +81,10 @@ static void visual_cv(
 	nvgBeginPath(args.vg);
 	nvgFillColor(args.vg, colors[15]);
 	//// DRAW CURVE
+	point_x = sx;
+	point_y = sy;
+	point_prev_x = sx;
+	point_prev_y = sy;
 	first_point = true;
 	while (true) {
 		/// FIND CV NEXT
@@ -139,13 +146,31 @@ static void visual_cv(
 		} else {
 			/// DRAW CURVE
 			value = cv_next->value;
-			nvgLineTo(args.vg,
-			/**/ sx + (value / 1000.0) * CHAR_W * 7.0,
-			/**/ sy + CHAR_H * (line_next - 1 - g_editor->pattern_cam_y)
-			/**/ + (cv_next->delay / 99.0) * CHAR_H);
+			point_x = sx + (value / 1000.0) * CHAR_W * 7.0;
+			point_y = sy + CHAR_H * (line_next - 1 - g_editor->pattern_cam_y)
+			/**/ + (cv_next->delay / 99.0) * CHAR_H;
+			if (cv_next->curve > 50) {
+				curve = ((float)cv_next->curve - 51.0) / 48.0;
+				nvgQuadTo(args.vg,
+				/**/ point_prev_x * (1.0 - curve) + point_x * curve,
+				/**/ point_prev_y,
+				/**/ point_x,
+				/**/ point_y);
+			} else if (cv_next->curve < 50) {
+				curve = 1.0 - (float)cv_next->curve / 49.0;
+				nvgQuadTo(args.vg,
+				/**/ point_prev_x,
+				/**/ point_prev_y * (1.0 - curve) + point_y * curve,
+				/**/ point_x,
+				/**/ point_y);
+			} else {
+				nvgLineTo(args.vg, point_x, point_y);
+			}
 		}
 
 		/// SWAP PREV / NEXT
+		point_prev_x = point_x;
+		point_prev_y = point_y;
 		line_prev = line_next;
 		cv_prev = cv_next;
 		if (line_next > g_editor->pattern_cam_y + CHAR_COUNT_Y)
