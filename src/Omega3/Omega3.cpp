@@ -16,7 +16,7 @@ Omega3::Omega3() {
 	configParam(PARAM_POLYPHONY, 1, 16, 16, "Polyphony")->snapEnabled = true;
 	configParam(PARAM_SHAPE, 0, 1, 1, "Shape", "%", 0, 100);
 	configParam(PARAM_CURVE, -1, 1, 0, "Curve", "%", 0, 100);
-	configParam(PARAM_OFFSET, -1, +1, 0, "Offset", " V", 0, 5);
+	configParam(PARAM_OFFSET, -1, +1, +1, "Offset", " V", 0, 5);
 	configParam(PARAM_SCALE, 0, 1, 1, "Scale", "%", 0, 100);
 	configParam(PARAM_PHASE, -1, 1, 0, "Phase");
 
@@ -33,13 +33,13 @@ void Omega3::process(const ProcessArgs& args) {
 	float	scale;
 	float	curve;
 	float	shape;
-	float	t;
 	bool	curve_order;
 	int		channels;
-	int		i;
 
 	if (args.frame % 32 != 0)
 		return;
+
+	/// [1] GET PARAMETERS
 
 	channels = params[PARAM_POLYPHONY].getValue();
 	offset = params[PARAM_OFFSET].getValue() * 5.0;
@@ -47,44 +47,14 @@ void Omega3::process(const ProcessArgs& args) {
 	curve = params[PARAM_CURVE].getValue();
 	shape = params[PARAM_SHAPE].getValue();
 	curve_order = params[PARAM_CURVE_ORDER].getValue();
-
 	phase = params[PARAM_PHASE].getValue()
 	/**/ + inputs[INPUT_PHASE].getVoltageSum() * 0.1;
 
-	outputs[OUTPUT_CV].setChannels(channels);
+	/// [2] COMPUTE SPREAD
 
-	for (i = 0; i < channels; ++i) {
-
-		/// [1] INIT PHASE
-		t = (float)i / (float)channels;
-
-		/// [2] HANDLE CURVE (PRE)
-		if (curve_order == 0)
-			t = std::pow(t, std::pow(2, curve * 2.0));
-
-		/// [3] HANDLE PHASE
-		t = fmod(fmod(t + phase, 1.0) + 1.0, 1.0);
-
-		/// [4] HANDLE SHAPE
-		//// WAVE UP
-		if (t < shape) {
-			/// AVOID ZERO DIVISION
-			if (shape > 0.0001)
-				t = 1.0 - (1.0 - (t / shape));
-		//// WAVE DOWN
-		} else {
-			/// AVOID ZERO DIVISION
-			if (shape < 0.9999)
-				t = 1.0 - ((t - shape) / (1.0 - shape));
-		}
-
-		/// [5] HANDLE CURVE (POST)
-		if (curve_order == 1)
-			t = std::pow(t, std::pow(2, curve * 2.0));
-
-		/// [6] HANDLE RANGE
-		outputs[OUTPUT_CV].setVoltage(t * scale + offset, i);
-	}
+	Omega::spread(&(outputs[OUTPUT_CV]),
+	/**/ channels, phase, shape, curve, curve_order,
+	/**/ offset - scale * 0.5, offset + scale * 0.5);
 }
 
 Model* modelOmega3 = createModel<Omega3, Omega3Widget>("Biset-Omega3");

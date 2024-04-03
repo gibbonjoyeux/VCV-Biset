@@ -35,13 +35,13 @@ void Omega6::process(const ProcessArgs& args) {
 	float	to;
 	float	curve;
 	float	shape;
-	float	t;
 	bool	curve_order;
 	int		channels;
-	int		i;
 
 	if (args.frame % 32 != 0)
 		return;
+
+	/// [1] GET PARAMETERS
 
 	channels = params[PARAM_POLYPHONY].getValue();
 	curve = params[PARAM_CURVE].getValue();
@@ -55,40 +55,11 @@ void Omega6::process(const ProcessArgs& args) {
 	to = params[PARAM_TO].getValue()
 	/**/ + inputs[INPUT_TO].getVoltageSum();
 
-	outputs[OUTPUT_CV].setChannels(channels);
+	/// [2] COMPUTE SPREAD
 
-	for (i = 0; i < channels; ++i) {
-
-		/// [1] INIT PHASE
-		t = (float)i / (float)channels;
-
-		/// [2] HANDLE CURVE (PRE)
-		if (curve_order == 0)
-			t = std::pow(t, std::pow(2, curve * 2.0));
-
-		/// [3] HANDLE PHASE
-		t = fmod(fmod(t + phase, 1.0) + 1.0, 1.0);
-
-		/// [4] HANDLE SHAPE
-		//// WAVE UP
-		if (t < shape) {
-			/// AVOID ZERO DIVISION
-			if (shape > 0.0001)
-				t = 1.0 - (1.0 - (t / shape));
-		//// WAVE DOWN
-		} else {
-			/// AVOID ZERO DIVISION
-			if (shape < 0.9999)
-				t = 1.0 - ((t - shape) / (1.0 - shape));
-		}
-
-		/// [5] HANDLE CURVE (POST)
-		if (curve_order == 1)
-			t = std::pow(t, std::pow(2, curve * 2.0));
-
-		/// [6] HANDLE RANGE
-		outputs[OUTPUT_CV].setVoltage(from * (1.0 - t) + to * t, i);
-	}
+	Omega::spread(&(outputs[OUTPUT_CV]),
+	/**/ channels, phase, shape, curve, curve_order,
+	/**/ from, to);
 }
 
 Model* modelOmega6 = createModel<Omega6, Omega6Widget>("Biset-Omega6");

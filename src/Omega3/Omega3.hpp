@@ -8,6 +8,11 @@
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
 
+struct Omega {
+	static void spread(Output *output, int channels, float phase, float shape,
+			float curve, bool curve_order, float from, float to);
+};
+
 struct Omega3 : Module {
 	enum	ParamIds {
 		PARAM_PHASE,
