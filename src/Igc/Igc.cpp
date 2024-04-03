@@ -10,7 +10,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 Igc::Igc() {
-	int		i;
+	float	*table;
+	float	pitch;
+	int		i, j;
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
@@ -84,6 +86,8 @@ Igc::Igc() {
 	configBypass(INPUT_L, OUTPUT_L);
 	configBypass(INPUT_R, OUTPUT_R);
 
+	/// INIT IGC
+
 	this->audio_index = 0;
 	this->playhead_count = 0;
 	this->clock_samples_count = 0;
@@ -96,6 +100,22 @@ Igc::Igc() {
 		this->playheads[i].index_rel = 0.0;
 		this->playheads[i].grain_phase = 0.0;
 		this->playheads[i].grain_time = 0.0;
+	}
+
+	/// INIT IGC LOOKUP TABLE
+
+	table = this->table_pitch.init(10 * IGC_LOOKUP_RESOLUTION);
+	if (table) {
+		/// FROM -5V to +5V
+		for (i = 0; i < 10; ++i) {
+			/// FROM OCT+0 to OCT+1
+			for (j = 0; j < IGC_LOOKUP_RESOLUTION; ++j) {
+				pitch =
+				/**/ ((float)i - 5.0)
+				/**/ + ((float)j / (float)IGC_LOOKUP_RESOLUTION);
+				table[i * IGC_LOOKUP_RESOLUTION + j] = std::pow(2.f, pitch);
+			}
+		}
 	}
 }
 
@@ -362,7 +382,18 @@ void Igc::process(const ProcessArgs& args) {
 				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
 				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2);
 			}
-			speed = std::pow(2.f, speed);	// BOTTLENECK -> LOOKUP TABLE ? SIMD ?
+			if (this->table_pitch.array) {
+				/// USE LOOKUP TABLE (OPTIMIZED)
+				if (speed < -5.0)
+					speed = -5.0;
+				if (speed > +5.0)
+					speed = +5.0;
+				speed = this->table_pitch.get((speed + 5.0)
+				/**/ * (float)IGC_LOOKUP_RESOLUTION);
+			} else {
+				/// USE FORMULA
+				speed = std::pow(2.f, speed);
+			}
 			if (knob_speed_rev > 0)
 				speed = -speed;
 			if (this->inputs[INPUT_SPEED_REV].getPolyVoltage(i) > 0.0)

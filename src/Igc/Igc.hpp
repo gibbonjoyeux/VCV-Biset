@@ -22,6 +22,8 @@
 #define IGC_ROUND_KNOB_INPUT		2
 #define IGC_ROUND_ALL				3
 
+#define IGC_LOOKUP_RESOLUTION		100
+
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,6 +143,10 @@ struct Igc : Module {
 	};
 
 	//
+	// table_pitch: Lookup table storing pitch function (v/oct to ratio
+	//              conversion). Stores from -5V to +5V with
+	//              IGC_LOOKUP_RESOLUTION octave (volt) resolution
+	//
 	// trigger_clock: Main clock controling delay time
 	// trigger_reset: abs_phase phase reset (position absolute mode)
 	// clock_trigger_count: Number of clock trigger past for PPQN count
@@ -156,6 +162,8 @@ struct Igc : Module {
 	// audio: Audio buffer to read and write
 	// audio_index: Writing playhead index in audio buffer (circular)
 	//
+
+	LookupTable					table_pitch;
 
 	dsp::TSchmittTrigger<float>	trigger_clock;
 	dsp::TSchmittTrigger<float>	trigger_reset;
