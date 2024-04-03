@@ -4,8 +4,11 @@
 ## 2.0.12 (work in progress)
 
 - Tracker
-	- [ ] History system (ctrl+Z)
-- [ ] New **It's good cholesterol** effect module
+	- [x] Added CV interpolation curve controls
+	- [x] Fixed key released crash
+- [x] New **It's good cholesterol** effect module
+- [x] New **Omega3** utility module
+- [x] New **Omega6** utility module
 
 ## 2.0.11 (waiting)
 

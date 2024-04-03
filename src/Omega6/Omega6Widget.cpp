@@ -1,5 +1,5 @@
 
-#include "Omega3.hpp"
+#include "Omega6.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -9,12 +9,12 @@
 /// PUBLIC FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-Omega3Widget::Omega3Widget(Omega3* _module) {
+Omega6Widget::Omega6Widget(Omega6* _module) {
 	float		center;
 
 	module = _module;
 	setModule(module);
-	setPanel(createPanel(asset::plugin(pluginInstance, "res/Omega3.svg")));
+	setPanel(createPanel(asset::plugin(pluginInstance, "res/Omega6.svg")));
 
 	center = 20.32 / 2.0;
 
@@ -22,47 +22,55 @@ Omega3Widget::Omega3Widget(Omega3* _module) {
 	addParam(
 	/**/ createParamCentered<KnobBig>(mm2px(Vec(center, 12)),
 	/**/ module,
-	/**/ Omega3::PARAM_POLYPHONY));
+	/**/ Omega6::PARAM_POLYPHONY));
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(center, 12 + 16.5)),
 	/**/ module,
-	/**/ Omega3::PARAM_SHAPE));
+	/**/ Omega6::PARAM_SHAPE));
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(center, 12 + 30)),
 	/**/ module,
-	/**/ Omega3::PARAM_CURVE));
-
-	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(center - 6.0, 12 + 40)),
-	/**/ module,
-	/**/ Omega3::PARAM_OFFSET));
-	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(center + 6.0, 12 + 40)),
-	/**/ module,
-	/**/ Omega3::PARAM_SCALE));
+	/**/ Omega6::PARAM_CURVE));
 
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(center, 128.5 - 22 - 22)),
 	/**/ module,
-	/**/ Omega3::PARAM_PHASE));
+	/**/ Omega6::PARAM_PHASE));
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(center, 128.5 - 22 - 13)),
 	/**/ module,
-	/**/ Omega3::INPUT_PHASE));
+	/**/ Omega6::INPUT_PHASE));
+
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(center - 6.0, 12 + 40)),
+	/**/ module,
+	/**/ Omega6::PARAM_FROM));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(center + 6.0, 12 + 40)),
+	/**/ module,
+	/**/ Omega6::PARAM_TO));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(center - 6.0, 12 + 47)),
+	/**/ module,
+	/**/ Omega6::INPUT_FROM));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(center + 6.0, 12 + 47)),
+	/**/ module,
+	/**/ Omega6::INPUT_TO));
 
 	addOutput(
 	/**/ createOutputCentered<Outlet>(mm2px(Vec(center, 128.5 - 22)),
 	/**/ module,
-	/**/ Omega3::OUTPUT_CV));
+	/**/ Omega6::OUTPUT_CV));
 
 }
 
-void Omega3Widget::appendContextMenu(Menu *menu) {
+void Omega6Widget::appendContextMenu(Menu *menu) {
 	Param		*param;
 
 	menu->addChild(new MenuSeparator());
 
-	param = &(this->module->params[Omega3::PARAM_CURVE_ORDER]);
+	param = &(this->module->params[Omega6::PARAM_CURVE_ORDER]);
 	menu->addChild(rack::createSubmenuItem("Curve order", "",
 		[=](Menu *menu) {
 			menu->addChild(new MenuCheckItem("Pre (curve, phase, shape)", "",
