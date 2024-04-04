@@ -80,8 +80,10 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ Igc::PARAM_MODE_OUTPUT));
 	addChild(createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(101.6 - 14.0, 103 - 8)),
 	/**/ module, Igc::LIGHT_MODE_OUT_STEREO));
-	addChild(createLightCentered<SmallLight<BlueLight>>(mm2px(Vec(101.6 - 14.0, 103 + 8)),
+	addChild(createLightCentered<SmallLight<BlueLight>>(mm2px(Vec(101.6 - 14.0 - 2.0, 103 + 8)),
 	/**/ module, Igc::LIGHT_MODE_OUT_STEREO_SPREAD));
+	addChild(createLightCentered<SmallLight<BlueLight>>(mm2px(Vec(101.6 - 14.0 + 2.0, 103 + 8)),
+	/**/ module, Igc::LIGHT_MODE_OUT_STEREO_SPREAD_PP));
 
 	/// ADD PARAMS
 	addParam(

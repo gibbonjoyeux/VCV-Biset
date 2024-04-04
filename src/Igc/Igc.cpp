@@ -22,8 +22,8 @@ Igc::Igc() {
 	configSwitch(PARAM_MODE, 0, 3, 0, "Mode", {
 		"Phase", "Phase beat", "Speed", "Grain"
 	});
-	configSwitch(PARAM_MODE_OUTPUT, 0, 1, 0, "Output mode", {
-		"Stereo", "Stereo spread"
+	configSwitch(PARAM_MODE_OUTPUT, 0, 2, 0, "Output mode", {
+		"Stereo", "Stereo spread", "Stereo spread ping-pong"
 	});
 
 	configInput(INPUT_RESET, "Reset");
@@ -150,7 +150,7 @@ void Igc::process(const ProcessArgs& args) {
 	float		mod_grain_1, mod_grain_2;
 	int			buffer_index_a, buffer_index_b;
 	int			buffer_length;
-	int			channels;
+	int			channels, channels_half;
 	int			mode;
 	int			mode_out;
 	int			i;
@@ -174,6 +174,7 @@ void Igc::process(const ProcessArgs& args) {
 		/// LIGHTS MODE OUTPUT
 		lights[LIGHT_MODE_OUT_STEREO].setBrightness(mode_out == IGC_MODE_OUT_STEREO);
 		lights[LIGHT_MODE_OUT_STEREO_SPREAD].setBrightness(mode_out == IGC_MODE_OUT_STEREO_SPREAD);
+		lights[LIGHT_MODE_OUT_STEREO_SPREAD_PP].setBrightness(mode_out == IGC_MODE_OUT_STEREO_SPREAD_PP);
 		/// LIGHTS ROUND
 		lights[LIGHT_ROUND_KNOB].setBrightness(mode_round > IGC_ROUND_NONE);
 		lights[LIGHT_ROUND_INPUT_1].setBrightness(mode_round > IGC_ROUND_KNOB);
@@ -319,6 +320,7 @@ void Igc::process(const ProcessArgs& args) {
 	}
 	if (channels <= 0)
 		channels = 1;
+	channels_half = channels * 0.5;
 
 	/// READ PLAYHEADS
 	out_l = 0.0;
@@ -606,11 +608,27 @@ void Igc::process(const ProcessArgs& args) {
 			out_l += voice_l * level;
 			out_r += voice_r * level;
 		//// MODE STEREO SPREAD
-		} else {
+		} else if (mode_out == IGC_MODE_OUT_STEREO_SPREAD) {
 			if (channels > 1)
 				t = (float)i / (float)(channels - 1);
 			else
 				t = 0.5;
+			out_l += voice_l * level * (1.0 - t);
+			out_r += voice_r * level * t;
+		//// MODE STEREO SPREAD PING-PONG
+		} else {
+			if (channels > 1) {
+				t = (float)i / (float)(channels - 1);
+				if (i < channels_half) {
+					t = (float)i / (float)channels_half;
+				} else {
+					t = 1.0
+					/**/ - ((float)(i - channels_half)
+					/**/ / (float)(channels - channels_half));
+				}
+			} else {
+				t = 0.5;
+			}
 			out_l += voice_l * level * (1.0 - t);
 			out_r += voice_r * level * t;
 		}
