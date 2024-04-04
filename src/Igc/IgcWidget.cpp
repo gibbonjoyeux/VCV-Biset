@@ -78,8 +78,10 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ createParamCentered<ButtonTriggerState>(mm2px(Vec(101.6 - 14.0, 103 + 13)),
 	/**/ module,
 	/**/ Igc::PARAM_MODE_OUTPUT));
-	addChild(createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(101.6 - 14.0, 103 - 8)),
+	addChild(createLightCentered<SmallLight<YellowLight>>(mm2px(Vec(101.6 - 14.0 - 2.0, 103 - 8)),
 	/**/ module, Igc::LIGHT_MODE_OUT_STEREO));
+	addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(101.6 - 14.0 + 2.0, 103 - 8)),
+	/**/ module, Igc::LIGHT_MODE_OUT_STEREO_POLY));
 	addChild(createLightCentered<SmallLight<BlueLight>>(mm2px(Vec(101.6 - 14.0 - 2.0, 103 + 8)),
 	/**/ module, Igc::LIGHT_MODE_OUT_STEREO_SPREAD));
 	addChild(createLightCentered<SmallLight<BlueLight>>(mm2px(Vec(101.6 - 14.0 + 2.0, 103 + 8)),

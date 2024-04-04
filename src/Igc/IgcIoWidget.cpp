@@ -48,7 +48,7 @@ void IgcIoWidget::step(void) {
 	if (mode != this->mode_input) {
 		this->mode_input = mode;
 
-		if (mode == IGC_MODE_OUT_STEREO)
+		if (mode == 0)
 			svg = Svg::load(asset::plugin(pluginInstance, "res/Igc-Input-Mono.svg"));
 		else
 			svg = Svg::load(asset::plugin(pluginInstance, "res/Igc-Input-Stereo.svg"));
@@ -63,7 +63,7 @@ void IgcIoWidget::step(void) {
 	if (mode != this->mode_output) {
 		this->mode_output = mode;
 
-		if (mode == IGC_MODE_OUT_STEREO)
+		if (mode < IGC_MODE_OUT_STEREO_SPREAD)
 			svg = Svg::load(asset::plugin(pluginInstance, "res/Igc-Output-Stereo.svg"));
 		else
 			svg = Svg::load(asset::plugin(pluginInstance, "res/Igc-Output-Spread.svg"));

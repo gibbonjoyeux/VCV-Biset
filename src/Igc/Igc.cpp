@@ -22,8 +22,8 @@ Igc::Igc() {
 	configSwitch(PARAM_MODE, 0, 3, 0, "Mode", {
 		"Phase", "Phase beat", "Speed", "Grain"
 	});
-	configSwitch(PARAM_MODE_OUTPUT, 0, 2, 0, "Output mode", {
-		"Stereo", "Stereo spread", "Stereo spread ping-pong"
+	configSwitch(PARAM_MODE_OUTPUT, 0, 3, 0, "Output mode", {
+		"Stereo", "Stereo poly", "Stereo spread", "Stereo spread ping-pong"
 	});
 
 	configInput(INPUT_RESET, "Reset");
@@ -173,6 +173,7 @@ void Igc::process(const ProcessArgs& args) {
 		lights[LIGHT_MODE_GRAIN].setBrightness(mode == IGC_MODE_GRAIN);
 		/// LIGHTS MODE OUTPUT
 		lights[LIGHT_MODE_OUT_STEREO].setBrightness(mode_out == IGC_MODE_OUT_STEREO);
+		lights[LIGHT_MODE_OUT_STEREO_POLY].setBrightness(mode_out == IGC_MODE_OUT_STEREO_POLY);
 		lights[LIGHT_MODE_OUT_STEREO_SPREAD].setBrightness(mode_out == IGC_MODE_OUT_STEREO_SPREAD);
 		lights[LIGHT_MODE_OUT_STEREO_SPREAD_PP].setBrightness(mode_out == IGC_MODE_OUT_STEREO_SPREAD_PP);
 		/// LIGHTS ROUND
@@ -321,6 +322,13 @@ void Igc::process(const ProcessArgs& args) {
 	if (channels <= 0)
 		channels = 1;
 	channels_half = channels * 0.5;
+	if (mode_out == IGC_MODE_OUT_STEREO_POLY) {
+		this->outputs[OUTPUT_L].setChannels(channels);
+		this->outputs[OUTPUT_R].setChannels(channels);
+	} else {
+		this->outputs[OUTPUT_L].setChannels(1);
+		this->outputs[OUTPUT_R].setChannels(1);
+	}
 
 	/// READ PLAYHEADS
 	out_l = 0.0;
@@ -616,7 +624,7 @@ void Igc::process(const ProcessArgs& args) {
 			out_l += voice_l * level * (1.0 - t);
 			out_r += voice_r * level * t;
 		//// MODE STEREO SPREAD PING-PONG
-		} else {
+		} else if (mode_out == IGC_MODE_OUT_STEREO_SPREAD_PP) {
 			if (channels > 1) {
 				t = (float)i / (float)(channels - 1);
 				if (i < channels_half) {
@@ -631,12 +639,18 @@ void Igc::process(const ProcessArgs& args) {
 			}
 			out_l += voice_l * level * (1.0 - t);
 			out_r += voice_r * level * t;
+		//// MODE STEREO POLYPHONIC
+		} else {
+			this->outputs[OUTPUT_L].setVoltage(voice_l * level * knob_mix_out, i);
+			this->outputs[OUTPUT_R].setVoltage(voice_r * level * knob_mix_out, i);
 		}
 	}
-	this->outputs[OUTPUT_L].setVoltage(
-	/**/ in_l * (1.0 - knob_mix) + (out_l * knob_mix_out) * knob_mix);
-	this->outputs[OUTPUT_R].setVoltage(
-	/**/ in_r * (1.0 - knob_mix) + (out_r * knob_mix_out) * knob_mix);
+	if (mode_out != IGC_MODE_OUT_STEREO_POLY) {
+		this->outputs[OUTPUT_L].setVoltage(
+		/**/ in_l * (1.0 - knob_mix) + (out_l * knob_mix_out) * knob_mix);
+		this->outputs[OUTPUT_R].setVoltage(
+		/**/ in_r * (1.0 - knob_mix) + (out_r * knob_mix_out) * knob_mix);
+	}
 
 	//////////////////////////////	
 	/// [5] LOOP AUDIO

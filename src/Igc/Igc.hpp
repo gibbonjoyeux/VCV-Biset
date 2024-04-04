@@ -15,8 +15,9 @@
 #define IGC_MODE_GRAIN				3
 
 #define IGC_MODE_OUT_STEREO				0	// Simple stereo
-#define IGC_MODE_OUT_STEREO_SPREAD		1	// Stereo spread (L R)
-#define IGC_MODE_OUT_STEREO_SPREAD_PP	2	// Stereo spread ping pong (L R L)
+#define IGC_MODE_OUT_STEREO_POLY		1	// Simple stereo
+#define IGC_MODE_OUT_STEREO_SPREAD		2	// Stereo spread (L R)
+#define IGC_MODE_OUT_STEREO_SPREAD_PP	3	// Stereo spread ping pong (L R L)
 
 #define IGC_ROUND_NONE				0
 #define IGC_ROUND_KNOB				1
@@ -136,6 +137,7 @@ struct Igc : Module {
 		LIGHT_MODE_SPEED,
 		LIGHT_MODE_GRAIN,
 		LIGHT_MODE_OUT_STEREO,
+		LIGHT_MODE_OUT_STEREO_POLY,
 		LIGHT_MODE_OUT_STEREO_SPREAD,
 		LIGHT_MODE_OUT_STEREO_SPREAD_PP,
 		LIGHT_ROUND_KNOB,
