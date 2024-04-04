@@ -28,6 +28,7 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 	Rect		rect;
 	int			buffer_phase;
 	int			buffer_phase_prev;
+	bool		stereo;
 	float		voltage_l, voltage_r;
 	float		voltage_max_l, voltage_max_r;
 	float		voltage_prev_l, voltage_prev_r;
@@ -45,6 +46,7 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 
 	rect = box.zeroPos();
 	delay_time = this->module->delay_time;
+	stereo = this->module->is_stereo;
 
 	nvgScissor(args.vg, rect.pos.x, rect.pos.y, rect.size.x, rect.size.y);
 
@@ -99,26 +101,35 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		voltage_l = voltage_max_l;
 		voltage_r = voltage_max_r;
 
-		/// DRAW POINT LEFT
 		if (voltage_l > 10.0)
 			voltage_l = 10.0;
 		if (voltage_l < -10.0)
 			voltage_l = -10.0;
-		nvgRect(args.vg,
-		/**/ rect.size.x * t,
-		/**/ rect.size.y * 0.25 - (voltage_l * 0.2) * rect.size.y * 0.25,
-		/**/ rect.size.x / (float)IGC_BUFFER_PRECISION * 0.5,
-		/**/ rect.size.y * 0.25 * (voltage_l * 0.2) * 2.0);
-		/// DRAW POINT RIGHT
 		if (voltage_r > 10.0)
 			voltage_r = 10.0;
 		if (voltage_r < -10.0)
 			voltage_r = -10.0;
-		nvgRect(args.vg,
-		/**/ rect.size.x * t,
-		/**/ rect.size.y * 0.75 - (voltage_r * 0.2) * rect.size.y * 0.25,
-		/**/ rect.size.x / (float)IGC_BUFFER_PRECISION * 0.5,
-		/**/ rect.size.y * 0.25 * (voltage_r * 0.2) * 2.0);
+		if (stereo) {
+			/// DRAW POINT LEFT
+			nvgRect(args.vg,
+			/**/ rect.size.x * t,
+			/**/ rect.size.y * 0.25 - (voltage_l * 0.2) * rect.size.y * 0.25,
+			/**/ rect.size.x / (float)IGC_BUFFER_PRECISION * 0.5,
+			/**/ rect.size.y * 0.25 * (voltage_l * 0.2) * 2.0);
+			/// DRAW POINT RIGHT
+			nvgRect(args.vg,
+			/**/ rect.size.x * t,
+			/**/ rect.size.y * 0.75 - (voltage_r * 0.2) * rect.size.y * 0.25,
+			/**/ rect.size.x / (float)IGC_BUFFER_PRECISION * 0.5,
+			/**/ rect.size.y * 0.25 * (voltage_r * 0.2) * 2.0);
+		} else {
+			/// DRAW POINT MONO
+			nvgRect(args.vg,
+			/**/ rect.size.x * t,
+			/**/ rect.size.y * 0.5 - (voltage_l * 0.2) * rect.size.y * 0.5,
+			/**/ rect.size.x / (float)IGC_BUFFER_PRECISION * 0.5,
+			/**/ rect.size.y * 0.5 * (voltage_l * 0.2) * 2.0);
+		}
 	}
 	nvgFillColor(args.vg, {0xec / 255.0, 0xae / 255.0, 0x52 / 255.0, 1.0});
 	nvgFill(args.vg);

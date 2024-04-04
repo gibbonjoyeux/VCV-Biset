@@ -95,6 +95,7 @@ Igc::Igc() {
 	this->delay_time = 1.0;
 	this->delay_time_aim = 1.0;
 	this->abs_phase = 0.0;
+	this->is_stereo = false;
 	for (i = 0; i < 16; ++i) {
 		this->playheads[i].speed = 1.0;
 		this->playheads[i].index_rel = 0.0;
@@ -290,10 +291,13 @@ void Igc::process(const ProcessArgs& args) {
 	/// WRITE AUDIO TO BUFFER
 	buffer_length = (float)IGC_BUFFER * (this->delay_time * 0.1);
 	in_l = this->inputs[INPUT_L].getVoltageSum();
-	if (this->inputs[INPUT_R].isConnected())
+	if (this->inputs[INPUT_R].isConnected()) {
 		in_r = this->inputs[INPUT_R].getVoltageSum();
-	else
+		this->is_stereo = true;
+	} else {
 		in_r = in_l;
+		this->is_stereo = false;
+	}
 	in_l *= knob_mix_in;
 	in_r *= knob_mix_in;
 	this->audio[0][this->audio_index] = in_l;

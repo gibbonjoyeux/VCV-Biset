@@ -166,6 +166,8 @@ struct Igc : Module {
 	// audio: Audio buffer to read and write
 	// audio_index: Writing playhead index in audio buffer (circular)
 	//
+	// is_stereo: State of input (0: mono - 1: stereo)
+	//
 
 	LookupTable					table_pitch;
 
@@ -182,6 +184,8 @@ struct Igc : Module {
 
 	float						audio[2][IGC_BUFFER];
 	int							audio_index;
+
+	bool						is_stereo;
 
 	Igc();
 
