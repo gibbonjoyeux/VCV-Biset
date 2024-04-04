@@ -39,6 +39,7 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 	float		dist_2, dist_2_abs;
 	float		offset, offset_abs;
 	float		t;
+	int			si;
 	int			i;
 
 	if (this->module == NULL || layer != 1)
@@ -140,23 +141,23 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 	nvgFillColor(args.vg, colors[12]);
 	nvgStrokeColor(args.vg, colors[12]);
 	nvgStrokeWidth(args.vg, 0.5);
-	/// DRAW TRAIL
 	for (i = 0; i < this->module->playhead_count; ++i) {
 
-		playhead = &(this->module->playheads[i]);
-		if (playhead->level < 0.005)
+		si = i % 4;
+		playhead = &(this->module->playheads[i / 4]);
+		if (playhead->level[si] < 0.005)
 			continue;
 
 		/// COMPUTE TRAIL
 		//// JUMP DIRECT
-		dist_1 = playhead->phase - playhead->phase_prev;
+		dist_1 = playhead->phase[si] - playhead->phase_prev[si];
 		dist_1_abs = (dist_1 <  0) ? -dist_1 : +dist_1;
 		//// JUMP CIRCULAR
-		if (playhead->phase < playhead->phase_prev) {
-			dist_2_abs = playhead->phase + (1.0 - playhead->phase_prev);
+		if (playhead->phase[si] < playhead->phase_prev[si]) {
+			dist_2_abs = playhead->phase[si] + (1.0 - playhead->phase_prev[si]);
 			dist_2 = dist_2_abs;
 		} else {
-			dist_2_abs = playhead->phase_prev + (1.0 - playhead->phase);
+			dist_2_abs = playhead->phase_prev[si] + (1.0 - playhead->phase[si]);
 			dist_2 = -dist_2_abs;
 		}
 		//// JUMP SMALLEST
@@ -172,18 +173,18 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		nvgBeginPath(args.vg);
 
 		nvgMoveTo(args.vg,
-		/**/ playhead->phase * rect.size.x,
+		/**/ playhead->phase[si] * rect.size.x,
 		/**/ rect.size.y);
 		nvgLineTo(args.vg,
-		/**/ playhead->phase * rect.size.x,
-		/**/ (1.0 - playhead->level) * rect.size.y);
+		/**/ playhead->phase[si] * rect.size.x,
+		/**/ (1.0 - playhead->level[si]) * rect.size.y);
 		nvgQuadTo(args.vg,
-		/**/ playhead->phase * rect.size.x - offset * 0.333,
+		/**/ playhead->phase[si] * rect.size.x - offset * 0.333,
 		/**/ rect.size.y,
-		/**/ playhead->phase * rect.size.x - offset,
+		/**/ playhead->phase[si] * rect.size.x - offset,
 		/**/ rect.size.y);
 		nvgLineTo(args.vg,
-		/**/ playhead->phase * rect.size.x,
+		/**/ playhead->phase[si] * rect.size.x,
 		/**/ rect.size.y);
 
 		nvgFill(args.vg);
@@ -191,7 +192,7 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 		nvgClosePath(args.vg);
 
 		/// UPDATE PREVIOUS PHASE (TRAIL)
-		playhead->phase_prev = playhead->phase;
+		playhead->phase_prev[si] = playhead->phase[si];
 	}
 	nvgGlobalAlpha(args.vg, 1.0);
 

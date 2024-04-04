@@ -10,9 +10,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 Igc::Igc() {
-	float	*table;
-	float	pitch;
-	int		i, j;
+	int		i;
+
+	/// [1] INIT PARAM + INPUT + OUTPUT + LIGHT
 
 	config(PARAM_COUNT, INPUT_COUNT, OUTPUT_COUNT, LIGHT_COUNT);
 
@@ -86,7 +86,7 @@ Igc::Igc() {
 	configBypass(INPUT_L, OUTPUT_L);
 	configBypass(INPUT_R, OUTPUT_R);
 
-	/// INIT IGC
+	/// [2] INIT IGC STRUCTURE
 
 	this->audio_index = 0;
 	this->playhead_count = 0;
@@ -102,39 +102,24 @@ Igc::Igc() {
 		this->playheads[i].grain_phase = 0.0;
 		this->playheads[i].grain_time = 0.0;
 	}
-
-	/// INIT IGC LOOKUP TABLE
-
-	table = this->table_pitch.init(10 * IGC_LOOKUP_RESOLUTION);
-	if (table) {
-		/// FROM -5V to +5V
-		for (i = 0; i < 10; ++i) {
-			/// FROM OCT+0 to OCT+1
-			for (j = 0; j < IGC_LOOKUP_RESOLUTION; ++j) {
-				pitch =
-				/**/ ((float)i - 5.0)
-				/**/ + ((float)j / (float)IGC_LOOKUP_RESOLUTION);
-				table[i * IGC_LOOKUP_RESOLUTION + j] = std::pow(2.f, pitch);
-			}
-		}
-	}
 }
 
 void Igc::process(const ProcessArgs& args) {
 	IgcPlayhead	*playhead;
 	float		in_l, in_r;
-	float		out_l, out_r;
-	float		voice_l, voice_r;
-	float		t;
-	float		dist, dist_1, dist_2;
-	float		phase;
-	float		index;
-	float		index_inter;
-	float		index_rel;
-	float		level;
-	float		speed;
-	float		shape;
+	float_4		out_l, out_r;
+	float_4		voice_l, voice_r;
+	float_4		t;
+	float_4		phase;
+	float_4		index;
+	float_4		index_inter;
+	float_4		index_rel;
+	float_4		level;
+	float_4		speed;
+	float_4		shape;
+	float_4		tmp;
 	float		length;
+	float		dist, dist_1, dist_2;
 	float		knob_delay;
 	float		knob_phase;
 	float		knob_lvl;
@@ -149,12 +134,13 @@ void Igc::process(const ProcessArgs& args) {
 	float		mod_lvl_1, mod_lvl_2;
 	float		mod_speed_1, mod_speed_2;
 	float		mod_grain_1, mod_grain_2;
-	int			buffer_index_a, buffer_index_b;
+	int32_4		buffer_index_a, buffer_index_b;
 	int			buffer_length;
 	int			channels, channels_half;
 	int			mode;
 	int			mode_out;
-	int			i;
+	int			channels_simd;
+	int			i, j;
 	float		param_ppqn;
 	bool		param_hd;
 	bool		param_anticlick;
@@ -338,7 +324,10 @@ void Igc::process(const ProcessArgs& args) {
 	out_l = 0.0;
 	out_r = 0.0;
 	this->playhead_count = channels;
-	for (i = 0; i < channels; ++i) {
+	channels_simd = channels / 4;
+	if (channels_simd < (float)channels / 4.0)
+		channels_simd += 1;
+	for (i = 0; i < channels_simd; ++i) {
 
 		playhead = &(this->playheads[i]);
 
@@ -347,16 +336,17 @@ void Igc::process(const ProcessArgs& args) {
 
 			/// COMPUTE PHASE (RELATIVE)
 			phase = knob_phase
-			/**/ + this->inputs[INPUT_PHASE_1].getPolyVoltage(i) * 0.1 * mod_phase_1
-			/**/ + this->inputs[INPUT_PHASE_2].getPolyVoltage(i) * 0.1 * mod_phase_2;
-			phase = fmod(fmod(phase, 1.0) + 1.0, 1.0);
+			/**/ + this->inputs[INPUT_PHASE_1].getPolyVoltageSimd<float_4>(i * 4) * 0.1 * mod_phase_1
+			/**/ + this->inputs[INPUT_PHASE_2].getPolyVoltageSimd<float_4>(i * 4) * 0.1 * mod_phase_2;
+			phase = simd::fmod(simd::fmod(phase, 1.0) + 1.0, 1.0);
 			playhead->phase = phase;
 
 			/// COMPUTE REAL INDEX
 			index = (float)this->audio_index
 			/**/ - (phase * (float)buffer_length);
-			if (index < 0)
-				index += IGC_BUFFER;
+			for (j = 0; j < 4; ++j)
+				if (index[j] < 0)
+					index[j] += IGC_BUFFER;
 			//index = fmod(fmod(index, IGC_BUFFER) + IGC_BUFFER, IGC_BUFFER);
 
 		/// MODE PHASE BEAT (ABSOLUTE)
@@ -364,16 +354,17 @@ void Igc::process(const ProcessArgs& args) {
 
 			/// COMPUTE PHASE
 			phase = this->abs_phase - (knob_phase
-			/**/ + this->inputs[INPUT_PHASE_1].getPolyVoltage(i) * 0.1 * mod_phase_1
-			/**/ + this->inputs[INPUT_PHASE_2].getPolyVoltage(i) * 0.1 * mod_phase_2);
-			phase = fmod(fmod(phase, 1.0) + 1.0, 1.0);
+			/**/ + this->inputs[INPUT_PHASE_1].getPolyVoltageSimd<float_4>(i * 4) * 0.1 * mod_phase_1
+			/**/ + this->inputs[INPUT_PHASE_2].getPolyVoltageSimd<float_4>(i * 4) * 0.1 * mod_phase_2);
+			phase = simd::fmod(simd::fmod(phase, 1.0) + 1.0, 1.0);
 			playhead->phase = phase;
 
 			/// COMPUTE REAL INDEX
 			index = (float)this->audio_index
 			/**/ - (phase * (float)buffer_length);
-			if (index < 0)
-				index += IGC_BUFFER;
+			for (j = 0; j < 4; ++j)
+				if (index[j] < 0)
+					index[j] += IGC_BUFFER;
 
 		/// MODE SPEED / GRAIN
 		} else {
@@ -381,37 +372,26 @@ void Igc::process(const ProcessArgs& args) {
 			/// COMPUTE SPEED
 			if (mode_round == IGC_ROUND_NONE) {
 				speed = knob_speed
-				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
-				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2;
+				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltageSimd<float_4>(i * 4) * mod_speed_1
+				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltageSimd<float_4>(i * 4) * mod_speed_2;
 			} else if (mode_round == IGC_ROUND_KNOB) {
-				speed = std::round(knob_speed)
-				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
-				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2;
+				speed = simd::round(knob_speed)
+				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltageSimd<float_4>(i * 4) * mod_speed_1
+				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltageSimd<float_4>(i * 4) * mod_speed_2;
 			} else if (mode_round == IGC_ROUND_KNOB_INPUT) {
-				speed = std::round(knob_speed
-				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1)
-				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2;
+				speed = simd::round(knob_speed
+				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltageSimd<float_4>(i * 4) * mod_speed_1)
+				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltageSimd<float_4>(i * 4) * mod_speed_2;
 			} else {
-				speed = std::round(knob_speed
-				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltage(i) * mod_speed_1
-				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltage(i) * mod_speed_2);
+				speed = simd::round(knob_speed
+				/**/ + this->inputs[INPUT_SPEED_1].getPolyVoltageSimd<float_4>(i * 4) * mod_speed_1
+				/**/ + this->inputs[INPUT_SPEED_2].getPolyVoltageSimd<float_4>(i * 4) * mod_speed_2);
 			}
-			if (this->table_pitch.array) {
-				/// USE LOOKUP TABLE (OPTIMIZED)
-				if (speed < -5.0)
-					speed = -5.0;
-				if (speed > +5.0)
-					speed = +5.0;
-				speed = this->table_pitch.get((speed + 5.0)
-				/**/ * (float)IGC_LOOKUP_RESOLUTION);
-			} else {
-				/// USE FORMULA
-				speed = std::pow(2.f, speed);
-			}
+			speed = simd::pow(2.f, speed);
 			if (knob_speed_rev > 0)
 				speed = -speed;
-			if (this->inputs[INPUT_SPEED_REV].getPolyVoltage(i) > 0.0)
-				speed = -speed;
+			tmp = this->inputs[INPUT_SPEED_REV].getPolyVoltageSimd<float_4>(i * 4);
+			speed *= simd::ifelse(tmp > 0.0, -1.0, 1.0);
 
 			/// MODE SPEED
 			if (mode == IGC_MODE_SPEED) {
@@ -424,100 +404,106 @@ void Igc::process(const ProcessArgs& args) {
 				/// COMPUTE PHASE / RELATIVE INDEX
 				index_rel = playhead->index_rel;
 				index_rel += 1.0 - speed;
-				index_rel = fmod(fmod(index_rel, buffer_length)
+				index_rel = simd::fmod(simd::fmod(index_rel, buffer_length)
 				/**/ + buffer_length, buffer_length);
 				playhead->index_rel = index_rel;
 
 				/// COMPUTE REAL INDEX
 				index = (float)this->audio_index - index_rel;
-				while (index < 0)
-					index += IGC_BUFFER;
+				for (j = 0; j < 4; ++j)
+					while (index[j] < 0)
+						index[j] += IGC_BUFFER;
 
 				/// COMPUTE RELATIVE PHASE
-				if (this->audio_index > index)
-					phase = (float)this->audio_index - index;
-				else
-					phase = (float)this->audio_index + ((float)IGC_BUFFER - index);
-				phase = fmod(fmod(phase / (float)buffer_length, 1.0) + 1.0, 1.0);
+				for (j = 0; j < 4; ++j) {
+					if (this->audio_index > index[j])
+						phase[j] = (float)this->audio_index - index[j];
+					else
+						phase[j] = (float)this->audio_index + ((float)IGC_BUFFER - index[j]);
+				}
+				phase = simd::fmod(simd::fmod(phase / (float)buffer_length, 1.0)
+				/**/ + 1.0, 1.0);
 				playhead->phase = phase;
 
 			/// MODE GRAIN
 			} else {
 
-				/// RESTART GRAIN
-				if (playhead->grain_time >= playhead->grain_length) {
-					/// RESET GRAIN PHASE
-					phase = knob_phase
-					/**/ + this->inputs[INPUT_PHASE_1].getPolyVoltage(i)
-					/**/ * 0.1 * mod_phase_1
-					/**/ + this->inputs[INPUT_PHASE_2].getPolyVoltage(i)
-					/**/ * 0.1 * mod_phase_2;
+				for (j = 0; j < 4; ++j) {
+					/// RESTART GRAIN
+					if (playhead->grain_time[j] >= playhead->grain_length[j]) {
+						/// RESET GRAIN PHASE
+						phase[j] = knob_phase
+						/**/ + this->inputs[INPUT_PHASE_1].getPolyVoltage(i * 4 + j)
+						/**/ * 0.1 * mod_phase_1
+						/**/ + this->inputs[INPUT_PHASE_2].getPolyVoltage(i * 4 + j)
+						/**/ * 0.1 * mod_phase_2;
 
-					/// GET GRAIN LENGTH
-					length = knob_grain
-					/**/ + this->inputs[INPUT_GRAIN_1].getPolyVoltage(i)
-					/**/ * mod_grain_1 * 0.1
-					/**/ + this->inputs[INPUT_GRAIN_2].getPolyVoltage(i)
-					/**/ * mod_grain_2 * 0.1;
-					if (length < 0.0)
-						length = 0.0;
-					if (length > 1.0)
-						length = 1.0;
-					/// GET GRAIN REMAPPED LENGTH [0.1:2.0]
-					length = 0.1 + length * 1.9;
-					/// INIT GRAIN
-					playhead->grain_length = length;
-					playhead->grain_time = 0.0;
-					playhead->speed = speed;
-				} else {
-					phase = playhead->phase;
-					playhead->grain_time += args.sampleTime;
+						/// GET GRAIN LENGTH
+						length = knob_grain
+						/**/ + this->inputs[INPUT_GRAIN_1].getPolyVoltage(i * 4 + j)
+						/**/ * mod_grain_1 * 0.1
+						/**/ + this->inputs[INPUT_GRAIN_2].getPolyVoltage(i * 4 + j)
+						/**/ * mod_grain_2 * 0.1;
+						if (length < 0.0)
+							length = 0.0;
+						if (length > 1.0)
+							length = 1.0;
+						/// GET GRAIN REMAPPED LENGTH [0.1:2.0]
+						length = 0.1 + length * 1.9;
+						/// INIT GRAIN
+						playhead->grain_length[j] = length;
+						playhead->grain_time[j] = 0.0;
+						playhead->speed = speed;
+					} else {
+						phase[j] = playhead->phase[j];
+						playhead->grain_time[j] += args.sampleTime;
+					}
 				}
 
 				/// COMPUTE PHASE
 				phase += 1.0 / (float)buffer_length;
 				phase -= (1.0 / (float)buffer_length) * playhead->speed;
-				phase = fmod(fmod(phase, 1.0) + 1.0, 1.0);
+				phase = simd::fmod(simd::fmod(phase, 1.0) + 1.0, 1.0);
 				playhead->phase = phase;
 
 				/// COMPUTE REAL INDEX
 				index = (float)this->audio_index
 				/**/ - (phase * (float)buffer_length);
-				if (index < 0)
-					index += IGC_BUFFER;
-
+				for (j = 0; j < 4; ++j)
+					if (index[j] < 0)
+						index[j] += IGC_BUFFER;
 			}
 
 		}
 
 		/// COMPUTE LEVEL
 		level = knob_lvl
-		/**/ + this->inputs[INPUT_LVL_1].getPolyVoltage(i) * 0.1
+		/**/ + this->inputs[INPUT_LVL_1].getPolyVoltageSimd<float_4>(i * 4) * 0.1
 		/**/ * mod_lvl_1
-		/**/ + this->inputs[INPUT_LVL_2].getPolyVoltage(i) * 0.1
+		/**/ + this->inputs[INPUT_LVL_2].getPolyVoltageSimd<float_4>(i * 4) * 0.1
 		/**/ * mod_lvl_2;
-		if (level > 1.0)
-			level = 1.0;
-		if (level < 0.0)
-			level = 0.0;
+		level = simd::clamp(level, 0.0, 1.0);
 
 		/// COMPUTE LEVEL SHAPE
 		if (knob_shape_force > 0.0) {
 			if (knob_shape_force > 1.0)
 				knob_shape_force = 1.0;
-			/// WAVE UP
-			if (phase < knob_shape_wave) {
-				/// AVOID ZERO DIVISION
-				if (knob_shape_wave > 0.0001) {
-					level *= 1.0 - (knob_shape_force
-					/**/ * (1.0 - (phase / knob_shape_wave)));
-				}
-			/// WAVE DOWN
-			} else {
-				/// AVOID ZERO DIVISION
-				if (knob_shape_wave < 0.9999) {
-					level *= 1.0 - knob_shape_force * ((phase - knob_shape_wave)
-					/**/ / (1.0 - knob_shape_wave));
+			for (j = 0; j < 4; ++j) {
+				/// WAVE UP
+				if (phase[j] < knob_shape_wave) {
+					/// AVOID ZERO DIVISION
+					if (knob_shape_wave > 0.0001) {
+						level[j] *= 1.0 - (knob_shape_force
+						/**/ * (1.0 - (phase[j] / knob_shape_wave)));
+					}
+				/// WAVE DOWN
+				} else {
+					/// AVOID ZERO DIVISION
+					if (knob_shape_wave < 0.9999) {
+						level[j] *= 1.0 - knob_shape_force
+						/**/ * ((phase[j] - knob_shape_wave)
+						/**/ / (1.0 - knob_shape_wave));
+					}
 				}
 			}
 		}
@@ -526,12 +512,14 @@ void Igc::process(const ProcessArgs& args) {
 
 		/// COMPUTE GRAIN LEVEL
 		if (mode == IGC_MODE_GRAIN) {
-			if (playhead->grain_time < (playhead->grain_length / 2.0)) {
-				shape = (playhead->grain_time / (playhead->grain_length / 2.0));
-			} else {
-				shape = 1.0
-				/**/ - ((playhead->grain_time - (playhead->grain_length / 2.0))
-				/**/ / (playhead->grain_length / 2.0));
+			for (j = 0; j < 4; ++j) {
+				if (playhead->grain_time[j] < (playhead->grain_length[j] / 2.0)) {
+					shape[j] = (playhead->grain_time[j] / (playhead->grain_length[j] / 2.0));
+				} else {
+					shape[j] = 1.0
+					/**/ - ((playhead->grain_time[j] - (playhead->grain_length[j] / 2.0))
+					/**/ / (playhead->grain_length[j] / 2.0));
+				}
 			}
 			shape = (1.0 - shape);
 			shape = shape * shape * shape;
@@ -543,72 +531,80 @@ void Igc::process(const ProcessArgs& args) {
 		/// COMPUTE PLAYHEAD OUTPUT
 		if (param_hd) {
 			/// COMPUTE INTERPOLATED INDEXES
-			buffer_index_a = (int)index;
+			buffer_index_a = (int32_4)index;
 			buffer_index_b = buffer_index_a + 1;
-			if (buffer_index_b >= IGC_BUFFER)
-				buffer_index_b = 0;
-			index_inter = index - (float)buffer_index_a;
+			for (j = 0; j < 4; ++j)
+				if (buffer_index_b[j] >= IGC_BUFFER)
+					buffer_index_b[j] = 0;
+			index_inter = index - (float_4)buffer_index_a;
 			/// COMPUTE INTERPOLATED VALUE
-			voice_l = (this->audio[0][buffer_index_a] * (1.0 - index_inter)
-			/**/ + this->audio[0][buffer_index_b] * index_inter);
-			voice_r = (this->audio[1][buffer_index_a] * (1.0 - index_inter)
-			/**/ + this->audio[1][buffer_index_b] * index_inter);
+			for (j = 0; j < 4; ++j) {
+				voice_l[j] = (this->audio[0][buffer_index_a[j]] * (1.0 - index_inter[j])
+				/**/ + this->audio[0][buffer_index_b[j]] * index_inter[j]);
+				voice_r[j] = (this->audio[1][buffer_index_a[j]] * (1.0 - index_inter[j])
+				/**/ + this->audio[1][buffer_index_b[j]] * index_inter[j]);
+			}
 		} else {
-			buffer_index_a = (int)index;
-			voice_l = this->audio[0][buffer_index_a];
-			voice_r = this->audio[1][buffer_index_a];
+			buffer_index_a = (int32_4)index;
+			for (j = 0; j < 4; ++j) {
+				voice_l[j] = this->audio[0][buffer_index_a[j]];
+				voice_r[j] = this->audio[1][buffer_index_a[j]];
+			}
 		}
 
 		/// COMPUTE ANTI-CLICK FILTER
 		if (param_anticlick) {
 
-			/// ALGO 1
-			/// -> When close to delay buffer ending point, progressively ease
-			///    into delay buffer starting point.
-			///
-			if (this->audio_index > index) {
-				dist = (float)buffer_length
-				/**/ - ((float)this->audio_index - index);
-			} else {
-				dist = (float)buffer_length
-				/**/ - ((float)this->audio_index + ((float)IGC_BUFFER - index));
-			}
-			if (dist < IGC_CLICK_SAFE_LENGTH) {
-				t = dist / (float)IGC_CLICK_SAFE_LENGTH;
-				voice_l = voice_l * t + in_l * (1.0 - t);
-				voice_r = voice_r * t + in_r * (1.0 - t);
-			}
+			for (j = 0; j < 4; ++j) {
 
-			/// ALGO 2
-			/// -> "Paralize" signal on big jumps in the buffer just before
-			///    click and slowly come back to signal.
-			///
-			//// COMPUTE JUMP DISTANCE
-			///// JUMP DIRECT
-			dist_1 = index - playhead->index;
-			if (dist_1 < 0)
-				dist_1 = -dist_1;
-			///// JUMP CIRCULAR
-			if (index < playhead->index)
-				dist_2 = index + ((float)IGC_BUFFER - playhead->index);
-			else
-				dist_2 = playhead->index + ((float)IGC_BUFFER - index);
-			///// JUMP SMALLEST
-			dist = (dist_1 < dist_2) ? dist_1 : dist_2;
+				/// ALGO 1
+				/// -> When close to delay buffer ending point, progressively ease
+				///    into delay buffer starting point.
+				///
+				if (this->audio_index > index[j]) {
+					dist = (float)buffer_length
+					/**/ - ((float)this->audio_index - index[j]);
+				} else {
+					dist = (float)buffer_length
+					/**/ - ((float)this->audio_index + ((float)IGC_BUFFER - index[j]));
+				}
+				if (dist < IGC_CLICK_SAFE_LENGTH) {
+					t[j] = dist / (float)IGC_CLICK_SAFE_LENGTH;
+					voice_l[j] = voice_l[j] * t[j] + in_l * (1.0 - t[j]);
+					voice_r[j] = voice_r[j] * t[j] + in_r * (1.0 - t[j]);
+				}
 
-			//// FIRE ANTI-CLICK
-			if (dist > IGC_CLICK_DIST_THRESHOLD)
-				playhead->click_remaining = IGC_CLICK_SAFE_LENGTH;
-			//// COMPUTE ANTI-CLICK
-			if (playhead->click_remaining > 0) {
-				t = playhead->click_remaining / (float)IGC_CLICK_SAFE_LENGTH;
-				voice_l = voice_l * (1.0 - t) + playhead->click_prev_l * t;
-				voice_r = voice_r * (1.0 - t) + playhead->click_prev_r * t;
-				playhead->click_remaining -= 1.0;
-			//// PREPARE ANTI-CLICK (SAVE PREVIOUS VALUE)
-			} else {
-				playhead->click_prev_l = voice_l;
-				playhead->click_prev_r = voice_r;
+				/// ALGO 2
+				/// -> "Paralize" signal on big jumps in the buffer just before
+				///    click and slowly come back to signal.
+				///
+				//// COMPUTE JUMP DISTANCE
+				///// JUMP DIRECT
+				dist_1 = index[j] - playhead->index[j];
+				if (dist_1 < 0)
+					dist_1 = -dist_1;
+				///// JUMP CIRCULAR
+				if (index[j] < playhead->index[j])
+					dist_2 = index[j] + ((float)IGC_BUFFER - playhead->index[j]);
+				else
+					dist_2 = playhead->index[j] + ((float)IGC_BUFFER - index[j]);
+				///// JUMP SMALLEST
+				dist = (dist_1 < dist_2) ? dist_1 : dist_2;
+
+				//// FIRE ANTI-CLICK
+				if (dist > IGC_CLICK_DIST_THRESHOLD)
+					playhead->click_remaining[j] = IGC_CLICK_SAFE_LENGTH;
+				//// COMPUTE ANTI-CLICK
+				if (playhead->click_remaining[j] > 0) {
+					t[j] = playhead->click_remaining[j] / (float)IGC_CLICK_SAFE_LENGTH;
+					voice_l[j] = voice_l[j] * (1.0 - t[j]) + playhead->click_prev_l[j] * t[j];
+					voice_r[j] = voice_r[j] * (1.0 - t[j]) + playhead->click_prev_r[j] * t[j];
+					playhead->click_remaining[j] -= 1.0;
+				//// PREPARE ANTI-CLICK (SAVE PREVIOUS VALUE)
+				} else {
+					playhead->click_prev_l[j] = voice_l[j];
+					playhead->click_prev_r[j] = voice_r[j];
+				}
 			}
 		}
 
@@ -621,22 +617,25 @@ void Igc::process(const ProcessArgs& args) {
 			out_r += voice_r * level;
 		//// MODE STEREO SPREAD
 		} else if (mode_out == IGC_MODE_OUT_STEREO_SPREAD) {
-			if (channels > 1)
-				t = (float)i / (float)(channels - 1);
-			else
+			if (channels > 1) {
+				for (j = 0; j < 4; ++j)
+					t[j] = (float)(i * 4 + j) / (float)(channels - 1);
+			} else {
 				t = 0.5;
+			}
 			out_l += voice_l * level * (1.0 - t);
 			out_r += voice_r * level * t;
 		//// MODE STEREO SPREAD PING-PONG
 		} else if (mode_out == IGC_MODE_OUT_STEREO_SPREAD_PP) {
 			if (channels > 1) {
-				t = (float)i / (float)(channels - 1);
-				if (i < channels_half) {
-					t = (float)i / (float)channels_half;
-				} else {
-					t = 1.0
-					/**/ - ((float)(i - channels_half)
-					/**/ / (float)(channels - channels_half));
+				for (j = 0; j < 4; ++j) {
+					if (i * 4 + j < channels_half) {
+						t[j] = (float)(i * 4 + j) / (float)channels_half;
+					} else {
+						t[j] = 1.0
+						/**/ - ((float)((i * 4 + j) - channels_half)
+						/**/ / (float)(channels - channels_half));
+					}
 				}
 			} else {
 				t = 0.5;
@@ -645,15 +644,21 @@ void Igc::process(const ProcessArgs& args) {
 			out_r += voice_r * level * t;
 		//// MODE STEREO POLYPHONIC
 		} else {
-			this->outputs[OUTPUT_L].setVoltage(voice_l * level * knob_mix_out, i);
-			this->outputs[OUTPUT_R].setVoltage(voice_r * level * knob_mix_out, i);
+			for (j = 0; j < 4; ++j) {
+				this->outputs[OUTPUT_L].setVoltage(
+				/**/ voice_l[j] * level[j] * knob_mix_out, i * 4 + j);
+				this->outputs[OUTPUT_R].setVoltage(
+				/**/ voice_r[j] * level[j] * knob_mix_out, i * 4 + j);
+			}
 		}
 	}
 	if (mode_out != IGC_MODE_OUT_STEREO_POLY) {
+		out_l = in_l * (1.0 - knob_mix) + (out_l * knob_mix_out) * knob_mix;
+		out_r = in_r * (1.0 - knob_mix) + (out_r * knob_mix_out) * knob_mix;
 		this->outputs[OUTPUT_L].setVoltage(
-		/**/ in_l * (1.0 - knob_mix) + (out_l * knob_mix_out) * knob_mix);
+		/**/ out_l[0] + out_l[1] + out_l[2] + out_l[3]);
 		this->outputs[OUTPUT_R].setVoltage(
-		/**/ in_r * (1.0 - knob_mix) + (out_r * knob_mix_out) * knob_mix);
+		/**/ out_r[0] + out_r[1] + out_r[2] + out_r[3]);
 	}
 
 	//////////////////////////////	

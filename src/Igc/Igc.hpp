@@ -24,8 +24,6 @@
 #define IGC_ROUND_KNOB_INPUT		2
 #define IGC_ROUND_ALL				3
 
-#define IGC_LOOKUP_RESOLUTION		100
-
 ////////////////////////////////////////////////////////////////////////////////
 /// DATA STRUCTURE
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,23 +45,23 @@ struct IgcPlayhead {
 	// click_remaining: Remaining samples (index) before anti-click ends
 	//
 
-	float						phase;
-	float						phase_prev;
-	float						index;
-	float						index_rel;
-	float						level;
-	float						speed;
+	float_4						phase;
+	float_4						phase_prev;
+	float_4						index;
+	float_4						index_rel;
+	float_4						level;
+	float_4						speed;
 
-	float						grain_phase;
-	float						grain_time;
-	float						grain_length;
-	float						grain_speed;
+	float_4						grain_phase;
+	float_4						grain_time;
+	float_4						grain_length;
+	float_4						grain_speed;
 
-	float						click_prev_l;
-	float						click_prev_r;
-	float						click_remaining;
+	float_4						click_prev_l;
+	float_4						click_prev_r;
+	float_4						click_remaining;
 
-	float						wavetable_index;
+	float_4						wavetable_index;
 
 	//dsp::TSchmittTrigger<float>	trigger;
 };
@@ -169,8 +167,6 @@ struct Igc : Module {
 	// is_stereo: State of input (0: mono - 1: stereo)
 	//
 
-	LookupTable					table_pitch;
-
 	dsp::TSchmittTrigger<float>	trigger_clock;
 	dsp::TSchmittTrigger<float>	trigger_reset;
 	int							clock_trigger_count;
@@ -178,7 +174,7 @@ struct Igc : Module {
 	float						delay_time;
 	float						delay_time_aim;
 
-	IgcPlayhead					playheads[16];
+	IgcPlayhead					playheads[4];
 	int							playhead_count;
 	float						abs_phase;
 
