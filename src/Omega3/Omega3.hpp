@@ -25,6 +25,8 @@ struct Omega3 : Module {
 		PARAM_COUNT
 	};
 	enum	InputIds {
+		INPUT_OFFSET,
+		INPUT_SCALE,
 		INPUT_PHASE,
 		INPUT_COUNT
 	};

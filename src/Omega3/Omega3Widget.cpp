@@ -40,6 +40,14 @@ Omega3Widget::Omega3Widget(Omega3* _module) {
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(center + 6.0, 12 + 40)),
 	/**/ module,
 	/**/ Omega3::PARAM_SCALE));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(center - 6.0, 12 + 47)),
+	/**/ module,
+	/**/ Omega3::INPUT_OFFSET));
+	addInput(
+	/**/ createInputCentered<Outlet>(mm2px(Vec(center + 6.0, 12 + 47)),
+	/**/ module,
+	/**/ Omega3::INPUT_SCALE));
 
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(center, 128.5 - 22 - 22)),

@@ -16,7 +16,7 @@ Omega6::Omega6() {
 	configParam(PARAM_POLYPHONY, 1, 16, 16, "Polyphony")->snapEnabled = true;
 	configParam(PARAM_SHAPE, 0, 1, 1, "Shape", "%", 0, 100);
 	configParam(PARAM_CURVE, -1, 1, 0, "Curve", "%", 0, 100);
-	configParam(PARAM_PHASE, -1, 1, 0, "Phase");
+	configParam(PARAM_PHASE, -1, 1, 0, "Phase", "%", 0, 100);
 	configParam(PARAM_FROM, -10, 10, 0, "From", " V");
 	configParam(PARAM_TO, -10, 10, 0, "To", " V");
 
