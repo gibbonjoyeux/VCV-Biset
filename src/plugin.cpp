@@ -24,6 +24,10 @@ void init(Plugin* p) {
 	p->addModel(modelGbu);
 	p->addModel(modelPkm);
 
+	p->addModel(modelIgc);
+	p->addModel(modelOmega3);
+	p->addModel(modelOmega6);
+
 	p->addModel(modelSegfault);
 	p->addModel(modelBlank);
 }

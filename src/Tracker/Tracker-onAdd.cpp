@@ -326,41 +326,41 @@ static bool compute_save_file(void) {
 	return true;
 }
 
-static void load_template(void) {
-	PatternInstance	*instance;
-	PatternSource	*pattern;
-
-	/// [1] CREATE PATTERN
-	pattern = g_timeline->pattern_new(2, 0, 8, 4);
-	pattern->notes[0]->lines[0].mode = PATTERN_NOTE_NEW;
-	pattern->notes[0]->lines[0].synth = 0;
-	pattern->notes[0]->lines[0].pitch = 63;
-	pattern->notes[0]->lines[0].velocity = 99;
-	pattern->notes[0]->lines[0].panning = 50;
-	pattern->notes[0]->lines[8].mode = PATTERN_NOTE_NEW;
-	pattern->notes[0]->lines[8].synth = 0;
-	pattern->notes[0]->lines[8].pitch = 61;
-	pattern->notes[0]->lines[8].velocity = 99;
-	pattern->notes[0]->lines[8].panning = 50;
-	pattern->notes[0]->lines[16].mode = PATTERN_NOTE_NEW;
-	pattern->notes[0]->lines[16].synth = 0;
-	pattern->notes[0]->lines[16].pitch = 66;
-	pattern->notes[0]->lines[16].velocity = 99;
-	pattern->notes[0]->lines[16].panning = 50;
-	pattern->notes[0]->lines[24].mode = PATTERN_NOTE_NEW;
-	pattern->notes[0]->lines[24].synth = 0;
-	pattern->notes[0]->lines[24].pitch = 70;
-	pattern->notes[0]->lines[24].velocity = 99;
-	pattern->notes[0]->lines[24].panning = 50;
-
-	/// [2] CREATE PATTERN INSTANCE
-	instance = g_timeline->instance_new(pattern, 0, 0);
-	instance->beat_start = 0;
-	instance->beat_length = pattern->beat_count;
-
-	/// [3] CREATE SYNTH
-	g_timeline->synth_new();
-}
+//static void load_template(void) {
+//	PatternInstance	*instance;
+//	PatternSource	*pattern;
+//
+//	/// [1] CREATE PATTERN
+//	pattern = g_timeline->pattern_new(2, 0, 8, 4);
+//	pattern->notes[0]->lines[0].mode = PATTERN_NOTE_NEW;
+//	pattern->notes[0]->lines[0].synth = 0;
+//	pattern->notes[0]->lines[0].pitch = 63;
+//	pattern->notes[0]->lines[0].velocity = 99;
+//	pattern->notes[0]->lines[0].panning = 50;
+//	pattern->notes[0]->lines[8].mode = PATTERN_NOTE_NEW;
+//	pattern->notes[0]->lines[8].synth = 0;
+//	pattern->notes[0]->lines[8].pitch = 61;
+//	pattern->notes[0]->lines[8].velocity = 99;
+//	pattern->notes[0]->lines[8].panning = 50;
+//	pattern->notes[0]->lines[16].mode = PATTERN_NOTE_NEW;
+//	pattern->notes[0]->lines[16].synth = 0;
+//	pattern->notes[0]->lines[16].pitch = 66;
+//	pattern->notes[0]->lines[16].velocity = 99;
+//	pattern->notes[0]->lines[16].panning = 50;
+//	pattern->notes[0]->lines[24].mode = PATTERN_NOTE_NEW;
+//	pattern->notes[0]->lines[24].synth = 0;
+//	pattern->notes[0]->lines[24].pitch = 70;
+//	pattern->notes[0]->lines[24].velocity = 99;
+//	pattern->notes[0]->lines[24].panning = 50;
+//
+//	/// [2] CREATE PATTERN INSTANCE
+//	instance = g_timeline->instance_new(pattern, 0, 0);
+//	instance->beat_start = 0;
+//	instance->beat_length = pattern->beat_count;
+//
+//	/// [3] CREATE SYNTH
+//	g_timeline->synth_new();
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PUBLIC FUNCTIONS

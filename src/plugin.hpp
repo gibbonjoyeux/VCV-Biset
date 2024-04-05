@@ -12,6 +12,7 @@ using				std::unique_ptr;
 
 #include "types.hpp"
 #include "components.hpp"
+
 #include "Tracker/Tracker.hpp"
 #include "TrackerControl/TrackerControl.hpp"
 #include "TrackerSynth/TrackerSynth.hpp"
@@ -30,8 +31,12 @@ using				std::unique_ptr;
 #include "Gbu/Gbu.hpp"
 #include "Pkm/Pkm.hpp"
 
-#include "Segfault/Segfault.hpp"
+#include "Igc/Igc.hpp"
+#include "Omega3/Omega3.hpp"
+#include "Omega6/Omega6.hpp"
+
 #include "Blank/Blank.hpp"
+#include "Segfault/Segfault.hpp"
 
 extern char		table_pitch[12][3];
 extern char		table_effect[12];
@@ -122,6 +127,10 @@ extern Model*		modelTreeSeed;
 
 extern Model*		modelGbu;
 extern Model*		modelPkm;
+
+extern Model*		modelIgc;
+extern Model*		modelOmega3;
+extern Model*		modelOmega6;
 
 extern Model*		modelSegfault;
 extern Model*		modelBlank;
