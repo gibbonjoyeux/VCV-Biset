@@ -483,6 +483,9 @@ void Igc::process(const ProcessArgs& args) {
 		/**/ + this->inputs[INPUT_LVL_2].getPolyVoltageSimd<float_4>(i * 4) * 0.1
 		/**/ * mod_lvl_2;
 		level = simd::clamp(level, 0.0, 1.0);
+		for (j = 0; j < 4; ++j)
+			if (i * 4 + j >= channels)
+				level[j] = 0.0;
 
 		/// COMPUTE LEVEL SHAPE
 		if (knob_shape_force > 0.0) {
@@ -653,12 +656,16 @@ void Igc::process(const ProcessArgs& args) {
 		}
 	}
 	if (mode_out != IGC_MODE_OUT_STEREO_POLY) {
-		out_l = in_l * (1.0 - knob_mix) + (out_l * knob_mix_out) * knob_mix;
-		out_r = in_r * (1.0 - knob_mix) + (out_r * knob_mix_out) * knob_mix;
 		this->outputs[OUTPUT_L].setVoltage(
-		/**/ out_l[0] + out_l[1] + out_l[2] + out_l[3]);
+		/**/ ((out_l[0] + out_l[1] + out_l[2] + out_l[3]) * knob_mix_out)
+		/**/ * knob_mix
+		/**/ + in_l
+		/**/ * (1.0 - knob_mix));
 		this->outputs[OUTPUT_R].setVoltage(
-		/**/ out_r[0] + out_r[1] + out_r[2] + out_r[3]);
+		/**/ ((out_r[0] + out_r[1] + out_r[2] + out_r[3]) * knob_mix_out)
+		/**/ * knob_mix
+		/**/ + in_r
+		/**/ * (1.0 - knob_mix));
 	}
 
 	//////////////////////////////	
