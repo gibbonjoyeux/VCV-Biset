@@ -31,7 +31,7 @@
 	},
 	{
 		"slug": "Biset-Omega3",
-		"name": "Omega-3",
+		"name": "Omega3",
 		"description": "Polyphonic CV spread",
 		"tags": [
 			"Utility",
@@ -41,7 +41,7 @@
 	},
 	{
 		"slug": "Biset-Omega6",
-		"name": "Omega-6",
+		"name": "Omega6",
 		"description": "Polyphonic CV spread between 2 inputs",
 		"tags": [
 			"Utility",
