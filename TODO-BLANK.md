@@ -4,7 +4,8 @@
 - [x] Cable animation
 - [x] Cable orientation
 - [x] Cable tension
-- [ ] Cable plug voltage light
+- [x] Cable plug voltage light
+- [ ] Alpha 100% on hover (or color change)
 
 # Scope
 

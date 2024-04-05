@@ -26,7 +26,8 @@
 			"Granular",
 			"VCO",
 			"Polyphonic"
-		]
+		],
+		"keywords": ["igc", "buffer"]
 	},
 	{
 		"slug": "Biset-Omega3",
@@ -35,7 +36,8 @@
 		"tags": [
 			"Utility",
 			"Polyphonic"
-		]
+		],
+		"keywords": ["igc", "cholesterol"]
 	},
 	{
 		"slug": "Biset-Omega6",
@@ -44,7 +46,8 @@
 		"tags": [
 			"Utility",
 			"Polyphonic"
-		]
+		],
+		"keywords": ["igc", "cholesterol"]
 	},
 
 

@@ -72,14 +72,14 @@
 					- [ ] Glide effects (chance, note, etc)
 				- [x] Pitch temperament scale
 				- [x] Pitch base offset (from 440hz)
-			- [ ] CV
+			- [x] CV
 				- [x] Mode CV
 				- [x] Mode Gate
 				- [x] Mode BPM
 				- [ ] Mode tuning ?
-				- [ ] CV set		(set cv point)
+				- [x] CV set		(set cv point)
 					- [x] CV value
-					- [ ] CV curve
+					- [x] CV curve
 				- [x] CV keep		(continue interpolation)
 			- [ ] FX Column (effects active on entire column, from context menu)
 		- [ ] LIVE
