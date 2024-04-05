@@ -31,6 +31,10 @@ SOURCES += $(wildcard src/TreeSeed/*.cpp)
 SOURCES += $(wildcard src/Gbu/*.cpp)
 SOURCES += $(wildcard src/Pkm/*.cpp)
 
+SOURCES += $(wildcard src/Igc/*.cpp)
+SOURCES += $(wildcard src/Omega3/*.cpp)
+SOURCES += $(wildcard src/Omega6/*.cpp)
+
 SOURCES += $(wildcard src/Segfault/*.cpp)
 SOURCES += $(wildcard src/Blank/*.cpp)
 
