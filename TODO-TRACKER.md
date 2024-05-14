@@ -31,7 +31,7 @@
 # USER REQUESTS
 
 - [ ] Midi input
-	- [ ] Midi input set velocity
+	- [x] Midi input set velocity
 	- [ ] Midi polyphonic input
 - [ ] Information / Help display (bottom left)
 	- [ ] Pattern mode: Active column / cell / note effect information

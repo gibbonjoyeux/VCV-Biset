@@ -66,7 +66,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 					/// NOTE STOP
 					if (key >= 0) {
 						g_editor->live_stop(key);
-						g_editor->live_states[key] = NOTE_STATE_STOP;
+						g_editor->live_voices[key].state = NOTE_STATE_STOP;
 						e.consume(this);
 					}
 				}
@@ -179,7 +179,8 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 										return;
 									}
 									g_editor->live_play(key, 99);
-									g_editor->live_states[key] = NOTE_STATE_START;
+									g_editor->live_voices[key].state = NOTE_STATE_START;
+									g_editor->live_voices[key].velocity = 99;
 									e.consume(this);
 								/// NOTE STOP
 								} else if (key == -1) {
