@@ -18,6 +18,37 @@
 	-> https://vcvrack.com/docs-v2/structrack_1_1widget_1_1EventState#aa6bf4a0628b3cabdffc769419d47f649
 	-> https://github.com/VCVRack/Rack/blob/8c6f41b778b4bf8860b89b36d5503fd37924077f/src/window/Window.cpp#L229
 
+# USER REPORT
+
+- [ ] New pattern already filled and un-editable
+- [ ] Crash on adding pattern / synth
+- [x] Note effects not saved !
+
+# SELF REQUEST
+
+- [ ] CV Fx: note effect 'Mxy' set synth CV channel x to y (0 to 10)
+
+# USER REQUESTS
+
+- [ ] Midi input
+	- [ ] Midi input set velocity
+	- [ ] Midi polyphonic input
+- [ ] Information / Help display (bottom left)
+	- [ ] Pattern mode: Active column / cell / note effect information
+	- [ ] Timeline mode: Current time & total time (in beats) 
+- [ ] Shortcuts
+	- [ ] Transpose shortcut (ctrl + arrows = semitone ; maj + arrows = octave)
+	- [ ] Play / pause shortcuts
+- [ ] Slew limiter to panning & velocity in synth module (avoid click)
+- [x] Synth module needs CV output to be connected even with mapping
+- [ ] Polyphonic rotation rotate to find next available channel (if possible)
+- [ ] Pattern instance selection + edition
+- [ ] Auto-scroll playing timeline
+- [ ] ! ! ! Selection + multiple edition ! ! !
+- [ ] ? ? ? FX controlling pattern length ? ? ?
+
+
+
 - Glide allowing effects ?
 	-> Useful to have chance or random note / octave
 - What happens to overriden notes / voices when synth is used with many notes ?

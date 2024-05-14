@@ -79,6 +79,7 @@ void TrackerSynth::process(const ProcessArgs& args) {
 	}
 	/// SET OUTPUT CV
 	for (i = 0; i < 8; ++i) {
+		/// CV AS VOLTAGE
 		if (this->outputs[OUTPUT_CV + i].isConnected()) {
 			/// MAP FROM [0:1] TO [MIN:MAX]
 			cv_min = this->params[PARAM_OUT_MIN + i].getValue();
@@ -86,17 +87,17 @@ void TrackerSynth::process(const ProcessArgs& args) {
 			cv = (synth->out_cv[i] * (cv_max - cv_min)) + cv_min;
 			/// SET CV
 			this->outputs[OUTPUT_CV + i].setVoltage(cv);
-			/// SET MAPPED PARAMS
-			for (j = 0; j < 4; ++j) {
-				handle = &(this->map_handles[i][j]);
-				if (handle->module) {
-					quantity = handle->module->getParamQuantity(handle->paramId);
-					if (quantity) {
-						cv_min = handle->min;
-						cv_max = handle->max;
-						cv = (synth->out_cv[i] * (cv_max - cv_min)) + cv_min;
-						quantity->setValue(cv);
-					}
+		}
+		/// CV AS MAPPED PARAM
+		for (j = 0; j < 4; ++j) {
+			handle = &(this->map_handles[i][j]);
+			if (handle->module) {
+				quantity = handle->module->getParamQuantity(handle->paramId);
+				if (quantity) {
+					cv_min = handle->min;
+					cv_max = handle->max;
+					cv = (synth->out_cv[i] * (cv_max - cv_min)) + cv_min;
+					quantity->setValue(cv);
 				}
 			}
 		}

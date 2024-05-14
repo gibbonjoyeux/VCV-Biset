@@ -249,9 +249,9 @@ static void save_track(json_t *root) {
 							json_array_append_new(json_fxs, json_fx);
 
 							json_object_set_new(json_fx, "type",	// Fx type
-							/**/ json_integer(note->effects[i].type));
+							/**/ json_integer(note->effects[l].type));
 							json_object_set_new(json_fx, "value",	// Fx value
-							/**/ json_integer(note->effects[i].value));
+							/**/ json_integer(note->effects[l].value));
 						}
 					}
 				}
