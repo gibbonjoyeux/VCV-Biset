@@ -59,7 +59,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 			pattern = g_editor->pattern;
 			/// KEY ON NOTE
 			if (g_editor->pattern_col < pattern->note_count) {
-				col_note = pattern->notes[g_editor->pattern_col];
+				col_note = &(pattern->notes[g_editor->pattern_col]);
 				line_note = &(col_note->lines[g_editor->pattern_line]);
 				if (g_editor->pattern_cell == 0) {
 					key = key_midi(e);
@@ -96,7 +96,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 				pattern = g_editor->pattern;
 				/// INSERT NOTE
 				if (g_editor->pattern_col < pattern->note_count) {
-					col_note = pattern->notes[g_editor->pattern_col];
+					col_note = &(pattern->notes[g_editor->pattern_col]);
 					for (i = pattern->line_count - 1;
 					i > g_editor->pattern_line; --i) {
 						line_note = &(col_note->lines[i]);
@@ -107,8 +107,8 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 					line_note->mode = PATTERN_NOTE_KEEP;
 				/// INSERT CV
 				} else {
-					col_cv = pattern->cvs[g_editor->pattern_col
-					/**/ - pattern->note_count];
+					col_cv = &(pattern->cvs[g_editor->pattern_col
+					/**/ - pattern->note_count]);
 					for (i = pattern->line_count - 1;
 					i > g_editor->pattern_line; --i) {
 						line_cv = &(col_cv->lines[i]);
@@ -124,7 +124,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 				pattern = g_editor->pattern;
 				/// DELETE NOTE
 				if (g_editor->pattern_col < pattern->note_count) {
-					col_note = pattern->notes[g_editor->pattern_col];
+					col_note = &(pattern->notes[g_editor->pattern_col]);
 					for (i = g_editor->pattern_line + 1;
 					i < pattern->line_count; ++i) {
 						line_note = &(col_note->lines[i - 1]);
@@ -135,8 +135,8 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 					line_note->mode = PATTERN_NOTE_KEEP;
 				/// DELETE CV
 				} else {
-					col_cv = pattern->cvs[g_editor->pattern_col
-					/**/ - pattern->note_count];
+					col_cv = &(pattern->cvs[g_editor->pattern_col
+					/**/ - pattern->note_count]);
 					for (i = g_editor->pattern_line + 1;
 					i < pattern->line_count; ++i) {
 						line_cv = &(col_cv->lines[i - 1]);
@@ -152,7 +152,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 				pattern = g_editor->pattern;
 				/// KEY ON NOTE
 				if (g_editor->pattern_col < pattern->note_count) {
-					col_note = pattern->notes[g_editor->pattern_col];
+					col_note = &(pattern->notes[g_editor->pattern_col]);
 					line_note = &(col_note->lines[g_editor->pattern_line]);
 					switch (g_editor->pattern_cell) {
 						/// PITCH
@@ -354,7 +354,8 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 					}
 				/// KEY ON CV
 				} else {
-					col_cv = pattern->cvs[g_editor->pattern_col - pattern->note_count];
+					col_cv = &(pattern->cvs
+					/**/ [g_editor->pattern_col - pattern->note_count]);
 					line_cv = &(col_cv->lines[g_editor->pattern_line]);
 					switch (g_editor->pattern_cell) {
 						/// VALUE

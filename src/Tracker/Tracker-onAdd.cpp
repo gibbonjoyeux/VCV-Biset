@@ -240,7 +240,7 @@ static bool compute_save_file(void) {
 		pattern->rename(name);
 		/// PATTERN NOTES
 		for (j = 0; j < note_count; ++j) {
-			note_col = pattern->notes[j];
+			note_col = &(pattern->notes[j]);
 			read_u8();									// Column muted
 			read_u8();									// Column fx velocity
 			read_u8();									// Column fx panning
@@ -282,7 +282,7 @@ static bool compute_save_file(void) {
 		}
 		/// PATTERN CVS
 		for (j = 0; j < cv_count; ++j) {
-			cv_col = pattern->cvs[j];
+			cv_col = &(pattern->cvs[j]);
 			cv_col->mode = read_u8();					// Column mode
 			cv_col->synth = read_u8();					// Column synth
 			cv_col->channel = read_u8();				// Column channel

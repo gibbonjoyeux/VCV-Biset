@@ -288,7 +288,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 	/// FOR EACH NOTE COL	
 	tx = 0;
 	for (i = 0; i < pattern->note_count; ++i) {
-		note_col = pattern->notes[i];
+		note_col = &(pattern->notes[i]);
 		focus_col = (g_editor->pattern_col == i);
 		/// FOR EACH NOTE COL LINE
 		for (j = 0; j < CHAR_COUNT_Y; ++j) {
@@ -437,7 +437,7 @@ void TrackerDisplay::draw_pattern(const DrawArgs &args, Rect rect) {
 	}
 	/// FOR EACH CV COL
 	for (i = 0; i < pattern->cv_count; ++i) {
-		cv_col = pattern->cvs[i];
+		cv_col = &(pattern->cvs[i]);
 		focus_col = (g_editor->pattern_col == pattern->note_count + i);
 
 		/// DRAW VISUALS

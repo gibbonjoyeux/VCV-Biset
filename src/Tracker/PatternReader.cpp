@@ -49,7 +49,7 @@ void PatternReader::process(
 
 	/// [1] COMPUTE PATTERN NOTE COLS
 	for (col = 0; col < pattern->note_count; ++col) {
-		col_note = pattern->notes[col];
+		col_note = &(pattern->notes[col]);
 		note = &(col_note->lines[line]);
 		/// CELL CHANGE
 		if (note != this->notes[col]) {
@@ -101,7 +101,7 @@ void PatternReader::process(
 	}
 	/// [2] COMPUTE PATTERN CV COLS
 	for (col = 0; col < pattern->cv_count; ++col) {
-		col_cv = pattern->cvs[col];
+		col_cv = &(pattern->cvs[col]);
 		/// [A] COMPUTE KEY CV INTERPOLATION LINES
 		cv_line = &(col_cv->lines[line]);
 		cv_prev = NULL;
@@ -186,14 +186,14 @@ void PatternReader::process(
 			/// REMAP CV PREV [0:999] TO [0:1]
 			cv_value /= 1000.0;
 			/// OUTPUT CV
-			synth = &(synths[pattern->cvs[col]->synth]);
-			synth->out_cv[pattern->cvs[col]->channel] = cv_value;
+			synth = &(synths[pattern->cvs[col].synth]);
+			synth->out_cv[pattern->cvs[col].channel] = cv_value;
 		//// MODE GATE
 		} else if (col_cv->mode == PATTERN_CV_MODE_GATE) {
 			cv_value = (cv_value < 1.0) ? 0.0 : 1.0;
 			/// OUTPUT CV
-			synth = &(synths[pattern->cvs[col]->synth]);
-			synth->out_cv[pattern->cvs[col]->channel] = cv_value;
+			synth = &(synths[pattern->cvs[col].synth]);
+			synth->out_cv[pattern->cvs[col].channel] = cv_value;
 		//// MODE BPM
 		} else if (col_cv->mode == PATTERN_CV_MODE_BPM) {
 			/// CLAMP CV ON [30:300]

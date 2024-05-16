@@ -39,14 +39,8 @@ void PatternSource::init(void) {
 	/// COLOR
 	this->color = 0;
 	/// TIME
-	this->beat_count = 0;
-	this->line_count = 0;
-	this->lpb = 0;
 	this->line_play = 0;
 	this->line_phase = 0.0;
-	/// COLUMNS
-	this->note_count = 0;
-	this->cv_count = 0;
 	/// INIT COLUMNS CELLS
 	this->resize(1, 0, 8, 4);
 }
@@ -58,56 +52,59 @@ void PatternSource::init(int note_count, int cv_count, int beat_count,
 	/// COLOR
 	this->color = 0;
 	/// TIME
-	this->beat_count = 0;
-	this->line_count = 0;
-	this->lpb = 0;
 	this->line_play = 0;
 	this->line_phase = 0.0;
-	/// COLUMNS
-	this->note_count = 0;
-	this->cv_count = 0;
 	/// INIT COLUMNS CELLS
 	this->resize(note_count, cv_count, beat_count, lpb);
 }
 
 void PatternSource::destroy(void) {
-	this->notes.delocate();
-	this->cvs.delocate();
+	this->resize(0, 0, 0, 0);
 }
 
 void PatternSource::resize(int note_count, int cv_count, int beat_count,
 		int lpb) {
-	bool					change_note, change_cv;
+	int		prev_size;
+	int		i, j;
 
-	/// [1] CHECK CHANGES
-	change_note = false;
-	change_cv = false;
-	if (this->beat_count != beat_count
-	|| this->lpb != lpb) {
-		change_note = true;
-		change_cv = true;
-	}
-	if (this->note_count != note_count)
-		change_note = true;
-	if (this->cv_count != cv_count)
-		change_cv = true;
-	/// [2] SET VARIABLES
+	/// [1] INIT
+
 	this->lpb = lpb;
 	this->beat_count = beat_count;
 	this->line_count = this->beat_count * this->lpb;
 	this->note_count = note_count;
 	this->cv_count = cv_count;
-	/// [3] ALLOCATE ARRAYS
-	if (change_note) {
-		this->notes.allocate(this->note_count,
-		/**/ this->line_count * sizeof(PatternNote));
+
+	/// [2] ALLOCATE COLUMNS & LINES
+
+	for (i = 0; i < 32; ++i) {
+
+		prev_size = this->notes[i].lines.size();
+
+		/// ALLOCATE NOTES
+
+		/// ALLOCATE COLUMN
+		if (i < note_count) {
+			this->notes[i].lines.resize(this->line_count);
+			for (j = prev_size; j < this->line_count; ++j)
+				new (&(this->notes[i].lines[j])) PatternNote();
+		/// FREE COLUMN
+		} else {
+			this->notes[i].lines.clear();
+		}
+
+		/// ALLOCATE CVS
+
+		/// ALLOCATE COLUMN
+		if (i < cv_count) {
+			this->cvs[i].lines.resize(this->line_count);
+			for (j = prev_size; j < this->line_count; ++j)
+				new (&(this->cvs[i].lines[j])) PatternCV();
+		/// FREE COLUMN
+		} else {
+			this->cvs[i].lines.clear();
+		}
 	}
-	if (change_cv) {
-		this->cvs.allocate(this->cv_count,
-		/**/ this->line_count * sizeof(PatternCV));
-	}
-	/// [4] INIT NOTE COLUMNS
-	// TODO: init note columns effects
 }
 
 void PatternSource::rename(char *name) {
@@ -203,7 +200,7 @@ void PatternSource::context_menu(Menu *menu) {
 int PatternSource::cv_prev(int column, int line) {
 	PatternCVCol	*col;
 	
-	col = this->cvs[column];
+	col = &(this->cvs[column]);
 	line -= 1;
 	while (line >= 0) {
 		if (col->lines[line].mode == PATTERN_CV_SET)
@@ -216,7 +213,7 @@ int PatternSource::cv_prev(int column, int line) {
 int PatternSource::cv_next(int column, int line) {
 	PatternCVCol	*col;
 	
-	col = this->cvs[column];
+	col = &(this->cvs[column]);
 	line += 1;
 	while (line < this->line_count) {
 		if (col->lines[line].mode == PATTERN_CV_SET)

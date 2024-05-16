@@ -24,7 +24,7 @@ static inline void	handle_midi(void) {
 				/// WRITE NOTE TO PATTERN
 				pattern = g_editor->pattern;
 				if (g_editor->pattern_col < pattern->note_count) {
-					column = pattern->notes[g_editor->pattern_col];
+					column = &(pattern->notes[g_editor->pattern_col]);
 					line = &(column->lines[g_editor->pattern_line]);
 					if (g_editor->pattern_cell == 0) {
 						line->pitch = i;
@@ -58,7 +58,7 @@ static inline void	handle_midi(void) {
 					/// WRITE NOTE STOP
 					pattern = g_editor->pattern;
 					if (g_editor->pattern_col < pattern->note_count) {
-						column = pattern->notes[g_editor->pattern_col];
+						column = &(pattern->notes[g_editor->pattern_col]);
 						line = &(column->lines[g_editor->pattern_line]);
 						if (g_editor->pattern_cell == 0) {
 							/// ON CELL EMPTY
@@ -313,7 +313,7 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 	this->pattern_char = 0;
 	/// [2] HANDLE ON/OFF VIEW MODES
 	if (this->pattern_col < pattern->note_count) {
-		note_col = pattern->notes[this->pattern_col];
+		note_col = &(pattern->notes[this->pattern_col]);
 		/// TO RIGHT
 		if (delta_x > 0) {
 			//// VELOCITY
@@ -359,7 +359,7 @@ void Editor::pattern_move_cursor_x(int delta_x) {
 	while (i < this->pattern->note_count + this->pattern->cv_count) {
 		/// ON NOTE
 		if (i < this->pattern->note_count) {
-			note_col = this->pattern->notes[i];
+			note_col = &(this->pattern->notes[i]);
 			if (i == this->pattern_col) {
 				if (this->pattern_cell > 0)
 					x += 2;
@@ -455,7 +455,7 @@ void Editor::pattern_clamp_cursor(void) {
 		this->pattern_col = pattern->note_count + pattern->cv_count - 1;
 		/// NOTE COL
 		if (this->pattern_col < pattern->note_count) {
-			col_note = pattern->notes[this->pattern_col];
+			col_note = &(pattern->notes[this->pattern_col]);
 			this->pattern_cell = 7 + 2 * col_note->fx_count - 1;
 		/// CV COL
 		} else { 
@@ -474,7 +474,7 @@ void Editor::pattern_clamp_cursor(void) {
 		} else {
 			/// FALL ON NOTE COL
 			if (this->pattern_col < pattern->note_count) {
-				col_note = pattern->notes[this->pattern_col];
+				col_note = &(pattern->notes[this->pattern_col]);
 				this->pattern_cell = 7 + 2 * col_note->fx_count - 1;
 				/// CHECK ON/OFF VIEW MODES
 				//// EFFECT
@@ -497,7 +497,7 @@ void Editor::pattern_clamp_cursor(void) {
 	/// HANDLE CELL OVERFLOW
 	/// ON NOTE COL
 	if (this->pattern_col < pattern->note_count) {
-		col_note = pattern->notes[this->pattern_col];
+		col_note = &(pattern->notes[this->pattern_col]);
 		/// HANDLE COL NOTE OVERFLOW
 		if (this->pattern_cell >= 7 + 2 * col_note->fx_count) {
 			/// FROM NOTE TO CV

@@ -20,13 +20,21 @@
 
 # USER REPORT
 
-- [ ] New pattern already filled and un-editable
-- [ ] Crash on adding pattern / synth
+- [x] New pattern already filled and un-editable
+- [x] Crash on adding pattern / synth
+		-> Crash from ArrayExt when freing previous ptr while it should not
+			It should be NULL but can't find why it's not.
 - [x] Note effects not saved !
 
 # SELF REQUEST
 
-- [ ] CV Fx: note effect 'Mxy' set synth CV channel x to y (0 to 10)
+- [ ] Mod will recording as CV ?
+- [ ] CV Fx
+	- [ ] Note effect 'Mxy' set synth CV channel x to y (0v to 10v)
+		OR
+	- [ ] Note effect 'Mxx' set synth CV channel 0 to x (0v to 9.9v)
+		OR
+	- [ ] Both ? 'Mxx' & 'mxy'
 
 # USER REQUESTS
 

@@ -24,7 +24,7 @@
 #define PATTERN_EFFECT_VIBRATO_RAND		'v'	// vxy
 #define PATTERN_EFFECT_TREMOLO_RAND		't'	// txy
 #define PATTERN_EFFECT_CHANCE			'C'	// Cxx
-#define PATTERN_EFFECT_CHANCE_STOP	'c'	// cxx
+#define PATTERN_EFFECT_CHANCE_STOP		'c'	// cxx
 //#define PATTERN_EFFECT_RACHET			'R'	// Rxy
 
 #define PATTERN_NOTE_KEEP				0
@@ -147,21 +147,23 @@ struct PatternCVCol {
 	u8							mode;		// CV | BPM
 	u8							synth;		// CV synth output
 	u8							channel;	// CV synth channel output
-	PatternCV					lines[0];	// CVs (memory as struct extension)
+	std::vector<PatternCV>		lines;
+	//PatternCV					lines[0];	// CVs (memory as struct extension)
 };
 
 struct PatternNoteCol {
 	u8							fx_count;
-	//u8							fx_velocity;
-	//u8							fx_panning;
-	//u8							fx_delay;
-	//u8							fx_chance;
-	//u8							fx_chance_mode;
-	//u8							fx_octave;
-	//u8							fx_octave_mode;
-	//u8							fx_pitch;
-	//u8							muted;
-	PatternNote					lines[0];	// Notes (memory as struct extension)
+	//u8						fx_velocity;
+	//u8						fx_panning;
+	//u8						fx_delay;
+	//u8						fx_chance;
+	//u8						fx_chance_mode;
+	//u8						fx_octave;
+	//u8						fx_octave_mode;
+	//u8						fx_pitch;
+	//u8						muted;
+	std::vector<PatternNote>	lines;
+	//PatternNote				lines[0];	// Notes (memory as struct extension)
 };
 
 struct PatternSource {
@@ -171,8 +173,8 @@ struct PatternSource {
 	u16							line_count;	// Lines per column
 	u16							note_count;	// Note columns
 	u16							cv_count;	// CV columns
-	ArrayExt<PatternNoteCol>	notes;		// Col X Note lines
-	ArrayExt<PatternCVCol>		cvs;		// Col X CV lines
+	PatternNoteCol				notes[32];	// Note columns & lines content
+	PatternCVCol				cvs[32];	// CV columns & lines content
 	u8							lpb;		// Lines per beat
 	u16							line_play;	// Playing line
 	float						line_phase;	// Playing line phase
@@ -349,6 +351,7 @@ struct Timeline {
 	PatternSource	*pattern_new(int note_count, int cv_count, int beat_count, int lpb);
 	void			pattern_del(PatternSource *source);
 	void			pattern_swap(PatternSource *source_a, PatternSource *source_b);
+	void			pattern_dup(PatternSource *source);
 	Synth			*synth_new(void);
 	void			synth_del(Synth *synth);
 	void			synth_swap(Synth *synth_a, Synth *synth_b);
