@@ -18,41 +18,66 @@ void Omega::spread(
 	bool	curve_order,
 	float	from,
 	float	to) {
-	float	t;
-	int		i;
+	bool	curve_reverse;
+	float_4	curve_ratio;
+	float_4	t;
+	int		i, j;
 
 	output->setChannels(channels);
 
-	for (i = 0; i < channels; ++i) {
+	if (curve >= 0) {
+		curve_ratio = std::pow(2, curve * 2.0);
+		curve_reverse = true;
+	} else {
+		curve_ratio = std::pow(2, -curve * 2.0);
+		curve_reverse = false;
+	}
+
+	for (i = 0; i < channels; i += 4) {
 
 		/// [1] INIT PHASE
-		t = (float)i / (float)channels;
+		for (j = 0; j < 4; ++j) {
+			t[j] = (float)(i + j) / (float)channels;
+			if (t[j] < 0.00001)
+				t[j] = 0.00001;
+		}
 
 		/// [2] HANDLE CURVE (PRE)
-		if (curve_order == 0)
-			t = std::pow(t, std::pow(2, curve * 2.0));
+		if (curve_order == 0) {
+			if (curve_reverse)
+				t = 1.0 - simd::pow(1.0 - t, curve_ratio);
+			else
+				t = simd::pow(t, curve_ratio);
+		}
 
 		/// [3] HANDLE PHASE
-		t = fmod(fmod(t + phase, 1.0) + 1.0, 1.0);
+		t = simd::fmod(simd::fmod(t + phase, 1.0) + 1.0, 1.0);
 
 		/// [4] HANDLE SHAPE
-		//// WAVE UP
-		if (t < shape) {
-			/// AVOID ZERO DIVISION
-			if (shape > 0.0001)
-				t = 1.0 - (1.0 - (t / shape));
-		//// WAVE DOWN
-		} else {
-			/// AVOID ZERO DIVISION
-			if (shape < 0.9999)
-				t = 1.0 - ((t - shape) / (1.0 - shape));
+		for (j = 0; j < 4; ++j) {
+			//// WAVE UP
+			if (t[j] < shape) {
+				/// AVOID ZERO DIVISION
+				if (shape > 0.0001)
+					t[j] = 1.0 - (1.0 - (t[j] / shape));
+			//// WAVE DOWN
+			} else {
+				/// AVOID ZERO DIVISION
+				if (shape < 0.9999)
+					t[j] = 1.0 - ((t[j] - shape) / (1.0 - shape));
+			}
 		}
 
 		/// [5] HANDLE CURVE (POST)
-		if (curve_order == 1)
-			t = std::pow(t, std::pow(2, curve * 2.0));
+		if (curve_order == 1) {
+			if (curve_reverse)
+				t = 1.0 - simd::pow(1.0 - t, curve_ratio);
+			else
+				t = simd::pow(t, curve_ratio);
+		}
 
 		/// [6] HANDLE RANGE
-		output->setVoltage(from * (1.0 - t) + to * t, i);
+		for (j = 0; j < 4; ++j)
+			output->setVoltage(from * (1.0 - t[j]) + to * t[j], i + j);
 	}
 }

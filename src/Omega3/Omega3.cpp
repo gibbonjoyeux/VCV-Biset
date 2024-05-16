@@ -38,9 +38,6 @@ void Omega3::process(const ProcessArgs& args) {
 	bool	curve_order;
 	int		channels;
 
-	if (args.frame % 32 != 0)
-		return;
-
 	/// [1] GET PARAMETERS
 
 	channels = params[PARAM_POLYPHONY].getValue();

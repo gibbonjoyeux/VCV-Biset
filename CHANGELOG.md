@@ -1,7 +1,37 @@
 
 # Change log
 
-## 2.0.12 (work in progress)
+## 2.0.13 (work in progress)
+
+- Tracker
+	- [ ] Extra
+		- [ ] New Fx restart pattern playhead (with chance)
+	- [ ] Fixes
+		- [ ] Fix note fx save
+		- [ ] Fix New pattern crash / populated
+		- [ ] T-Synth/T-Drum CV mapping issue
+		- [ ] T-Synth/T-Drum velocity / panning jump clicking (slew limiter)
+	- [ ] New Information Display
+		- [ ] Pattern
+			- [ ] Display column synth
+			- [ ] Display column cell (note, velo, panning, ...)
+			- [ ] Display fx help
+		- [ ] Timeline
+			- [ ] Display current time / total time (beats)
+	- [ ] Midi
+		- [ ] Record midi velocity
+		- [ ] Record polyphony
+	- [ ] Shortcuts
+		- [ ] Shortcut -/+ semitone
+		- [ ] Shortcut -/+ octave
+		- [ ] Shortcut play / pause
+- IGC
+	- [ ] Fix anti-click burst of noise (see simd)
+	- [ ] Adaptative samplerate
+- Omega-3 + Omega-6
+	- [x] Audiorate
+
+## 2.0.12 (apr 8, 2024)
 
 - Tracker
 	- [x] Added CV interpolation curve controls

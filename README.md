@@ -26,6 +26,8 @@ sound design and controls !
 **patterns** arranged in a **timeline**.
 It can be used to build complex **tracks** or for **live performance**.
 
+[Omri Cohen walk through](https://www.youtube.com/watch?v=cjwxdw0tEjI)
+
 [Tracker walk through](https://www.youtube.com/watch?v=dUq9HsWwDsw)
 
 [Tracker manual](./doc/Manual-Tracker.pdf)
