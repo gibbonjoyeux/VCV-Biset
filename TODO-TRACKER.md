@@ -45,7 +45,7 @@
 	- [ ] Pattern mode: Active column / cell / note effect information
 	- [ ] Timeline mode: Current time & total time (in beats) 
 - [ ] Shortcuts
-	- [ ] Transpose shortcut (ctrl + arrows = semitone ; maj + arrows = octave)
+	- [x] Transpose shortcut (ctrl + arrows = semitone ; maj + arrows = octave)
 	- [ ] Play / pause shortcuts
 - [x] Slew limiter to panning & velocity in synth module (avoid click)
 - [x] Synth module needs CV output to be connected even with mapping

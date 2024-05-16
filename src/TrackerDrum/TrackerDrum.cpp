@@ -40,7 +40,7 @@ TrackerDrum::TrackerDrum() {
 	this->map_learn = false;
 	this->map_learn_cv = 0;
 	this->map_learn_map = 0;
-	for (i = 0; i < 16; i++) {
+	for (i = 0; i < 12; i++) {
 		this->panning[i] = 0.0;
 		this->velocity[i] = 10.0;
 	}

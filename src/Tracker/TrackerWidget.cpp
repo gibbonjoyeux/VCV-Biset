@@ -228,45 +228,14 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 }
 
 void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
-	bool	mode_pattern;
-	bool	mode_timeline;
-	bool	mode_matrix;
-	bool	mode_tuning;
-	bool	mode_tmp;
-
 	if (g_module == NULL || g_editor == NULL)
 		return;
 
 	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_CONTROL))
 		return;
 
-	/// [1] CHANGE VIEW MODE
-	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_SHIFT)
-	&& (e.key == GLFW_KEY_LEFT || e.key == GLFW_KEY_RIGHT)) {
-		e.consume(this);
-		mode_pattern = g_module->params[Tracker::PARAM_MODE_PATTERN].getValue();
-		mode_timeline = g_module->params[Tracker::PARAM_MODE_TIMELINE].getValue();
-		mode_matrix = g_module->params[Tracker::PARAM_MODE_MATRIX].getValue();
-		mode_tuning = g_module->params[Tracker::PARAM_MODE_TUNING].getValue();
-		if (e.key == GLFW_KEY_LEFT) {
-			mode_tmp = mode_pattern;
-			mode_pattern = mode_timeline;
-			mode_timeline = mode_matrix;
-			mode_matrix = mode_tuning;
-			mode_tuning = mode_tmp;
-		} else {
-			mode_tmp = mode_tuning;
-			mode_tuning = mode_matrix;
-			mode_matrix = mode_timeline;
-			mode_timeline = mode_pattern;
-			mode_pattern = mode_tmp;
-		}
-		g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(mode_pattern);
-		g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(mode_timeline);
-		g_module->params[Tracker::PARAM_MODE_MATRIX].setValue(mode_matrix);
-		g_module->params[Tracker::PARAM_MODE_TUNING].setValue(mode_tuning);
-	}
-	/// [2] EDIT PATTERN & TIMELINE
+	/// [1] EDIT PATTERN & TIMELINE
+
 	if (g_editor->mode == EDITOR_MODE_PATTERN)
 		this->display->on_key_pattern(e);
 	else if (g_editor->mode == EDITOR_MODE_TIMELINE)
@@ -360,6 +329,7 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 	menu->addChild(rack::createSubmenuItem("Shortcuts pattern", "",
 		[=](Menu *menu) {
 			menu->addChild(new MenuItemStay("Arrows", "Move cursor", [=](){}));
+			menu->addChild(new MenuItemStay("Shift + Arrows", "Change value", [=](){}));
 			menu->addChild(new MenuItemStay("Backspace", "Clear line", [=](){}));
 			menu->addChild(new MenuItemStay("Delete", "Delete line", [=](){}));
 			menu->addChild(new MenuItemStay("Insert", "Insert line", [=](){}));
