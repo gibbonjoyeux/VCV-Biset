@@ -40,6 +40,10 @@ TrackerDrum::TrackerDrum() {
 	this->map_learn = false;
 	this->map_learn_cv = 0;
 	this->map_learn_map = 0;
+	for (i = 0; i < 16; i++) {
+		this->panning[i] = 0.0;
+		this->velocity[i] = 10.0;
+	}
 }
 
 TrackerDrum::~TrackerDrum() {
@@ -64,9 +68,13 @@ void TrackerDrum::process(const ProcessArgs& args) {
 	synth = &(g_timeline->synths[(int)this->params[PARAM_SYNTH].getValue()]);
 	/// SET OUTPUT SYNTH
 	for (i = 0; i < 12; ++i) {
+		this->velocity[i] = this->velocity[i] * 0.98
+		/**/ + synth->out_synth[i * 4 + 2] * 0.02;
+		this->panning[i] = this->panning[i] * 0.98
+		/**/ + synth->out_synth[i * 4 + 3] * 0.02;
 		this->outputs[OUTPUT_TRIGGER + i].setVoltage(synth->out_synth[i * 4 + 1]);
-		this->outputs[OUTPUT_VELOCITY + i].setVoltage(synth->out_synth[i * 4 + 2]);
-		this->outputs[OUTPUT_PANNING + i].setVoltage(synth->out_synth[i * 4 + 3]);
+		this->outputs[OUTPUT_VELOCITY + i].setVoltage(this->velocity[i]);
+		this->outputs[OUTPUT_PANNING + i].setVoltage(this->panning[i]);
 	}
 	/// SET OUTPUT CV
 	for (i = 0; i < 8; ++i) {

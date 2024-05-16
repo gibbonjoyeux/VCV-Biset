@@ -47,7 +47,7 @@
 - [ ] Shortcuts
 	- [ ] Transpose shortcut (ctrl + arrows = semitone ; maj + arrows = octave)
 	- [ ] Play / pause shortcuts
-- [ ] Slew limiter to panning & velocity in synth module (avoid click)
+- [x] Slew limiter to panning & velocity in synth module (avoid click)
 - [x] Synth module needs CV output to be connected even with mapping
 - [ ] Polyphonic rotation rotate to find next available channel (if possible)
 - [ ] Pattern instance selection + edition
