@@ -200,7 +200,7 @@ static void save_track(json_t *root) {
 					/**/ json_integer(note->glide));
 
 					json_fxs = json_array();
-					json_object_set_new(json_note, "fxs", json_fxs);
+					json_object_set_new(json_note, "effects", json_fxs);
 
 					for (l = 0; l < note_col->fx_count; ++l) {
 						if (note->effects[l].type != 0) {
@@ -208,9 +208,9 @@ static void save_track(json_t *root) {
 							json_array_append_new(json_fxs, json_fx);
 
 							json_object_set_new(json_fx, "type",	// Fx type
-							/**/ json_integer(note->effects[i].type));
+							/**/ json_integer(note->effects[l].type));
 							json_object_set_new(json_fx, "value",	// Fx value
-							/**/ json_integer(note->effects[i].value));
+							/**/ json_integer(note->effects[l].value));
 						}
 					}
 				} else if (note->mode == PATTERN_NOTE_STOP) {

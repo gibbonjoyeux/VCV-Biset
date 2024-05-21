@@ -17,6 +17,8 @@
 #define DISPLAY_Y			5.0
 #define DISPLAY_SIDE_X		(DISPLAY_X + 192.5)	// 244
 #define DISPLAY_SIDE_Y		5.0
+#define DISPLAY_INFO_X		3.0
+#define DISPLAY_INFO_Y		75.0
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -60,6 +62,7 @@ static void set_scale(float *table) {
 TrackerWidget::TrackerWidget(Tracker* _module) {
 	TrackerDisplay			*display;
 	TrackerDisplaySide		*display_side;
+	TrackerDisplayInfo		*display_info;
 	LedDisplayDigit			*display_bpm;
 	LedDisplayDigit			*display_jump;
 	LedDisplayDigit			*display_octave;
@@ -169,6 +172,14 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	display_side->moduleWidget = this;
 	this->display_side = display_side;
 	addChild(display_side);
+
+	//// INFO LED DISPLAY
+	display_info = createWidget<TrackerDisplayInfo>(mm2px(Vec(DISPLAY_INFO_X, DISPLAY_INFO_Y)));
+	display_info->box.size = Vec(CHAR_W * 12, CHAR_H * 5);
+	display_info->module = module;
+	display_info->moduleWidget = this;
+	this->display_info = display_info;
+	addChild(display_info);
 
 	/// BPM SELECTOR
 	//// DISPLAY
@@ -329,7 +340,8 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 	menu->addChild(rack::createSubmenuItem("Shortcuts pattern", "",
 		[=](Menu *menu) {
 			menu->addChild(new MenuItemStay("Arrows", "Move cursor", [=](){}));
-			menu->addChild(new MenuItemStay("Shift + Arrows", "Change value", [=](){}));
+			menu->addChild(new MenuItemStay("Shift + ↓/↑", "Change value", [=](){}));
+			menu->addChild(new MenuItemStay("Shift + ←/→", "Change value (faster)", [=](){}));
 			menu->addChild(new MenuItemStay("Backspace", "Clear line", [=](){}));
 			menu->addChild(new MenuItemStay("Delete", "Delete line", [=](){}));
 			menu->addChild(new MenuItemStay("Insert", "Insert line", [=](){}));

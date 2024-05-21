@@ -603,10 +603,22 @@ struct TrackerDisplaySide : LedDisplay {
 			int cam_y, std::function<bool(int,char**,int*,bool*)>);
 };
 
+struct TrackerDisplayInfo : LedDisplay {
+	Tracker*					module;
+	ModuleWidget*				moduleWidget;
+	std::string					font_path;
+
+	TrackerDisplayInfo();
+
+	void draw(const DrawArgs &args) override;
+	void drawLayer(const DrawArgs& args, int layer) override;
+};
+
 struct TrackerWidget : ModuleWidget {
 	Tracker						*module;
 	TrackerDisplay				*display;
 	TrackerDisplaySide			*display_side;
+	TrackerDisplayInfo			*display_info;
 
 	TrackerWidget(Tracker* _module);
 

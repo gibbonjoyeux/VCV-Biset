@@ -83,24 +83,28 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 		if (g_editor->pattern) {
 
 			/// [A] SHIFT ON
-			if (g_editor->mod_shift) {
+			if (g_editor->mod_shift
+			&& (e.key == GLFW_KEY_LEFT
+			|| e.key == GLFW_KEY_RIGHT
+			|| e.key == GLFW_KEY_UP
+			|| e.key == GLFW_KEY_DOWN)) {
 
+				e.consume(this);
+
+				if (e.key == GLFW_KEY_LEFT)
+					inc = -2;
+				else if (e.key == GLFW_KEY_RIGHT)
+					inc = +2;
+				else if (e.key == GLFW_KEY_UP)
+					inc = +1;
+				else
+					inc = -1;
+
+				/// ON NOTE COLUMN
 				if (g_editor->pattern_col < g_editor->pattern->note_count) {
 
 					line_note = &(g_editor->pattern->notes[g_editor->pattern_col]
 					/**/ .lines[g_editor->pattern_line]);
-
-					if (e.key == GLFW_KEY_LEFT)
-						inc = -2;
-					else if (e.key == GLFW_KEY_RIGHT)
-						inc = +2;
-					else if (e.key == GLFW_KEY_UP)
-						inc = +1;
-					else if (e.key == GLFW_KEY_DOWN)
-						inc = -1;
-					else
-						return;
-					e.consume(this);
 
 					switch (g_editor->pattern_cell) {
 						/// PITCH
@@ -155,6 +159,37 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 								inc = (inc == -1) ? -1 : -10;
 							line_note->delay =
 							/**/ rack::clamp(line_note->delay + inc, 0, 99);
+							break;
+					}
+
+				/// ON CV COLUMN
+				} else {
+
+					line_cv = &(g_editor->pattern->cvs
+					/**/ [g_editor->pattern_col - g_editor->pattern->note_count]
+					/**/ .lines[g_editor->pattern_line]);
+
+					if (inc > 0)
+						inc = (inc == 1) ? 1 : 10;
+					else
+						inc = (inc == -1) ? -1 : -10;
+
+					switch (g_editor->pattern_cell) {
+						/// VALUE
+						case 0:
+							inc *= 10;
+							line_cv->value =
+							/**/ rack::clamp(line_cv->value + inc, 0, 999);
+							break;
+						/// CURVE
+						case 1:
+							line_cv->curve =
+							/**/ rack::clamp(line_cv->curve + inc, 0, 99);
+							break;
+						/// DELAY
+						case 2:
+							line_cv->delay =
+							/**/ rack::clamp(line_cv->delay + inc, 0, 99);
 							break;
 					}
 				}
@@ -456,6 +491,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 										if (line_cv->mode == PATTERN_CV_KEEP) {
 											line_cv->mode = PATTERN_CV_SET;
 											line_cv->curve = 50;
+											line_cv->delay = 0;
 										}
 										if (g_editor->pattern_char == 0) {
 											line_cv->value =
@@ -478,7 +514,7 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 								}
 								e.consume(this);
 								break;
-							/// GLIDE
+							/// CURVE
 							case 1:
 								key = key_dec(e);
 								if (key >= 0) {
