@@ -28,6 +28,7 @@ void TrackerDisplayInfo::draw(const DrawArgs &args) {
 }
 
 void TrackerDisplayInfo::drawLayer(const DrawArgs &args, int layer) {
+	char					buffer[12];
 	PatternNote				*line_note;
 	std::shared_ptr<Font>	font;
 	Rect					rect;
@@ -167,9 +168,34 @@ void TrackerDisplayInfo::drawLayer(const DrawArgs &args, int layer) {
 				}
 			/// ON CV
 			} else {
+				nvgFillColor(args.vg, colors[2]);
+				switch (g_editor->pattern_cell) {
+					/// VALUE
+					case 0:
+						nvgText(args.vg, 2, 2, "Value", NULL);
+						nvgText(args.vg, 2, 2 + CHAR_H, "[0:999]", NULL);
+						break;
+					/// CURVE
+					case 1:
+						nvgText(args.vg, 2, 2, "Curve", NULL);
+						nvgText(args.vg, 2, 2 + CHAR_H, "[0:99]", NULL);
+						break;
+					/// DELAY
+					case 2:
+						nvgText(args.vg, 2, 2, "Delay", NULL);
+						nvgText(args.vg, 2, 2 + CHAR_H, "[0:99]", NULL);
+						break;
+				}
 			}
 		}
 	} else if (g_editor->mode == EDITOR_MODE_TIMELINE) {
+		nvgFillColor(args.vg, colors[2]);
+		itoaw(buffer, g_timeline->clock.beat, 4);
+		buffer[4] = ' ';
+		buffer[5] = '/';
+		buffer[6] = ' ';
+		itoaw(buffer + 7, g_timeline->timeline_length - 1, 4);
+		nvgText(args.vg, 2, 2, buffer, NULL);
 	}
 	nvgResetScissor(args.vg);
 	LedDisplay::drawLayer(args, layer);

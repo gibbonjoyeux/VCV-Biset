@@ -461,8 +461,6 @@ struct Editor {
 	float						timeline_cam_y;
 
 	EditorLiveVoice				live_voices[128];	// Stores live voices and events
-	//SynthVoice*					live_voices[128];	// Stores live voices
-	//u8							live_states[128];	// Stores midi or keyboard events
 
 	Vec							mouse_pos;
 	Vec							mouse_pos_drag;
