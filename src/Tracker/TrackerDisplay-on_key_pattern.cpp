@@ -160,6 +160,30 @@ void TrackerDisplay::on_key_pattern(const Widget::SelectKeyEvent &e) {
 							line_note->delay =
 							/**/ rack::clamp(line_note->delay + inc, 0, 99);
 							break;
+						/// GLIDE
+						case 6:
+							if (line_note->mode == PATTERN_NOTE_NEW) {
+								line_note->mode = PATTERN_NOTE_GLIDE;
+								line_note->glide = 0;
+							}
+							if (inc > 0)
+								inc = (inc == 1) ? 1 : 10;
+							else
+								inc = (inc == -1) ? -1 : -10;
+							line_note->glide =
+							/**/ rack::clamp(line_note->glide + inc, 0, 99);
+							break;
+						/// EFFECTS
+						default:
+							effect = &(line_note->effects
+							/**/ [(g_editor->pattern_cell - 7) / 2]);
+							if (inc > 0)
+								inc = (inc == 1) ? 1 : 10;
+							else
+								inc = (inc == -1) ? -1 : -10;
+							effect->value =
+							/**/ rack::clamp(effect->value + inc, 0, 99);
+							break;
 					}
 
 				/// ON CV COLUMN
