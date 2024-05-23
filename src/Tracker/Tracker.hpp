@@ -212,7 +212,7 @@ struct PatternInstance {
 //////////////////////////////////////////////////
 /// Synth stores the basic synth output informations (synth index, channel
 ///  count, etc.).
-/// There are 64 synths stored in the global timeline structure. They can be
+/// There are 100 synths stored in the global timeline structure. They can be
 ///  accessed from anywere.
 /// Synth stores 32 SynthVoice to process (play) a voice.
 /// Synth stores its outputs (notes and cv) that can be accessed by the

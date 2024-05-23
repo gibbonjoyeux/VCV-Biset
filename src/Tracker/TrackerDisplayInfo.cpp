@@ -28,8 +28,9 @@ void TrackerDisplayInfo::draw(const DrawArgs &args) {
 }
 
 void TrackerDisplayInfo::drawLayer(const DrawArgs &args, int layer) {
-	char					buffer[5];
+	char					buffer[6];
 	PatternNote				*line_note;
+	PatternCVCol			*col_cv;
 	std::shared_ptr<Font>	font;
 	Rect					rect;
 	int						fx;
@@ -203,8 +204,18 @@ void TrackerDisplayInfo::drawLayer(const DrawArgs &args, int layer) {
 						}
 						break;
 				}
+				if (line_note->mode != PATTERN_NOTE_KEEP
+				&& line_note->synth < g_timeline->synth_count) {
+					nvgFillColor(args.vg, colors[5]);
+					nvgText(args.vg,
+					/**/ 2, 2 + CHAR_H * 4,
+					/**/ g_timeline->synths[line_note->synth].name,
+					/**/ NULL);
+				}
 			/// ON CV
 			} else {
+				col_cv = &(g_editor->pattern->cvs
+				/**/ [g_editor->pattern_col - g_editor->pattern->note_count]);
 				nvgFillColor(args.vg, colors[3]);
 				switch (g_editor->pattern_cell) {
 					/// VALUE
@@ -225,6 +236,26 @@ void TrackerDisplayInfo::drawLayer(const DrawArgs &args, int layer) {
 						nvgFillColor(args.vg, colors[4]);
 						nvgText(args.vg, 2, 2 + CHAR_H, "[0:99]", NULL);
 						break;
+				}
+				if (col_cv->synth < g_timeline->synth_count) {
+					/// SYNTH NAME
+					nvgFillColor(args.vg, colors[5]);
+					nvgText(args.vg,
+					/**/ 2, 2 + CHAR_H * 3,
+					/**/ g_timeline->synths[col_cv->synth].name,
+					/**/ NULL);
+
+					/// SYNTH CHANNEL
+					nvgFillColor(args.vg, colors[6]);
+					itoaw(buffer + 3, col_cv->channel + 1, 2);
+					buffer[0] = 'c';
+					buffer[1] = 'v';
+					buffer[2] = ' ';
+					buffer[5] = 0;
+					nvgText(args.vg,
+					/**/ 2, 2 + CHAR_H * 4,
+					/**/ buffer,
+					/**/ NULL);
 				}
 			}
 		}

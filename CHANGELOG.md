@@ -11,20 +11,20 @@
 		- [x] Fix New pattern crash / populated
 		- [x] T-Synth/T-Drum CV mapping issue
 		- [x] T-Synth/T-Drum velocity / panning jump clicking (slew limiter)
-	- [ ] New Information Display
-		- [ ] Pattern
-			- [ ] Display column synth
-			- [ ] Display column cell (note, velo, panning, ...)
-			- [ ] Display fx help
-		- [ ] Timeline
-			- [ ] Display current time / total time (beats)
+	- [x] New Information Display
+		- [x] Pattern
+			- [x] Display column synth
+			- [x] Display column cell (note, velo, panning, ...)
+			- [x] Display fx help
+		- [x] Timeline
+			- [x] Display current time / total time (beats)
 	- [ ] Midi
-		- [ ] Record midi velocity
+		- [x] Record midi velocity
 		- [ ] Record polyphony
 	- [ ] Shortcuts
 		- [x] Arrows to -/+ note semitone / octave
 		- [x] Arrows to -/+ note velo / panning / ...
-		- [ ] Arrows to -/+ note fx
+		- [x] Arrows to -/+ note fx
 		- [x] Arrows to -/+ CV
 		- [ ] Shortcut play / pause
 - IGC

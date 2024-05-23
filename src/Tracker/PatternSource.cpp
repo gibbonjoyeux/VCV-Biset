@@ -120,6 +120,7 @@ void PatternSource::context_menu(Menu *menu) {
 	/// ADD PATTERN LENGTH SLIDER
 	quant_length = (ParamQuantityLink*)
 	/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 0];
+	quant_length->displayOffset = 0;
 	quant_length->minValue = 1;
 	quant_length->maxValue = 999;
 	quant_length->defaultValue = this->beat_count;
@@ -129,9 +130,11 @@ void PatternSource::context_menu(Menu *menu) {
 	quant_length->precision = 0;
 	quant_length->setLink(NULL);
 	menu->addChild(new MenuSliderEdit(quant_length, 0));
+
 	/// ADD PATTERN LPB SLIDER
 	quant_lpb = (ParamQuantityLink*)
 	/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 1];
+	quant_lpb->displayOffset = 0;
 	quant_lpb->minValue = 1;
 	quant_lpb->maxValue = 32;
 	quant_lpb->defaultValue = this->lpb;
@@ -141,9 +144,11 @@ void PatternSource::context_menu(Menu *menu) {
 	quant_lpb->precision = 0;
 	quant_lpb->setLink(NULL);
 	menu->addChild(new MenuSliderEdit(quant_lpb, 0));
+
 	/// ADD PATTERN NOTE COUNT SLIDER
 	quant_note_count = (ParamQuantityLink*)
 	/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 2];
+	quant_note_count->displayOffset = 0;
 	quant_note_count->minValue = 0;
 	quant_note_count->maxValue = 32;
 	quant_note_count->defaultValue = this->note_count;
@@ -153,9 +158,11 @@ void PatternSource::context_menu(Menu *menu) {
 	quant_note_count->precision = 0;
 	quant_note_count->setLink(NULL);
 	menu->addChild(new MenuSliderEdit(quant_note_count, 0));
+
 	/// ADD PATTERN CV COUNT SLIDER
 	quant_cv_count = (ParamQuantityLink*)
 	/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 3];
+	quant_cv_count->displayOffset = 0;
 	quant_cv_count->minValue = 0;
 	quant_cv_count->maxValue = 32;
 	quant_cv_count->defaultValue = this->cv_count;
@@ -165,6 +172,7 @@ void PatternSource::context_menu(Menu *menu) {
 	quant_cv_count->precision = 0;
 	quant_cv_count->setLink(NULL);
 	menu->addChild(new MenuSliderEdit(quant_cv_count, 0));
+
 	/// ADD PATTERN UPDATE BUTTON
 	menu->addChild(createMenuItem("Update pattern", "",
 		[=]() {
@@ -181,6 +189,7 @@ void PatternSource::context_menu(Menu *menu) {
 			lpb = quant_lpb->getValue();
 			note_count = quant_note_count->getValue();
 			cv_count = quant_cv_count->getValue();
+
 			/// UPDATE PATTERN LENGTH
 			if (beat_count != g_editor->pattern->beat_count
 			|| lpb != g_editor->pattern->lpb

@@ -197,13 +197,16 @@ struct ParamQuantityLink : ParamQuantity {
 	void setValue(float value) override {
 		ParamQuantity::setValue(value);
 		if (this->link)
-			*(this->link) = value;
+			*(this->link) = value - this->displayOffset;
 	}
 
 	std::string getDisplayValueString() override {
-		if (precision == 0)
-			return rack::string::f("%d", (int)this->getValue());
-		return rack::string::f("%.*f", this->precision, this->getValue());
+		if (precision == 0) {
+			return rack::string::f("%d",
+			/**/ (int)(this->getValue() + this->displayOffset));
+		}
+		return rack::string::f("%.*f", this->precision,
+		/**/ this->getValue() + this->displayOffset);
 	}
 
 	void setLink(float *link) {

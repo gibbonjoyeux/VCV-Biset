@@ -110,6 +110,7 @@ void Synth::context_menu(Menu *menu) {
 	/// ADD SYNTH CHANNEL COUNT
 	quant_channel = (ParamQuantityLink*)
 	/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 0];
+	quant_channel->displayOffset = 0;
 	quant_channel->minValue = 1;
 	quant_channel->maxValue = 16;
 	quant_channel->defaultValue = this->channel_count;
@@ -122,6 +123,7 @@ void Synth::context_menu(Menu *menu) {
 	/// ADD SYNTH MODE
 	quant_mode = (ParamQuantityLink*)
 	/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 1];
+	quant_mode->displayOffset = 0;
 	quant_mode->minValue = 0;
 	quant_mode->maxValue = 2;
 	quant_mode->setValue(this->mode);

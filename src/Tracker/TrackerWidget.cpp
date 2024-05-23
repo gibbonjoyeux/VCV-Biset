@@ -175,7 +175,7 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 
 	//// INFO LED DISPLAY
 	display_info = createWidget<TrackerDisplayInfo>(mm2px(Vec(DISPLAY_INFO_X, DISPLAY_INFO_Y)));
-	display_info->box.size = Vec(CHAR_W * 12, CHAR_H * 5);
+	display_info->box.size = Vec(CHAR_W * 12 + 4, CHAR_H * 5 + 4);
 	display_info->module = module;
 	display_info->moduleWidget = this;
 	this->display_info = display_info;

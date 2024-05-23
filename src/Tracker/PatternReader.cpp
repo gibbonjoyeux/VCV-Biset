@@ -64,22 +64,24 @@ void PatternReader::process(
 					voice = this->voices[col];
 					/// NOTE NEW
 					if (note->mode == PATTERN_NOTE_NEW) {
-						/// ADD NEW NOTE
-						voice_new = synths[note->synth]
-						/**/ .add(col_note, note, pattern->lpb, &state);
-						if (state == VOICE_ADD_ADD
-						|| state == VOICE_ADD_STOP) {
-							/// STOP ACTIVE VOICE
-							if (voice) {
-								if (state == VOICE_ADD_ADD) {
-									if (voice != voice_new)
+						if (note->synth < 100) {
+							/// ADD NEW NOTE
+							voice_new = synths[note->synth]
+							/**/ .add(col_note, note, pattern->lpb, &state);
+							if (state == VOICE_ADD_ADD
+							|| state == VOICE_ADD_STOP) {
+								/// STOP ACTIVE VOICE
+								if (voice) {
+									if (state == VOICE_ADD_ADD) {
+										if (voice != voice_new)
+											voice->stop();
+									} else {
 										voice->stop();
-								} else {
-									voice->stop();
+									}
 								}
+								/// SAVE VOICE
+								this->voices[col] = voice_new;
 							}
-							/// SAVE VOICE
-							this->voices[col] = voice_new;
 						}
 					/// NOTE GLIDE
 					} else if (note->mode == PATTERN_NOTE_GLIDE) {
