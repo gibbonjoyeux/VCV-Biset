@@ -17,6 +17,8 @@
 #define DISPLAY_Y			5.0
 #define DISPLAY_SIDE_X		(DISPLAY_X + 192.5)	// 244
 #define DISPLAY_SIDE_Y		5.0
+#define DISPLAY_INFO_X		3.0
+#define DISPLAY_INFO_Y		75.0
 
 ////////////////////////////////////////////////////////////////////////////////
 /// PRIVATE FUNCTIONS
@@ -60,6 +62,7 @@ static void set_scale(float *table) {
 TrackerWidget::TrackerWidget(Tracker* _module) {
 	TrackerDisplay			*display;
 	TrackerDisplaySide		*display_side;
+	TrackerDisplayInfo		*display_info;
 	LedDisplayDigit			*display_bpm;
 	LedDisplayDigit			*display_jump;
 	LedDisplayDigit			*display_octave;
@@ -170,6 +173,14 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 	this->display_side = display_side;
 	addChild(display_side);
 
+	//// INFO LED DISPLAY
+	display_info = createWidget<TrackerDisplayInfo>(mm2px(Vec(DISPLAY_INFO_X, DISPLAY_INFO_Y)));
+	display_info->box.size = Vec(CHAR_W * 12 + 4, CHAR_H * 5 + 4);
+	display_info->module = module;
+	display_info->moduleWidget = this;
+	this->display_info = display_info;
+	addChild(display_info);
+
 	/// BPM SELECTOR
 	//// DISPLAY
 	display_bpm = createWidget<LedDisplayDigit>(mm2px(Vec(KNOB_X, KNOB_Y)));
@@ -228,45 +239,14 @@ TrackerWidget::TrackerWidget(Tracker* _module) {
 }
 
 void TrackerWidget::onSelectKey(const SelectKeyEvent &e) {
-	bool	mode_pattern;
-	bool	mode_timeline;
-	bool	mode_matrix;
-	bool	mode_tuning;
-	bool	mode_tmp;
-
 	if (g_module == NULL || g_editor == NULL)
 		return;
 
 	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_CONTROL))
 		return;
 
-	/// [1] CHANGE VIEW MODE
-	if (e.action == GLFW_PRESS && (e.mods & GLFW_MOD_SHIFT)
-	&& (e.key == GLFW_KEY_LEFT || e.key == GLFW_KEY_RIGHT)) {
-		e.consume(this);
-		mode_pattern = g_module->params[Tracker::PARAM_MODE_PATTERN].getValue();
-		mode_timeline = g_module->params[Tracker::PARAM_MODE_TIMELINE].getValue();
-		mode_matrix = g_module->params[Tracker::PARAM_MODE_MATRIX].getValue();
-		mode_tuning = g_module->params[Tracker::PARAM_MODE_TUNING].getValue();
-		if (e.key == GLFW_KEY_LEFT) {
-			mode_tmp = mode_pattern;
-			mode_pattern = mode_timeline;
-			mode_timeline = mode_matrix;
-			mode_matrix = mode_tuning;
-			mode_tuning = mode_tmp;
-		} else {
-			mode_tmp = mode_tuning;
-			mode_tuning = mode_matrix;
-			mode_matrix = mode_timeline;
-			mode_timeline = mode_pattern;
-			mode_pattern = mode_tmp;
-		}
-		g_module->params[Tracker::PARAM_MODE_PATTERN].setValue(mode_pattern);
-		g_module->params[Tracker::PARAM_MODE_TIMELINE].setValue(mode_timeline);
-		g_module->params[Tracker::PARAM_MODE_MATRIX].setValue(mode_matrix);
-		g_module->params[Tracker::PARAM_MODE_TUNING].setValue(mode_tuning);
-	}
-	/// [2] EDIT PATTERN & TIMELINE
+	/// [1] EDIT PATTERN & TIMELINE
+
 	if (g_editor->mode == EDITOR_MODE_PATTERN)
 		this->display->on_key_pattern(e);
 	else if (g_editor->mode == EDITOR_MODE_TIMELINE)
@@ -360,6 +340,8 @@ void TrackerWidget::appendContextMenu(Menu *menu) {
 	menu->addChild(rack::createSubmenuItem("Shortcuts pattern", "",
 		[=](Menu *menu) {
 			menu->addChild(new MenuItemStay("Arrows", "Move cursor", [=](){}));
+			menu->addChild(new MenuItemStay("Shift + ↓/↑", "Change value", [=](){}));
+			menu->addChild(new MenuItemStay("Shift + ←/→", "Change value (faster)", [=](){}));
 			menu->addChild(new MenuItemStay("Backspace", "Clear line", [=](){}));
 			menu->addChild(new MenuItemStay("Delete", "Delete line", [=](){}));
 			menu->addChild(new MenuItemStay("Insert", "Insert line", [=](){}));

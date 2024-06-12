@@ -67,7 +67,7 @@ static void load_track(json_t *root) {
 		json_cols = json_object_get(json_pattern, "notes");
 		json_array_foreach(json_cols, j, json_col) {
 
-			note_col = pattern->notes[j];
+			note_col = &(pattern->notes[j]);
 
 			// TODO - Muted
 			// TODO - Fx velo
@@ -147,7 +147,7 @@ static void load_track(json_t *root) {
 		json_cols = json_object_get(json_pattern, "cvs");
 		json_array_foreach(json_cols, j, json_col) {
 
-			cv_col = pattern->cvs[j];
+			cv_col = &(pattern->cvs[j]);
 
 			cv_col->mode = json_integer_value(			// Column mode (cv / bpm)
 			/**/ json_object_get(json_col, "mode"));

@@ -34,6 +34,8 @@ struct TrackerSynth: Module {
 	bool				map_learn;
 	int					map_learn_cv;
 	int					map_learn_map;
+	float				panning[16];
+	float				velocity[16];
 
 	TrackerSynth();
 	~TrackerSynth();

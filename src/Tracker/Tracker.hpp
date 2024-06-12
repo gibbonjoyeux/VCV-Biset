@@ -24,7 +24,7 @@
 #define PATTERN_EFFECT_VIBRATO_RAND		'v'	// vxy
 #define PATTERN_EFFECT_TREMOLO_RAND		't'	// txy
 #define PATTERN_EFFECT_CHANCE			'C'	// Cxx
-#define PATTERN_EFFECT_CHANCE_STOP	'c'	// cxx
+#define PATTERN_EFFECT_CHANCE_STOP		'c'	// cxx
 //#define PATTERN_EFFECT_RACHET			'R'	// Rxy
 
 #define PATTERN_NOTE_KEEP				0
@@ -147,21 +147,23 @@ struct PatternCVCol {
 	u8							mode;		// CV | BPM
 	u8							synth;		// CV synth output
 	u8							channel;	// CV synth channel output
-	PatternCV					lines[0];	// CVs (memory as struct extension)
+	std::vector<PatternCV>		lines;
+	//PatternCV					lines[0];	// CVs (memory as struct extension)
 };
 
 struct PatternNoteCol {
 	u8							fx_count;
-	//u8							fx_velocity;
-	//u8							fx_panning;
-	//u8							fx_delay;
-	//u8							fx_chance;
-	//u8							fx_chance_mode;
-	//u8							fx_octave;
-	//u8							fx_octave_mode;
-	//u8							fx_pitch;
-	//u8							muted;
-	PatternNote					lines[0];	// Notes (memory as struct extension)
+	//u8						fx_velocity;
+	//u8						fx_panning;
+	//u8						fx_delay;
+	//u8						fx_chance;
+	//u8						fx_chance_mode;
+	//u8						fx_octave;
+	//u8						fx_octave_mode;
+	//u8						fx_pitch;
+	//u8						muted;
+	std::vector<PatternNote>	lines;
+	//PatternNote				lines[0];	// Notes (memory as struct extension)
 };
 
 struct PatternSource {
@@ -171,8 +173,8 @@ struct PatternSource {
 	u16							line_count;	// Lines per column
 	u16							note_count;	// Note columns
 	u16							cv_count;	// CV columns
-	ArrayExt<PatternNoteCol>	notes;		// Col X Note lines
-	ArrayExt<PatternCVCol>		cvs;		// Col X CV lines
+	PatternNoteCol				notes[32];	// Note columns & lines content
+	PatternCVCol				cvs[32];	// CV columns & lines content
 	u8							lpb;		// Lines per beat
 	u16							line_play;	// Playing line
 	float						line_phase;	// Playing line phase
@@ -210,7 +212,7 @@ struct PatternInstance {
 //////////////////////////////////////////////////
 /// Synth stores the basic synth output informations (synth index, channel
 ///  count, etc.).
-/// There are 64 synths stored in the global timeline structure. They can be
+/// There are 100 synths stored in the global timeline structure. They can be
 ///  accessed from anywere.
 /// Synth stores 32 SynthVoice to process (play) a voice.
 /// Synth stores its outputs (notes and cv) that can be accessed by the
@@ -349,6 +351,7 @@ struct Timeline {
 	PatternSource	*pattern_new(int note_count, int cv_count, int beat_count, int lpb);
 	void			pattern_del(PatternSource *source);
 	void			pattern_swap(PatternSource *source_a, PatternSource *source_b);
+	void			pattern_dup(PatternSource *source);
 	Synth			*synth_new(void);
 	void			synth_del(Synth *synth);
 	void			synth_swap(Synth *synth_a, Synth *synth_b);
@@ -365,6 +368,12 @@ struct Timeline {
 ///  Such as active row, line, cell, etc.
 //////////////////////////////////////////////////
 
+struct EditorLiveVoice {
+	SynthVoice*					voice;		// Stores live voices
+	u8							state;		// Stores live midi or keyboard events
+	u8							velocity;	// Stores live event velocity
+};
+
 struct EditorSwitch {
 	bool						state;
 	float						previous_input;
@@ -378,6 +387,45 @@ struct EditorTrigger : dsp::BooleanTrigger {
 };
 
 struct Editor {
+
+	//
+	// mode: Pannel mode (timeline / pattern / matrix / tuning)
+	// recording: Recording state (when True, the cursor follows the playhead)
+	// selected: Pannel / module selection state
+	// pattern_id: Active pattern id (or -1)
+	// pattern: Active pattern
+	// synth_id: Active synth id (or -1)
+	// synth: Active synth
+	// instance: Active instance
+	// instance_row: Active instance row
+	// instance_beat: Active instance beat
+	// instance_handle: Active instance moving handle (left / right / middle)
+	//
+	// pattern_track:
+	// pattern_line:
+	// pattern_col:
+	// pattern_cell:
+	// pattern_char:
+	// pattern_cam_x:
+	// pattern_cam_y:
+	// pattern_view_velo:
+	// pattern_view_pan:
+	// pattern_view_glide:
+	// pattern_view_delay:
+	// pattern_view_fx:
+	// pattern_octave:
+	// pattern_jump:
+	//
+	// timeline_column:
+	// timeline_line:
+	// timeline_cell:
+	// timeline_char:
+	// timeline_cam_x:
+	// timeline_cam_y:
+	//
+	// live_voices: Stores live voices and events (played with keyboard or midi)
+	//
+
 	int							mode;			// Pattern / Timeline / Param
 	bool						recording;
 	bool						selected;
@@ -412,8 +460,7 @@ struct Editor {
 	float						timeline_cam_x;
 	float						timeline_cam_y;
 
-	SynthVoice*					live_voices[128];	// Stores live voices
-	u8							live_states[128];	// Stores midi or keyboard events
+	EditorLiveVoice				live_voices[128];	// Stores live voices and events
 
 	Vec							mouse_pos;
 	Vec							mouse_pos_drag;
@@ -554,10 +601,22 @@ struct TrackerDisplaySide : LedDisplay {
 			int cam_y, std::function<bool(int,char**,int*,bool*)>);
 };
 
+struct TrackerDisplayInfo : LedDisplay {
+	Tracker*					module;
+	ModuleWidget*				moduleWidget;
+	std::string					font_path;
+
+	TrackerDisplayInfo();
+
+	void draw(const DrawArgs &args) override;
+	void drawLayer(const DrawArgs& args, int layer) override;
+};
+
 struct TrackerWidget : ModuleWidget {
 	Tracker						*module;
 	TrackerDisplay				*display;
 	TrackerDisplaySide			*display_side;
+	TrackerDisplayInfo			*display_info;
 
 	TrackerWidget(Tracker* _module);
 

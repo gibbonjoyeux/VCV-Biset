@@ -25,7 +25,7 @@ static void get_cell(
 	x_aim = (int)((e.pos.x - 2.0) / CHAR_W) - 2 + g_editor->pattern_cam_x;
 	//// FOR EACH NOTE COLUMN
 	for (i = 0; i < pattern->note_count; ++i) {
-		col_note = pattern->notes[i];
+		col_note = &(pattern->notes[i]);
 		/// PITCH
 		x += 2;
 		if (x >= x_aim) {
@@ -176,10 +176,11 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 
 	/// COLUMN AS NOTE COLUMN
 	if (g_editor->pattern_col < g_editor->pattern->note_count) {
-		col_note = g_editor->pattern->notes[g_editor->pattern_col];
+		col_note = &(g_editor->pattern->notes[g_editor->pattern_col]);
 		/// ADD COLUMN EFFECT COUNT SLIDER
 		quant_fx_count = (ParamQuantityLink*)
 		/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 4];
+		quant_fx_count->displayOffset = 0;
 		quant_fx_count->minValue = 0;
 		quant_fx_count->maxValue = 16;
 		quant_fx_count->defaultValue = col_note->fx_count;
@@ -200,7 +201,7 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 				while (g_timeline->thread_flag.test_and_set()) {}
 
 				/// UPDATE PATTERN COLUMNS
-				col_note = g_editor->pattern->notes[g_editor->pattern_col];
+				col_note = &(g_editor->pattern->notes[g_editor->pattern_col]);
 				count = g_module->params[Tracker::PARAM_MENU + 4]
 				/**/ .getValue();
 				if (count != col_note->fx_count)
@@ -210,14 +211,16 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 				g_timeline->thread_flag.clear();
 			}
 		));
+
 	/// COLUMN AS CV COLUMN
 	} else if (g_editor->pattern_col
 	< g_editor->pattern->note_count + g_editor->pattern->cv_count) {
-		col_cv = g_editor->pattern->cvs
-		/**/ [g_editor->pattern_col - g_editor->pattern->note_count];
+		col_cv = &(g_editor->pattern->cvs
+		/**/ [g_editor->pattern_col - g_editor->pattern->note_count]);
 		/// ADD COLUMN MODE LIST
 		quant_mode = (ParamQuantityLink*)
 		/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 4];
+		quant_mode->displayOffset = 0;
 		quant_mode->minValue = 0;
 		quant_mode->maxValue = 3;
 		quant_mode->defaultValue = col_cv->mode;
@@ -245,6 +248,7 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 		/// ADD COLUMN SYNTH SELECT SLIDER
 		quant_synth = (ParamQuantityLink*)
 		/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 5];
+		quant_synth->displayOffset = 0;
 		quant_synth->minValue = 0;
 		quant_synth->maxValue = 99;
 		quant_synth->defaultValue = col_cv->synth;
@@ -257,6 +261,7 @@ static void on_button_right(const rack::Widget::ButtonEvent &e) {
 		/// ADD COLUMN SYNTH CHANNEL SELECT SLIDER
 		quant_channel = (ParamQuantityLink*)
 		/**/ g_module->paramQuantities[Tracker::PARAM_MENU + 6];
+		quant_channel->displayOffset = 1;
 		quant_channel->minValue = 0;
 		quant_channel->maxValue = 7;
 		quant_channel->defaultValue = col_cv->channel;

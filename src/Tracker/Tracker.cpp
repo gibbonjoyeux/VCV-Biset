@@ -24,8 +24,8 @@ static void process_midi_message(midi::Message *msg) {
 			/// STOP LIVE NOTE
 			g_editor->live_stop(pitch);
 			/// WRITE NOTE STOP
-			if (g_editor->live_states[pitch] == NOTE_STATE_ON)
-				g_editor->live_states[pitch] = NOTE_STATE_STOP;
+			if (g_editor->live_voices[pitch].state == NOTE_STATE_ON)
+				g_editor->live_voices[pitch].state = NOTE_STATE_STOP;
 		} break;
 		// NOTE ON
 		case 0x9: {
@@ -35,18 +35,21 @@ static void process_midi_message(midi::Message *msg) {
 				return;
 			/// VELOCITY > 0
 			if (velocity > 0) {
+				velocity = ((float)velocity / 127.0) * 99.0;
 				/// STOP LIVE NOTE
-				g_editor->live_play(pitch, ((float)velocity / 127.0) * 99.0);
+				g_editor->live_play(pitch, velocity);
 				/// WRITE NOTE START
-				if (g_editor->selected)
-					g_editor->live_states[pitch] = NOTE_STATE_START;
+				if (g_editor->selected) {
+					g_editor->live_voices[pitch].state = NOTE_STATE_START;
+					g_editor->live_voices[pitch].velocity = velocity;
+				}
 			/// VELOCITY = 0 (NOTE OFF)
 			} else {
 				/// STOP LIVE NOTE
 				g_editor->live_stop(pitch);
 				/// WRITE NOTE STOP
-				if (g_editor->live_states[pitch] == NOTE_STATE_ON)
-					g_editor->live_states[pitch] = NOTE_STATE_STOP;
+				if (g_editor->live_voices[pitch].state == NOTE_STATE_ON)
+					g_editor->live_voices[pitch].state = NOTE_STATE_STOP;
 			}
 		} break;
 		// KEY PRESSURE

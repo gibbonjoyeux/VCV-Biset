@@ -40,6 +40,10 @@ TrackerDrum::TrackerDrum() {
 	this->map_learn = false;
 	this->map_learn_cv = 0;
 	this->map_learn_map = 0;
+	for (i = 0; i < 12; i++) {
+		this->panning[i] = 0.0;
+		this->velocity[i] = 10.0;
+	}
 }
 
 TrackerDrum::~TrackerDrum() {
@@ -64,12 +68,17 @@ void TrackerDrum::process(const ProcessArgs& args) {
 	synth = &(g_timeline->synths[(int)this->params[PARAM_SYNTH].getValue()]);
 	/// SET OUTPUT SYNTH
 	for (i = 0; i < 12; ++i) {
+		this->velocity[i] = this->velocity[i] * 0.98
+		/**/ + synth->out_synth[i * 4 + 2] * 0.02;
+		this->panning[i] = this->panning[i] * 0.98
+		/**/ + synth->out_synth[i * 4 + 3] * 0.02;
 		this->outputs[OUTPUT_TRIGGER + i].setVoltage(synth->out_synth[i * 4 + 1]);
-		this->outputs[OUTPUT_VELOCITY + i].setVoltage(synth->out_synth[i * 4 + 2]);
-		this->outputs[OUTPUT_PANNING + i].setVoltage(synth->out_synth[i * 4 + 3]);
+		this->outputs[OUTPUT_VELOCITY + i].setVoltage(this->velocity[i]);
+		this->outputs[OUTPUT_PANNING + i].setVoltage(this->panning[i]);
 	}
 	/// SET OUTPUT CV
 	for (i = 0; i < 8; ++i) {
+		/// CV AS VOLTAGE
 		if (this->outputs[OUTPUT_CV + i].isConnected()) {
 			/// MAP FROM [0:1] TO [MIN:MAX]
 			cv_min = this->params[PARAM_OUT_MIN + i].getValue();
@@ -77,17 +86,17 @@ void TrackerDrum::process(const ProcessArgs& args) {
 			cv = (synth->out_cv[i] * (cv_max - cv_min)) + cv_min;
 			/// SET CV
 			this->outputs[OUTPUT_CV + i].setVoltage(cv);
-			/// SET MAPPED PARAMS
-			for (j = 0; j < 4; ++j) {
-				handle = &(this->map_handles[i][j]);
-				if (handle->module) {
-					quantity = handle->module->getParamQuantity(handle->paramId);
-					if (quantity) {
-						cv_min = handle->min;
-						cv_max = handle->max;
-						cv = (synth->out_cv[i] * (cv_max - cv_min)) + cv_min;
-						quantity->setValue(cv);
-					}
+		}
+		/// CV AS MAPPED PARAM
+		for (j = 0; j < 4; ++j) {
+			handle = &(this->map_handles[i][j]);
+			if (handle->module) {
+				quantity = handle->module->getParamQuantity(handle->paramId);
+				if (quantity) {
+					cv_min = handle->min;
+					cv_max = handle->max;
+					cv = (synth->out_cv[i] * (cv_max - cv_min)) + cv_min;
+					quantity->setValue(cv);
 				}
 			}
 		}

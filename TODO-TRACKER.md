@@ -8,15 +8,53 @@
 # BUGS
 
 - ! ! ! Check for 'TODO:' in files
-- ! ! ! Crash: Crash on pattern when play whole song
 - Pattern instances can have a negative `beat_start` but should not
-- Check `thread_flag` CPU usage
 
 # THINK ABOUT
 
 - Try to use `APP->event->heldKeys`
 	-> https://vcvrack.com/docs-v2/structrack_1_1widget_1_1EventState#aa6bf4a0628b3cabdffc769419d47f649
 	-> https://github.com/VCVRack/Rack/blob/8c6f41b778b4bf8860b89b36d5503fd37924077f/src/window/Window.cpp#L229
+
+# USER REPORT
+
+- [x] New pattern already filled and un-editable
+- [x] Crash on adding pattern / synth
+		-> Crash from ArrayExt when freing previous ptr while it should not
+			It should be NULL but can't find why it's not.
+- [x] Note effects not saved !
+
+# SELF REQUEST
+
+- [ ] Mod will recording as CV ?
+- [ ] CV Fx
+	- [ ] Note effect 'Mxy' set synth CV channel x to y (0v to 10v)
+		OR
+	- [ ] Note effect 'Mxx' set synth CV channel 0 to x (0v to 9.9v)
+		OR
+	- [ ] Both ? 'Mxx' & 'mxy'
+
+# USER REQUESTS
+
+- [ ] Midi input
+	- [x] Midi input set velocity
+	- [ ] Midi polyphonic input
+- [x] Information / Help display (bottom left)
+	- [x] Pattern mode: Active column / cell / note effect information
+	- [x] Timeline mode: Current time & total time (in beats) 
+- [ ] Shortcuts
+	- [x] Transpose shortcut (ctrl + arrows = semitone ; maj + arrows = octave)
+	- [ ] Use num pad to enter numbers
+	- [ ] Play / pause shortcuts
+- [x] Slew limiter to panning & velocity in synth module (avoid click)
+- [x] Synth module needs CV output to be connected even with mapping
+- [ ] Polyphonic rotation rotate to find next available channel (if possible)
+- [ ] Pattern instance selection + edition
+- [ ] Auto-scroll playing timeline
+- [ ] ! ! ! Selection + multiple edition ! ! !
+- [ ] ? ? ? FX controlling pattern length ? ? ?
+
+
 
 - Glide allowing effects ?
 	-> Useful to have chance or random note / octave

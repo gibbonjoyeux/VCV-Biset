@@ -37,7 +37,7 @@ void Timeline::synth_del(Synth *synth) {
 		pattern = &(this->patterns[i]);
 		for (j = 0; j < pattern->note_count; ++j) {
 			for (k = 0; k < pattern->line_count; ++k) {
-				note = &(pattern->notes[j]->lines[k]);
+				note = &(pattern->notes[j].lines[k]);
 				if (note->synth == synth->index)
 					note->synth = 0;
 			}
@@ -82,7 +82,7 @@ void Timeline::synth_swap(Synth *synth_a, Synth *synth_b) {
 		pattern = &(this->patterns[i]);
 		for (j = 0; j < pattern->note_count; ++j) {
 			for (k = 0; k < pattern->line_count; ++k) {
-				note = &(pattern->notes[j]->lines[k]);
+				note = &(pattern->notes[j].lines[k]);
 				if (note->synth == synth_a->index)
 					note->synth = synth_b->index;
 				else if (note->synth == synth_b->index)

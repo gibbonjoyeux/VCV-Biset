@@ -1,33 +1,41 @@
 
 # Change log
 
-## 2.0.13 (work in progress)
+## 2.0.14 (canceled for now)
 
 - Tracker
 	- [ ] Extra
 		- [ ] New Fx restart pattern playhead (with chance)
-	- [ ] Fixes
-		- [ ] Fix note fx save
-		- [ ] Fix New pattern crash / populated
-		- [ ] T-Synth/T-Drum CV mapping issue
-		- [ ] T-Synth/T-Drum velocity / panning jump clicking (slew limiter)
-	- [ ] New Information Display
-		- [ ] Pattern
-			- [ ] Display column synth
-			- [ ] Display column cell (note, velo, panning, ...)
-			- [ ] Display fx help
-		- [ ] Timeline
-			- [ ] Display current time / total time (beats)
 	- [ ] Midi
-		- [ ] Record midi velocity
 		- [ ] Record polyphony
 	- [ ] Shortcuts
-		- [ ] Shortcut -/+ semitone
-		- [ ] Shortcut -/+ octave
 		- [ ] Shortcut play / pause
 - IGC
 	- [ ] Fix anti-click burst of noise (see simd)
 	- [ ] Adaptative samplerate
+
+## 2.0.13 (work in progress)
+
+- Tracker
+	- [x] Fixes
+		- [x] Fix note fx save
+		- [x] Fix New pattern crash / populated
+		- [x] T-Synth/T-Drum CV mapping issue
+		- [x] T-Synth/T-Drum velocity / panning jump clicking (slew limiter)
+	- [x] New Information Display
+		- [x] Pattern
+			- [x] Display column synth
+			- [x] Display column cell (note, velo, panning, ...)
+			- [x] Display fx help
+		- [x] Timeline
+			- [x] Display current time / total time (beats)
+	- [x] Midi
+		- [x] Record midi velocity
+	- [x] Shortcuts
+		- [x] Arrows to -/+ note semitone / octave
+		- [x] Arrows to -/+ note velo / panning / ...
+		- [x] Arrows to -/+ note fx
+		- [x] Arrows to -/+ CV
 - Omega-3 + Omega-6
 	- [x] Audiorate
 

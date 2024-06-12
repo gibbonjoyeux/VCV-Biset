@@ -33,6 +33,8 @@ struct TrackerDrum: Module {
 	bool				map_learn;
 	int					map_learn_cv;
 	int					map_learn_map;
+	float				panning[12];
+	float				velocity[12];
 
 	TrackerDrum();
 	~TrackerDrum();

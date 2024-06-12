@@ -154,7 +154,7 @@ static void save_track(json_t *root) {
 
 		/// PATTERN NOTE COLUMNS
 		for (j = 0; j < pattern->note_count; ++j) {
-			note_col = pattern->notes[j];
+			note_col = &(pattern->notes[j]);
 
 			json_col_note = json_object();
 			json_array_append_new(json_cols_note, json_col_note);
@@ -200,7 +200,7 @@ static void save_track(json_t *root) {
 					/**/ json_integer(note->glide));
 
 					json_fxs = json_array();
-					json_object_set_new(json_note, "fxs", json_fxs);
+					json_object_set_new(json_note, "effects", json_fxs);
 
 					for (l = 0; l < note_col->fx_count; ++l) {
 						if (note->effects[l].type != 0) {
@@ -208,9 +208,9 @@ static void save_track(json_t *root) {
 							json_array_append_new(json_fxs, json_fx);
 
 							json_object_set_new(json_fx, "type",	// Fx type
-							/**/ json_integer(note->effects[i].type));
+							/**/ json_integer(note->effects[l].type));
 							json_object_set_new(json_fx, "value",	// Fx value
-							/**/ json_integer(note->effects[i].value));
+							/**/ json_integer(note->effects[l].value));
 						}
 					}
 				} else if (note->mode == PATTERN_NOTE_STOP) {
@@ -249,9 +249,9 @@ static void save_track(json_t *root) {
 							json_array_append_new(json_fxs, json_fx);
 
 							json_object_set_new(json_fx, "type",	// Fx type
-							/**/ json_integer(note->effects[i].type));
+							/**/ json_integer(note->effects[l].type));
 							json_object_set_new(json_fx, "value",	// Fx value
-							/**/ json_integer(note->effects[i].value));
+							/**/ json_integer(note->effects[l].value));
 						}
 					}
 				}
@@ -263,7 +263,7 @@ static void save_track(json_t *root) {
 		json_object_set_new(json_pattern, "cvs", json_cols_cv);
 
 		for (j = 0; j < pattern->cv_count; ++j) {
-			cv_col = pattern->cvs[j];
+			cv_col = &(pattern->cvs[j]);
 
 			json_col_cv = json_object();
 			json_array_append_new(json_cols_cv, json_col_cv);
