@@ -9,6 +9,17 @@ For **question**, **bug report** or **feature request**, feel free to contact me
 by email or create a **github issue** (easier for me for report or request).
 You can see the past and comming updates on the [changelog](./CHANGELOG.md).
 
+## It's good cholesterol and Omega friends
+
+**It's good cholesterol** is a sound design sandbox. It can do a lot. Tap delay,
+reverse delay, granular, even VCO. Basically, it's a buffer that record a stereo
+input and allows you to read that buffer with multiple playhead through
+polyphonic modulation.
+
+[Igc manual](./doc/Manual-IGC.pdf)
+
+![Igc modules](./doc/Biset-Igc.png)
+
 ## VCOs
 
 **The Good, the Bad and the Ugly** and **Please kill me** are VCOs based on
