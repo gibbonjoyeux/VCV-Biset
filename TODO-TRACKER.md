@@ -8,9 +8,7 @@
 # BUGS
 
 - ! ! ! Check for 'TODO:' in files
-- ! ! ! Crash: Crash on pattern when play whole song
 - Pattern instances can have a negative `beat_start` but should not
-- Check `thread_flag` CPU usage
 
 # THINK ABOUT
 
@@ -41,11 +39,12 @@
 - [ ] Midi input
 	- [x] Midi input set velocity
 	- [ ] Midi polyphonic input
-- [ ] Information / Help display (bottom left)
-	- [ ] Pattern mode: Active column / cell / note effect information
-	- [ ] Timeline mode: Current time & total time (in beats) 
+- [x] Information / Help display (bottom left)
+	- [x] Pattern mode: Active column / cell / note effect information
+	- [x] Timeline mode: Current time & total time (in beats) 
 - [ ] Shortcuts
 	- [x] Transpose shortcut (ctrl + arrows = semitone ; maj + arrows = octave)
+	- [ ] Use num pad to enter numbers
 	- [ ] Play / pause shortcuts
 - [x] Slew limiter to panning & velocity in synth module (avoid click)
 - [x] Synth module needs CV output to be connected even with mapping
