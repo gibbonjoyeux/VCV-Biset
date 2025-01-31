@@ -3,6 +3,8 @@
 
 **Biset** sequencing / performing / vco modules.
 
+The plugin is no longer updated as I'm trying to focus on music creation. I hope you can still enjoy the modules 😄
+
 <a href='https://ko-fi.com/N4N0TVI8X' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi2.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 For **question**, **bug report** or **feature request**, feel free to contact me
