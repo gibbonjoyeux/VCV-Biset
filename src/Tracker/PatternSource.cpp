@@ -96,6 +96,7 @@ void PatternSource::resize(int note_count, int cv_count, int beat_count,
 		/// ALLOCATE CVS
 
 		/// ALLOCATE COLUMN
+		prev_size = this->cvs[i].lines.size();
 		if (i < cv_count) {
 			this->cvs[i].lines.resize(this->line_count);
 			for (j = prev_size; j < this->line_count; ++j)
