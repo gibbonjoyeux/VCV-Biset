@@ -100,6 +100,7 @@ struct Igc : Module {
 		PARAM_MIX_MOD,
 		PARAM_MODE_HD,
 		PARAM_MODE_ANTICLICK,
+		PARAM_LVL_SHAPE_SPACE,
 		PARAM_COUNT
 	};
 	enum	InputIds {

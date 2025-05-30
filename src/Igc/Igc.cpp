@@ -77,6 +77,7 @@ Igc::Igc() {
 	configParam(PARAM_LVL_SHAPE_FORCE_MOD, -1.0, 1.0, 0.0, "Global level shape force mod", "%", 0, 100);
 	configParam(PARAM_LVL_SHAPE_WAVE, 0.0, 1.0, 0.5, "Global level shape wave", "%", 0, 100);
 	configParam(PARAM_LVL_SHAPE_WAVE_MOD, -1.0, 1.0, 0.0, "Global level shape wave mod", "%", 0, 100);
+	configParam(PARAM_LVL_SHAPE_SPACE, 0.0, 1.0, 0.0, "Global level shape space", "%", 0, 100);
 
 	configInput(INPUT_L, "Left / Mono");
 	configInput(INPUT_R, "Right");
@@ -126,7 +127,7 @@ void Igc::process(const ProcessArgs& args) {
 	float		knob_speed;
 	float		knob_speed_rev;
 	float		knob_speed_slew;
-	float		knob_shape_force, knob_shape_wave;
+	float		knob_shape_force, knob_shape_wave, knob_shape_space;
 	float		knob_grain;
 	float		knob_mix_in, knob_mix_out, knob_mix;
 	float		mode_round;
@@ -204,6 +205,9 @@ void Igc::process(const ProcessArgs& args) {
 	knob_shape_wave = this->params[PARAM_LVL_SHAPE_WAVE].getValue()
 	/**/ + this->params[PARAM_LVL_SHAPE_WAVE_MOD].getValue()
 	/**/ * this->inputs[INPUT_LVL_SHAPE_WAVE].getVoltage() * 0.1;
+	knob_shape_space = this->params[PARAM_LVL_SHAPE_SPACE].getValue();
+	knob_shape_space = knob_shape_space * knob_shape_space * knob_shape_space;
+	knob_shape_space = knob_shape_space * 5.0 + 1.0;
 	knob_speed_slew = (1.0 - knob_speed_slew);
 	knob_speed_slew = knob_speed_slew * knob_speed_slew * knob_speed_slew;
 	knob_speed_slew = 0.995 + (1.0 - knob_speed_slew) * 0.0049;
@@ -496,16 +500,22 @@ void Igc::process(const ProcessArgs& args) {
 				if (phase[j] < knob_shape_wave) {
 					/// AVOID ZERO DIVISION
 					if (knob_shape_wave > 0.0001) {
-						level[j] *= 1.0 - (knob_shape_force
-						/**/ * (1.0 - (phase[j] / knob_shape_wave)));
+						level[j] *= rack::math::clamp(
+						/**/ (float)((1.0 - (knob_shape_force
+						/**/ * (1.0 - (phase[j] / knob_shape_wave))))
+						/**/ * knob_shape_space),
+						/**/ 0.0, 1.0);
 					}
 				/// WAVE DOWN
 				} else {
 					/// AVOID ZERO DIVISION
 					if (knob_shape_wave < 0.9999) {
-						level[j] *= 1.0 - knob_shape_force
+						level[j] *= rack::math::clamp(
+						/**/ (float)((1.0 - knob_shape_force
 						/**/ * ((phase[j] - knob_shape_wave)
-						/**/ / (1.0 - knob_shape_wave));
+						/**/ / (1.0 - knob_shape_wave)))
+						/**/ * knob_shape_space),
+						/**/ 0.0, 1.0);
 					}
 				}
 			}

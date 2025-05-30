@@ -220,11 +220,11 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ module,
 	/**/ Igc::PARAM_LVL_SHAPE_FORCE));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(shape_x - 5.0, shape_y + 9.0 + 6.5)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(shape_x - 6.5, shape_y + 9.0 + 6.5)),
 	/**/ module,
 	/**/ Igc::INPUT_LVL_SHAPE_FORCE));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(shape_x - 5.0, shape_y + 9.0)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(shape_x - 6.5, shape_y + 9.0)),
 	/**/ module,
 	/**/ Igc::PARAM_LVL_SHAPE_FORCE_MOD));
 	addParam(
@@ -232,13 +232,17 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ module,
 	/**/ Igc::PARAM_LVL_SHAPE_WAVE));
 	addInput(
-	/**/ createInputCentered<Outlet>(mm2px(Vec(shape_x + 5.0, shape_y + 9.0 + 6.5)),
+	/**/ createInputCentered<Outlet>(mm2px(Vec(shape_x + 6.5, shape_y + 9.0 + 6.5)),
 	/**/ module,
 	/**/ Igc::INPUT_LVL_SHAPE_WAVE));
 	addParam(
-	/**/ createParamCentered<KnobSmall>(mm2px(Vec(shape_x + 5.0, shape_y + 9.0)),
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(shape_x + 6.5, shape_y + 9.0)),
 	/**/ module,
 	/**/ Igc::PARAM_LVL_SHAPE_WAVE_MOD));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(shape_x + 0.0, shape_y + 12.5)),
+	/**/ module,
+	/**/ Igc::PARAM_LVL_SHAPE_SPACE));
 
 	addInput(
 	/**/ createInputCentered<Outlet>(mm2px(Vec(5, 98)),

@@ -40,10 +40,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6002858"
-     inkscape:cx="106.06601"
-     inkscape:cy="74.639047"
+     inkscape:cx="257.12973"
+     inkscape:cy="136.06448"
      inkscape:document-units="mm"
-     inkscape:current-layer="g69991"
+     inkscape:current-layer="layer1"
      showgrid="false"
      units="mm"
      inkscape:snap-bbox="true"
@@ -67851,10 +67851,10 @@
          inkscape:label="PARAM"
          transform="translate(60.854157,1.3229166)"><path
            style="font-variation-settings:'MONO' 1, 'wght' 400;display:inline;fill:none;fill-opacity:1;stroke:#ecae52;stroke-width:0.264583;stroke-linecap:round;stroke-miterlimit:10;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
-           d="m 0.89105973,190.02033 v 7.41101"
+           d="m -0.69644025,190.02033 v 7.41101"
            id="path448430" /><path
            style="font-variation-settings:'MONO' 1, 'wght' 400;display:inline;fill:none;fill-opacity:1;stroke:#ecae52;stroke-width:0.264583;stroke-linecap:round;stroke-miterlimit:10;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
-           d="m 10.918741,190.02033 v 7.41101"
+           d="m 12.291765,190.02033 v 7.41101"
            id="path448432" /></g></g><g
        id="g656006"
        inkscape:label="OUT"
