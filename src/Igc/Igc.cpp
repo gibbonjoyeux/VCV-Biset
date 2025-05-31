@@ -138,6 +138,7 @@ void Igc::process(const ProcessArgs& args) {
 	float		mod_lvl_1, mod_lvl_2;
 	float		mod_speed_1, mod_speed_2;
 	float		mod_grain_1, mod_grain_2;
+	float		space_remain, space_left, space_right;
 	int32_4		buffer_index_a, buffer_index_b;
 	int			buffer_length;
 	int			channels, channels_half;
@@ -210,8 +211,8 @@ void Igc::process(const ProcessArgs& args) {
 	/**/ + this->params[PARAM_LVL_SHAPE_WAVE_MOD].getValue()
 	/**/ * this->inputs[INPUT_LVL_SHAPE_WAVE].getVoltage() * 0.1;
 	knob_shape_space = this->params[PARAM_LVL_SHAPE_SPACE].getValue();
-	knob_shape_space = knob_shape_space * knob_shape_space * knob_shape_space;
-	knob_shape_space = knob_shape_space * 5.0 + 1.0;
+	//knob_shape_space = knob_shape_space * knob_shape_space * knob_shape_space;
+	//knob_shape_space = knob_shape_space * 5.0 + 1.0;
 	knob_speed_slew = (1.0 - knob_speed_slew);
 	knob_speed_slew = knob_speed_slew * knob_speed_slew * knob_speed_slew;
 	knob_speed_slew = 0.995 + (1.0 - knob_speed_slew) * 0.0049;
@@ -510,27 +511,25 @@ void Igc::process(const ProcessArgs& args) {
 		if (knob_shape_force > 0.0) {
 			if (knob_shape_force > 1.0)
 				knob_shape_force = 1.0;
+			space_remain = 1.0 - (knob_shape_space * 0.95);
+			space_left = space_remain * knob_shape_wave;
+			space_right = 1.0 - (space_remain - space_left);
 			for (j = 0; j < 4; ++j) {
 				/// WAVE UP
-				if (phase[j] < knob_shape_wave) {
-					/// AVOID ZERO DIVISION
-					if (knob_shape_wave > 0.0001) {
-						level[j] *= rack::math::clamp(
-						/**/ (float)((1.0 - (knob_shape_force
-						/**/ * (1.0 - (phase[j] / knob_shape_wave))))
-						/**/ * knob_shape_space),
-						/**/ 0.0, 1.0);
+				if (phase[j] < space_left) {
+					if (space_left > 0.0001) {
+						level[j] *= ((1.0 - knob_shape_force)
+						/**/ + knob_shape_force
+						/**/ * (float)(phase[j] / space_left));
 					}
 				/// WAVE DOWN
-				} else {
+				} else if (phase[j] > space_right) {
 					/// AVOID ZERO DIVISION
-					if (knob_shape_wave < 0.9999) {
-						level[j] *= rack::math::clamp(
-						/**/ (float)((1.0 - knob_shape_force
-						/**/ * ((phase[j] - knob_shape_wave)
-						/**/ / (1.0 - knob_shape_wave)))
-						/**/ * knob_shape_space),
-						/**/ 0.0, 1.0);
+					if (space_right < 0.9999) {
+						level[j] *= (float)((1.0 - knob_shape_force)
+						/**/ + knob_shape_force
+						/**/ * (1.0 - ((phase[j] - space_right)
+						/**/ / (1.0 - space_right))));
 					}
 				}
 			}
