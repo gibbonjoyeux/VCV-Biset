@@ -585,6 +585,13 @@ void Igc::process(const ProcessArgs& args) {
 				/// -> When close to delay buffer ending point, progressively ease
 				///    into delay buffer starting point.
 				///
+				/// [   {  -  }>  ]
+				///
+				/// . [] Total buffer
+				/// . >  Write head (moving circularily)
+				/// . {} Used buffer defined by delay length (following write head)
+				/// . -  Play head
+				///
 				if (this->audio_index > index[j]) {
 					dist = (float)buffer_length
 					/**/ - ((float)this->audio_index - index[j]);
@@ -594,6 +601,10 @@ void Igc::process(const ProcessArgs& args) {
 				}
 				if (dist < IGC_CLICK_SAFE_LENGTH) {
 					t[j] = dist / (float)IGC_CLICK_SAFE_LENGTH;
+					if (t[j] < 0.0)
+						t[j] = 0.0;
+					if (t[j] > 1.0)
+						t[j] = 1.0;
 					voice_l[j] = voice_l[j] * t[j] + in_l * (1.0 - t[j]);
 					voice_r[j] = voice_r[j] * t[j] + in_r * (1.0 - t[j]);
 				}
