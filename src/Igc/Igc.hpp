@@ -36,6 +36,7 @@ struct IgcPlayhead {
 	// index: Position (index) absolute in full buffer
 	// index_rel: Position (index) relative in full buffer (used in speed mode)
 	// level: Playhead level
+	// level_input: Store previous input controlled level value to slew it
 	// speed: Playhead speed (index)
 	// grain_phase: Position (phase) relative to writing playhead in delay buffer
 	// grain_time: Time past (seconds) in the current grain (used in grain mode)
@@ -50,6 +51,7 @@ struct IgcPlayhead {
 	float_4						index;
 	float_4						index_rel;
 	float_4						level;
+	float_4						level_input;
 	float_4						speed;
 
 	float_4						grain_phase;
@@ -101,6 +103,7 @@ struct Igc : Module {
 		PARAM_MODE_HD,
 		PARAM_MODE_ANTICLICK,
 		PARAM_LVL_SHAPE_SPACE,
+		PARAM_GRAIN_SHAPE,
 		PARAM_COUNT
 	};
 	enum	InputIds {

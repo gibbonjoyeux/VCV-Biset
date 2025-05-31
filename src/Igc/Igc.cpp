@@ -66,6 +66,7 @@ Igc::Igc() {
 	configParam(PARAM_GRAIN_MOD_1, -1.0, 1.0, 0.0, "Grain length 1 mod", "%", 0, 100);
 	configInput(INPUT_GRAIN_2, "Grain length 2");
 	configParam(PARAM_GRAIN_MOD_2, -1.0, 1.0, 0.0, "Grain length 2 mod", "%", 0, 100);
+	configParam(PARAM_GRAIN_SHAPE, 0.0, 1.0, 0.5, "Grain shape", "%", 0, 100);
 
 	configParam(PARAM_LVL, 0.0, 1.0, 1.0, "Playhead level", "%", 0, 100);
 	configInput(INPUT_LVL_1, "Playhead level 1");
@@ -102,6 +103,8 @@ Igc::Igc() {
 		this->playheads[i].index_rel = 0.0;
 		this->playheads[i].grain_phase = 0.0;
 		this->playheads[i].grain_time = 0.0;
+		this->playheads[i].level = 0.0;
+		this->playheads[i].level_input = 0.0;
 	}
 }
 
@@ -128,7 +131,7 @@ void Igc::process(const ProcessArgs& args) {
 	float		knob_speed_rev;
 	float		knob_speed_slew;
 	float		knob_shape_force, knob_shape_wave, knob_shape_space;
-	float		knob_grain;
+	float		knob_grain, knob_grain_shape;
 	float		knob_mix_in, knob_mix_out, knob_mix;
 	float		mode_round;
 	float		mod_phase_1, mod_phase_2;
@@ -191,6 +194,7 @@ void Igc::process(const ProcessArgs& args) {
 	knob_grain = this->params[PARAM_GRAIN].getValue();
 	mod_grain_1 = this->params[PARAM_GRAIN_MOD_1].getValue();
 	mod_grain_2 = this->params[PARAM_GRAIN_MOD_2].getValue();
+	knob_grain_shape = this->params[PARAM_GRAIN_SHAPE].getValue();
 
 	knob_delay = this->params[PARAM_DELAY_TIME].getValue()
 	/**/ + this->params[PARAM_DELAY_TIME_MOD].getValue()
@@ -487,9 +491,13 @@ void Igc::process(const ProcessArgs& args) {
 		/**/ + this->inputs[INPUT_LVL_2].getPolyVoltageSimd<float_4>(i * 4) * 0.1
 		/**/ * mod_lvl_2;
 		level = simd::clamp(level, 0.0, 1.0);
+		/// ZERO UNUSED LEVEL
 		for (j = 0; j < 4; ++j)
 			if (i * 4 + j >= channels)
 				level[j] = 0.0;
+		/// SLEW LEVEL (INPUT + KNOB)
+		level = playhead->level_input * 0.99 + level * 0.01;
+		playhead->level_input = level;
 
 		/// COMPUTE LEVEL SHAPE
 		if (knob_shape_force > 0.0) {
@@ -520,7 +528,9 @@ void Igc::process(const ProcessArgs& args) {
 				}
 			}
 		}
-		level = playhead->level * 0.99 + level * 0.01;
+		/// SLEW LEVEL (NECESSARY TO AVOID POPS ?)
+		/// -> SLEWED DIRECTLY AT VOLTAGE INPUT
+		//level = playhead->level * 0.99 + level * 0.01;
 		playhead->level = level;
 
 		/// COMPUTE GRAIN LEVEL
@@ -534,8 +544,9 @@ void Igc::process(const ProcessArgs& args) {
 					/**/ / (playhead->grain_length[j] / 2.0));
 				}
 			}
+			/// COMPUTE GRAIN WINDOW SHAPE
 			shape = (1.0 - shape);
-			shape = shape * shape * shape;
+			shape = simd::pow(shape, 1.0 + knob_grain_shape * 8);
 			shape = (1.0 - shape);
 			level *= shape;
 			playhead->level = level;

@@ -145,8 +145,10 @@ void IgcDisplay::drawLayer(const DrawArgs &args, int layer) {
 
 		si = i % 4;
 		playhead = &(this->module->playheads[i / 4]);
-		if (playhead->level[si] < 0.005)
+		if (playhead->level[si] < 0.005) {
+			playhead->phase_prev[si] = playhead->phase[si];
 			continue;
+		}
 
 		/// COMPUTE TRAIL
 		//// JUMP DIRECT

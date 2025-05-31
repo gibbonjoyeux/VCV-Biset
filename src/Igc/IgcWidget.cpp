@@ -193,6 +193,10 @@ IgcWidget::IgcWidget(Igc* _module) {
 	/**/ createParamCentered<KnobSmall>(mm2px(Vec(grain_x + mod_step_x, grain_y + mod_step_y)),
 	/**/ module,
 	/**/ Igc::PARAM_GRAIN_MOD_2));
+	addParam(
+	/**/ createParamCentered<KnobSmall>(mm2px(Vec(grain_x, grain_y + 12.5)),
+	/**/ module,
+	/**/ Igc::PARAM_GRAIN_SHAPE));
 
 	addParam(
 	/**/ createParamCentered<KnobMedium>(mm2px(Vec(lvl_x, lvl_y)),
