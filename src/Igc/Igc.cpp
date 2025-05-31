@@ -313,6 +313,13 @@ void Igc::process(const ProcessArgs& args) {
 	if (mode == IGC_MODE_SPEED) {
 		channels = std::max(this->inputs[INPUT_SPEED_1].getChannels(),
 		/**/ this->inputs[INPUT_SPEED_2].getChannels());
+	} else if (mode == IGC_MODE_GRAIN) {
+		channels = std::max(this->inputs[INPUT_PHASE_1].getChannels(),
+		/**/ this->inputs[INPUT_PHASE_2].getChannels());
+		channels = std::max(this->inputs[INPUT_SPEED_1].getChannels(), channels);
+		channels = std::max(this->inputs[INPUT_SPEED_2].getChannels(), channels);
+		channels = std::max(this->inputs[INPUT_GRAIN_1].getChannels(), channels);
+		channels = std::max(this->inputs[INPUT_GRAIN_2].getChannels(), channels);
 	} else {
 		channels = std::max(this->inputs[INPUT_PHASE_1].getChannels(),
 		/**/ this->inputs[INPUT_PHASE_2].getChannels());

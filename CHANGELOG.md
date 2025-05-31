@@ -11,11 +11,11 @@
 	- [ ] Shortcuts
 		- [ ] Shortcut play / pause
 - IGC
-	- [ ] Grain mode that can handle mono phase but poly speed or grain
-	- [ ] Grain shape control ?
-	- [ ] Extra shape control (so that fade in/out starts from further than center)
+	- [x] Grain mode that can handle mono phase but poly speed or grain
+	- [x] Grain shape control
+	- [x] Extra shape control (so that fade in/out starts from further than center)
+	- [x] Fix anti-click burst of noise (see simd)
 	- [ ] Freeze buffer switch (or expander)
-	- [ ] Fix anti-click burst of noise (see simd)
 	- [ ] Adaptative samplerate
 
 ## 2.0.13 (sent)
