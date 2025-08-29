@@ -1,7 +1,7 @@
 
 # Change log
 
-## 2.0.14 (canceled for now)
+## 2.0.15 (canceled for now)
 
 - Tracker
 	- [ ] Extra
@@ -11,14 +11,18 @@
 	- [ ] Shortcuts
 		- [ ] Shortcut play / pause
 - IGC
+	- [ ] Freeze buffer switch (or expander)
+	- [ ] Adaptative samplerate
+
+## 2.0.14 (Sending)
+
+- IGC
 	- [x] Grain mode that can handle mono phase but poly speed or grain
 	- [x] Grain shape control
 	- [x] Extra shape control (so that fade in/out starts from further than center)
 	- [x] Fix anti-click burst of noise (see simd)
-	- [ ] Freeze buffer switch (or expander)
-	- [ ] Adaptative samplerate
 
-## 2.0.13 (sent)
+## 2.0.13 (jun 24, 2024)
 
 - Tracker
 	- [x] Fixes
